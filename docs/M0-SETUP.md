@@ -3,7 +3,14 @@
 The code for M0 is in `web/`. These steps create or connect external accounts, so they are done by
 Alex (or by Claude with the owner's go-ahead).
 
-## 1. Railway (existing project)
+## 1. Railway (done 2026-10-17 by Claude)
+Project **household-tracker** (separate from Cat_Feeder_Tracker_V4): services `web` + `Postgres`,
+volume `web-volume` at `/rails/storage`, URL **https://web-production-143a5.up.railway.app**
+(permanent). The domain's target port is **80** (Thruster in front of Puma on 3000). Deployed with
+`railway up` from `web/`; connect the GitHub repo for auto-deploys once it's pushed.
+Spike basic auth: user `alex`, password in the `SPIKE_PASSWORD` Railway variable.
+
+Original steps, for reference:
 1. New service from this repo (or `railway up` from `web/`). **Root directory: `web`**. Builder:
    Dockerfile (`web/railway.json`).
 2. Add a **PostgreSQL** database to the project; Railway injects `DATABASE_URL` into the service

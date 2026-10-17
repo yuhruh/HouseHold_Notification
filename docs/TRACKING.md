@@ -16,7 +16,9 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |
 | VAPID keys in credentials | ☑ | never rotate casually |
-| Railway service + Postgres + Volume + env vars, permanent URL | ⏸ | see `docs/M0-SETUP.md` |
+| Railway service + Postgres + Volume + env vars, permanent URL | ☑ | project `household-tracker`, https://web-production-143a5.up.railway.app; runs as uid 1000; Solid Queue started in Puma |
+| Volume survives a redeploy | ☑ | line written by deployment 824c80aa still present after redeploy 6c0e873a |
+| GitHub repo (private) + CI | ◐ | repo created; push blocked until `gh auth refresh -s workflow` |
 | Push spike on a real Android phone → ADR 0003 | ⏸ | |
 | Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
 

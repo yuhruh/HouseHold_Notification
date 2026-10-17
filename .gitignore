@@ -1,0 +1,17 @@
+# Secrets
+/config/master.key
+/config/credentials/*.key
+.env*
+
+# Rails runtime
+/log/*
+/tmp/*
+/storage/*
+!/log/.keep
+!/tmp/.keep
+!/storage/.keep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

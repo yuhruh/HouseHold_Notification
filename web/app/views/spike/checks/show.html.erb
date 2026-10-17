@@ -1,0 +1,27 @@
+<% content_for :title, "M0 checks" %>
+<div class="w-full max-w-2xl space-y-8">
+  <h1 class="text-2xl font-bold">M0 checks</h1>
+  <% if notice %><p class="rounded bg-green-50 p-3 text-green-800"><%= notice %></p><% end %>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">1. Railway Volume</h2>
+    <p>Write a line, redeploy, and reload: earlier lines must still be listed. Process uid: <%= Process.uid %></p>
+    <%= button_to "Write to volume", spike_write_volume_path, class: "rounded bg-blue-600 px-3 py-2 text-white" %>
+    <pre class="overflow-x-auto rounded bg-gray-100 p-3 text-xs"><%= @volume_history.join.presence || "(no lines yet)" %></pre>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">2. Sentry</h2>
+    <%= button_to "Raise a test exception", spike_raise_error_path, class: "rounded bg-red-600 px-3 py-2 text-white" %>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">3. Gmail API email</h2>
+    <%= form_with url: spike_send_email_path, class: "flex gap-2" do |f| %>
+      <%= f.email_field :to, required: true, placeholder: "family@gmail.com", class: "flex-1 rounded border px-2" %>
+      <%= f.submit "Send test email", class: "rounded bg-blue-600 px-3 py-2 text-white" %>
+    <% end %>
+  </section>
+
+  <p><%= link_to "→ Push spike", spike_push_path, class: "text-blue-700 underline" %></p>
+</div>

@@ -1,0 +1,50 @@
+<% content_for :title, "Push spike" %>
+<div class="w-full max-w-3xl space-y-6" data-controller="spike-push" data-spike-push-vapid-public-key-value="<%= @vapid_public_key %>">
+  <h1 class="text-2xl font-bold">Web Push spike</h1>
+  <% if notice %><p class="rounded bg-green-50 p-3 text-green-800"><%= notice %></p><% end %>
+  <% if @vapid_public_key.blank? %>
+    <p class="rounded bg-red-50 p-3 text-red-800">VAPID keys are not configured (see docs/M0-SETUP.md).</p>
+  <% end %>
+
+  <ol class="list-decimal space-y-1 pl-5 text-sm">
+    <li>On the Android phone, open this page in Chrome and install the app (menu → Install app).</li>
+    <li>Open the installed app and tap <strong>Enable notifications</strong>.</li>
+    <li>Queue a push "in 10 min", close the app, turn the screen off (battery saver on). Repeat overnight with 8 h.</li>
+    <li>Rows below show when Google accepted the push and when the phone confirmed it.</li>
+  </ol>
+
+  <div class="flex flex-wrap gap-2">
+    <button data-action="spike-push#subscribe" class="rounded bg-blue-600 px-3 py-2 text-white">Enable notifications</button>
+    <span data-spike-push-target="status" class="self-center text-sm text-gray-600"></span>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    <% [ [ 0, "Send now" ], [ 10, "In 10 min" ], [ 60, "In 1 h" ], [ 480, "In 8 h (overnight)" ] ].each do |minutes, label| %>
+      <%= button_to label, spike_push_sends_path(delay_minutes: minutes), class: "rounded bg-gray-800 px-3 py-2 text-white" %>
+    <% end %>
+  </div>
+
+  <h2 class="text-lg font-semibold">Subscriptions (<%= @subscriptions.size %>)</h2>
+  <ul class="text-xs text-gray-700">
+    <% @subscriptions.each do |s| %><li><%= s.user_agent.to_s.truncate(90) %> · <%= s.created_at %></li><% end %>
+  </ul>
+
+  <h2 class="text-lg font-semibold">Sends</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-xs">
+      <thead><tr class="text-left"><th>Scheduled</th><th>Sent</th><th>HTTP</th><th>Received</th><th>Latency</th><th>Error</th></tr></thead>
+      <tbody>
+        <% @sends.each do |s| %>
+          <tr class="border-t">
+            <td><%= s.scheduled_for.in_time_zone("Asia/Taipei").strftime("%m-%d %H:%M") %></td>
+            <td><%= s.sent_at&.in_time_zone("Asia/Taipei")&.strftime("%H:%M:%S") %></td>
+            <td><%= s.http_status %></td>
+            <td><%= s.received_at&.in_time_zone("Asia/Taipei")&.strftime("%m-%d %H:%M:%S") || "—" %></td>
+            <td><%= s.latency&.round(1) %><%= "s" if s.latency %></td>
+            <td><%= s.error %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

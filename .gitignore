@@ -1,17 +1,29 @@
-# Secrets
-/config/master.key
-/config/credentials/*.key
+# Secrets (never commit; master key lives in the password manager + Railway env)
+**/config/master.key
+**/config/credentials/*.key
 .env*
 
-# Rails runtime
-/log/*
-/tmp/*
-/storage/*
-!/log/.keep
-!/tmp/.keep
-!/storage/.keep
+# Rails app (web/)
+/web/.bundle
+/web/log/*
+/web/tmp/*
+/web/storage/*
+!/web/log/.keep
+!/web/tmp/.keep
+!/web/tmp/pids/
+/web/tmp/pids/*
+!/web/tmp/pids/.keep
+!/web/storage/.keep
+/web/public/assets
+/web/app/assets/builds/*
+!/web/app/assets/builds/.keep
+/web/node_modules
 
 # OS / editor
 .DS_Store
 .idea/
 .vscode/
+
+# Real sheet exports contain household data; only test fixtures are tracked
+*.csv
+!/web/test/fixtures/files/*.csv

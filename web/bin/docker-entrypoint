@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+# Railway mounts the volume at /rails/storage owned by root. Fix ownership, then
+# re-exec this script as the unprivileged rails user (uid 1000).
+if [ "$(id -u)" = "0" ]; then
+  mkdir -p /rails/storage
+  chown -R 1000:1000 /rails/storage
+  exec setpriv --reuid=1000 --regid=1000 --init-groups "$0" "$@"
+fi
+
+# If running the rails server then create or migrate existing database
+if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  ./bin/rails db:prepare
+fi
+
+exec "${@}"

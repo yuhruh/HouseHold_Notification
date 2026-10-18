@@ -1,0 +1,12 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-sm space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <%= form_with url: password_path(params[:token]), method: :put, class: "space-y-4" do |form| %>
+    <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>
+    <%= form.password_field :password, required: true, autocomplete: "new-password", minlength: 8, maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.label :password_confirmation, t("activerecord.attributes.user.password_confirmation"), class: "block text-sm font-medium" %>
+    <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.submit t(".submit"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+  <% end %>
+</div>

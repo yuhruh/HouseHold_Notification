@@ -35,6 +35,14 @@ Exit criteria: app live on Railway; volume file survives a redeploy; CI green; p
 the app closed/screen off (ADR 0003); Gmail API test email arrives; Sentry receives the test
 exception; dry-run #1 report logged below.
 
+## M1: Auth, household, account lifecycle
+
+| Task | Status | Notes |
+|---|---|---|
+| M1a: Rails 8 auth generator + confirmation (verified-only `email_address`), password reset, Google (`Auth::IdentityResolver`, `auth_handoffs`), 1-year sliding sessions, time zone + zh-TW/en, daily cleanup job | ◐ | branch `m1-auth`, PR open; replaces `/spike/google` |
+| M1b: households, roles, invitations, household-scoped routing + switcher, onboarding, Pundit | ☐ | |
+| M1c: My Account, Household settings, ownership transfer, account/household deletion, emailed re-auth code | ☐ | |
+
 ## Sheet cleanup log
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |

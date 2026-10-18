@@ -2,6 +2,7 @@ module Spike
   # M0 spike pages. Protected by HTTP basic auth (SPIKE_USER / SPIKE_PASSWORD).
   # In production they are 404 unless both variables are set; removed after M5.
   class BaseController < ApplicationController
+    allow_unauthenticated_access
     before_action :require_spike_access
 
     private

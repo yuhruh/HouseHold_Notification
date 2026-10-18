@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+  # Auth (PRD §10)
+  resource :session
+  resources :passwords, param: :token
+  resource :registration, only: %i[new create]
+  resources :email_confirmations, only: %i[show new create], param: :token
+  post "auth/google" => "auth_handoffs#create", as: :google_sign_in
+  get "auth/google_oauth2/callback" => "omniauth_callbacks#create"
+  get "auth/failure" => "omniauth_callbacks#failure"
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -17,11 +26,7 @@ Rails.application.routes.draw do
     post "checks/error" => "checks#raise_error", as: :raise_error
     post "checks/email" => "checks#send_email", as: :send_email
     get "charts" => "charts#show"
-    get "google" => "google#show"
-    post "google/start" => "google#start", as: :google_start
   end
-  # Path registered as the OAuth redirect URI in the sign-in GCP project (omniauth's default in M1)
-  get "auth/google_oauth2/callback" => "spike/google#callback"
 
   get "privacy" => "pages#privacy"
   root "pages#home"

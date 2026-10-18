@@ -1,0 +1,5 @@
+<%= t(".body", minutes: (@user.password_reset_token_expires_in / 60).to_i) %>
+
+<%= edit_password_url(@user.password_reset_token) %>
+
+<%= t("auth_mailer.ignore") %>

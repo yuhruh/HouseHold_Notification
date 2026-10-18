@@ -1,0 +1,87 @@
+zh-TW:
+  activerecord:
+    attributes:
+      user:
+        display_name: "名稱"
+        unconfirmed_email: "電子郵件"
+        email_address: "電子郵件"
+        password: "密碼"
+        password_confirmation: "確認密碼"
+  auth:
+    continue_with_google: "使用 Google 繼續"
+    or: "或"
+    email: "電子郵件"
+    password: "密碼"
+    rate_limited: "嘗試次數過多，請稍候幾分鐘再試。"
+  sessions:
+    new:
+      title: "登入"
+      submit: "登入"
+      forgot_password: "忘記密碼？"
+      sign_up: "第一次使用？建立帳號"
+      resend_confirmation: "沒收到確認信？"
+    create:
+      invalid: "電子郵件或密碼錯誤。"
+  registrations:
+    new:
+      title: "建立帳號"
+      submit: "建立帳號"
+      sign_in: "已經有帳號？登入"
+    check_email:
+      title: "請查看電子郵件"
+      body: "我們已寄信到你輸入的地址，請打開信中的連結完成註冊。"
+      spam_hint: "可能需要一分鐘。如果收件匣沒有，請查看垃圾郵件。"
+  email_confirmations:
+    show:
+      invalid_link: "確認連結無效或已過期，請在下方重新寄送。"
+      taken: "這個電子郵件已被其他帳號使用。"
+      confirmed: "電子郵件已確認，歡迎！"
+    new:
+      title: "重新寄送確認信"
+      submit: "寄送"
+    create:
+      sent: "如果這個地址正在等待確認，我們已寄出新的連結。"
+  passwords:
+    invalid_link: "重設密碼連結無效或已過期。"
+    new:
+      title: "忘記密碼？"
+      hint: "輸入電子郵件，我們會寄送設定新密碼的連結。如果你是用 Google 註冊的，也可以用這個方式新增密碼。"
+      submit: "寄送連結"
+    create:
+      sent: "如果有帳號使用這個地址，我們已寄出重設連結。"
+    edit:
+      title: "設定新密碼"
+      submit: "儲存密碼"
+    update:
+      updated: "密碼已儲存，請重新登入。"
+  omniauth_callbacks:
+    create:
+      expired: "Google 登入花太久時間，請再試一次。"
+      unverified_email: "請先驗證你的 Google 電子郵件。"
+      conflict: "這個 Google 帳號已連結到其他帳號。"
+      signed_in: "已使用 Google 登入。"
+      linked: "已將 Google 連結到你的帳號。"
+      created: "歡迎！已使用 Google 建立帳號。"
+    failure:
+      failed: "Google 登入已取消或失敗，請再試一次。"
+  auth_mailer:
+    ignore: "如果這不是你本人的操作，可以忽略這封信。"
+    email_confirmation:
+      subject: "確認你在家庭支出的電子郵件"
+      body: "請打開這個連結確認電子郵件並完成註冊，連結 24 小時內有效。"
+    already_registered:
+      subject: "你已經有家庭支出的帳號"
+      body: "有人（可能是你）想用這個地址註冊，但這個地址已經有帳號了。"
+      sign_in: "登入："
+      reset: "忘記密碼？重設密碼："
+  passwords_mailer:
+    reset:
+      subject: "重設你在家庭支出的密碼"
+      body: "請打開這個連結設定新密碼，連結 %{minutes} 分鐘內有效。"
+  pages:
+    home:
+      signed_in_as: "已登入：%{name}"
+      households_coming: "家庭與帳單功能即將推出。"
+      sign_out: "登出"
+      sign_in: "登入"
+      sign_up: "建立帳號"

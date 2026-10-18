@@ -10,9 +10,50 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_000010) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "auth_handoffs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "purpose", default: "sign_in", null: false
+    t.string "time_zone", null: false
+    t.string "return_to"
+    t.string "nonce_digest"
+    t.bigint "user_id"
+    t.datetime "requested_at", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_auth_handoffs_on_expires_at"
+    t.index ["user_id"], name: "index_auth_handoffs_on_user_id"
+  end
+
+  create_table "identities", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.string "email"
+    t.jsonb "raw_info", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
+    t.index ["user_id", "provider"], name: "index_identities_on_user_id_and_provider", unique: true
+    t.index ["user_id"], name: "index_identities_on_user_id"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "last_seen_at", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_sessions_on_expires_at"
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
 
   create_table "solid_cable_messages", force: :cascade do |t|
     t.binary "channel", null: false
@@ -208,6 +249,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_000010) do
     t.index ["endpoint"], name: "index_spike_push_subscriptions_on_endpoint", unique: true
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email_address"
+    t.string "unconfirmed_email"
+    t.datetime "email_confirmed_at"
+    t.string "password_digest"
+    t.string "display_name"
+    t.string "locale"
+    t.string "time_zone", default: "Asia/Taipei", null: false
+    t.integer "reminder_hour", default: 8, null: false
+    t.boolean "push_show_amounts", default: true, null: false
+    t.bigint "last_household_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true, where: "(email_address IS NOT NULL)"
+    t.index ["unconfirmed_email"], name: "index_users_on_unconfirmed_email"
+  end
+
+  add_foreign_key "auth_handoffs", "users", on_delete: :cascade
+  add_foreign_key "identities", "users"
+  add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

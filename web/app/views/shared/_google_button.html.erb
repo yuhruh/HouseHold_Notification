@@ -1,0 +1,8 @@
+<%# POST with CSRF token; Turbo off because the flow leaves the site (PRD §10). The session-wide token
+    (not Rails' per-form one) because AuthHandoffsController re-POSTs this body to /auth/google_oauth2. %>
+<%= form_with url: google_sign_in_path, authenticity_token: false, data: { turbo: false, controller: "timezone" } do |form| %>
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token, id: nil %>
+  <%= form.hidden_field :tz, data: { timezone_target: "field" } %>
+  <%= form.hidden_field :return_to, value: local_assigns[:return_to] %>
+  <%= form.button t("auth.continue_with_google"), class: "w-full rounded-md border border-gray-400 bg-white px-3.5 py-2.5 font-medium text-gray-800 hover:bg-gray-50" %>
+<% end %>

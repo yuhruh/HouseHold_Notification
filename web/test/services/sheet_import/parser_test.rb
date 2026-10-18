@@ -13,6 +13,20 @@ class SheetImport::ParserTest < ActiveSupport::TestCase
     assert_equal 12, @result.rows.size
   end
 
+  test "reads the sheet's Total cell above the header" do
+    assert_equal BigDecimal("300000"), @result.sheet_total
+  end
+
+  test "dry-run report compares the sheet Total with Paid" do
+    report = SheetImport::DryRunReport.new(@result, today: Date.new(2026, 10, 18)).to_s
+    # The fixture is a 12-row excerpt, so its Paid can't reach the full sheet's Total.
+    assert_includes report, "Sheet Total 300000 ≠ Paid 74527 (difference 225473)"
+
+    csv = file_fixture("sheet_sample.csv").read.sub('"300,000"', '"74,527"')
+    matching = SheetImport::Parser.new(csv, today: Date.new(2026, 10, 18)).call
+    assert_includes SheetImport::DryRunReport.new(matching, today: Date.new(2026, 10, 18)).to_s, "Sheet Total 74527 = Paid ✓"
+  end
+
   test "✅ rule: complete Expense/Tax rows are paid" do
     assert_equal :paid, row(78).status
     assert_equal BigDecimal("680"), row(78).paid

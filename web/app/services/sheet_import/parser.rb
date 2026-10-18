@@ -21,7 +21,7 @@ module SheetImport
       def next_due_on = latest&.next_due_on
     end
 
-    Result = Struct.new(:file_errors, :rows, :id_reassignments, :chains, keyword_init: true) do
+    Result = Struct.new(:file_errors, :rows, :id_reassignments, :chains, :sheet_total, keyword_init: true) do
       def error_rows = rows.select { |r| r.errors.any? }
       def warning_rows = rows.select { |r| r.warnings.any? }
       def ok? = file_errors.empty? && error_rows.empty?
@@ -45,10 +45,25 @@ module SheetImport
         parse_row(cells, index + 1, columns)
       end
 
-      Result.new(file_errors: [], rows: rows, id_reassignments: reassign_ids(rows), chains: build_chains(rows))
+      Result.new(file_errors: [], rows: rows, id_reassignments: reassign_ids(rows), chains: build_chains(rows),
+        sheet_total: sheet_total(table.first(header_index)))
     end
 
     private
+
+    # The summary rows above the header end with "Total | <sum of Paid>".
+    def sheet_total(summary_rows)
+      summary_rows.each do |cells|
+        index = cells.index { |c| c.to_s.strip.casecmp?("total") }
+        next unless index
+
+        amount, = AmountParser.parse(cells[index + 1])
+        return amount
+      rescue AmountParser::ParseError
+        return nil
+      end
+      nil
+    end
 
     def header_row?(cells)
       names = cells.map { |c| c.to_s.strip.downcase }

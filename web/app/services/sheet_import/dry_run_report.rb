@@ -43,9 +43,18 @@ module SheetImport
         out << "  #{chain.category} · #{chain.details_key.presence || '(no room)'} · #{chain.rows.size} rows · #{state}"
       end
 
-      out.push("", "TOTALS of rows without errors (compare with the sheet header formula, e.g. 300,000):")
-      r.rows.reject { |row| row.errors.any? }.group_by(&:currency).each do |currency, rows|
+      out.push("", "TOTALS of rows without errors:")
+      clean = r.rows.reject { |row| row.errors.any? }
+      clean.group_by(&:currency).each do |currency, rows|
         out << "  #{currency}: Required #{sum(rows, :required)} · Paid #{sum(rows, :paid)}"
+      end
+      if r.sheet_total
+        paid = clean.sum { |row| row.paid || 0 }
+        out << if paid == r.sheet_total
+          "  Sheet Total #{format_amount(r.sheet_total)} = Paid ✓"
+        else
+          "  Sheet Total #{format_amount(r.sheet_total)} ≠ Paid #{format_amount(paid)} (difference #{format_amount(r.sheet_total - paid)})"
+        end
       end
       out.join("\n")
     end
@@ -65,6 +74,7 @@ module SheetImport
     # Group messages by shape: strip quoted values and numbers.
     def generalize(message) = message.gsub(/"[^"]*"/, '"…"').gsub(/\d[\d,.\-\/]*/, "N")
 
-    def sum(rows, field) = rows.sum { |row| row[field] || 0 }.to_s("F").delete_suffix(".0")
+    def sum(rows, field) = format_amount(rows.sum { |row| row[field] || 0 })
+    def format_amount(amount) = amount.to_d.to_s("F").delete_suffix(".0")
   end
 end

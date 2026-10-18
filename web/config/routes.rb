@@ -17,7 +17,11 @@ Rails.application.routes.draw do
     post "checks/error" => "checks#raise_error", as: :raise_error
     post "checks/email" => "checks#send_email", as: :send_email
     get "charts" => "charts#show"
+    get "google" => "google#show"
+    post "google/start" => "google#start", as: :google_start
   end
+  # Path registered as the OAuth redirect URI in the sign-in GCP project (omniauth's default in M1)
+  get "auth/google_oauth2/callback" => "spike/google#callback"
 
   get "privacy" => "pages#privacy"
   root "pages#home"

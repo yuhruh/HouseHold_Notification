@@ -11,7 +11,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | Solid Queue/Cache/Cable on the single Postgres | ☑ | `db/migrate/*_create_solid_*`; verify a job runs on Railway |
 | Docker entrypoint: chown Railway Volume, drop to uid 1000 | ☑ | verify on Railway |
 | CI at repo root (`working-directory: web`) | ☑ | green on main |
-| Sentry initializer (`SENTRY_DSN`) | ◐ | ⏸ needs Sentry project DSN |
+| Sentry initializer (`SENTRY_DSN`) | ☑ | project `household-tracker/household-tracker-web` (EU ingest); `SENTRY_DSN` set on Railway; test exception arrived as HOUSEHOLD-TRACKER-WEB-1; default "high priority issues" alert emails Alex |
 | Gmail API delivery method + `bin/rails gmail:authorize` | ◐ | ⏸ needs sender Gmail + GCP project ("In production") |
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |

@@ -1,0 +1,11 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-md space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p class="text-gray-700"><%= t(".explain", name: Current.household.name) %></p>
+  <%= form_with url: household_deletion_path(Current.household), class: "space-y-4" do |form| %>
+    <%= form.label :confirm_name, t("account.deletions.show.type_name", name: Current.household.name), class: "block text-sm font-medium" %>
+    <%= form.text_field :confirm_name, required: true, autocomplete: "off", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.submit t(".submit"), class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500" %>
+  <% end %>
+</div>

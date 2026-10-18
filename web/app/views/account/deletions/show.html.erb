@@ -1,0 +1,34 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-xl space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p><%= t(".explain") %></p>
+  <ul class="list-disc space-y-1 pl-6 text-sm text-gray-700">
+    <li><%= t(".removes") %></li>
+    <li><%= t(".owner_rule") %></li>
+    <li><%= t(".backups") %></li>
+  </ul>
+
+  <% if authenticated? %>
+    <% if @blocking.any? %>
+      <div class="space-y-2 rounded-lg bg-amber-50 p-4 text-sm">
+        <p class="font-medium"><%= t(".blocked_heading") %></p>
+        <% @blocking.each do |h| %>
+          <p><%= h.name %>:
+            <%= link_to t(".transfer"), new_household_ownership_transfer_path(h), class: "underline" %> ·
+            <%= link_to t(".delete_household"), new_household_deletion_path(h), class: "underline" %></p>
+        <% end %>
+      </div>
+    <% else %>
+      <%= form_with url: account_deletion_path, class: "space-y-4" do |form| %>
+        <% @sole.each do |h| %>
+          <%= label_tag "confirm_#{h.id}", t(".type_name", name: h.name), class: "block text-sm font-medium" %>
+          <%= text_field_tag "confirm[#{h.id}]", nil, id: "confirm_#{h.id}", required: true, autocomplete: "off", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <% end %>
+        <%= form.submit t(".delete"), class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500", data: { turbo_confirm: t(".final_confirm") } %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p><%= link_to t(".sign_in_first"), new_session_path, class: "text-blue-700 underline" %></p>
+  <% end %>
+</div>

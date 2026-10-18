@@ -1,0 +1,21 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-sm space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p class="text-gray-700"><%= t(".why", action: t("reauth_purposes.#{@purpose}")) %></p>
+
+  <% if Current.user.password_set? %>
+    <%= form_with url: reauthentication_path, class: "space-y-4" do |form| %>
+      <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>
+      <%= form.password_field :password, required: true, autofocus: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.submit t(".confirm"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <% end %>
+  <% else %>
+    <%= button_to t(".send_code", email: Current.user.email_address), code_reauthentication_path, class: "w-full cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+    <%= form_with url: reauthentication_path, class: "space-y-4" do |form| %>
+      <%= form.label :code, t(".code"), class: "block text-sm font-medium" %>
+      <%= form.text_field :code, required: true, inputmode: "numeric", autocomplete: "one-time-code", pattern: "[0-9]{6}", maxlength: 6, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 tracking-widest" %>
+      <%= form.submit t(".confirm"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <% end %>
+  <% end %>
+</div>

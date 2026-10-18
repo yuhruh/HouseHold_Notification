@@ -11,4 +11,16 @@ class AuthMailer < ApplicationMailer
     @user = params[:user]
     mail to: @user.email_address, subject: t(".subject")
   end
+
+  # To the old address when an email change is requested
+  def email_change_notice
+    @user = params[:user]
+    mail to: params[:old_email], subject: t(".subject")
+  end
+
+  def reauth_code
+    @code = params[:code]
+    @action = t("reauth_purposes.#{params[:purpose]}")
+    mail to: params[:user].email_address, subject: t(".subject", code: @code)
+  end
 end

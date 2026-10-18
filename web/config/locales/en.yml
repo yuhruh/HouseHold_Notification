@@ -10,6 +10,7 @@ en:
       household:
         name: "Household name"
         default_currency: "Default currency"
+        reminder_lead_days: "Reminder lead days"
       invitation:
         role: "Role"
   auth:
@@ -79,6 +80,14 @@ en:
       body: "Someone (probably you) tried to sign up with this address, but it already has an account."
       sign_in: "Sign in:"
       reset: "Forgot your password? Reset it:"
+    email_change_notice:
+      subject: "Your 家庭支出 email is being changed"
+      body: "Someone asked to change your 家庭支出 email to %{email}. It changes only after that address is confirmed."
+      not_you: "If this wasn't you, sign in and cancel the change, then change your password."
+    reauth_code:
+      subject: "Your 家庭支出 code: %{code}"
+      body: "Use this code to %{action}. It works for 10 minutes."
+      warning: "If you didn't try to do this, don't share the code and change your password."
   passwords_mailer:
     reset:
       subject: "Reset your 家庭支出 password"
@@ -96,6 +105,8 @@ en:
     viewer: "Viewer"
   layouts:
     header:
+      settings: "Settings"
+      account: "My account"
       switch: "Switch household"
       invitations:
         one: "1 invitation"
@@ -131,6 +142,8 @@ en:
       expiry_never: "Never"
       custom_date: "Date (for “On a date”)"
       send: "Send invitation"
+      remove: "Remove"
+      remove_confirm: "Remove this member from the household?"
   household_invitations:
     create:
       sent: "Invitation sent to %{email}."
@@ -169,3 +182,147 @@ en:
       expires: "The invitation expires on %{date}."
       never_expires: "The invitation doesn't expire."
       match_hint: "Sign in or sign up with %{email}; the invitation only works for that address."
+  reauth_purposes:
+    delete_account: "delete your account"
+    change_email: "change your email"
+    disconnect_google: "disconnect Google"
+    transfer_ownership: "transfer household ownership"
+    delete_household: "delete a household"
+  reauthentications:
+    show:
+      title: "Confirm it's you"
+      why: "To %{action}, confirm it's you first."
+      confirm: "Confirm"
+      send_code: "Email a code to %{email}"
+      code: "6-digit code"
+    create:
+      invalid: "That didn't match. Try again."
+    code:
+      sent: "We emailed a code to %{email}. It works for 10 minutes."
+  accounts:
+    show:
+      title: "My account"
+      profile: "Profile"
+      locale: "Language"
+      locale_auto: "Same as the browser"
+      time_zone: "Time zone"
+      reminder_hour: "Reminder time"
+      save: "Save"
+      email: "Email"
+      pending_email: "Waiting for confirmation: %{email}"
+      resend: "Resend"
+      cancel: "Cancel"
+      new_email: "New email"
+      current_password: "Current password"
+      change_email: "Change email"
+      password: "Password"
+      new_password: "New password"
+      change_password: "Change password"
+      no_password: "You sign in with Google and have no password."
+      set_password: "Email me a link to set a password"
+      sign_in_methods: "Sign-in methods"
+      google_connected: "Google connected (%{email})"
+      disconnect_google: "Disconnect Google"
+      last_method: "Google is your only sign-in method; set a password before disconnecting it."
+      sessions: "Signed-in devices"
+      last_seen: "Last seen %{time}"
+      this_device: "this device"
+      sign_out_others: "Sign out all other devices"
+      households: "Households"
+      leave: "Leave"
+      leave_confirm: "Leave %{household}? You'll need a new invitation to come back."
+      danger_zone: "Danger zone"
+      delete_account: "Delete my account"
+    update:
+      saved: "Saved."
+  account:
+    emails:
+      update:
+        wrong_password: "Your current password is incorrect."
+        same: "That's already your email."
+        pending: "We sent a confirmation link to %{email}. Your email changes when you open it."
+      resend:
+        resent: "Confirmation link sent again."
+      destroy:
+        cancelled: "Email change cancelled."
+    passwords:
+      update:
+        wrong_password: "Your current password is incorrect."
+        changed: "Password changed. Other devices were signed out."
+    sessions:
+      destroy:
+        done: "Other devices were signed out."
+    google_identities:
+      destroy:
+        last_method: "You can't remove your last sign-in method."
+        disconnected: "Google disconnected."
+    deletions:
+      show:
+        title: "Delete your account"
+        explain: "Deleting your account is permanent."
+        removes: "Your profile, sign-in methods and devices are removed, and you leave every household. Bills you added stay in the household, shown as added by a former member."
+        owner_rule: "If you own a household with other members, transfer ownership or delete the household first. A household where you're the only member is deleted with your account."
+        backups: "Encrypted backups expire within 4 weeks."
+        blocked_heading: "First, for each household you own that has other members:"
+        transfer: "Transfer ownership"
+        delete_household: "Delete household"
+        type_name: "Type the household name to confirm: %{name}"
+        delete: "Delete my account"
+        final_confirm: "Delete your account permanently?"
+        sign_in_first: "Sign in to delete your account"
+      create:
+        blocked: "Your account can't be deleted yet; see below."
+        deleted: "Your account was deleted."
+  household_settings:
+    show:
+      title: "Household settings"
+      lead_days_hint: "How many days before the due date the due-soon reminder is sent (0–30)."
+      save: "Save"
+      transfer: "Transfer ownership"
+      delete: "Delete household"
+      activity: "Activity"
+      former_member: "Former member"
+    update:
+      saved: "Household settings saved."
+  memberships:
+    update:
+      updated: "Role changed."
+    destroy:
+      removed: "Member removed."
+    leave:
+      owner_cannot_leave: "The owner can't leave; transfer ownership first."
+      left: "You left %{household}."
+  ownership_transfers:
+    new:
+      title: "Transfer ownership"
+      explain: "The new owner gets full control. You become a co-owner."
+      no_members: "Invite someone first; there's nobody to transfer to."
+      submit: "Transfer"
+      confirm: "Transfer ownership now?"
+    create:
+      done: "%{name} is now the owner."
+  household_deletions:
+    new:
+      title: "Delete household"
+      explain: "This deletes %{name} and everything in it for every member. It can't be undone."
+      submit: "Delete household"
+    create:
+      name_mismatch: "The name didn't match."
+      deleted: "%{name} was deleted."
+  security_events:
+    email_change_requested: "Email change requested"
+    password_changed: "Password changed"
+    google_connected: "Google connected"
+    google_disconnected: "Google disconnected"
+    sessions_revoked: "Other devices signed out"
+    household_updated: "Household settings changed"
+    role_changed: "Member role changed"
+    member_removed: "Member removed"
+    member_left: "Member left"
+    ownership_transferred: "Ownership transferred"
+    household_deleted: "Household deleted"
+    account_deleted: "Account deleted"
+  account_mailer:
+    deleted:
+      subject: "Your 家庭支出 account was deleted"
+      body: "Your 家庭支出 account was deleted. If you didn't do this, reply to this email."

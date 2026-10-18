@@ -1,6 +1,6 @@
 # ADR 0005: M0 external checks (X1–X10)
 
-- Status: In progress (2026-10). X1, X2, X4, X5, X6, X7 and X10 are settled; X8 is running; X3 waits on the owner's go-ahead and X9 on the family phones.
+- Status: In progress (2026-10). X1–X7 and X10 are settled; X8 is running; X9 waits on the family phones.
 - Context: the PRD relies on behaviour of outside services and packages. Each check is verified for
   real in M0 and recorded here with its result and, when it fails, the fallback chosen (PRD →
   "M0 external checks").
@@ -9,7 +9,7 @@
 |---|---|---|---|
 | X1 | Google re-auth (`prompt=login`, `max_age=0`, `auth_time`) | ❌ → fallback | emailed 6-digit code; see below |
 | X2 | `*.up.railway.app` as permanent URL in both GCP projects | ✅ | see below |
-| X3 | Railway volume backups + restore into a scratch environment | ⏸ | changes plan/production settings: needs the owner's go-ahead |
+| X3 | Railway volume backups + restore into a scratch environment | ❌ → fallback | app-made backups, encrypted weekly email; see below |
 | X4 | Image `pg_dump` major = Railway Postgres major | ❌ → fixed, ✅ | see below |
 | X5 | HEIC decodes in the image | ✅ | see below |
 | X6 | ECharts via importmap as one vendored file | ❌ → fallback, ✅ | see below |
@@ -92,3 +92,17 @@
 - Verified: a second Google account with no role in the project and not a test user
   (`family.member@gmail.com`) signed in on `/spike/google` and got a verified ID token, with no
   "Access blocked" screen. A real family member's account is exercised again in M1.
+
+## X3: Railway volume backups (2026-10-18)
+- Found: the project is on the **Hobby** plan. The Postgres Backups tab says "Upgrade to Pro to create
+  new backups, set up automated schedules, or enable point-in-time recovery". Railway's docs also say
+  a backup restores only into the same project and environment (a new volume replaces the mounted
+  one), so the "restore into a scratch environment" half could not pass on any plan.
+- Decision (Alex, the PRD fallback): stay on Hobby. The weekly `BackupJob` (M2) writes a `pg_dump`
+  to the volume (keep 4) **and emails it to Alex encrypted** (`openssl enc -aes-256-cbc -pbkdf2`,
+  passphrase in credentials and the household password manager) through the Gmail sender: an
+  off-Railway copy every week, which Pro's in-Railway backups would not give. Photos: monthly
+  download (`bin/download-photos`). The M2 restore drill restores the decrypted dump into a scratch
+  environment. PRD → Backups, M2 and the backup tests are updated.
+- Accepted risks: photos since the last monthly download live only on the Railway volume; the backup
+  email depends on the Gmail sender (X8); losing the passphrase makes every emailed copy unreadable.

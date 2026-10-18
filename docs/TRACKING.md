@@ -27,7 +27,8 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X2 Railway URL as permanent OAuth host | ☑ | both GCP projects accept it; Google sign-in works on `/spike/google` (ADR 0005) |
 | X1 Google forced re-auth | ☑ | failed (no password prompt, no `auth_time`); fallback adopted: emailed 6-digit code, PRD §13/§15 updated (ADR 0005) |
 | X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
-| X3 backups, X9 family phones | ⏸ | backups need the owner's go-ahead; X9 with the push spike (ADR 0003) |
+| X3 Railway backups | ☑ | failed (Hobby plan can't create backups); fallback: weekly encrypted `pg_dump` emailed to Alex + monthly photo download, built in M2 (ADR 0005) |
+| X9 push on every family phone | ⏸ | push spike on each phone (ADR 0003) |
 | Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
 
 Exit criteria: app live on Railway; volume file survives a redeploy; CI green; push received with

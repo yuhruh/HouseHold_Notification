@@ -37,11 +37,13 @@ exception; dry-run #1 report logged below.
 
 ## M1: Auth, household, account lifecycle
 
+M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletion tests pass": 129 tests green in CI.
+
 | Task | Status | Notes |
 |---|---|---|
 | M1a: Rails 8 auth generator + confirmation (verified-only `email_address`), password reset, Google (`Auth::IdentityResolver`, `auth_handoffs`), 1-year sliding sessions, time zone + zh-TW/en, daily cleanup job | ☑ | PR #5, merged and deployed 2026-10-18; replaced `/spike/google` |
 | M1b: households, roles, invitations, household-scoped routing + switcher, onboarding, Pundit | ☑ | PR #6, merged and deployed 2026-10-18. Default notification preferences on accept wait for M4/M5 (no table yet) |
-| M1c: My Account, Household settings, ownership transfer, account/household deletion, emailed re-auth code | ◐ | branch `m1-account`, PR open. Avatar (M3), Devices / notification toggles / lock-screen privacy (M5) come with those milestones |
+| M1c: My Account, Household settings, ownership transfer, account/household deletion, emailed re-auth code | ☑ | PR #7, merged and deployed 2026-10-19. Avatar (M3), Devices / notification toggles / lock-screen privacy (M5) come with those milestones |
 
 ## Sheet cleanup log
 

@@ -10,10 +10,13 @@ module Spike
 
     class Error < StandardError; end
 
+    # Tests set this; CI has no master key to read the real credentials.
+    singleton_class.attr_writer :config
+
     module_function
 
     def config
-      Rails.application.credentials.google_sign_in&.to_h&.symbolize_keys or
+      @config || Rails.application.credentials.google_sign_in&.to_h&.symbolize_keys or
         raise Error, "Missing `google_sign_in` entry in Rails credentials"
     end
 

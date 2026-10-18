@@ -1,6 +1,9 @@
 require "test_helper"
 
 class SpikeGoogleTest < ActionDispatch::IntegrationTest
+  setup { Spike::GoogleOidc.config = { client_id: "test-client.apps.googleusercontent.com", client_secret: "test-secret" } }
+  teardown { Spike::GoogleOidc.config = nil }
+
   test "page offers sign-in and re-auth" do
     get spike_google_path
     assert_response :success
@@ -13,6 +16,7 @@ class SpikeGoogleTest < ActionDispatch::IntegrationTest
     assert_equal "login", query["prompt"]
     assert_equal "0", query["max_age"]
     assert_equal "http://www.example.com/auth/google_oauth2/callback", query["redirect_uri"]
+    assert_equal "test-client.apps.googleusercontent.com", query["client_id"]
   end
 
   test "sign in lets the user pick an account" do

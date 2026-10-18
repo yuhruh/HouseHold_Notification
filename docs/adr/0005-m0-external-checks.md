@@ -1,14 +1,14 @@
 # ADR 0005: M0 external checks (X1–X10)
 
-- Status: In progress (2026-10). X4, X5, X6 and X7 are settled; the rest wait on the owner's accounts and phones.
+- Status: In progress (2026-10). X1, X2, X4, X5, X6 and X7 are settled; X8 is running; the rest wait on the owner's go-ahead, family members and phones.
 - Context: the PRD relies on behaviour of outside services and packages. Each check is verified for
   real in M0 and recorded here with its result and, when it fails, the fallback chosen (PRD →
   "M0 external checks").
 
 | # | Check | Result | Decision |
 |---|---|---|---|
-| X1 | Google re-auth (`prompt=login`, `max_age=0`, `auth_time`) | ⏸ | needs the sign-in GCP project |
-| X2 | `*.up.railway.app` as permanent URL in both GCP projects | ⏸ | needs both GCP projects |
+| X1 | Google re-auth (`prompt=login`, `max_age=0`, `auth_time`) | ❌ → fallback | emailed 6-digit code; see below |
+| X2 | `*.up.railway.app` as permanent URL in both GCP projects | ✅ | see below |
 | X3 | Railway volume backups + restore into a scratch environment | ⏸ | changes plan/production settings: needs the owner's go-ahead |
 | X4 | Image `pg_dump` major = Railway Postgres major | ❌ → fixed, ✅ | see below |
 | X5 | HEIC decodes in the image | ✅ | see below |
@@ -16,7 +16,7 @@
 | X7 | Volume writable without running the app as root | ✅ | `bin/docker-entrypoint` chowns, drops to uid 1000; file survived redeploy (TRACKING) |
 | X8 | Gmail sender durable over 8 days | ◐ started 2026-10-18 | see below |
 | X9 | Web Push on every family phone | ⏸ | ADR 0003 |
-| X10 | Sign-in GCP project usable by non-test users | ⏸ | needs the sign-in GCP project |
+| X10 | Sign-in GCP project usable by non-test users | ⏸ | project In production, no test users; needs a family member to sign in on `/spike/google` |
 
 ## X4: `pg_dump` version (2026-10-18)
 - Found: Railway runs `ghcr.io/railwayapp-templates/postgres-ssl:18` (server major 18). The image is
@@ -63,3 +63,25 @@
 - Verified: a test email sent from production through the Gmail API landed in the inbox (2026-10-18).
 - Remaining: ~20 test mails to family inboxes over 8 days; on or after 2026-10-26 the refresh token
   must still work (proves it isn't on the 7-day Testing expiry) and nothing landed in spam.
+
+## X2: Railway URL in both GCP projects (2026-10-18)
+- `household-tracker.up.railway.app` was accepted as an authorized domain in both `household-mailer`
+  and `household-signin`, both In production. Google accepted the redirect URIs
+  `https://household-tracker.up.railway.app/auth/google_oauth2/callback` and the localhost one.
+- Verified: on `/spike/google`, Sign in with Google returned to the app with a verified ID token for
+  the owner's account.
+- Lock-in (recorded as the PRD asks): installed PWAs, push subscriptions and OAuth redirects are bound
+  to this host; moving off Railway later breaks all of them.
+
+## X1: Google re-auth (2026-10-18)
+- Test: signed in to Google, pressed Re-authenticate on `/spike/google` (request with `prompt=login`,
+  `max_age=0` and a nonce). Google showed only the account chooser, **did not ask for the password**,
+  and the verified ID token had **no `auth_time`**.
+- Google's discovery document (`accounts.google.com/.well-known/openid-configuration`) confirms it:
+  `claims_supported` has no `auth_time` and the `claims` request parameter isn't supported. Since
+  `prompt=login` travels in a URL the user can edit, the server could never prove a fresh login anyway.
+- Decision (the PRD fallback): Google-only users re-authenticate for sensitive actions with an
+  **emailed 6-digit code** (10 min, single use, digest-stored, 5 attempts, send rate-limited). PRD
+  §13, §15, S11, the data model (`reauth_codes`) and the account-deletion tests are updated.
+- Consequence: sensitive actions for Google-only users depend on Gmail delivery (X8). Password users
+  are unaffected (current password).

@@ -56,7 +56,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
         ▼              ▼                 ▼                    ▼
     Gmail API     Google OAuth     Push services (FCM)   Sentry · Healthchecks.io
    (household      (sign-in,        (delivers to the      (errors, missed-run
-    sender)         forced re-auth)  Android PWA)          alerts to Alex)
+    sender)                          Android PWA)          alerts to Alex)
 ```
 
 ### 2. Core data model
@@ -432,7 +432,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
     - Viewers see no write buttons, and Pundit rejects their write requests server-side.
 13. **My Account (view / edit / update)** — `/account` (Settings → 我的帳戶 / My account):
     - **Profile:** display name, avatar (Active Storage, optional), language (zh-TW/en), time zone (searchable IANA list, prefilled from the browser), reminder hour, and the household list with switch / leave actions.
-    - **Email:** change → stored in `unconfirmed_email` → confirmation link to the new address, plus a notice to the old address. Shows "pending: x@… (resend / cancel)". Requires the current password, or a forced Google re-auth (`prompt=login`, `max_age=0`, `auth_time` checked; see §15) for Google-only users.
+    - **Email:** change → stored in `unconfirmed_email` → confirmation link to the new address, plus a notice to the old address. Shows "pending: x@… (resend / cancel)". Requires the current password, or an emailed re-auth code for Google-only users (see §15).
     - **Password:** change requires the current password. Google-only users can "Set a password" via an email link. Changing the password signs out all other sessions.
     - **Sign-in methods:** connect/disconnect Google; the last method can't be removed.
     - **Sessions:** list active sessions (device/browser, last seen) and sign out others.
@@ -453,7 +453,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
     - In-app: Settings → "Delete my account". A public page at `/account/deletion` explains the process and links to sign-in → delete (also satisfies Google Play if the v2 Android app ships).
     - Requires re-authentication within the last 10 min. A confirmation email is sent afterwards.
       - **Password users:** enter the current password.
-      - **Google users:** a fresh Google sign-in, forced server-side. The re-auth request sends **`prompt=login` and `max_age=0`**, plus a fresh `nonce` stored in the `auth_handoffs` row with `purpose: reauth`. The callback verifies the ID token's **`auth_time` claim** is after the re-auth request was started (and within 5 minutes), that the `nonce` matches, and that the Google `sub` equals the user's linked identity. Without this, "re-auth" would be a single click for anyone holding an unlocked phone with an active Google session. Whether Google honours these parameters is verified in M0 (check X1). If it doesn't, Google users re-authenticate with an emailed 6-digit code instead.
+      - **Google-only users:** an **emailed 6-digit code** to their verified `email_address` (M0 check X1 showed Google ignores `prompt=login`/`max_age=0` and never returns `auth_time`, so a Google sign-in can't prove a fresh login: it is a one-click account pick). The code is random, stored only as a digest in `reauth_codes`, valid 10 minutes, single use, and invalidated after 5 wrong attempts; sending is rate-limited (3 per 10 minutes per user). A correct code sets `reauthenticated_at` on the session; the sensitive action checks it is under 10 minutes old. The email names the action ("delete your account") so an unexpected code is a warning sign.
       - The same re-auth applies to every sensitive action: account deletion, email change for Google-only users, disconnecting a sign-in method, ownership transfer and household deletion.
     - **Ownership transfer:** the owner can promote any member to owner, and becomes co-owner.
     - **Owner deleting their account:**
@@ -544,7 +544,7 @@ Every review finding raised so far, and where the plan now resolves it. Status: 
 | O6 | Soft delete vs re-import ambiguity | Resolved | Hard delete plus `record_events` snapshot; a deleted row re-imports as New (§9, Data model) |
 | O7 | Rails master key / VAPID key handling | Resolved | Master key in a password manager; VAPID keys never rotated casually, with a documented rotation procedure (Best practices) |
 | O8 | Noticed gem dependency | Resolved (removed) | Own `notifications` table + `Reminders::Dispatcher` with channel adapters (Architecture, Data model) |
-| S11 | Google "re-auth" was a single click | Resolved | `prompt=login` + `max_age=0`, server checks `auth_time`, `nonce` and `sub` (§15) |
+| S11 | Google "re-auth" was a single click | Resolved | Google can't force or prove a fresh login (M0 X1), so Google-only users re-auth with an emailed 6-digit code (§15) |
 | S12 | Household visibility and invitation lifetime | Resolved | Households invisible (404) to non-members; owner picks invite expiry: 7 / 30 days / custom / never (§12) |
 | P1 | Bills crossing the year boundary | Resolved | `period_end_year` = year + 1 when end month < start month, plus a fixture (Import mapping, Verification) |
 | P2 | Too many categories from exact item-name matching | Resolved | Category mapping tab with suggestions and saved aliases; the original item name stays as the title so the area/item is visible (Import mapping) |
@@ -660,7 +660,8 @@ External: Google OAuth, Gmail API, browser push services (FCM for Chrome/Android
 - `users (email_address null, unique where not null; unconfirmed_email null; email_confirmed_at; password_digest null; display_name; locale; time_zone not null default 'Asia/Taipei'; reminder_hour default 8; push_show_amounts boolean not null default true; last_household_id null)` + `has_one_attached :avatar`
 - `sessions (user_id, ip, user_agent, last_seen_at, expires_at)` (Rails 8 generator, extended). **Session lifetime: 1 year, sliding**: every authenticated request extends `expires_at` to now + 1 year and refreshes the signed `session_id` cookie's expiry (written at most once per day to avoid a DB write per request). Expired sessions are rejected and deleted by the daily cleanup job. Explicit sign-out destroys the session immediately.
 - `identities (user_id, provider 'google', uid, email, raw_info jsonb)` unique(provider, uid)
-- `auth_handoffs (id uuid, provider, purpose sign_in|reauth, time_zone, return_to null, nonce_digest null, requested_at, user_id null, expires_at, used_at)`
+- `auth_handoffs (id uuid, provider, purpose sign_in, time_zone, return_to null, nonce_digest null, requested_at, user_id null, expires_at, used_at)`
+- `reauth_codes (id, user_id, purpose, code_digest, attempts default 0, expires_at, used_at)`: emailed re-auth codes for Google-only users (§15)
 - `security_events (user_id null, household_id null, kind e.g. email_changed|password_changed|household_updated|role_changed|ownership_transferred, metadata jsonb, created_at)`: audit trail for account + household changes
 - `households (name, default_currency 'TWD', reminder_lead_days integer not null default 3, check 0..30, last_failure_summary_on date null)` (no time zone; `Household#time_zone` → owner's `users.time_zone`)
 - `memberships (household_id, user_id, role owner|co_owner|viewer)` unique(household_id, user_id); exactly one owner per household: the partial unique index where role = owner guarantees at most one, and `Accounts::OwnershipTransfer` keeps exactly one by locking the household row and, in one transaction, demoting the current owner to co_owner **before** promoting the new owner
@@ -858,7 +859,7 @@ The plan relies on these behaviours of outside services and packages. Each one i
 
 | # | Assumption (section) | How M0 verifies it | Pass | If it fails |
 |---|---|---|---|---|
-| X1 | Google honours `prompt=login` + `max_age=0` and returns `auth_time` (§15 re-auth) | From the deployed M0 app, start a Google sign-in with those parameters while already signed in to Google; decode the returned ID token | Google asks for the password again (not a one-click account pick), and the ID token has an `auth_time` later than the request | Replace Google re-auth with an **emailed 6-digit code** (to the verified `email_address`, 10 min, single use, rate-limited) for every sensitive action; update §13, §15 and the re-auth tests |
+| X1 | Google honours `prompt=login` + `max_age=0` and returns `auth_time` (§15 re-auth). **Failed 2026-10-18: fallback adopted** | From the deployed M0 app, start a Google sign-in with those parameters while already signed in to Google; decode the returned ID token | Google asks for the password again (not a one-click account pick), and the ID token has an `auth_time` later than the request | Replace Google re-auth with an **emailed 6-digit code** (to the verified `email_address`, 10 min, single use, rate-limited) for every sensitive action; update §13, §15 and the re-auth tests |
 | X2 | `*.up.railway.app` works as the permanent app URL (Architecture → App URL) | Register the chosen host as an authorized domain and redirect URI in **both** GCP projects with the consent screen set to "In production"; sign in with Google on it | Google sign-in works on the chosen host in production status | Use a **custom domain** (≈ US$10/yr) attached to the Railway service. Even if X2 passes, the ADR records the lock-in: moving off Railway later breaks every installed PWA, push subscription and OAuth redirect |
 | X3 | Railway volume backups exist on the current plan for **both** volumes and can be restored into a scratch environment (Backups) | Enable scheduled backups on the Postgres and photo volumes, take a manual backup, restore it into a scratch environment | Backups are available on the plan, and a restore lands in the scratch environment without touching production | No backups on the plan → upgrade, or rely on `BackupJob` plus a monthly download kept off Railway. Restore is in-place only → the M2 restore drill restores the latest `pg_dump` into the scratch environment's Postgres and copies a tar of `/rails/storage` there |
 | X4 | The image's `pg_dump` major version matches Railway Postgres (`BackupJob`) | Compare `pg_dump --version` in the built image with `SHOW server_version` on Railway | Same major version | Install `postgresql-client-<major>` from the official Postgres (PGDG) apt repo in the Dockerfile, pinned to the server's major version |
@@ -999,7 +1000,7 @@ Execution order: **M0 → M1 → M2 → M4 → M5 → M3 → M6 → M7**. Remind
   - GET `/auth/google_oauth2` is rejected.
   - The last sign-in method can't be removed.
 - **Account deletion:**
-  - Requires re-auth. Google re-auth: the request carries `prompt=login` and `max_age=0`; a mocked ID token with `auth_time` before the request → rejected; a stale `auth_time` (> 5 min) → rejected; a mismatched `nonce` or a different Google `sub` → rejected; a fresh `auth_time` → allowed.
+  - Requires re-auth. Password users: wrong password → rejected. Google-only users (emailed code): a correct code → allowed; an expired code (> 10 min), a used code, or a code for another user → rejected; the 6th wrong attempt invalidates the code; a 4th send within 10 minutes → rate-limited; `reauthenticated_at` older than 10 minutes → asked again.
   - An owner with members is blocked until ownership is transferred or the household is deleted.
   - A sole owner's deletion removes the household and enqueues the photo purge.
   - Co-owner deletion leaves records with `created_by_id` nil, rendered as "Former member".

@@ -1,0 +1,21 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-md space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <% if @invitations.empty? %>
+    <p class="text-gray-600"><%= t(".none") %></p>
+  <% end %>
+  <% @invitations.each do |invitation| %>
+    <div class="space-y-3 rounded-lg border p-4">
+      <p><%= t(".invited", household: invitation.household.name, role: t("roles.#{invitation.role}")) %></p>
+      <% if invitation.invited_by %><p class="text-sm text-gray-500"><%= t(".from", name: invitation.invited_by.display_name.presence || invitation.invited_by.email_address) %></p><% end %>
+      <div class="flex gap-2">
+        <%= button_to t(".accept"), accept_invitation_path(invitation), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+        <%= button_to t(".decline"), decline_invitation_path(invitation), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+      </div>
+    </div>
+  <% end %>
+  <% if Current.user.households.none? %>
+    <p class="text-sm"><%= link_to t(".create_instead"), onboarding_path, class: "text-gray-700 underline" %></p>
+  <% end %>
+</div>

@@ -1,0 +1,14 @@
+alex_home:
+  household: home
+  user: alex
+  role: owner
+
+sam_home:
+  household: home
+  user: google_only
+  role: viewer
+
+sam_parents:
+  household: parents
+  user: google_only
+  role: owner

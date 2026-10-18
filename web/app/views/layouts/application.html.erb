@@ -24,6 +24,7 @@
   </head>
 
   <body>
+    <%= render "layouts/header" if authenticated? %>
     <main class="container mx-auto mt-10 px-4 flex">
       <%= yield %>
     </main>

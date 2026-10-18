@@ -1,0 +1,8 @@
+<% content_for :title, Current.household.name %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= Current.household.name %></h1>
+  <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
+  <p class="text-gray-700"><%= t(".coming_soon") %></p>
+  <p><%= link_to t(".members"), household_members_path(Current.household), class: "text-blue-700 underline" %></p>
+</div>

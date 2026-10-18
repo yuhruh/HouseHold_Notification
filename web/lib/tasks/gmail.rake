@@ -9,7 +9,9 @@ namespace :gmail do
     store = Struct.new(:data) { def load(_) = nil; def store(_, v) = (self.data = v); def delete(_) = nil }.new
     authorizer = Google::Auth::UserAuthorizer.new(client_id, DeliveryMethods::GmailApi::SCOPE, store, "http://localhost:1")
 
-    url = authorizer.get_authorization_url(base_url: "http://localhost:1", additional_parameters: { access_type: "offline", prompt: "consent" })
+    # googleauth always adds access_type=offline and approval_prompt=force (consent screen + refresh
+    # token); also passing prompt=consent makes Google reject the request ("Conflict params").
+    url = authorizer.get_authorization_url(base_url: "http://localhost:1")
     puts <<~MSG
 
       1. Sign in as the SENDER account (#{config[:sender]}) and open:

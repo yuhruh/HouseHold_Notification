@@ -19,5 +19,6 @@ Rails.application.routes.draw do
     get "charts" => "charts#show"
   end
 
-  root to: redirect("/spike/checks")
+  get "privacy" => "pages#privacy"
+  root "pages#home"
 end

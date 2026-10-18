@@ -5,7 +5,7 @@ Alex (or by Claude with the owner's go-ahead).
 
 ## 1. Railway (done 2026-10-17 by Claude)
 Project **household-tracker** (separate from Cat_Feeder_Tracker_V4): services `web` + `Postgres`,
-volume `web-volume` at `/rails/storage`, URL **https://web-production-143a5.up.railway.app**
+volume `web-volume` at `/rails/storage`, URL **https://household-tracker.up.railway.app**
 (permanent). The domain's target port is **80** (Thruster in front of Puma on 3000). Deployed with
 `railway up` from `web/`; connect the GitHub repo for auto-deploys once it's pushed.
 Spike basic auth: user `alex`, password in the `SPIKE_PASSWORD` Railway variable.
@@ -55,3 +55,14 @@ Follow `/spike/push`, then fill in `docs/adr/0003-push-spike.md`.
 Add the `ID` column to the 記錄 tab (1…N, pasted as values), File → Download → CSV, then:
 `cd web && bin/rails import:dry_run CSV=~/Downloads/記錄.csv` and log the result in
 `docs/TRACKING.md` → Sheet cleanup log. The CSV contains household data: keep it out of git.
+
+### Manual deploy
+The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual
+upload must contain the whole repo. Run from `web/` (where the CLI link lives):
+
+    railway up .. --path-as-root --ci
+
+`railway up` alone from `web/` uploads only that folder, Railway then finds no `web/` inside it, falls
+back to Railpack and the build fails. The URL is now **household-tracker.up.railway.app** (renamed
+2026-10-18, before any users or OAuth clients); `APP_HOST` must always match it, or every page except
+`/up` returns 403 (Rails host authorization).

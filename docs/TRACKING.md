@@ -16,7 +16,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |
 | VAPID keys in credentials | ☑ | never rotate casually |
-| Railway service + Postgres + Volume + env vars, permanent URL | ☑ | project `household-tracker`, https://web-production-143a5.up.railway.app; runs as uid 1000; Solid Queue started in Puma |
+| Railway service + Postgres + Volume + env vars, permanent URL | ☑ | project `household-tracker`, https://household-tracker.up.railway.app; runs as uid 1000; Solid Queue started in Puma |
 | Volume survives a redeploy | ☑ | line written by deployment 824c80aa still present after redeploy 6c0e873a |
 | GitHub repo (private) + CI | ☑ | `<owner>/HouseHold_Notification`; CI green on main (run 39069086790) |
 | Push spike on a real Android phone → ADR 0003 | ⏸ | |

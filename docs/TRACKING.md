@@ -12,7 +12,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | Docker entrypoint: chown Railway Volume, drop to uid 1000 | ☑ | verify on Railway |
 | CI at repo root (`working-directory: web`) | ☑ | green on main |
 | Sentry initializer (`SENTRY_DSN`) | ☑ | project `household-tracker/household-tracker-web` (EU ingest); `SENTRY_DSN` set on Railway; test exception arrived as HOUSEHOLD-TRACKER-WEB-1; default "high priority issues" alert emails Alex |
-| Gmail API delivery method + `bin/rails gmail:authorize` | ◐ | ⏸ needs sender Gmail + GCP project ("In production") |
+| Gmail API delivery method + `bin/rails gmail:authorize` | ☑ | sender = the owner's personal Gmail (ADR 0005, X8); GCP project `household-mailer` In production; test email from production landed in the inbox 2026-10-18. Still to do: one to a family member's Gmail |
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |
 | VAPID keys in credentials | ☑ | never rotate casually |
@@ -23,7 +23,8 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X4 `pg_dump` matches Railway Postgres | ☑ | was 15 vs 18; Dockerfile installs `postgresql-client-18` from PGDG (ADR 0005) |
 | X5 HEIC decodes in the image | ☑ | HEIC fixture → stripped JPEG via `ImageProcessing::Vips`; `ruby-vips` re-added to Gemfile (ADR 0005) |
 | X6 ECharts via importmap | ☑ | fallback: custom build, `bin/build-echarts` → one vendored file; `/spike/charts` (ADR 0005) |
-| X1–X3, X8–X10 external checks | ⏸ | Google projects, Gmail sender, backups go-ahead, family phones (ADR 0005) |
+| X8 Gmail sender durable over 8 days | ◐ | started 2026-10-18; ~20 test mails to family inboxes, token must still work on/after 2026-10-26 |
+| X1–X3, X9–X10 external checks | ⏸ | sign-in GCP project, backups go-ahead, family phones (ADR 0005) |
 | Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
 
 Exit criteria: app live on Railway; volume file survives a redeploy; CI green; push received with

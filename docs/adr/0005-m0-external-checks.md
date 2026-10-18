@@ -14,7 +14,7 @@
 | X5 | HEIC decodes in the image | ✅ | see below |
 | X6 | ECharts via importmap as one vendored file | ❌ → fallback, ✅ | see below |
 | X7 | Volume writable without running the app as root | ✅ | `bin/docker-entrypoint` chowns, drops to uid 1000; file survived redeploy (TRACKING) |
-| X8 | Gmail sender durable over 8 days | ⏸ | needs the sender account |
+| X8 | Gmail sender durable over 8 days | ◐ started 2026-10-18 | see below |
 | X9 | Web Push on every family phone | ⏸ | ADR 0003 |
 | X10 | Sign-in GCP project usable by non-test users | ⏸ | needs the sign-in GCP project |
 
@@ -50,3 +50,16 @@
   only chart script is the digested `/assets/echarts-*.js`, nothing from a CDN.
 - Consequence: adding a chart type or component means editing `entry.js` and re-running
   `bin/build-echarts` (needs Node locally; the app and CI don't).
+
+## X8: Gmail sender (started 2026-10-18)
+- Decision: the sender is **the owner's personal Gmail** (`owner@gmail.com`), not a dedicated
+  household account as the PRD planned. Accepted risks: a leaked refresh token can send mail as Alex;
+  every reminder shows in her Sent folder; an automated-sending lock would hit her main account.
+  Switching later needs no code change: authorize a dedicated account with `bin/rails gmail:authorize`
+  and update `gmail.sender`.
+- Setup: GCP project `household-mailer`, Desktop OAuth client, consent screen **In production**
+  (no logo, which would force brand verification; home page and `/privacy` links are required to
+  publish). Account has 2-Step Verification and recovery options.
+- Verified: a test email sent from production through the Gmail API landed in the inbox (2026-10-18).
+- Remaining: ~20 test mails to family inboxes over 8 days; on or after 2026-10-26 the refresh token
+  must still work (proves it isn't on the 7-day Testing expiry) and nothing landed in spam.

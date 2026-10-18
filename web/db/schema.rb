@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
     t.index ["user_id"], name: "index_auth_handoffs_on_user_id"
   end
 
+  create_table "households", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "default_currency", default: "TWD", null: false
+    t.integer "reminder_lead_days", default: 3, null: false
+    t.date "last_failure_summary_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.check_constraint "default_currency::text = ANY (ARRAY['TWD'::character varying, 'USD'::character varying]::text[])", name: "households_default_currency"
+    t.check_constraint "reminder_lead_days >= 0 AND reminder_lead_days <= 30", name: "households_reminder_lead_days_range"
+  end
+
   create_table "identities", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "provider", null: false
@@ -41,6 +52,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
     t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
     t.index ["user_id", "provider"], name: "index_identities_on_user_id_and_provider", unique: true
     t.index ["user_id"], name: "index_identities_on_user_id"
+  end
+
+  create_table "invitations", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "invited_by_id"
+    t.string "email", null: false
+    t.string "role", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at"
+    t.datetime "accepted_at"
+    t.datetime "declined_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_invitations_on_email"
+    t.index ["household_id", "email"], name: "index_invitations_one_open", unique: true, where: "((accepted_at IS NULL) AND (declined_at IS NULL) AND (revoked_at IS NULL))"
+    t.index ["household_id"], name: "index_invitations_on_household_id"
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
+    t.check_constraint "role::text = ANY (ARRAY['co_owner'::character varying, 'viewer'::character varying]::text[])", name: "invitations_role"
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "user_id"], name: "index_memberships_on_household_id_and_user_id", unique: true
+    t.index ["household_id"], name: "index_memberships_on_household_id"
+    t.index ["household_id"], name: "index_memberships_one_owner", unique: true, where: "((role)::text = 'owner'::text)"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying, 'co_owner'::character varying, 'viewer'::character varying]::text[])", name: "memberships_role"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -268,6 +312,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
 
   add_foreign_key "auth_handoffs", "users", on_delete: :cascade
   add_foreign_key "identities", "users"
+  add_foreign_key "invitations", "households"
+  add_foreign_key "invitations", "users", column: "invited_by_id", on_delete: :nullify
+  add_foreign_key "memberships", "households"
+  add_foreign_key "memberships", "users"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -278,4 +326,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_144649) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spike_push_sends", "spike_push_subscriptions", on_delete: :cascade
+  add_foreign_key "users", "households", column: "last_household_id", on_delete: :nullify
 end

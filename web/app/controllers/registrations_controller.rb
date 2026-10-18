@@ -8,7 +8,8 @@ class RegistrationsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_registration_path, alert: t("auth.rate_limited") }
 
   def new
-    @user = User.new
+    # Prefilled from an invitation link (PRD §12a)
+    @user = User.new(unconfirmed_email: params[:email])
   end
 
   def create

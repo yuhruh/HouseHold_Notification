@@ -1,0 +1,92 @@
+require "test_helper"
+
+class HouseholdsTest < ActionDispatch::IntegrationTest
+  include ActionMailer::TestHelper
+
+  test "a new sign-up has zero households and lands on onboarding" do
+    sign_in_as users(:newbie)
+    get root_path
+    assert_redirected_to onboarding_path
+    assert_empty users(:newbie).households
+  end
+
+  test "onboarding creates a household owned by the user" do
+    sign_in_as users(:newbie)
+    post households_path, params: { household: { name: "Newbie home", default_currency: "TWD" } }
+    household = users(:newbie).households.sole
+    assert_redirected_to household_path(household)
+    assert users(:newbie).memberships.sole.owner?
+  end
+
+  test "GET / goes to last_household_id, then the first membership" do
+    user = users(:google_only)
+    sign_in_as user
+    user.update!(last_household: households(:parents))
+    get root_path
+    assert_redirected_to household_path(households(:parents))
+
+    user.memberships.find_by(household: households(:parents)).destroy
+    get root_path
+    assert_redirected_to household_path(households(:home))
+  end
+
+  test "visiting a household records it as the last one" do
+    sign_in_as users(:google_only)
+    get household_path(households(:home))
+    assert_equal households(:home), users(:google_only).reload.last_household
+  end
+
+  test "a non-member gets 404 for every household URL" do
+    sign_in_as users(:alex)
+    get household_path(households(:parents))
+    assert_response :not_found
+    get household_members_path(households(:parents))
+    assert_response :not_found
+    post household_invitations_path(households(:parents)), params: { invitation: { email: "x@example.com", role: "viewer", expiry: "7" } }
+    assert_response :not_found
+  end
+
+  test "two households in two tabs keep their own context" do
+    sign_in_as users(:google_only)
+    get household_members_path(households(:home))
+    assert_select "h1", I18n.t("members.index.title")
+    assert_select "header", /我的家/
+    get household_members_path(households(:parents))
+    assert_select "header", /Parents/
+  end
+
+  test "the switcher shows only with more than one membership" do
+    sign_in_as users(:google_only)
+    get household_path(households(:home))
+    assert_select "details summary", I18n.t("layouts.header.switch")
+
+    sign_out
+    sign_in_as users(:alex)
+    get household_path(households(:home))
+    assert_select "details summary", count: 0
+  end
+
+  test "a viewer can't invite (Pundit, server-side)" do
+    sign_in_as users(:google_only)
+    post household_invitations_path(households(:home)), params: { invitation: { email: "x@example.com", role: "viewer", expiry: "7" } }
+    assert_response :forbidden
+  end
+
+  test "the owner invites, resends and revokes" do
+    sign_in_as users(:alex)
+    assert_enqueued_emails(1) do
+      post household_invitations_path(households(:home)), params: { invitation: { email: "Newbie@Example.com", role: "co_owner", expiry: "30" } }
+    end
+    invitation = households(:home).invitations.pending.sole
+    assert_equal "newbie@example.com", invitation.email
+    assert_in_delta 30.days.from_now, invitation.expires_at, 1.minute
+
+    post resend_household_invitation_path(households(:home), invitation), params: { expiry: "never" }
+    assert invitation.reload.revoked_at
+    resent = households(:home).invitations.pending.sole
+    assert_nil resent.expires_at
+
+    post revoke_household_invitation_path(households(:home), resent)
+    assert_empty households(:home).invitations.pending
+  end
+end

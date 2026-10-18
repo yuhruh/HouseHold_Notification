@@ -1,0 +1,6 @@
+<%= t(".body", inviter: @invitation.invited_by&.display_name.presence || @invitation.invited_by&.email_address || "家庭支出", household: @invitation.household.name, role: t("roles.#{@invitation.role}")) %>
+
+<%= @url %>
+
+<%= @invitation.expires_at ? t(".expires", date: l(@invitation.expires_at.to_date)) : t(".never_expires") %>
+<%= t(".match_hint", email: @invitation.email) %>

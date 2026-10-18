@@ -7,6 +7,11 @@ zh-TW:
         email_address: "電子郵件"
         password: "密碼"
         password_confirmation: "確認密碼"
+      household:
+        name: "家庭名稱"
+        default_currency: "預設幣別"
+      invitation:
+        role: "角色"
   auth:
     continue_with_google: "使用 Google 繼續"
     or: "或"
@@ -85,3 +90,82 @@ zh-TW:
       sign_out: "登出"
       sign_in: "登入"
       sign_up: "建立帳號"
+  roles:
+    owner: "擁有者"
+    co_owner: "共同管理者"
+    viewer: "檢視者"
+  layouts:
+    header:
+      switch: "切換家庭"
+      invitations:
+        one: "1 個邀請"
+        other: "%{count} 個邀請"
+  onboardings:
+    show:
+      title: "歡迎"
+      create_heading: "建立你的家庭"
+      create: "建立家庭"
+      waiting_heading: "在等待邀請嗎？"
+      waiting: "請擁有者邀請 %{email}。登入後，邀請就會出現在這裡。"
+  households:
+    create:
+      created: "家庭已建立。"
+    show:
+      role: "你的角色：%{role}"
+      coming_soon: "帳單、提醒與儀表板即將推出。"
+      members: "成員"
+  members:
+    index:
+      title: "成員"
+      pending: "等待中的邀請"
+      no_pending: "沒有等待中的邀請。"
+      expires: "%{date} 到期"
+      never_expires: "永不到期"
+      resend: "重新寄送（7 天）"
+      revoke: "撤銷"
+      invite: "邀請成員"
+      expiry: "邀請期限"
+      expiry_7: "7 天後"
+      expiry_30: "30 天後"
+      expiry_custom: "指定日期（下方）"
+      expiry_never: "永不到期"
+      custom_date: "日期（選擇「指定日期」時）"
+      send: "寄送邀請"
+  household_invitations:
+    create:
+      sent: "已寄送邀請給 %{email}。"
+      already_member: "這個人已經是成員了。"
+    resend:
+      sent: "已重新寄送邀請給 %{email}。"
+    revoke:
+      revoked: "已撤銷邀請。"
+  invitations:
+    index:
+      title: "邀請"
+      none: "目前沒有等待中的邀請。"
+      invited: "你受邀以「%{role}」身分加入 %{household}。"
+      from: "邀請人：%{name}"
+      accept: "接受"
+      decline: "拒絕"
+      create_instead: "改為建立自己的家庭"
+    accept:
+      accepted: "你已加入 %{household}。"
+    decline:
+      declined: "已拒絕邀請。"
+  invitation_links:
+    signed_out:
+      title: "你收到一個邀請"
+      body: "你受邀加入 %{household}。請使用 %{email} 登入或建立帳號後接受邀請。"
+    wrong_account:
+      title: "這個邀請是寄給其他地址的"
+      body: "這個邀請寄給 %{masked}。請登出並使用該地址。"
+    invalid:
+      title: "邀請無法使用"
+      body: "這個邀請連結無效、已過期、已使用或已撤銷。請擁有者重新寄送。"
+  invitation_mailer:
+    invite:
+      subject: "你受邀加入家庭支出的 %{household}"
+      body: "%{inviter} 邀請你以「%{role}」身分加入 %{household}。請打開連結接受或拒絕："
+      expires: "邀請將於 %{date} 到期。"
+      never_expires: "這個邀請不會到期。"
+      match_hint: "請使用 %{email} 登入或註冊；邀請只適用於這個地址。"

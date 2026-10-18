@@ -6,6 +6,9 @@ class User < ApplicationRecord
   has_secure_password validations: false
   has_many :sessions, dependent: :destroy
   has_many :identities, dependent: :destroy
+  has_many :memberships, dependent: :destroy
+  has_many :households, through: :memberships
+  belongs_to :last_household, class_name: "Household", optional: true
 
   normalizes :email_address, :unconfirmed_email, with: ->(e) { e.strip.downcase }
 
@@ -34,4 +37,10 @@ class User < ApplicationRecord
   end
 
   def password_set? = password_digest.present?
+
+  # GET / lands here: last household if still a member, else the first one (PRD §12a)
+  def home_household
+    (last_household if last_household_id && memberships.exists?(household_id: last_household_id)) ||
+      households.order("memberships.created_at").first
+  end
 end

@@ -1,0 +1,27 @@
+<%# Signed-in header: household switcher (only with 2+ memberships), pending invitations, sign out (PRD §12a) %>
+<% households = Current.user.households.order(:name).to_a %>
+<% pending = Invitation.pending_for(Current.user).count %>
+<header class="border-b">
+  <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+    <%= link_to root_path, class: "flex items-center gap-2 font-semibold" do %>
+      <%= image_tag "/icon.svg", alt: "", class: "h-7 w-7" %>
+      <span><%= Current.household&.name || "家庭支出" %></span>
+    <% end %>
+    <nav class="flex flex-wrap items-center gap-3">
+      <% if households.size > 1 %>
+        <details class="relative">
+          <summary class="cursor-pointer rounded-md border border-gray-300 px-2 py-1"><%= t("layouts.header.switch") %></summary>
+          <ul class="absolute right-0 z-10 mt-1 min-w-48 rounded-md border bg-white py-1 shadow">
+            <% households.each do |household| %>
+              <li><%= link_to household.name, household_path(household), class: "block px-3 py-2 hover:bg-gray-50 #{'font-semibold' if household == Current.household}" %></li>
+            <% end %>
+          </ul>
+        </details>
+      <% end %>
+      <% if pending.positive? %>
+        <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
+      <% end %>
+      <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "rounded-md px-2 py-1 text-gray-700 underline" %>
+    </nav>
+  </div>
+</header>

@@ -39,8 +39,8 @@ exception; dry-run #1 report logged below.
 
 | Task | Status | Notes |
 |---|---|---|
-| M1a: Rails 8 auth generator + confirmation (verified-only `email_address`), password reset, Google (`Auth::IdentityResolver`, `auth_handoffs`), 1-year sliding sessions, time zone + zh-TW/en, daily cleanup job | ◐ | branch `m1-auth`, PR open; replaces `/spike/google` |
-| M1b: households, roles, invitations, household-scoped routing + switcher, onboarding, Pundit | ☐ | |
+| M1a: Rails 8 auth generator + confirmation (verified-only `email_address`), password reset, Google (`Auth::IdentityResolver`, `auth_handoffs`), 1-year sliding sessions, time zone + zh-TW/en, daily cleanup job | ☑ | PR #5, merged and deployed 2026-10-18; replaced `/spike/google` |
+| M1b: households, roles, invitations, household-scoped routing + switcher, onboarding, Pundit | ◐ | branch `m1-households`, PR open. Default notification preferences on accept wait for M4/M5 (no table yet) |
 | M1c: My Account, Household settings, ownership transfer, account/household deletion, emailed re-auth code | ☐ | |
 
 ## Sheet cleanup log

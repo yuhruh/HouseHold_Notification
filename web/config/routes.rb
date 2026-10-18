@@ -8,6 +8,27 @@ Rails.application.routes.draw do
   get "auth/google_oauth2/callback" => "omniauth_callbacks#create"
   get "auth/failure" => "omniauth_callbacks#failure"
 
+  # Households (PRD §12, §12a)
+  resource :onboarding, only: :show
+  resources :households, only: :create
+  scope "h/:household_id", as: :household do
+    get "/" => "households#show"
+    resources :members, only: :index
+    resources :invitations, only: :create, controller: "household_invitations" do
+      member do
+        post :resend
+        post :revoke
+      end
+    end
+  end
+  resources :invitations, only: :index do
+    member do
+      post :accept
+      post :decline
+    end
+  end
+  get "invitations/:token" => "invitation_links#show", as: :invitation_link
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 

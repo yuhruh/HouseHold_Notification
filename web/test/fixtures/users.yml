@@ -18,3 +18,9 @@ pending:
   password_digest: <%= password_digest %>
   time_zone: Asia/Taipei
   created_at: <%= 1.day.ago.to_fs(:db) %>
+
+newbie:
+  email_address: newbie@example.com
+  email_confirmed_at: <%= 1.day.ago.to_fs(:db) %>
+  password_digest: <%= password_digest %>
+  time_zone: Asia/Taipei

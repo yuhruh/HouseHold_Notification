@@ -1,0 +1,51 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-2xl space-y-8 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+
+  <ul class="divide-y rounded-lg border">
+    <% @memberships.each do |membership| %>
+      <li class="flex items-center justify-between gap-4 px-4 py-3">
+        <span><%= membership.user.display_name.presence || membership.user.email_address %>
+          <span class="block text-sm text-gray-500"><%= membership.user.email_address %></span></span>
+        <span class="text-sm text-gray-700"><%= t("roles.#{membership.role}") %></span>
+      </li>
+    <% end %>
+  </ul>
+
+  <% if policy(Current.household).manage_members? %>
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold"><%= t(".pending") %></h2>
+      <% if @invitations.empty? %>
+        <p class="text-sm text-gray-500"><%= t(".no_pending") %></p>
+      <% end %>
+      <ul class="divide-y rounded-lg border">
+        <% @invitations.each do |invitation| %>
+          <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+            <span><%= invitation.email %> · <%= t("roles.#{invitation.role}") %>
+              <span class="block text-sm text-gray-500"><%= invitation.expires_at ? t(".expires", date: l(invitation.expires_at.to_date)) : t(".never_expires") %></span></span>
+            <span class="flex gap-2">
+              <%= button_to t(".resend"), resend_household_invitation_path(Current.household, invitation), params: { expiry: "7" }, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50 text-sm" %>
+              <%= button_to t(".revoke"), revoke_household_invitation_path(Current.household, invitation), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50 text-sm text-red-700" %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+
+    <section class="space-y-4">
+      <h2 class="text-lg font-semibold"><%= t(".invite") %></h2>
+      <%= form_with model: @invitation, url: household_invitations_path(Current.household), class: "space-y-4" do |form| %>
+        <%= form.label :email, t("auth.email"), class: "block text-sm font-medium" %>
+        <%= form.email_field :email, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.label :role, class: "block text-sm font-medium" %>
+        <%= form.select :role, Invitation.roles.keys.map { |r| [ t("roles.#{r}"), r ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.label :expiry, t(".expiry"), class: "block text-sm font-medium" %>
+        <%= form.select :expiry, Invitation::EXPIRY_CHOICES.map { |c| [ t(".expiry_#{c}"), c ] }, { selected: "7" }, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.label :custom_date, t(".custom_date"), class: "block text-sm font-medium" %>
+        <%= form.date_field :custom_date, min: Date.current + 1, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.submit t(".send"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+      <% end %>
+    </section>
+  <% end %>
+</div>

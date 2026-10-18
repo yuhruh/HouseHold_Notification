@@ -7,6 +7,11 @@ en:
         email_address: "Email"
         password: "Password"
         password_confirmation: "Confirm password"
+      household:
+        name: "Household name"
+        default_currency: "Default currency"
+      invitation:
+        role: "Role"
   auth:
     continue_with_google: "Continue with Google"
     or: "or"
@@ -85,3 +90,82 @@ en:
       sign_out: "Sign out"
       sign_in: "Sign in"
       sign_up: "Create an account"
+  roles:
+    owner: "Owner"
+    co_owner: "Co-owner"
+    viewer: "Viewer"
+  layouts:
+    header:
+      switch: "Switch household"
+      invitations:
+        one: "1 invitation"
+        other: "%{count} invitations"
+  onboardings:
+    show:
+      title: "Welcome"
+      create_heading: "Create your household"
+      create: "Create household"
+      waiting_heading: "Waiting for an invite?"
+      waiting: "Ask the owner to invite %{email}. The invitation will appear here when you sign in."
+  households:
+    create:
+      created: "Your household is ready."
+    show:
+      role: "Your role: %{role}"
+      coming_soon: "Bills, reminders and the dashboard are coming next."
+      members: "Members"
+  members:
+    index:
+      title: "Members"
+      pending: "Pending invitations"
+      no_pending: "No pending invitations."
+      expires: "expires %{date}"
+      never_expires: "never expires"
+      resend: "Resend (7 days)"
+      revoke: "Revoke"
+      invite: "Invite someone"
+      expiry: "Invitation expires"
+      expiry_7: "In 7 days"
+      expiry_30: "In 30 days"
+      expiry_custom: "On a date (below)"
+      expiry_never: "Never"
+      custom_date: "Date (for “On a date”)"
+      send: "Send invitation"
+  household_invitations:
+    create:
+      sent: "Invitation sent to %{email}."
+      already_member: "That person is already a member."
+    resend:
+      sent: "Invitation sent again to %{email}."
+    revoke:
+      revoked: "Invitation revoked."
+  invitations:
+    index:
+      title: "Invitations"
+      none: "You have no pending invitations."
+      invited: "You're invited to %{household} as %{role}."
+      from: "From %{name}"
+      accept: "Accept"
+      decline: "Decline"
+      create_instead: "Create your own household instead"
+    accept:
+      accepted: "You joined %{household}."
+    decline:
+      declined: "Invitation declined."
+  invitation_links:
+    signed_out:
+      title: "You're invited"
+      body: "You're invited to %{household}. Sign in or create an account with %{email} to accept."
+    wrong_account:
+      title: "This invitation is for another address"
+      body: "This invite was sent to %{masked}. Sign out and use that address."
+    invalid:
+      title: "Invitation not available"
+      body: "This invitation link is invalid, expired, already used or revoked. Ask the owner to send a new one."
+  invitation_mailer:
+    invite:
+      subject: "You're invited to %{household} on 家庭支出"
+      body: "%{inviter} invited you to %{household} as %{role}. Open this link to accept or decline:"
+      expires: "The invitation expires on %{date}."
+      never_expires: "The invitation doesn't expire."
+      match_hint: "Sign in or sign up with %{email}; the invitation only works for that address."

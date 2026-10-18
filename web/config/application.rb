@@ -22,6 +22,10 @@ module Web
     # in config/environments, which are processed later.
     #
     # config.time_zone = "Central Time (US & Canada)"
+    # Each request runs in the user's zone (Localization); storage stays UTC (PRD §11)
+    config.i18n.available_locales = [ :"zh-TW", :en ]
+    config.i18n.default_locale = :"zh-TW"
+    config.i18n.fallbacks = [ :en ]
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

@@ -1,0 +1,22 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-sm space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+
+  <%= render "shared/google_button" %>
+  <p class="text-center text-sm text-gray-500"><%= t("auth.or") %></p>
+
+  <%= form_with url: session_path, class: "space-y-4" do |form| %>
+    <%= form.label :email_address, t("auth.email"), class: "block text-sm font-medium" %>
+    <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>
+    <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.submit t(".submit"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+  <% end %>
+
+  <div class="flex flex-col gap-2 text-sm">
+    <%= link_to t(".forgot_password"), new_password_path, class: "text-gray-700 underline" %>
+    <%= link_to t(".sign_up"), new_registration_path, class: "text-gray-700 underline" %>
+    <%= link_to t(".resend_confirmation"), new_email_confirmation_path, class: "text-gray-700 underline" %>
+  </div>
+</div>

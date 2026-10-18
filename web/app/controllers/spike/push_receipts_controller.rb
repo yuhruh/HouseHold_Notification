@@ -2,6 +2,7 @@ module Spike
   # Called by the service worker after it shows a notification. Unauthenticated on purpose
   # (a service worker has no basic-auth credentials); the random single-use token is the proof.
   class PushReceiptsController < ApplicationController
+    allow_unauthenticated_access
     skip_forgery_protection
 
     def create

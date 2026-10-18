@@ -1,0 +1,5 @@
+google_only:
+  user: google_only
+  provider: google_oauth2
+  uid: google-uid-sam
+  email: sam@example.com

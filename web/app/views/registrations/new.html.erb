@@ -1,0 +1,28 @@
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-sm space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+
+  <%= render "shared/google_button" %>
+  <p class="text-center text-sm text-gray-500"><%= t("auth.or") %></p>
+
+  <%= form_with model: @user, url: registration_path, class: "space-y-4", data: { controller: "timezone" } do |form| %>
+    <% if @user.errors.any? %>
+      <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <% @user.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    <% end %>
+    <%= hidden_field_tag :tz, nil, data: { timezone_target: "field" } %>
+    <%= form.label :display_name, class: "block text-sm font-medium" %>
+    <%= form.text_field :display_name, autocomplete: "name", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.label :unconfirmed_email, t("auth.email"), class: "block text-sm font-medium" %>
+    <%= form.email_field :unconfirmed_email, required: true, autocomplete: "email", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>
+    <%= form.password_field :password, required: true, autocomplete: "new-password", minlength: 8, maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.label :password_confirmation, class: "block text-sm font-medium" %>
+    <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.submit t(".submit"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+  <% end %>
+
+  <p class="text-sm"><%= link_to t(".sign_in"), new_session_path, class: "text-gray-700 underline" %></p>
+</div>

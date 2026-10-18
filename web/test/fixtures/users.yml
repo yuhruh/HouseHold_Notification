@@ -1,0 +1,20 @@
+<% password_digest = BCrypt::Password.create("password123") %>
+
+alex:
+  email_address: alex@example.com
+  email_confirmed_at: <%= 1.month.ago.to_fs(:db) %>
+  password_digest: <%= password_digest %>
+  display_name: Alex
+  time_zone: Asia/Taipei
+
+google_only:
+  email_address: sam@example.com
+  email_confirmed_at: <%= 1.month.ago.to_fs(:db) %>
+  display_name: Sam
+  time_zone: Asia/Taipei
+
+pending:
+  unconfirmed_email: pending@example.com
+  password_digest: <%= password_digest %>
+  time_zone: Asia/Taipei
+  created_at: <%= 1.day.ago.to_fs(:db) %>

@@ -1,31 +1,87 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  activerecord:
+    attributes:
+      user:
+        display_name: "Name"
+        unconfirmed_email: "Email"
+        email_address: "Email"
+        password: "Password"
+        password_confirmation: "Confirm password"
+  auth:
+    continue_with_google: "Continue with Google"
+    or: "or"
+    email: "Email"
+    password: "Password"
+    rate_limited: "Too many attempts. Please wait a few minutes and try again."
+  sessions:
+    new:
+      title: "Sign in"
+      submit: "Sign in"
+      forgot_password: "Forgot your password?"
+      sign_up: "New here? Create an account"
+      resend_confirmation: "Didn't get the confirmation email?"
+    create:
+      invalid: "Invalid email or password."
+  registrations:
+    new:
+      title: "Create an account"
+      submit: "Create account"
+      sign_in: "Already have an account? Sign in"
+    check_email:
+      title: "Check your email"
+      body: "We've sent a message to the address you entered. Open the link in it to finish signing up."
+      spam_hint: "It can take a minute. If it isn't in your inbox, look in Spam."
+  email_confirmations:
+    show:
+      invalid_link: "That confirmation link is invalid or has expired. Request a new one below."
+      taken: "This email is already in use by another account."
+      confirmed: "Your email is confirmed. Welcome!"
+    new:
+      title: "Resend the confirmation email"
+      submit: "Send"
+    create:
+      sent: "If that address is waiting for confirmation, we've sent a new link."
+  passwords:
+    invalid_link: "That password reset link is invalid or has expired."
+    new:
+      title: "Forgot your password?"
+      hint: "Enter your email and we'll send you a link to set a new password. If you signed up with Google, this also lets you add a password."
+      submit: "Send the link"
+    create:
+      sent: "If an account uses that address, we've sent a reset link."
+    edit:
+      title: "Set a new password"
+      submit: "Save password"
+    update:
+      updated: "Your password has been saved. Please sign in."
+  omniauth_callbacks:
+    create:
+      expired: "The Google sign-in took too long. Please try again."
+      unverified_email: "Please verify your Google email first."
+      conflict: "That Google account is already connected to another account."
+      signed_in: "Signed in with Google."
+      linked: "Google is now connected to your account."
+      created: "Welcome! Your account was created with Google."
+    failure:
+      failed: "Google sign-in was cancelled or failed. Please try again."
+  auth_mailer:
+    ignore: "If you didn't ask for this, you can ignore this email."
+    email_confirmation:
+      subject: "Confirm your email for 家庭支出"
+      body: "Open this link to confirm your email and finish signing up. It works for 24 hours."
+    already_registered:
+      subject: "You already have a 家庭支出 account"
+      body: "Someone (probably you) tried to sign up with this address, but it already has an account."
+      sign_in: "Sign in:"
+      reset: "Forgot your password? Reset it:"
+  passwords_mailer:
+    reset:
+      subject: "Reset your 家庭支出 password"
+      body: "Open this link to set a new password. It works for %{minutes} minutes."
+  pages:
+    home:
+      signed_in_as: "Signed in as %{name}."
+      households_coming: "Households and bills are coming next."
+      sign_out: "Sign out"
+      sign_in: "Sign in"
+      sign_up: "Create an account"

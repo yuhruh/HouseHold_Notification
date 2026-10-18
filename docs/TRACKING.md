@@ -29,7 +29,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
 | X3 Railway backups | ☑ | failed (Hobby plan can't create backups); fallback: weekly encrypted `pg_dump` emailed to Alex + monthly photo download, built in M2 (ADR 0005) |
 | X9 push on every family phone | ⏸ | push spike on each phone (ADR 0003) |
-| Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
+| Import dry-run #1 on the real CSV | ☑ | round 1 logged below (26 rows with errors) |
 
 Exit criteria: app live on Railway; volume file survives a redeploy; CI green; push received with
 the app closed/screen off (ADR 0003); Gmail API test email arrives; Sentry receives the test
@@ -39,4 +39,6 @@ exception; dry-run #1 report logged below.
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |
 |---|---|---|---|---|---|---|
-| 1 | | | | | | `bin/rails import:dry_run CSV=…` |
+| 1 | 2026-10-18 | 26 rows (29 errors) | 4 | 0 | – | 132 rows, NOT READY. Errors: Paid > Required ×11; Paid without Finished Date ×10; blank Item + blank year ×2 rows (31–32); unrecognized month ×2 (49–50); 保險 missing 保單號碼/標的 ×2 (56, 74). Warnings: ✅ but underpaid ×2, complete but not ✅ ×1, maintenance chain without room ×1. Totals of clean rows: TWD Required 328,719 · Paid 324,016. Estimated fix: ~30–45 min in the sheet |
+| 2 | 2026-10-18 | 4 rows (6 errors) | 4 | 22 rows | ~10 min | Left: IDs 26–27 empty placeholder rows; ID 44 month holds a date; ID 45 month blank. Warnings: complete but not ✅ ×2 (lines 6, 74), ✅ but underpaid ×2 (44, 59). Totals of clean rows: TWD Required 431,069 · Paid 426,366 |
+| 3 | 2026-10-18 | 0 | 0 | 4 rows | ~30 min (several exports) | **READY.** 130 rows. Empty rows removed; month cells fixed (Sheets kept turning `10月` into dates: type `'10月`). Totals: TWD Required 433,569 · Paid 429,869 (compare with the sheet header formula). ⚠ The ID column renumbers when rows are deleted (formula or refilled): before the M2 import it must be plain values that never change |

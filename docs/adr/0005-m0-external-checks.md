@@ -1,6 +1,6 @@
 # ADR 0005: M0 external checks (X1–X10)
 
-- Status: In progress (2026-10). X1, X2, X4, X5, X6 and X7 are settled; X8 is running; the rest wait on the owner's go-ahead, family members and phones.
+- Status: In progress (2026-10). X1, X2, X4, X5, X6, X7 and X10 are settled; X8 is running; X3 waits on the owner's go-ahead and X9 on the family phones.
 - Context: the PRD relies on behaviour of outside services and packages. Each check is verified for
   real in M0 and recorded here with its result and, when it fails, the fallback chosen (PRD →
   "M0 external checks").
@@ -16,7 +16,7 @@
 | X7 | Volume writable without running the app as root | ✅ | `bin/docker-entrypoint` chowns, drops to uid 1000; file survived redeploy (TRACKING) |
 | X8 | Gmail sender durable over 8 days | ◐ started 2026-10-18 | see below |
 | X9 | Web Push on every family phone | ⏸ | ADR 0003 |
-| X10 | Sign-in GCP project usable by non-test users | ⏸ | project In production, no test users; needs a family member to sign in on `/spike/google` |
+| X10 | Sign-in GCP project usable by non-test users | ✅ | see below |
 
 ## X4: `pg_dump` version (2026-10-18)
 - Found: Railway runs `ghcr.io/railwayapp-templates/postgres-ssl:18` (server major 18). The image is
@@ -85,3 +85,10 @@
   §13, §15, S11, the data model (`reauth_codes`) and the account-deletion tests are updated.
 - Consequence: sensitive actions for Google-only users depend on Gmail delivery (X8). Password users
   are unaffected (current password).
+
+## X10: Sign-in project usable by non-test users (2026-10-18)
+- `household-signin` consent screen In production, basic scopes only (`openid`, `email`,
+  `profile`), no test users; IAM lists only the owner (`owner@gmail.com`).
+- Verified: a second Google account with no role in the project and not a test user
+  (`family.member@gmail.com`) signed in on `/spike/google` and got a verified ID token, with no
+  "Access blocked" screen. A real family member's account is exercised again in M1.

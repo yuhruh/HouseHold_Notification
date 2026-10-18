@@ -26,7 +26,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X8 Gmail sender durable over 8 days | ◐ | started 2026-10-18; ~20 test mails to family inboxes, token must still work on/after 2026-10-26 |
 | X2 Railway URL as permanent OAuth host | ☑ | both GCP projects accept it; Google sign-in works on `/spike/google` (ADR 0005) |
 | X1 Google forced re-auth | ☑ | failed (no password prompt, no `auth_time`); fallback adopted: emailed 6-digit code, PRD §13/§15 updated (ADR 0005) |
-| X10 non-test user can sign in | ⏸ | a family member signs in on `/spike/google` with their own Google account |
+| X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
 | X3 backups, X9 family phones | ⏸ | backups need the owner's go-ahead; X9 with the push spike (ADR 0003) |
 | Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
 

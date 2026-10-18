@@ -1,0 +1,108 @@
+<% content_for :title, t(".title") %>
+<% tz_options = TZInfo::Timezone.all_identifiers %>
+<div class="w-full max-w-2xl space-y-10 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold"><%= t(".profile") %></h2>
+    <%= form_with model: @user, url: account_path, method: :patch, class: "space-y-4" do |form| %>
+      <% if @user.errors.any? %>
+        <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+      <% end %>
+      <%= form.label :display_name, class: "block text-sm font-medium" %>
+      <%= form.text_field :display_name, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.label :locale, t(".locale"), class: "block text-sm font-medium" %>
+      <%= form.select :locale, [ [ t(".locale_auto"), "" ], [ "繁體中文", "zh-TW" ], [ "English", "en" ] ], {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.label :time_zone, t(".time_zone"), class: "block text-sm font-medium" %>
+      <%= form.text_field :time_zone, list: "time-zones", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <datalist id="time-zones"><% tz_options.each do |tz| %><option value="<%= tz %>"></option><% end %></datalist>
+      <%= form.label :reminder_hour, t(".reminder_hour"), class: "block text-sm font-medium" %>
+      <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.submit t(".save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <% end %>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".email") %></h2>
+    <p><%= Current.user.email_address %></p>
+    <% if Current.user.unconfirmed_email %>
+      <div class="flex flex-wrap items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm">
+        <span><%= t(".pending_email", email: Current.user.unconfirmed_email) %></span>
+        <%= button_to t(".resend"), resend_account_email_path, class: "underline" %>
+        <%= button_to t(".cancel"), account_email_path, method: :delete, class: "underline" %>
+      </div>
+    <% end %>
+    <%= form_with url: account_email_path, method: :patch, class: "space-y-3" do |form| %>
+      <%= form.label :email_address, t(".new_email"), class: "block text-sm font-medium" %>
+      <%= form.email_field :email_address, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <% if Current.user.password_set? %>
+        <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
+        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <% end %>
+      <%= form.submit t(".change_email"), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+    <% end %>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".password") %></h2>
+    <% if Current.user.password_set? %>
+      <%= form_with url: account_password_path, method: :patch, class: "space-y-3" do |form| %>
+        <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
+        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.label :password, t(".new_password"), class: "block text-sm font-medium" %>
+        <%= form.password_field :password, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.label :password_confirmation, t("activerecord.attributes.user.password_confirmation"), class: "block text-sm font-medium" %>
+        <%= form.password_field :password_confirmation, required: true, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.submit t(".change_password"), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+      <% end %>
+    <% else %>
+      <p class="text-sm text-gray-700"><%= t(".no_password") %></p>
+      <%= button_to t(".set_password"), passwords_path, params: { email_address: Current.user.email_address }, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+    <% end %>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".sign_in_methods") %></h2>
+    <% if identity = Current.user.google_identity %>
+      <p><%= t(".google_connected", email: identity.email) %></p>
+      <% if Current.user.can_disconnect_google? %>
+        <%= button_to t(".disconnect_google"), account_google_identity_path, method: :delete, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+      <% else %>
+        <p class="text-sm text-gray-500"><%= t(".last_method") %></p>
+      <% end %>
+    <% else %>
+      <%= render "shared/google_button", return_to: account_path %>
+    <% end %>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".sessions") %></h2>
+    <ul class="divide-y rounded-lg border text-sm">
+      <% Current.user.sessions.active.order(last_seen_at: :desc).each do |s| %>
+        <li class="px-4 py-2"><%= s.user_agent.to_s.truncate(70) %>
+          <span class="block text-gray-500"><%= t(".last_seen", time: l(s.last_seen_at, format: :short)) %><%= " · #{t('.this_device')}" if s == Current.session %></span></li>
+      <% end %>
+    </ul>
+    <%= button_to t(".sign_out_others"), account_sessions_path, method: :delete, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".households") %></h2>
+    <ul class="divide-y rounded-lg border">
+      <% Current.user.memberships.includes(:household).each do |m| %>
+        <li class="flex items-center justify-between gap-2 px-4 py-2">
+          <%= link_to m.household.name, household_path(m.household), class: "underline" %>
+          <span class="flex items-center gap-3 text-sm"><%= t("roles.#{m.role}") %>
+            <% unless m.owner? %><%= button_to t(".leave"), leave_household_memberships_path(m.household), class: "text-red-700 underline", form: { data: { turbo_confirm: t(".leave_confirm", household: m.household.name) } } %><% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section class="space-y-3 rounded-lg border border-red-200 p-4">
+    <h2 class="text-lg font-semibold text-red-700"><%= t(".danger_zone") %></h2>
+    <%= link_to t(".delete_account"), account_deletion_path, class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500 inline-block" %>
+  </section>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -37,7 +37,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
     t.date "last_failure_summary_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.check_constraint "default_currency::text = ANY (ARRAY['TWD'::character varying, 'USD'::character varying]::text[])", name: "households_default_currency"
+    t.check_constraint "default_currency::text = ANY (ARRAY['TWD'::character varying::text, 'USD'::character varying::text])", name: "households_default_currency"
     t.check_constraint "reminder_lead_days >= 0 AND reminder_lead_days <= 30", name: "households_reminder_lead_days_range"
   end
 
@@ -71,7 +71,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
     t.index ["household_id"], name: "index_invitations_on_household_id"
     t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
     t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
-    t.check_constraint "role::text = ANY (ARRAY['co_owner'::character varying, 'viewer'::character varying]::text[])", name: "invitations_role"
+    t.check_constraint "role::text = ANY (ARRAY['co_owner'::character varying::text, 'viewer'::character varying::text])", name: "invitations_role"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -84,7 +84,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
     t.index ["household_id"], name: "index_memberships_on_household_id"
     t.index ["household_id"], name: "index_memberships_one_owner", unique: true, where: "((role)::text = 'owner'::text)"
     t.index ["user_id"], name: "index_memberships_on_user_id"
-    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying, 'co_owner'::character varying, 'viewer'::character varying]::text[])", name: "memberships_role"
+    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying::text, 'co_owner'::character varying::text, 'viewer'::character varying::text])", name: "memberships_role"
+  end
+
+  create_table "reauth_codes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "purpose", null: false
+    t.string "code_digest", null: false
+    t.integer "attempts", default: 0, null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_reauth_codes_on_user_id"
+  end
+
+  create_table "security_events", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "actor_id"
+    t.bigint "household_id"
+    t.string "kind", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["household_id", "created_at"], name: "index_security_events_on_household_id_and_created_at"
+    t.index ["user_id", "created_at"], name: "index_security_events_on_user_id_and_created_at"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -95,6 +118,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
     t.datetime "expires_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "reauthenticated_at"
     t.index ["expires_at"], name: "index_sessions_on_expires_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
@@ -316,6 +340,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_160002) do
   add_foreign_key "invitations", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "reauth_codes", "users", on_delete: :cascade
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

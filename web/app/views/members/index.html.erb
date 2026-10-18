@@ -8,12 +8,26 @@
       <li class="flex items-center justify-between gap-4 px-4 py-3">
         <span><%= membership.user.display_name.presence || membership.user.email_address %>
           <span class="block text-sm text-gray-500"><%= membership.user.email_address %></span></span>
-        <span class="text-sm text-gray-700"><%= t("roles.#{membership.role}") %></span>
+        <span class="flex items-center gap-2 text-sm text-gray-700">
+          <% if policy(Current.household).manage_members? && !membership.owner? %>
+            <%= form_with model: membership, url: household_membership_path(Current.household, membership), method: :patch, class: "flex items-center gap-1" do |form| %>
+              <%= form.select :role, %w[co_owner viewer].map { |r| [ t("roles.#{r}"), r ] }, {}, class: "rounded border px-1 py-1", onchange: "this.form.requestSubmit()" %>
+            <% end %>
+            <%= button_to t(".remove"), household_membership_path(Current.household, membership), method: :delete, class: "text-red-700 underline", form: { data: { turbo_confirm: t(".remove_confirm") } } %>
+          <% else %>
+            <%= t("roles.#{membership.role}") %>
+          <% end %>
+        </span>
       </li>
     <% end %>
   </ul>
 
+  <% unless Current.membership.owner? %>
+    <%= button_to t("accounts.show.leave"), leave_household_memberships_path(Current.household), class: "text-sm text-red-700 underline", form: { data: { turbo_confirm: t("accounts.show.leave_confirm", household: Current.household.name) } } %>
+  <% end %>
+
   <% if policy(Current.household).manage_members? %>
+    <p><%= link_to t("household_settings.show.transfer"), new_household_ownership_transfer_path(Current.household), class: "text-sm text-blue-700 underline" %></p>
     <section class="space-y-3">
       <h2 class="text-lg font-semibold"><%= t(".pending") %></h2>
       <% if @invitations.empty? %>

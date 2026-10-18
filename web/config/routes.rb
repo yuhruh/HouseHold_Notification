@@ -8,12 +8,33 @@ Rails.application.routes.draw do
   get "auth/google_oauth2/callback" => "omniauth_callbacks#create"
   get "auth/failure" => "omniauth_callbacks#failure"
 
+  # My Account and re-auth (PRD §13, §15)
+  resource :account, only: %i[show update]
+  namespace :account do
+    resource :email, only: %i[update destroy] do
+      post :resend
+    end
+    resource :password, only: :update
+    resource :sessions, only: :destroy
+    resource :google_identity, only: :destroy
+    resource :deletion, only: %i[show create]
+  end
+  resource :reauthentication, only: %i[show create] do
+    post :code
+  end
+
   # Households (PRD §12, §12a)
   resource :onboarding, only: :show
   resources :households, only: :create
   scope "h/:household_id", as: :household do
     get "/" => "households#show"
     resources :members, only: :index
+    resource :settings, only: %i[show update], controller: "household_settings"
+    resources :memberships, only: %i[update destroy] do
+      post :leave, on: :collection
+    end
+    resource :ownership_transfer, only: %i[new create]
+    resource :deletion, only: %i[new create], controller: "household_deletions"
     resources :invitations, only: :create, controller: "household_invitations" do
       member do
         post :resend

@@ -4,5 +4,6 @@
   <h1 class="text-3xl font-bold"><%= Current.household.name %></h1>
   <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
   <p class="text-gray-700"><%= t(".coming_soon") %></p>
-  <p><%= link_to t(".members"), household_members_path(Current.household), class: "text-blue-700 underline" %></p>
+  <p class="flex gap-4"><%= link_to t(".members"), household_members_path(Current.household), class: "text-blue-700 underline" %>
+    <%= link_to t("layouts.header.settings"), household_settings_path(Current.household), class: "text-blue-700 underline" %></p>
 </div>

@@ -8,6 +8,8 @@ class User < ApplicationRecord
   has_many :identities, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :households, through: :memberships
+  has_many :reauth_codes, dependent: :delete_all
+  has_many :sent_invitations, class_name: "Invitation", foreign_key: :invited_by_id, inverse_of: :invited_by, dependent: :nullify
   belongs_to :last_household, class_name: "Household", optional: true
 
   normalizes :email_address, :unconfirmed_email, with: ->(e) { e.strip.downcase }
@@ -37,6 +39,11 @@ class User < ApplicationRecord
   end
 
   def password_set? = password_digest.present?
+
+  def google_identity = identities.find_by(provider: "google_oauth2")
+
+  # Sign-in methods left if Google were disconnected (PRD §10: never remove the last one)
+  def can_disconnect_google? = password_set? && email_address.present?
 
   # GET / lands here: last household if still a member, else the first one (PRD §12a)
   def home_household

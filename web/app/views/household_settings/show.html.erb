@@ -1,0 +1,44 @@
+<% content_for :title, t(".title") %>
+<% owner = policy(Current.household).manage? %>
+<div class="w-full max-w-2xl space-y-8 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+
+  <%= form_with model: Current.household, url: household_settings_path(Current.household), method: :patch, class: "space-y-4" do |form| %>
+    <% if Current.household.errors.any? %>
+      <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% Current.household.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+    <% end %>
+    <fieldset class="space-y-4" <%= "disabled" unless owner %>>
+      <%= form.label :name, class: "block text-sm font-medium" %>
+      <%= form.text_field :name, required: true, maxlength: 60, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.label :default_currency, class: "block text-sm font-medium" %>
+      <%= form.select :default_currency, Household::CURRENCIES, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.label :reminder_lead_days, class: "block text-sm font-medium" %>
+      <%= form.number_field :reminder_lead_days, min: 0, max: 30, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <p class="text-sm text-gray-500"><%= t(".lead_days_hint") %></p>
+      <% if owner %><%= form.submit t(".save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %><% end %>
+    </fieldset>
+  <% end %>
+
+  <p><%= link_to t("households.show.members"), household_members_path(Current.household), class: "text-blue-700 underline" %></p>
+
+  <% if owner %>
+    <section class="space-y-3 rounded-lg border border-red-200 p-4">
+      <h2 class="text-lg font-semibold text-red-700"><%= t("accounts.show.danger_zone") %></h2>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500" %>
+      </div>
+    </section>
+  <% end %>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold"><%= t(".activity") %></h2>
+    <ul class="divide-y rounded-lg border text-sm">
+      <% @events.each do |event| %>
+        <li class="px-4 py-2"><%= t("security_events.#{event.kind}") %>
+          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %> · <%= event.actor&.display_name.presence || event.actor&.email_address || t(".former_member") %></span></li>
+      <% end %>
+    </ul>
+  </section>
+</div>

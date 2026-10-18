@@ -10,6 +10,7 @@ zh-TW:
       household:
         name: "家庭名稱"
         default_currency: "預設幣別"
+        reminder_lead_days: "提醒提前天數"
       invitation:
         role: "角色"
   auth:
@@ -79,6 +80,14 @@ zh-TW:
       body: "有人（可能是你）想用這個地址註冊，但這個地址已經有帳號了。"
       sign_in: "登入："
       reset: "忘記密碼？重設密碼："
+    email_change_notice:
+      subject: "你在家庭支出的電子郵件正在變更"
+      body: "有人申請把你在家庭支出的電子郵件變更為 %{email}。該地址確認後才會變更。"
+      not_you: "如果這不是你本人的操作，請登入取消變更並更改密碼。"
+    reauth_code:
+      subject: "你的家庭支出驗證碼：%{code}"
+      body: "這組驗證碼用來%{action}，10 分鐘內有效。"
+      warning: "如果不是你本人的操作，請不要分享驗證碼，並更改密碼。"
   passwords_mailer:
     reset:
       subject: "重設你在家庭支出的密碼"
@@ -96,6 +105,8 @@ zh-TW:
     viewer: "檢視者"
   layouts:
     header:
+      settings: "設定"
+      account: "我的帳戶"
       switch: "切換家庭"
       invitations:
         one: "1 個邀請"
@@ -131,6 +142,8 @@ zh-TW:
       expiry_never: "永不到期"
       custom_date: "日期（選擇「指定日期」時）"
       send: "寄送邀請"
+      remove: "移除"
+      remove_confirm: "確定要將這位成員移出家庭？"
   household_invitations:
     create:
       sent: "已寄送邀請給 %{email}。"
@@ -169,3 +182,147 @@ zh-TW:
       expires: "邀請將於 %{date} 到期。"
       never_expires: "這個邀請不會到期。"
       match_hint: "請使用 %{email} 登入或註冊；邀請只適用於這個地址。"
+  reauth_purposes:
+    delete_account: "刪除你的帳號"
+    change_email: "變更電子郵件"
+    disconnect_google: "取消連結 Google"
+    transfer_ownership: "轉移家庭擁有權"
+    delete_household: "刪除家庭"
+  reauthentications:
+    show:
+      title: "確認是你本人"
+      why: "要%{action}，請先確認是你本人。"
+      confirm: "確認"
+      send_code: "寄送驗證碼到 %{email}"
+      code: "6 位數驗證碼"
+    create:
+      invalid: "不正確，請再試一次。"
+    code:
+      sent: "已寄送驗證碼到 %{email}，10 分鐘內有效。"
+  accounts:
+    show:
+      title: "我的帳戶"
+      profile: "個人資料"
+      locale: "語言"
+      locale_auto: "跟隨瀏覽器"
+      time_zone: "時區"
+      reminder_hour: "提醒時間"
+      save: "儲存"
+      email: "電子郵件"
+      pending_email: "等待確認：%{email}"
+      resend: "重新寄送"
+      cancel: "取消"
+      new_email: "新的電子郵件"
+      current_password: "目前的密碼"
+      change_email: "變更電子郵件"
+      password: "密碼"
+      new_password: "新密碼"
+      change_password: "變更密碼"
+      no_password: "你使用 Google 登入，尚未設定密碼。"
+      set_password: "寄送設定密碼的連結給我"
+      sign_in_methods: "登入方式"
+      google_connected: "已連結 Google（%{email}）"
+      disconnect_google: "取消連結 Google"
+      last_method: "Google 是你唯一的登入方式；請先設定密碼再取消連結。"
+      sessions: "已登入的裝置"
+      last_seen: "最後使用：%{time}"
+      this_device: "這個裝置"
+      sign_out_others: "登出其他所有裝置"
+      households: "家庭"
+      leave: "離開"
+      leave_confirm: "確定要離開 %{household}？之後需要新的邀請才能再加入。"
+      danger_zone: "危險區域"
+      delete_account: "刪除我的帳號"
+    update:
+      saved: "已儲存。"
+  account:
+    emails:
+      update:
+        wrong_password: "目前的密碼不正確。"
+        same: "這已經是你的電子郵件。"
+        pending: "已寄送確認連結到 %{email}，打開連結後才會變更。"
+      resend:
+        resent: "已重新寄送確認連結。"
+      destroy:
+        cancelled: "已取消變更電子郵件。"
+    passwords:
+      update:
+        wrong_password: "目前的密碼不正確。"
+        changed: "密碼已變更，其他裝置已登出。"
+    sessions:
+      destroy:
+        done: "其他裝置已登出。"
+    google_identities:
+      destroy:
+        last_method: "不能移除最後一個登入方式。"
+        disconnected: "已取消連結 Google。"
+    deletions:
+      show:
+        title: "刪除你的帳號"
+        explain: "刪除帳號後無法復原。"
+        removes: "你的個人資料、登入方式與裝置都會被移除，並離開所有家庭。你新增的帳單會留在家庭中，顯示為「前成員」新增。"
+        owner_rule: "如果你擁有的家庭還有其他成員，請先轉移擁有權或刪除該家庭。只有你一位成員的家庭會和帳號一起刪除。"
+        backups: "加密備份會在 4 週內過期。"
+        blocked_heading: "請先處理以下你擁有且有其他成員的家庭："
+        transfer: "轉移擁有權"
+        delete_household: "刪除家庭"
+        type_name: "請輸入家庭名稱以確認：%{name}"
+        delete: "刪除我的帳號"
+        final_confirm: "確定要永久刪除帳號？"
+        sign_in_first: "登入後才能刪除帳號"
+      create:
+        blocked: "目前還不能刪除帳號，請看下方說明。"
+        deleted: "你的帳號已刪除。"
+  household_settings:
+    show:
+      title: "家庭設定"
+      lead_days_hint: "在到期日前幾天寄送即將到期提醒（0–30）。"
+      save: "儲存"
+      transfer: "轉移擁有權"
+      delete: "刪除家庭"
+      activity: "活動紀錄"
+      former_member: "前成員"
+    update:
+      saved: "家庭設定已儲存。"
+  memberships:
+    update:
+      updated: "已變更角色。"
+    destroy:
+      removed: "已移除成員。"
+    leave:
+      owner_cannot_leave: "擁有者不能離開，請先轉移擁有權。"
+      left: "你已離開 %{household}。"
+  ownership_transfers:
+    new:
+      title: "轉移擁有權"
+      explain: "新的擁有者將擁有完整權限，你會變成共同管理者。"
+      no_members: "目前沒有其他成員可以轉移，請先邀請成員。"
+      submit: "轉移"
+      confirm: "確定要現在轉移擁有權？"
+    create:
+      done: "%{name} 現在是擁有者。"
+  household_deletions:
+    new:
+      title: "刪除家庭"
+      explain: "這會為所有成員刪除 %{name} 及其中的所有資料，無法復原。"
+      submit: "刪除家庭"
+    create:
+      name_mismatch: "名稱不符。"
+      deleted: "已刪除 %{name}。"
+  security_events:
+    email_change_requested: "申請變更電子郵件"
+    password_changed: "變更密碼"
+    google_connected: "連結 Google"
+    google_disconnected: "取消連結 Google"
+    sessions_revoked: "登出其他裝置"
+    household_updated: "變更家庭設定"
+    role_changed: "變更成員角色"
+    member_removed: "移除成員"
+    member_left: "成員離開"
+    ownership_transferred: "轉移擁有權"
+    household_deleted: "刪除家庭"
+    account_deleted: "刪除帳號"
+  account_mailer:
+    deleted:
+      subject: "你在家庭支出的帳號已刪除"
+      body: "你在家庭支出的帳號已刪除。如果這不是你本人的操作，請回覆這封信。"

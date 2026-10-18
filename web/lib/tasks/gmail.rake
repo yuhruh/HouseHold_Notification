@@ -17,10 +17,12 @@ namespace :gmail do
       1. Sign in as the SENDER account (#{config[:sender]}) and open:
          #{url}
       2. After approving, the browser is redirected to http://localhost:1/?code=...
-         (the page won't load; that's expected). Copy the `code` value from the address bar.
+         (the page won't load; that's expected). Copy the whole address, or just the `code` value.
     MSG
-    print "Code: "
-    code = $stdin.gets.to_s.strip
+    print "Address or code: "
+    input = $stdin.gets.to_s.strip
+    query = input.include?("code=") ? input.split("?", 2).last : nil
+    code = query ? URI.decode_www_form(query).to_h.fetch("code") : input
     credentials = authorizer.get_credentials_from_code(user_id: "sender", code: code, base_url: "http://localhost:1")
 
     puts <<~MSG

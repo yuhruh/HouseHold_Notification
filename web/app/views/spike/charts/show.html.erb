@@ -1,0 +1,17 @@
+<% content_for :title, "ECharts check" %>
+<div class="w-full max-w-2xl space-y-8">
+  <h1 class="text-2xl font-bold">ECharts check (X6)</h1>
+  <p>Both charts must render, and the Network tab must show one <code>echarts-*.js</code> request and nothing from a CDN.</p>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">Bar</h2>
+    <div class="h-72 w-full" data-controller="spike-chart" data-spike-chart-kind-value="bar"></div>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">Box plot</h2>
+    <div class="h-72 w-full" data-controller="spike-chart" data-spike-chart-kind-value="boxplot"></div>
+  </section>
+
+  <p><%= link_to "← M0 checks", spike_checks_path, class: "text-blue-700 underline" %></p>
+</div>

@@ -35,4 +35,10 @@ class SpikeTest < ActionDispatch::IntegrationTest
   ensure
     FileUtils.rm_f(path)
   end
+
+  test "charts page renders both chart containers" do
+    get spike_charts_path
+    assert_response :success
+    assert_select "[data-controller=spike-chart]", 2
+  end
 end

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     post "checks/volume" => "checks#write_volume", as: :write_volume
     post "checks/error" => "checks#raise_error", as: :raise_error
     post "checks/email" => "checks#send_email", as: :send_email
+    get "charts" => "charts#show"
   end
 
   root to: redirect("/spike/checks")

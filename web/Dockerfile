@@ -14,9 +14,18 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /rails
 
+# pg_dump must match the Railway Postgres major version (BackupJob, M0 check X4), so the client
+# comes from the PostgreSQL apt repo instead of Debian's (bookworm ships 15).
+ARG PG_MAJOR=18
+
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips libheif1 postgresql-client \
+    apt-get install --no-install-recommends -y ca-certificates curl && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/keyrings/pgdg.asc && \
+    echo "deb [signed-by=/usr/share/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" \
+      > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y libjemalloc2 libvips libheif1 postgresql-client-$PG_MAJOR \
       $(apt-cache show libheif-plugin-libde265 >/dev/null 2>&1 && echo libheif-plugin-libde265) && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives

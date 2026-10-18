@@ -20,6 +20,10 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | Volume survives a redeploy | ☑ | line written by deployment 824c80aa still present after redeploy 6c0e873a |
 | GitHub repo (private) + CI | ☑ | `<owner>/HouseHold_Notification`; CI green on main (run 39069086790) |
 | Push spike on a real Android phone → ADR 0003 | ⏸ | |
+| X4 `pg_dump` matches Railway Postgres | ☑ | was 15 vs 18; Dockerfile installs `postgresql-client-18` from PGDG (ADR 0005) |
+| X5 HEIC decodes in the image | ☑ | HEIC fixture → stripped JPEG via `ImageProcessing::Vips`; `ruby-vips` re-added to Gemfile (ADR 0005) |
+| X6 ECharts via importmap | ☑ | fallback: custom build, `bin/build-echarts` → one vendored file; `/spike/charts` (ADR 0005) |
+| X1–X3, X8–X10 external checks | ⏸ | Google projects, Gmail sender, backups go-ahead, family phones (ADR 0005) |
 | Import dry-run #1 on the real CSV | ⏸ | needs the CSV export with the ID column |
 
 Exit criteria: app live on Railway; volume file survives a redeploy; CI green; push received with

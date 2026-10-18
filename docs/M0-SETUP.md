@@ -1,7 +1,8 @@
 # M0 setup steps that need the owner's accounts
 
 The code for M0 is in `web/`. These steps create or connect external accounts, so they are done by
-Alex (or by Claude with the owner's go-ahead).
+Alex (or by Claude with the owner's go-ahead). All of them were done on 2026-10-17/18; the notes
+below record what actually worked.
 
 ## 1. Railway (done 2026-10-17 by Claude)
 Project **household-tracker** (separate from Cat_Feeder_Tracker_V4): services `web` + `Postgres`,
@@ -26,35 +27,58 @@ Original steps, for reference:
    - `SENTRY_DSN` = from step 2 below
 6. Deploy, open `https://APP_HOST/spike/checks`.
 
-## 2. Sentry
-Create a free Sentry project (platform: Rails), copy the DSN into `SENTRY_DSN`, then on
-`/spike/checks` press **Raise a test exception** and confirm the alert email.
+## 2. Sentry (done 2026-10-18)
+Project `household-tracker/household-tracker-web` (EU ingest); DSN in the Railway variable
+`SENTRY_DSN`. The default "high priority issues" alert emails Alex; the test exception from
+`/spike/checks` arrived as HOUSEHOLD-TRACKER-WEB-1. Gmail files Sentry mail under Updates: a filter
+on `from:noreply@md.getsentry.com` → Categorize as Primary keeps alerts visible.
 
-## 3. Gmail API sender
-1. Create a dedicated Gmail account for the household (e.g. `…bills@gmail.com`).
-2. Google Cloud Console: new project (separate from the future sign-in project) → enable
-   **Gmail API** → OAuth consent screen (External) → **Publish app ("In production")**. In
-   "Testing", refresh tokens expire after 7 days.
-3. Credentials → OAuth client ID → **Desktop app**. Put client id/secret in credentials:
-   `cd web && bin/rails credentials:edit`
-   ```yaml
-   gmail:
-     client_id: ...
-     client_secret: ...
-     sender: household.bills@gmail.com
-     refresh_token: (step 4)
-   ```
-4. `cd web && bin/rails gmail:authorize`, sign in as the sender, paste the code, then add the
-   printed refresh token to credentials. Commit `config/credentials.yml.enc` (encrypted).
-5. On `/spike/checks`, send a test email to a family Gmail address and confirm it's in the inbox.
+## 3. Gmail API sender (done 2026-10-18)
+Sender: the owner's personal Gmail `owner@gmail.com` (decision and risks in ADR 0005, X8).
+GCP project `household-mailer`. What worked, in order:
+1. Google Auth Platform (console.cloud.google.com/auth) → Get started: External, app name, contacts.
+2. Branding: **no logo** (a logo blocks publishing until Google verifies the app). Home page
+   `https://household-tracker.up.railway.app` and privacy policy `…/privacy` are **required** to
+   publish; authorized domain `household-tracker.up.railway.app`.
+3. Data Access: leave empty (the authorize task requests `gmail.send` itself).
+4. Audience → **Publish app** (In production). In Testing the refresh token dies after 7 days.
+5. Clients → **Desktop app** (it accepts `http://localhost:<port>` redirects without registering them).
+6. `cd web && EDITOR=nano bin/rails credentials:edit` → `gmail: client_id, client_secret, sender`.
+7. `bin/rails gmail:authorize`, open the URL as the sender, Advanced → Go to … (unsafe) → Continue,
+   paste the whole `http://localhost:1/?…` address back into the **terminal** (codes expire in
+   minutes), then add the printed `refresh_token` to credentials. Never paste the token in chat.
+8. Commit `config/credentials.yml.enc`, deploy, send a test from `/spike/checks`.
+X8 runs `Spike::GmailDurabilityJob` (09:00/20:00 Taipei) to the Railway variable `X8_RECIPIENTS`
+until 2026-10-26.
 
-## 4. Push spike (real Android phone)
-Follow `/spike/push`, then fill in `docs/adr/0003-push-spike.md`.
+## 4. Google sign-in project (done 2026-10-18)
+GCP project `household-signin`: same Branding rules (no logo; home page, privacy link and authorized
+domain), Data Access `openid`, `userinfo.email`, `userinfo.profile` only, Published, **no test
+users**. Client: **Web application** with redirect URIs
+`https://household-tracker.up.railway.app/auth/google_oauth2/callback` and
+`http://localhost:3000/auth/google_oauth2/callback`. Credentials: `google_sign_in: client_id,
+client_secret`. Checked on `/spike/google`: X2 and X10 pass; X1 fails (Google ignores
+`prompt=login`/`max_age=0` and never returns `auth_time`), so re-auth is an emailed code (ADR 0005).
 
-## 5. Import dry-run #1
-Add the `ID` column to the 記錄 tab (1…N, pasted as values), File → Download → CSV, then:
-`cd web && bin/rails import:dry_run CSV=~/Downloads/記錄.csv` and log the result in
-`docs/TRACKING.md` → Sheet cleanup log. The CSV contains household data: keep it out of git.
+## 5. Push spike (real Android phone)
+Open `/spike/push` in **Chrome** (the installed app opens at `/`; use the "M0 checks" link on the
+home page to reach the spike pages from it) and tap **Enable notifications**. If it says
+"permission: denied": tap the icon left of the address bar → Permissions → Notifications → Allow,
+and check Android Settings → Apps → Chrome (and 我的家) → Notifications. Run the four tests and fill
+in `docs/adr/0003-push-spike.md`. "Received" is when the phone's receipt reached the server, which
+can lag behind the notification itself when the screen is off.
+
+## 6. Import dry-run
+Export the 記錄 tab as CSV (keep it out of git), then
+`cd web && bin/rails import:dry_run CSV=~/Downloads/<file>.csv`; log each round in
+`docs/TRACKING.md` → Sheet cleanup log. Tips from rounds 1–3: Google Sheets turns `10月` into a date,
+so type `'10月`; the **ID column must be plain values** (Copy → Paste special → Values only),
+otherwise deleting a row renumbers every ID below it; the report checks the sheet's Total cell
+against the Paid sum.
+
+## 7. Backups
+Railway Hobby can't create volume backups (X3). The M2 `BackupJob` emails an encrypted weekly
+`pg_dump`; choose its passphrase and store it in the password manager before M2.
 
 ### Manual deploy
 The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual

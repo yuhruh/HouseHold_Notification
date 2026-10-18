@@ -4,4 +4,6 @@
   <p class="text-gray-700">家庭帳單、維修與稅務提醒。僅限受邀的家庭成員使用。</p>
   <p class="text-gray-700">Household bills, maintenance and tax reminders. For invited family members only.</p>
   <p><%= link_to "隱私權政策 / Privacy policy", privacy_path, class: "text-blue-700 underline" %></p>
+  <%# M0 spike pages (basic auth) are otherwise unreachable from the installed PWA; removed after M5. %>
+  <p class="text-sm"><%= link_to "M0 checks", spike_checks_path, class: "text-gray-500 underline" %></p>
 </div>

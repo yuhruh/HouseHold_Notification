@@ -15,6 +15,7 @@
 | 2 | Pixel 9 / Android 17 / Chrome 155 | app closed, screen off | 10 min (22:01) | 22:01:32 (201) | 22:27:08 | 25.6 min | ⚠ receipt late; notification time to confirm |
 | 3 | Pixel 9 / Android 17 / Chrome 155 | battery saver on, screen off | 1 h (22:57) | 22:57:09 (201) | 22:57:11 | 1.4 s | ✅ |
 | 4 | Pixel 9 / Android 17 / Chrome 155 | overnight, battery saver | 8 h (05:57) | 05:57:12 (201) | 07:49:27 | 112 min | ⚠ receipt late; notification time to confirm |
+| 2b | Pixel 9 / Android 17 / Chrome 155 | screen off (~10 min idle) | 10 min (09:37, 10-19) | 09:37:12 (201) | 09:37:14 | 2.0 s | ✅ |
 
 Email-link loop: open a link from Gmail on the phone → does it land signed in (Chrome cookie jar
 shared with the installed PWA)? Result: _pending_ (meaningful once M1 sign-in exists; re-check then).
@@ -32,3 +33,5 @@ only reached the server at 07:49:27. That looks like Android Doze holding the ph
 it woke, and the phone may have woken when it was picked up. Tests 2 and 4 both show the same
 late-receipt pattern with the screen off. The open question is whether the notification itself
 appeared on time (Chrome can show it while the receipt's network call waits) or also late.
+Retest 2b (09:37) arrived in 2 s after ~10 min idle, so short idle is fine; the overnight retest
+(10-19 night, Notification history on, unplugged) decides whether deep Doze delays notifications.

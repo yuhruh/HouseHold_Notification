@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
     t.index ["category_id"], name: "index_category_aliases_on_category_id"
     t.index ["household_id", "alias"], name: "index_category_aliases_on_household_id_and_alias", unique: true
     t.index ["household_id"], name: "index_category_aliases_on_household_id"
+  end
+
+  create_table "delivery_attempts", force: :cascade do |t|
+    t.bigint "reminder_delivery_id", null: false
+    t.bigint "push_subscription_id"
+    t.string "channel", null: false
+    t.string "status", null: false
+    t.integer "http_status"
+    t.string "error"
+    t.string "receipt_token_digest"
+    t.datetime "attempted_at", null: false
+    t.datetime "received_at"
+    t.index ["reminder_delivery_id"], name: "index_delivery_attempts_on_reminder_delivery_id"
   end
 
   create_table "households", force: :cascade do |t|
@@ -176,6 +189,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
     t.check_constraint "role::text = ANY (ARRAY['owner'::character varying, 'co_owner'::character varying, 'viewer'::character varying]::text[])", name: "memberships_role"
   end
 
+  create_table "notification_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "household_id", null: false
+    t.boolean "web_push", null: false
+    t.boolean "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_notification_preferences_on_household_id"
+    t.index ["user_id", "household_id"], name: "index_notification_preferences_on_user_id_and_household_id", unique: true
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "body"
+    t.string "url"
+    t.bigint "record_id"
+    t.bigint "reminder_delivery_id"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.index ["household_id"], name: "index_notifications_on_household_id"
+    t.index ["reminder_delivery_id"], name: "index_notifications_on_reminder_delivery_id"
+    t.index ["user_id", "read_at", "created_at"], name: "index_notifications_on_user_id_and_read_at_and_created_at"
+  end
+
   create_table "payment_methods", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
@@ -246,6 +286,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
     t.datetime "updated_at", null: false
     t.bigint "import_batch_id"
     t.bigint "recurring_template_id"
+    t.date "reminders_restarted_on"
     t.index ["category_id"], name: "index_records_on_category_id"
     t.index ["created_by_id"], name: "index_records_on_created_by_id"
     t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"
@@ -295,6 +336,55 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
     t.check_constraint "lead_days >= 0 AND lead_days <= 90", name: "recurring_templates_lead_days"
     t.check_constraint "period_span_months >= 1 AND period_span_months <= 12", name: "recurring_templates_span"
     t.check_constraint "record_type::text = ANY (ARRAY['expense'::character varying, 'maintenance'::character varying, 'tax'::character varying]::text[])", name: "recurring_templates_record_type"
+  end
+
+  create_table "reminder_deliveries", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.string "channel", null: false
+    t.date "run_on", null: false
+    t.boolean "addition", default: false, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "dispatched_at"
+    t.string "error"
+    t.integer "attempts", default: 0, null: false
+    t.datetime "sent_at"
+    t.datetime "failed_at"
+    t.bigint "resent_by_id"
+    t.datetime "resent_at"
+    t.datetime "owner_notified_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "user_id", "channel", "run_on", "addition"], name: "index_reminder_deliveries_one_per_day", unique: true
+    t.index ["household_id"], name: "index_reminder_deliveries_on_household_id"
+    t.index ["resent_by_id"], name: "index_reminder_deliveries_on_resent_by_id"
+    t.index ["status", "dispatched_at"], name: "index_reminder_deliveries_on_status_and_dispatched_at"
+    t.index ["user_id"], name: "index_reminder_deliveries_on_user_id"
+    t.check_constraint "channel::text = ANY (ARRAY['in_app'::character varying, 'email'::character varying, 'web_push'::character varying]::text[])", name: "reminder_deliveries_channel"
+    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying, 'awaiting_receipt'::character varying, 'sent'::character varying, 'failed'::character varying, 'resolved'::character varying]::text[])", name: "reminder_deliveries_status"
+  end
+
+  create_table "reminder_logs", force: :cascade do |t|
+    t.bigint "record_id", null: false
+    t.bigint "user_id", null: false
+    t.string "kind", null: false
+    t.string "channel", null: false
+    t.date "scheduled_on", null: false
+    t.boolean "snoozed", default: false, null: false
+    t.bigint "reminder_delivery_id"
+    t.datetime "created_at", null: false
+    t.index ["record_id", "user_id", "kind", "channel", "scheduled_on"], name: "index_reminder_logs_claim", unique: true
+    t.index ["reminder_delivery_id"], name: "index_reminder_logs_on_reminder_delivery_id"
+    t.index ["user_id"], name: "index_reminder_logs_on_user_id"
+  end
+
+  create_table "reminder_snoozes", force: :cascade do |t|
+    t.bigint "record_id", null: false
+    t.bigint "user_id", null: false
+    t.date "until_on", null: false
+    t.datetime "created_at", null: false
+    t.index ["record_id", "user_id"], name: "index_reminder_snoozes_on_record_id_and_user_id", unique: true
+    t.index ["user_id"], name: "index_reminder_snoozes_on_user_id"
   end
 
   create_table "security_events", force: :cascade do |t|
@@ -536,6 +626,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
   add_foreign_key "categories", "households"
   add_foreign_key "category_aliases", "categories"
   add_foreign_key "category_aliases", "households"
+  add_foreign_key "delivery_attempts", "reminder_deliveries", on_delete: :cascade
   add_foreign_key "identities", "users"
   add_foreign_key "import_batch_changes", "import_batches"
   add_foreign_key "import_batches", "households"
@@ -549,6 +640,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
   add_foreign_key "invitations", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "notification_preferences", "households"
+  add_foreign_key "notification_preferences", "users"
+  add_foreign_key "notifications", "households"
+  add_foreign_key "notifications", "reminder_deliveries", on_delete: :nullify
+  add_foreign_key "notifications", "users", on_delete: :cascade
   add_foreign_key "payment_methods", "households"
   add_foreign_key "reauth_codes", "users", on_delete: :cascade
   add_foreign_key "record_events", "households"
@@ -562,6 +658,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
   add_foreign_key "recurring_templates", "categories"
   add_foreign_key "recurring_templates", "households"
   add_foreign_key "recurring_templates", "payment_methods", on_delete: :nullify
+  add_foreign_key "reminder_deliveries", "households"
+  add_foreign_key "reminder_deliveries", "users"
+  add_foreign_key "reminder_deliveries", "users", column: "resent_by_id", on_delete: :nullify
+  add_foreign_key "reminder_logs", "records", on_delete: :cascade
+  add_foreign_key "reminder_logs", "reminder_deliveries", on_delete: :nullify
+  add_foreign_key "reminder_logs", "users", on_delete: :cascade
+  add_foreign_key "reminder_snoozes", "records", on_delete: :cascade
+  add_foreign_key "reminder_snoozes", "users", on_delete: :cascade
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

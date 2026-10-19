@@ -4,7 +4,8 @@ require "test_helper"
 class I18nTest < ActiveSupport::TestCase
   def keys(locale)
     flatten = ->(hash, prefix = nil) { hash.flat_map { |k, v| v.is_a?(Hash) ? flatten.(v, [ prefix, k ].compact.join(".")) : [ [ prefix, k ].compact.join(".") ] } }
-    flatten.(YAML.load_file(Rails.root.join("config/locales/#{locale}.yml"))[locale.to_s])
+    files = [ Rails.root.join("config/locales/#{locale}.yml"), *Dir[Rails.root.join("config/locales/*.#{locale}.yml")] ]
+    files.flat_map { |file| flatten.(YAML.load_file(file)[locale.to_s]) }
   end
 
   test "zh-TW and en define the same keys" do

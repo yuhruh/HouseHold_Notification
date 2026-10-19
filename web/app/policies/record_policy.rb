@@ -9,4 +9,6 @@ class RecordPolicy < ApplicationPolicy
   alias_method :update?, :write?
   alias_method :destroy?, :write?
   alias_method :mark_paid?, :write?
+  alias_method :restart_reminders?, :write?
+  alias_method :done?, :write?
 end

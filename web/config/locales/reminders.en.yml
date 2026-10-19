@@ -1,0 +1,82 @@
+en:
+  layouts:
+    header:
+      upcoming: "Upcoming"
+      inbox:
+        one: "Inbox, 1 unread"
+        other: "Inbox, %{count} unread"
+  reminders:
+    digest:
+      title:
+        one: "%{household}: 1 bill needs attention"
+        other: "%{household}: %{count} bills need attention"
+      upcoming: "Everything due and overdue:"
+      footer: "Open a bill to mark it paid or snooze its reminders. Change channels and the reminder hour in My account → Notifications."
+    wording:
+      bill:
+        due_in:
+          one: "due tomorrow"
+          other: "due in %{count} days"
+        due_today: "due today"
+        overdue:
+          one: "1 day overdue"
+          other: "%{count} days overdue"
+      maintenance:
+        due_in:
+          one: "maintenance due tomorrow"
+          other: "maintenance due in %{count} days"
+        due_today: "maintenance due today"
+        overdue:
+          one: "maintenance 1 day overdue"
+          other: "maintenance %{count} days overdue"
+      final: "; reminders stop now"
+      no_due_date: "unpaid (no due date)"
+      snooze_ended: "your snooze has ended; still unpaid"
+  records:
+    form:
+      continues: "Continues %{title} · %{details}: saving clears that record's next-due date."
+    reminders:
+      snooze: "Snooze"
+      snooze_days:
+        one: "1 day"
+        other: "%{count} days"
+      snooze_until: "Until a date"
+      snoozed_until: "You snoozed until %{date}"
+      cancel_snooze: "Cancel snooze"
+      stopped: "Reminders stopped"
+      restart: "Restart reminders"
+      done: "Done"
+    restart_reminders:
+      restarted: "Reminders restarted."
+  snoozes:
+    create:
+      snoozed: "Snoozed until %{date}, just for you."
+      invalid: "Pick a date within the next %{max} days."
+    destroy:
+      cancelled: "Snooze cancelled."
+  upcoming:
+    show:
+      title: "Upcoming"
+      empty: "Nothing is due. 🎉"
+      overdue: "Overdue"
+      soon: "Due in the next 30 days"
+      maintenance: "Maintenance due"
+      no_due: "No due date"
+  notifications:
+    index:
+      title: "Inbox"
+      empty: "No notifications yet."
+  accounts:
+    show:
+      notifications: "Notifications"
+      notifications_hint: "Reminders arrive once a day at %{hour} (change it under Profile). The in-app inbox always gets them."
+      lead_days:
+        one: "Due-soon reminders 1 day ahead (set by the owner)"
+        other: "Due-soon reminders %{count} days ahead (set by the owner)"
+      channel_email: "Email"
+      channel_push: "Push"
+      push_later: "Push notifications arrive with the next update (M5)."
+  account:
+    notification_preferences:
+      update:
+        saved: "Notification settings saved."

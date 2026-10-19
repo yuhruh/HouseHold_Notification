@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       post :resend
     end
     resource :password, only: :update
+    resources :notification_preferences, only: :update, param: :household_id
     resource :sessions, only: :destroy
     resource :google_identity, only: :destroy
     resource :deletion, only: %i[show create]
@@ -33,10 +34,15 @@ Rails.application.routes.draw do
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection
     end
+    get "upcoming" => "upcoming#show", as: :upcoming
     resources :records do
       member do
         get :mark_paid
         post :mark_paid
+        post :snooze, to: "snoozes#create"
+        delete :snooze, to: "snoozes#destroy"
+        post :restart_reminders
+        get :done
       end
     end
     resources :imports, only: %i[new create show] do
@@ -61,6 +67,9 @@ Rails.application.routes.draw do
         post :revoke
       end
     end
+  end
+  resources :notifications, only: :index do
+    post :read_all, on: :collection
   end
   resources :invitations, only: :index do
     member do

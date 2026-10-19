@@ -1,0 +1,36 @@
+<% content_for :title, t(".title") %>
+<% writer = policy(Record).write? %>
+<div class="w-full max-w-3xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <% sections = [ [ :overdue, @overdue ], [ :soon, @soon ], [ :maintenance, @maintenance ], [ :no_due, @no_due ] ] %>
+  <% if sections.all? { |_, list| list.empty? } %>
+    <p class="text-gray-600"><%= t(".empty") %></p>
+  <% end %>
+  <% sections.each do |key, list| %>
+    <% next if list.empty? %>
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
+      <ul class="divide-y rounded-lg border">
+        <% list.each do |record| %>
+          <li class="space-y-1 px-4 py-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span><%= link_to record.title, household_record_path(Current.household, record), class: "font-medium text-blue-700 underline" %>
+                <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span>
+                <span class="block text-sm <%= key == :overdue ? 'text-red-700' : 'text-gray-700' %>"><%= Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : (key == :no_due ? "no_due_repeat" : "due_today"), @today) %>
+                  <%= " · #{Reminders::Wording.outstanding(record)}" if key != :maintenance && record.amount_required %></span></span>
+              <% if writer && key != :maintenance %>
+                <% if record.amount_required.nil? && !record.maintenance? %>
+                  <%= link_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, record), class: "rounded border border-green-700 px-2 py-0.5 text-sm text-green-800" %>
+                <% else %>
+                  <%= button_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, record), class: "cursor-pointer rounded border border-green-700 px-2 py-0.5 text-sm text-green-800" %>
+                <% end %>
+              <% end %>
+            </div>
+            <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id] %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

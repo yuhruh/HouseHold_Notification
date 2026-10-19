@@ -1,0 +1,82 @@
+zh-TW:
+  layouts:
+    header:
+      upcoming: "待處理"
+      inbox:
+        one: "通知，1 則未讀"
+        other: "通知，%{count} 則未讀"
+  reminders:
+    digest:
+      title:
+        one: "%{household}：1 筆帳單需要處理"
+        other: "%{household}：%{count} 筆帳單需要處理"
+      upcoming: "所有即將到期與逾期的帳單："
+      footer: "打開帳單可以標記已繳或延後提醒。可在「我的帳戶 → 通知」變更通知方式與提醒時間。"
+    wording:
+      bill:
+        due_in:
+          one: "明天到期"
+          other: "%{count} 天後到期"
+        due_today: "今天到期"
+        overdue:
+          one: "已逾期 1 天"
+          other: "已逾期 %{count} 天"
+      maintenance:
+        due_in:
+          one: "明天該保養"
+          other: "%{count} 天後該保養"
+        due_today: "今天該保養"
+        overdue:
+          one: "保養已逾期 1 天"
+          other: "保養已逾期 %{count} 天"
+      final: "，之後不再提醒"
+      no_due_date: "尚未繳費（未設定到期日）"
+      snooze_ended: "延後提醒已結束，仍未繳費"
+  records:
+    form:
+      continues: "延續 %{title} · %{details}：儲存後會清除該記錄的下次到期日。"
+    reminders:
+      snooze: "稍後提醒"
+      snooze_days:
+        one: "1 天"
+        other: "%{count} 天"
+      snooze_until: "指定日期"
+      snoozed_until: "你已延後到 %{date}"
+      cancel_snooze: "取消延後"
+      stopped: "提醒已停止"
+      restart: "重新提醒"
+      done: "完成"
+    restart_reminders:
+      restarted: "已重新開始提醒。"
+  snoozes:
+    create:
+      snoozed: "已延後到 %{date}，只對你生效。"
+      invalid: "請選擇 %{max} 天內的日期。"
+    destroy:
+      cancelled: "已取消延後。"
+  upcoming:
+    show:
+      title: "待處理"
+      empty: "目前沒有需要處理的帳單。🎉"
+      overdue: "逾期"
+      soon: "30 天內到期"
+      maintenance: "該保養了"
+      no_due: "未設定到期日"
+  notifications:
+    index:
+      title: "通知"
+      empty: "還沒有通知。"
+  accounts:
+    show:
+      notifications: "通知"
+      notifications_hint: "提醒每天 %{hour} 寄送一次（可在個人資料變更）。App 內的通知一定會收到。"
+      lead_days:
+        one: "到期前 1 天提醒（由擁有者設定）"
+        other: "到期前 %{count} 天提醒（由擁有者設定）"
+      channel_email: "Email"
+      channel_push: "推播"
+      push_later: "推播通知會在下次更新（M5）推出。"
+  account:
+    notification_preferences:
+      update:
+        saved: "已儲存通知設定。"

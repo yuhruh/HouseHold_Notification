@@ -63,7 +63,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Task | Status | Notes |
 |---|---|---|
 | M4a: recurring templates + daily catch-up generation | ☑ | 2026-10-19: templates (interval, first month, months per bill, start date, due day + **due month offset** (our addition: due_day alone can't say "1月–2月 water is due in March"), lead days, fixed/variable amount, no-due-date reminder frequency); `GenerateRecurringRecordsJob` daily 00:10 Taipei in the owner's zone, links a single matching bill, asks when 2+ match; template changes confirm before updating untouched unpaid bills (amount; started period in place, not-started regenerated); delete keeps bills. Heartbeat via `GENERATE_HEARTBEAT_URL` (optional) |
-| M4b: reminder engine (schedule, digests, email + in-app inbox, Upcoming, snooze, restart, maintenance Done, preferences) | ☐ | |
+| M4b: reminder engine (schedule, digests, email + in-app inbox, Upcoming, snooze, restart, maintenance Done, preferences) | ☑ | 2026-10-19: `Reminders::Schedule` (D−lead, D, D+3…D+30, final D+33; restart cycle; next-due; no-due-date frequencies), `SendRemindersJob` hourly at :05 (claim → delivery, one digest per member × household × channel × day + one same-day addition, catch-up sends only the latest stage, wording from today, stuck-pending recovery, `REMINDER_HEARTBEAT_URL`), `DeliverReminderJob` (3 retries; revoked Gmail token fails at once + heartbeat /fail), in-app inbox + 🔔, Upcoming page, personal snooze, restart after cap, maintenance Done, per-household channel toggles (viewers default off). Web Push channel joins in M5 |
 | M4c: owner failure summary, delivery status page + resend, reminder heartbeats | ☐ | |
 
 ## Sheet cleanup log

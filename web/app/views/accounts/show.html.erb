@@ -101,6 +101,22 @@
     </ul>
   </section>
 
+  <section id="notifications" class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".notifications") %></h2>
+    <p class="text-sm text-gray-600"><%= t(".notifications_hint", hour: format("%02d:00", Current.user.reminder_hour)) %></p>
+    <% Current.user.memberships.includes(:household).each do |membership| %>
+      <% pref = NotificationPreference.for(membership) %>
+      <%= form_with model: pref, url: account_notification_preference_path(membership.household_id), method: :patch, class: "flex flex-wrap items-center gap-4 rounded-lg border px-4 py-2 text-sm" do |f| %>
+        <span class="grow font-medium"><%= membership.household.name %>
+          <span class="block text-xs font-normal text-gray-500"><%= t(".lead_days", count: membership.household.reminder_lead_days) %></span></span>
+        <label class="flex items-center gap-1"><%= f.check_box :email %> <%= t(".channel_email") %></label>
+        <label class="flex items-center gap-1 text-gray-400" title="<%= t(".push_later") %>"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
+        <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+      <% end %>
+    <% end %>
+    <p class="text-xs text-gray-500"><%= t(".push_later") %></p>
+  </section>
+
   <section class="space-y-3 rounded-lg border border-red-200 p-4">
     <h2 class="text-lg font-semibold text-red-700"><%= t(".danger_zone") %></h2>
     <%= link_to t(".delete_account"), account_deletion_path, class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500 inline-block" %>

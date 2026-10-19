@@ -1,0 +1,17 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <% if @notifications.empty? %>
+    <p class="text-gray-600"><%= t(".empty") %></p>
+  <% else %>
+    <ul class="divide-y rounded-lg border">
+      <% @notifications.each do |n| %>
+        <li class="px-4 py-3 <%= 'bg-blue-50' if @unread_ids.include?(n.id) %>">
+          <p class="font-medium"><%= n.url ? link_to(n.title, n.url, class: "text-blue-700 underline") : n.title %></p>
+          <% if n.body.present? %><p class="whitespace-pre-line text-sm text-gray-700"><%= n.body %></p><% end %>
+          <p class="text-xs text-gray-500"><%= n.household.name %> · <%= l(n.created_at, format: :short) %></p>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

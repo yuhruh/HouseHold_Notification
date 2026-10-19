@@ -19,7 +19,8 @@ class PageRenderTest < ActionDispatch::IntegrationTest
       new_household_ownership_transfer_path(home), new_household_deletion_path(home), invitations_path,
       household_records_path(home), new_household_record_path(home), household_payment_methods_path(home),
       new_household_payment_method_path(home), household_categories_path(home), new_household_category_path(home),
-      new_household_import_path(home), household_recurring_templates_path(home), new_household_recurring_template_path(home) ].each do |path|
+      new_household_import_path(home), household_recurring_templates_path(home), new_household_recurring_template_path(home),
+      household_upcoming_path(home), notifications_path ].each do |path|
       get path
       assert_response :success, path
     end

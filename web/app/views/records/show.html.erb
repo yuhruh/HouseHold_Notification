@@ -24,6 +24,8 @@
     <dt class="text-gray-500"><%= Record.human_attribute_name(:next_due_on) %></dt><dd><%= @record.next_due_on ? l(@record.next_due_on) : "–" %></dd>
   </dl>
 
+  <%= render "records/reminder_actions", record: @record, snooze: @snooze&.until_on %>
+
   <% if writer %>
     <div class="flex flex-wrap gap-2">
       <% unless @record.settled %>

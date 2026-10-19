@@ -10,6 +10,8 @@ class Record < ApplicationRecord
   belongs_to :created_by, class_name: "User", optional: true
   belongs_to :import_batch, optional: true
   belongs_to :recurring_template, optional: true
+  has_many :reminder_logs, dependent: :delete_all
+  has_many :reminder_snoozes, dependent: :delete_all
 
   enum :record_type, Category::RECORD_TYPES, validate: true
   enum :reminder_frequency, REMINDER_FREQUENCIES.index_by(&:itself), prefix: :reminder, validate: true
@@ -30,6 +32,8 @@ class Record < ApplicationRecord
 
   before_validation :fill_derived_fields
   before_save { self.settled = paid_by_rule? }
+  # Paying the record clears every member's snooze (PRD §6)
+  after_save { reminder_snoozes.delete_all if saved_change_to_settled? && settled }
   before_create :assign_record_no
 
   # Billing period overlaps [from, to], both as year * 12 + month

@@ -1,0 +1,9 @@
+<% @logs.each do |log| %>
+- <%= Reminders::Wording.line(log.record, log.kind, @today) %>
+  <%= household_record_url(@household, log.record) %>
+<% end %>
+
+<%= t("reminders.digest.upcoming") %>
+<%= household_upcoming_url(@household) %>
+
+<%= t("reminders.digest.footer") %>

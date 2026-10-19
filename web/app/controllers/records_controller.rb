@@ -19,6 +19,7 @@ class RecordsController < ApplicationController
   def show
     authorize @record
     @events = Current.household.record_events.where(record_id: @record.id).includes(:user).order(created_at: :desc)
+    @snooze = ReminderSnooze.find_by(record: @record, user: Current.user)
   end
 
   def new
@@ -28,11 +29,32 @@ class RecordsController < ApplicationController
       period_start_month: today.month, period_end_month: today.month)
   end
 
+  # Maintenance "Done" (PRD §6): a prefilled new record in the same chain, finished today; saving it
+  # clears next_due_on on this one
+  def done
+    authorize @record, :create?
+    today = Date.current
+    @continues = @record
+    @record = Current.household.records.new(@continues.slice(:record_type, :category_id, :title, :details, :payment_method_id, :currency)
+      .merge(period_year: today.year, period_start_month: today.month, period_end_month: today.month, paid_on: today))
+    render :new
+  end
+
+  def restart_reminders
+    authorize @record, :update?
+    if save_with_event(@record.tap { |r| r.reminders_restarted_on = Date.current }, :reminders_restarted)
+      redirect_back_or_to household_record_path(Current.household, @record), notice: t(".restarted")
+    else
+      redirect_back_or_to household_record_path(Current.household, @record), alert: @record.errors.full_messages.to_sentence
+    end
+  end
+
   def create
     authorize Record
     @record = Current.household.records.new(created_by: Current.user)
     assign(@record)
-    if save_with_event(@record, :created)
+    @continues = Current.household.records.find_by(id: params[:continues_id]) if params[:continues_id].present?
+    if save_with_event(@record, :created) { @continues&.update!(next_due_on: nil) }
       redirect_to household_record_path(Current.household, @record), notice: t(".created")
     else
       render :new, status: :unprocessable_content
@@ -104,6 +126,7 @@ class RecordsController < ApplicationController
     Record.transaction do
       record.save!
       RecordEvent.log!(record, action, user: Current.user)
+      yield if block_given?
     end
     true
   rescue ActiveRecord::RecordInvalid

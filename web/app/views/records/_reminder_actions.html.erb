@@ -1,0 +1,29 @@
+<%# Snooze (everyone), restart reminders and maintenance Done (writers) — PRD §6 %>
+<% snooze = local_assigns[:snooze] %>
+<% writer = policy(record).write? %>
+<div class="flex flex-wrap items-center gap-2 text-sm">
+  <% if snooze %>
+    <span class="rounded bg-blue-50 px-2 py-0.5 text-blue-900"><%= t("records.reminders.snoozed_until", date: l(snooze)) %></span>
+    <%= button_to t("records.reminders.cancel_snooze"), snooze_household_record_path(Current.household, record), method: :delete, class: "cursor-pointer underline" %>
+  <% else %>
+    <details class="relative">
+      <summary class="cursor-pointer rounded border px-2 py-0.5"><%= t("records.reminders.snooze") %></summary>
+      <div class="absolute z-10 mt-1 flex w-56 flex-col gap-1 rounded-md border bg-white p-2 shadow">
+        <% [ 3, 7, 14 ].each do |days| %>
+          <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-gray-50" %>
+        <% end %>
+        <%= form_with url: snooze_household_record_path(Current.household, record), method: :post, class: "flex gap-1" do |f| %>
+          <%= f.date_field :until_on, min: Date.current + 1, max: Date.current + ReminderSnooze::MAX_DAYS, required: true, class: "w-full rounded border px-1", "aria-label": t("records.reminders.snooze_until") %>
+          <%= f.submit "OK", class: "cursor-pointer rounded border px-2" %>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
+  <% if writer && Reminders::Schedule.reminders_stopped?(record, Date.current) %>
+    <span class="rounded bg-gray-100 px-2 py-0.5 text-gray-700"><%= t("records.reminders.stopped") %></span>
+    <%= button_to t("records.reminders.restart"), restart_reminders_household_record_path(Current.household, record), class: "cursor-pointer rounded border px-2 py-0.5" %>
+  <% end %>
+  <% if writer && record.next_due_on %>
+    <%= link_to t("records.reminders.done"), done_household_record_path(Current.household, record), class: "rounded border border-green-700 px-2 py-0.5 text-green-800" %>
+  <% end %>
+</div>

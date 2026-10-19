@@ -156,6 +156,7 @@ en:
     co_owner: "Co-owner"
     viewer: "Viewer"
   layouts:
+    back: "‹ Back"
     header:
       records: "Records"
       settings: "Settings"
@@ -500,7 +501,6 @@ en:
       submit: "Mark paid"
       done: "%{title} marked paid."
     show:
-      back: "← Records"
       sheet_id: "sheet ID %{id}"
       no_due_date: "No due date"
       edit: "Edit"

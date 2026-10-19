@@ -57,6 +57,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Categories editing UI | ☑ | 2026-10-19: add, rename (titles follow; old name saved as an alias), archive used / delete unused, remove import aliases |
 | CSV export that round-trips | ☑ | 2026-10-19: Export CSV on the records list (current filters), 記錄 layout with the Total row; app-entered records export as `app-<record_no>` and re-import onto themselves. Real data: import → export → re-import = 130 unchanged |
 | Undo refused after later edits / deletions (PRD M5) | ☑ | 2026-10-19 (photos join the check in M3) |
+| M2 exit: family member invited and browsing the imported data | ☑ | 2026-10-19 17:16: Sam accepted the invitation and is a Co-owner of 我的家; no pending invitations left |
 
 ## M4: Recurring + reminders
 

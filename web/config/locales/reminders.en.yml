@@ -1,7 +1,7 @@
 en:
   layouts:
     header:
-      install: "Install app"
+      install: "Install App"
       upcoming: "Upcoming"
       inbox:
         one: "Inbox, 1 unread"

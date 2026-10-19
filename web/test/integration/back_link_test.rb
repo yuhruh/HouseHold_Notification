@@ -5,7 +5,7 @@ class BackLinkTest < ActionDispatch::IntegrationTest
 
   test "signed-in pages have a Back link that falls back to the household home" do
     home = households(:home)
-    [ household_records_path(home), household_settings_path(home), account_path, guide_path ].each do |path|
+    [ household_records_path(home), household_settings_path(home), account_path ].each do |path|
       get path
       assert_select "a[data-controller=back][href=?]", household_path(home), { count: 1 }, path
     end

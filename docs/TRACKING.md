@@ -74,7 +74,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Push subscriptions, Enable notifications, Install app, Devices, lock-screen privacy | ☑ | 2026-10-19: `push_subscriptions` (upsert by endpoint, reassigned to the signed-in user; deleted on sign-out / sign-out-others / Remove / 404-410 / account deletion; kept, nullified, on session expiry); "Enable notifications" only from a tap; "安裝 App" via `beforeinstallprompt`; My account → 裝置 with Remove; `push_show_amounts` |
 | Web Push channel: digests, device receipts, 24h failure, resend / send by email | ☑ | `Reminders::PushSender` (urgency high, TTL 24h, per-device `delivery_attempts`), `/push_receipts/:token` (single-use, rate-limited) marks `sent`; `ConfirmPushReceiptsJob` hourly fails unconfirmed pushes after 24h; owner summary also by push; 提醒送達狀態 shows per-device reasons, Resend, Send by email instead. `docs/NOTIFICATIONS.md` |
 | Owner removes a member's device (PRD §14) | ☑ | 成員 page lists each member's devices for the owner, with Remove |
-| M5 exit: push on installed Android PWA + desktop Chrome marks `sent`; phone off 24h → `failed`, owner notified, Resend delivers | ⏸ | Alex: on each phone, install the app → My account → 通知 → 啟用通知; family phones (X9) |
+| M5 exit: push on installed Android PWA + desktop Chrome marks `sent`; phone off 24h → `failed`, owner notified, Resend delivers | ◐ | 2026-10-19: Pixel 9 ✅ (14:05 digest had no registered device → failed; after registering, Resend at 14:09:00 → receipt 14:09:01 → `sent`). Left: desktop Chrome, the 24h phone-off test, family phones (X9) |
 
 ## Sheet cleanup log
 

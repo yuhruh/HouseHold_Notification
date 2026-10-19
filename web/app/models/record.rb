@@ -8,6 +8,7 @@ class Record < ApplicationRecord
   belongs_to :category
   belongs_to :payment_method, optional: true
   belongs_to :created_by, class_name: "User", optional: true
+  belongs_to :import_batch, optional: true
 
   enum :record_type, Category::RECORD_TYPES, validate: true
   enum :reminder_frequency, REMINDER_FREQUENCIES.index_by(&:itself), prefix: :reminder, validate: true

@@ -1,0 +1,33 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <ol class="list-decimal space-y-1 pl-5 text-gray-700">
+    <li><%= t(".step_export") %></li>
+    <li><%= t(".step_upload") %></li>
+    <li><%= t(".step_preview") %></li>
+  </ol>
+  <%= form_with url: household_imports_path(Current.household), multipart: true, class: "space-y-3 rounded-lg border p-4" do |f| %>
+    <%= f.label :file, t(".file"), class: "block text-sm font-medium" %>
+    <%= f.file_field :file, accept: ".csv,text/csv", required: true, class: "block w-full text-sm" %>
+    <%= f.submit t(".upload"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+  <% end %>
+  <p class="text-sm text-gray-500"><%= t(".photos_note") %></p>
+
+  <% if @batches.any? %>
+    <section class="space-y-2">
+      <h2 class="text-lg font-semibold"><%= t(".history") %></h2>
+      <ul class="divide-y rounded-lg border text-sm">
+        <% @batches.each do |batch| %>
+          <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+            <span><%= batch.filename %> · <%= l(batch.created_at, format: :short) %>
+              <span class="block text-gray-500"><%= t(".counts", created: batch.created_count, updated: batch.updated_count, unchanged: batch.unchanged_count, skipped: batch.skipped_count) %><%= " · #{t('.undone')}" if batch.undone_at %></span></span>
+            <% if batch.undoable? %>
+              <%= button_to t(".undo"), undo_household_import_path(Current.household, batch), form: { data: { turbo_confirm: t(".undo_confirm") } }, class: "cursor-pointer rounded-md border border-red-300 px-3 py-1 text-red-700" %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

@@ -5,7 +5,8 @@ module Households
     def self.call(household, actor:)
       household.with_lock do
         # Model-level deletes: delete_all on these associations would nullify (no dependent option)
-        [ RecordEvent, Record, CategoryAlias, Category, PaymentMethod ].each { |model| model.where(household:).delete_all }
+        ImportBatchChange.where(import_batch_id: ImportBatch.where(household:).select(:id)).delete_all
+        [ RecordEvent, ImportKey, ImportPreview, Record, ImportBatch, CategoryAlias, Category, PaymentMethod ].each { |model| model.where(household:).delete_all }
         household.invitations.delete_all
         household.memberships.delete_all
         User.where(last_household_id: household.id).update_all(last_household_id: nil)

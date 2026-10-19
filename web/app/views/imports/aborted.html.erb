@@ -1,0 +1,14 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <h1 class="text-3xl font-bold text-red-700"><%= t(".title") %></h1>
+  <p><%= t(".intro") %></p>
+  <div class="rounded-lg bg-red-50 px-4 py-3 text-red-800">
+    <p><%= t(".reason.#{@error.message}", default: @error.message) %></p>
+    <% if @error.line %><p><%= t(".row", line: @error.line, key: @error.key) %></p><% end %>
+    <% if @error.messages.any? %><ul class="list-disc pl-5"><% @error.messages.each do |m| %><li><%= m %></li><% end %></ul><% end %>
+  </div>
+  <p class="flex gap-4">
+    <% if @preview && !@preview.committed_at && @preview.expires_at.future? %><%= link_to t(".back"), household_import_path(Current.household, @preview), class: "text-blue-700 underline" %><% end %>
+    <%= link_to t(".again"), new_household_import_path(Current.household), class: "text-blue-700 underline" %>
+  </p>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,6 +81,66 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
     t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
     t.index ["user_id", "provider"], name: "index_identities_on_user_id_and_provider", unique: true
     t.index ["user_id"], name: "index_identities_on_user_id"
+  end
+
+  create_table "import_batch_changes", force: :cascade do |t|
+    t.bigint "import_batch_id", null: false
+    t.bigint "record_id", null: false
+    t.string "action", null: false
+    t.jsonb "before"
+    t.jsonb "after", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["import_batch_id"], name: "index_import_batch_changes_on_import_batch_id"
+    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying]::text[])", name: "import_batch_changes_action"
+  end
+
+  create_table "import_batches", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "created_by_id"
+    t.string "filename", null: false
+    t.integer "row_count", default: 0, null: false
+    t.integer "created_count", default: 0, null: false
+    t.integer "updated_count", default: 0, null: false
+    t.integer "unchanged_count", default: 0, null: false
+    t.integer "skipped_count", default: 0, null: false
+    t.datetime "undone_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_import_batches_on_created_by_id"
+    t.index ["household_id"], name: "index_import_batches_on_household_id"
+  end
+
+  create_table "import_keys", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "key", null: false
+    t.bigint "record_id"
+    t.bigint "import_batch_id"
+    t.string "status", default: "active", null: false
+    t.string "source_key"
+    t.string "retired_digest"
+    t.datetime "pasted_back_at"
+    t.datetime "created_at", null: false
+    t.index ["household_id", "key"], name: "index_import_keys_on_household_id_and_key", unique: true
+    t.index ["import_batch_id"], name: "index_import_keys_on_import_batch_id"
+    t.index ["record_id"], name: "index_import_keys_on_record_id"
+    t.check_constraint "status::text = ANY (ARRAY['active'::character varying, 'retired'::character varying]::text[])", name: "import_keys_status"
+  end
+
+  create_table "import_previews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id"
+    t.string "filename", null: false
+    t.string "csv_sha256", null: false
+    t.jsonb "rows", default: [], null: false
+    t.jsonb "choices", default: {}, null: false
+    t.jsonb "record_versions", default: {}, null: false
+    t.datetime "expires_at", null: false
+    t.datetime "committed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_import_previews_on_household_id"
+    t.index ["user_id"], name: "index_import_previews_on_user_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -184,6 +244,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
     t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "import_batch_id"
     t.index ["category_id"], name: "index_records_on_category_id"
     t.index ["created_by_id"], name: "index_records_on_created_by_id"
     t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"
@@ -192,6 +253,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
     t.index ["household_id", "period_year", "record_type"], name: "index_records_on_household_id_and_period_year_and_record_type"
     t.index ["household_id", "record_no"], name: "index_records_on_household_id_and_record_no", unique: true
     t.index ["household_id", "reminder_frequency"], name: "index_records_on_household_id_and_reminder_frequency", where: "((due_on IS NULL) AND (settled = false))"
+    t.index ["import_batch_id"], name: "index_records_on_import_batch_id"
     t.index ["payment_method_id"], name: "index_records_on_payment_method_id"
     t.check_constraint "amount_paid IS NULL OR amount_paid >= 0::numeric", name: "records_amount_paid_nonnegative"
     t.check_constraint "amount_required IS NULL OR amount_required >= 0::numeric", name: "records_amount_required_nonnegative"
@@ -441,6 +503,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
   add_foreign_key "category_aliases", "categories"
   add_foreign_key "category_aliases", "households"
   add_foreign_key "identities", "users"
+  add_foreign_key "import_batch_changes", "import_batches"
+  add_foreign_key "import_batches", "households"
+  add_foreign_key "import_batches", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "import_keys", "households"
+  add_foreign_key "import_keys", "import_batches", on_delete: :nullify
+  add_foreign_key "import_keys", "records", on_delete: :nullify
+  add_foreign_key "import_previews", "households"
+  add_foreign_key "import_previews", "users", on_delete: :cascade
   add_foreign_key "invitations", "households"
   add_foreign_key "invitations", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "memberships", "households"
@@ -451,6 +521,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
   add_foreign_key "record_events", "users", on_delete: :nullify
   add_foreign_key "records", "categories"
   add_foreign_key "records", "households"
+  add_foreign_key "records", "import_batches", on_delete: :nullify
   add_foreign_key "records", "payment_methods", on_delete: :nullify
   add_foreign_key "records", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "sessions", "users"

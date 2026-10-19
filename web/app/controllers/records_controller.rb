@@ -53,6 +53,8 @@ class RecordsController < ApplicationController
     authorize @record
     Record.transaction do
       RecordEvent.log!(@record, :deleted, user: Current.user)
+      # The sheet ID is never reused; a later import offers Skip / Re-create for it
+      Current.household.import_keys.where(record_id: @record.id).update_all(status: "retired", retired_digest: @record.import_digest)
       @record.destroy!
     end
     redirect_to household_records_path(Current.household), notice: t(".deleted")

@@ -39,6 +39,10 @@ Rails.application.routes.draw do
         post :mark_paid
       end
     end
+    resources :imports, only: %i[new create show] do
+      post :commit, on: :member
+      post :undo, on: :member
+    end
     resources :payment_methods, except: %i[show destroy] do
       post :archive, on: :member
     end

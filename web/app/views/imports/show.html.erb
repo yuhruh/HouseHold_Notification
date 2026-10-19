@@ -1,0 +1,142 @@
+<% content_for :title, t(".title") %>
+<% p = @preview %>
+<% kinds = %w[new update unchanged deleted] %>
+<% counts = kinds.index_with { |k| p.rows_of(k).size } %>
+<% reassigned = p.rows.select { |r| r["sheet_key"] != r["key"] } %>
+<% warned = p.rows.select { |r| r["warnings"].any? } %>
+<% box = "space-y-3 rounded-lg border p-4" %>
+<div class="w-full space-y-6 py-4">
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p class="text-gray-700"><%= t(".intro", filename: p.filename, rows: p.rows.size) %></p>
+  <ul class="flex flex-wrap gap-2 text-sm">
+    <% kinds.each do |k| %><li class="rounded bg-gray-100 px-2 py-1"><%= t(".kinds.#{k}") %>: <strong><%= counts[k] %></strong></li><% end %>
+    <li class="rounded bg-gray-100 px-2 py-1"><%= t(".new_ids") %>: <strong><%= reassigned.size %></strong></li>
+    <li class="rounded bg-gray-100 px-2 py-1"><%= t(".warnings") %>: <strong><%= warned.size %></strong></li>
+  </ul>
+
+  <% if (total = p.choices["sheet_total"]) %>
+    <% paid = p.rows.select { |r| r["values"]["currency"] == "TWD" }.sum { |r| BigDecimal(r["values"]["amount_paid"] || "0") } %>
+    <% match = BigDecimal(total) == paid %>
+    <p class="rounded-lg px-3 py-2 text-sm <%= match ? "bg-green-50 text-green-800" : "bg-amber-50 text-amber-900" %>">
+      <%= match ? t(".total_match", total: money(paid, "TWD")) : t(".total_mismatch", total: money(BigDecimal(total), "TWD"), paid: money(paid, "TWD")) %>
+    </p>
+  <% end %>
+
+  <%= form_with url: commit_household_import_path(Current.household, p), method: :post, class: "space-y-6" do |f| %>
+    <% if p.choices["categories"].any? %>
+      <details open class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".categories") %> (<%= p.choices["categories"].size %>)</summary>
+        <p class="text-sm text-gray-600"><%= t(".categories_hint") %></p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left"><tr><th class="py-1 pr-3"><%= t(".item") %></th><th class="py-1 pr-3"><%= t(".rows") %></th><th class="py-1"><%= t(".category") %></th></tr></thead>
+            <tbody class="divide-y">
+              <% p.choices["categories"].each do |mapping, choice| %>
+                <% type, item = mapping.split("|", 2) %>
+                <tr><td class="py-1.5 pr-3"><%= item %> <span class="text-xs text-gray-500"><%= t("records.types.#{type}") %></span></td>
+                  <td class="py-1.5 pr-3"><%= p.rows.count { |r| r["record_type"] == type && r["values"]["item"] == item } %></td>
+                  <td class="py-1.5"><%= select_tag "choices[categories][#{mapping}]", import_category_options(type, choice), class: "w-full rounded-md border border-gray-400 px-2 py-1" %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    <% end %>
+
+    <% if counts["new"].positive? %>
+      <details class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".kinds.new") %> (<%= counts["new"] %>)</summary>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="text-left"><tr><th class="py-1 pr-2">ID</th><th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t(".item") %></th>
+              <th class="py-1 pr-2"><%= t("records.index.details") %></th><th class="py-1 pr-2 text-right"><%= t("records.index.required") %></th>
+              <th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th><th class="py-1"><%= t("records.index.paid_on") %></th></tr></thead>
+            <tbody class="divide-y">
+              <% p.rows_of("new").each do |row| v = row["values"] %>
+                <tr class="align-top"><td class="py-1 pr-2"><%= row["key"] %></td><td class="whitespace-nowrap py-1 pr-2"><%= import_period(v) %></td>
+                  <td class="py-1 pr-2"><%= v["item"] %></td><td class="max-w-48 truncate py-1 pr-2" title="<%= v["details"] %>"><%= v["details"] %></td>
+                  <td class="whitespace-nowrap py-1 pr-2 text-right"><%= import_value("amount_required", v["amount_required"], v["currency"]) %></td>
+                  <td class="whitespace-nowrap py-1 pr-2 text-right"><%= import_value("amount_paid", v["amount_paid"], v["currency"]) %></td>
+                  <td class="whitespace-nowrap py-1"><%= v["paid_on"] %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    <% end %>
+
+    <% if counts["update"].positive? %>
+      <details open class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".kinds.update") %> (<%= counts["update"] %>)</summary>
+        <p class="text-sm text-gray-600"><%= t(".update_hint") %></p>
+        <% p.rows_of("update").each do |row| %>
+          <div class="rounded border p-3 text-sm">
+            <p class="font-medium">ID <%= row["key"] %> · <%= row["values"]["item"] %> · <%= import_period(row["values"]) %></p>
+            <ul class="mt-1 space-y-1">
+              <% row["fields"].each do |change| %>
+                <li class="<%= 'rounded bg-amber-50 p-2' if change["conflict"] %>">
+                  <%= change["field"] == "item" ? t(".item") : Record.human_attribute_name(change["field"]) %>:
+                  <%= import_value(change["field"], change["base"], row["values"]["currency"]) %> → <strong><%= import_value(change["field"], change["sheet"], row["values"]["currency"]) %></strong>
+                  <% if change["conflict"] %>
+                    <span class="block">⚠ <%= t(".conflict", app: import_value(change["field"], change["app"], row["values"]["currency"])) %></span>
+                    <% name = "choices[conflicts][#{row['line']}-#{change['field']}]" %>
+                    <label class="mr-3"><%= radio_button_tag name, "sheet", true %> <%= t(".take_sheet") %></label>
+                    <label><%= radio_button_tag name, "app", false %> <%= t(".keep_app") %></label>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </details>
+    <% end %>
+
+    <% if counts["deleted"].positive? %>
+      <details open class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".kinds.deleted") %> (<%= counts["deleted"] %>)</summary>
+        <p class="text-sm text-gray-600"><%= t(".deleted_hint") %></p>
+        <% p.rows_of("deleted").each do |row| %>
+          <p class="text-sm">ID <%= row["key"] %> · <%= row["values"]["item"] %> · <%= import_period(row["values"]) %>
+            <label class="ml-3"><%= radio_button_tag "choices[deleted][#{row['line']}]", "skip", true %> <%= t(".skip") %></label>
+            <label class="ml-3"><%= radio_button_tag "choices[deleted][#{row['line']}]", "recreate", false %> <%= t(".recreate") %></label></p>
+        <% end %>
+      </details>
+    <% end %>
+
+    <% if reassigned.any? %>
+      <details open class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".new_ids") %> (<%= reassigned.size %>)</summary>
+        <p class="text-sm text-gray-600"><%= t(".new_ids_hint") %></p>
+        <ul class="text-sm"><% reassigned.each do |row| %><li><%= t(".paste_back", line: row["line"], old: row["sheet_key"], new: row["key"]) %></li><% end %></ul>
+      </details>
+    <% end %>
+
+    <% if p.choices["chains"].any? %>
+      <details open class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".chains") %> (<%= p.choices["chains"].size %>)</summary>
+        <p class="text-sm text-gray-600"><%= t(".chains_hint") %></p>
+        <% p.choices["chains"].each_with_index do |chain, index| %>
+          <div class="flex flex-wrap items-center gap-2 border-t pt-2 text-sm">
+            <span class="grow"><%= chain["category"] %> · <%= chain["details_key"].presence || t(".no_room") %> · <%= t(".chain_rows", count: chain["lines"].size) %>
+              <span class="block text-gray-500"><%= chain["next_due_on"] ? t(".next_due", date: chain["next_due_on"]) : t(".no_next_due") %></span></span>
+            <%= select_tag "choices[chains][#{index}][action]", options_for_select([ [ t(".keep"), "keep" ], [ t(".clear"), "clear" ], [ t(".new_date"), "new_date" ] ], chain["action"]), class: "rounded-md border border-gray-400 px-2 py-1" %>
+            <%= date_field_tag "choices[chains][#{index}][new_date]", chain["new_date"], class: "rounded-md border border-gray-400 px-2 py-1", "aria-label": t(".new_date") %>
+          </div>
+        <% end %>
+      </details>
+    <% end %>
+
+    <% if warned.any? %>
+      <details class="<%= box %>">
+        <summary class="cursor-pointer text-lg font-semibold"><%= t(".warnings") %> (<%= warned.size %>)</summary>
+        <ul class="text-sm"><% warned.each do |row| %><li><%= t(".warning_row", line: row["line"], key: row["key"]) %> <%= row["warnings"].join("; ") %></li><% end %></ul>
+      </details>
+    <% end %>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%= f.submit t(".continue"), class: "cursor-pointer rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500", data: { turbo_submits_with: t(".importing") } %>
+      <%= link_to t(".cancel"), new_household_import_path(Current.household), class: "underline" %>
+      <span class="text-sm text-gray-500"><%= t(".expires", time: l(p.expires_at, format: :short)) %></span>
+    </div>
+  <% end %>
+</div>

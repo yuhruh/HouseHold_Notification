@@ -11,7 +11,7 @@ class RecordEvent < ApplicationRecord
   # created/deleted keep a full snapshot; updates keep [before, after] per changed field
   def self.log!(record, action, user:)
     diff = case action.to_s
-    when "created", "deleted" then record.attributes.except(*IGNORED)
+    when "created", "deleted", "import_undone" then record.attributes.except(*IGNORED)
     else record.saved_changes.except(*IGNORED)
     end
     create!(household_id: record.household_id, record_id: record.id, user:, action:, diff:)

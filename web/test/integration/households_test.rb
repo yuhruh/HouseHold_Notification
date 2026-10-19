@@ -18,6 +18,20 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     assert users(:newbie).memberships.sole.owner?
   end
 
+  test "someone with a household can create another from My account" do
+    sign_in_as users(:alex)
+    get account_path
+    assert_select "a[href=?]", onboarding_path
+    get onboarding_path
+    assert_response :success
+    assert_select "h1", I18n.t("onboardings.show.new_title")
+    assert_select "h2", text: I18n.t("onboardings.show.waiting_heading"), count: 0
+    assert_difference -> { users(:alex).households.count } do
+      post households_path, params: { household: { name: "Second home", default_currency: "TWD" } }
+    end
+    assert users(:alex).memberships.find_by(household: Household.find_by!(name: "Second home")).owner?
+  end
+
   test "GET / goes to last_household_id, then the first membership" do
     user = users(:google_only)
     sign_in_as user

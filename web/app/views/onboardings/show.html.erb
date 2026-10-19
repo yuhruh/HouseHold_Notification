@@ -1,10 +1,16 @@
-<% content_for :title, t("onboardings.show.title") %>
+<%# Also reached from My account / the switcher by someone who already has households: then it only creates one %>
+<% existing = Current.user.households.exists? %>
+<% content_for :title, t(existing ? "onboardings.show.new_title" : "onboardings.show.title") %>
 <div class="mx-auto w-full max-w-md space-y-8 py-8">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t("onboardings.show.title") %></h1>
+  <h1 class="text-3xl font-bold"><%= t(existing ? "onboardings.show.new_title" : "onboardings.show.title") %></h1>
 
   <section class="space-y-4">
-    <h2 class="text-lg font-semibold"><%= t("onboardings.show.create_heading") %></h2>
+    <% if existing %>
+      <p class="text-sm text-gray-600"><%= t("onboardings.show.new_hint") %></p>
+    <% else %>
+      <h2 class="text-lg font-semibold"><%= t("onboardings.show.create_heading") %></h2>
+    <% end %>
     <%= form_with model: @household, url: households_path, class: "space-y-4" do |form| %>
       <% if @household.errors.any? %>
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -19,8 +25,10 @@
     <% end %>
   </section>
 
-  <section class="space-y-2 rounded-lg bg-gray-50 p-4">
-    <h2 class="text-lg font-semibold"><%= t("onboardings.show.waiting_heading") %></h2>
-    <p class="text-sm text-gray-700"><%= t("onboardings.show.waiting", email: Current.user.email_address) %></p>
-  </section>
+  <% unless existing %>
+    <section class="space-y-2 rounded-lg bg-gray-50 p-4">
+      <h2 class="text-lg font-semibold"><%= t("onboardings.show.waiting_heading") %></h2>
+      <p class="text-sm text-gray-700"><%= t("onboardings.show.waiting", email: Current.user.email_address) %></p>
+    </section>
+  <% end %>
 </div>

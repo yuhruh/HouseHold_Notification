@@ -161,6 +161,7 @@ en:
       settings: "Settings"
       account: "My account"
       guide: "Getting started"
+      new_household: "＋ New household"
       switch: "Switch household"
       invitations:
         one: "1 invitation"
@@ -168,6 +169,8 @@ en:
   onboardings:
     show:
       title: "Welcome"
+      new_title: "Create a new household"
+      new_hint: "A new household starts empty, with its own records, members and reminders. You become its owner."
       create_heading: "Create your household"
       create: "Create household"
       waiting_heading: "Waiting for an invite?"
@@ -289,6 +292,7 @@ en:
       this_device: "this device"
       sign_out_others: "Sign out all other devices"
       households: "Households"
+      new_household: "＋ Create a new household"
       leave: "Leave"
       leave_confirm: "Leave %{household}? You'll need a new invitation to come back."
       danger_zone: "Danger zone"

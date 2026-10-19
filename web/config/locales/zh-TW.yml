@@ -161,6 +161,7 @@ zh-TW:
       settings: "設定"
       account: "我的帳戶"
       guide: "使用說明"
+      new_household: "＋ 新家庭"
       switch: "切換家庭"
       invitations:
         one: "1 個邀請"
@@ -168,6 +169,8 @@ zh-TW:
   onboardings:
     show:
       title: "歡迎"
+      new_title: "建立新家庭"
+      new_hint: "新家庭是空的，有自己的記錄、成員和提醒，你是擁有者。"
       create_heading: "建立你的家庭"
       create: "建立家庭"
       waiting_heading: "在等待邀請嗎？"
@@ -289,6 +292,7 @@ zh-TW:
       this_device: "這個裝置"
       sign_out_others: "登出其他所有裝置"
       households: "家庭"
+      new_household: "＋ 建立新家庭"
       leave: "離開"
       leave_confirm: "確定要離開 %{household}？之後需要新的邀請才能再加入。"
       danger_zone: "危險區域"

@@ -8,13 +8,17 @@ class RemindersTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
   end
 
+  # The app's "today" is the signed-in user's local date (Asia/Taipei), not the server's UTC one;
+  # between 00:00 and 08:00 Taipei they differ
+  def today = Time.find_zone!(users(:alex).time_zone).today
+
   def bill(**attrs)
     @home.records.create!({ record_type: "expense", category: @water, period: Period.parse(2026, "9月-10月"), amount_required: 580 }.merge(attrs))
   end
 
   test "upcoming groups overdue, due soon, maintenance and no-due-date bills" do
-    bill(due_on: Date.current - 2)
-    bill(due_on: Date.current + 5, details: "B")
+    bill(due_on: today - 2)
+    bill(due_on: today + 5, details: "B")
     bill(details: "C")
     get household_upcoming_path(@home)
     assert_response :success
@@ -24,11 +28,11 @@ class RemindersTest < ActionDispatch::IntegrationTest
   end
 
   test "snooze is personal and can be cancelled; past or far dates are refused" do
-    record = bill(due_on: Date.current)
+    record = bill(due_on: today)
     post snooze_household_record_path(@home, record, days: 7)
-    assert_equal Date.current + 7, ReminderSnooze.find_by!(record:, user: users(:alex)).until_on
-    post snooze_household_record_path(@home, record, until_on: (Date.current + 90).iso8601)
-    assert_equal Date.current + 7, ReminderSnooze.find_by!(record:).until_on
+    assert_equal today + 7, ReminderSnooze.find_by!(record:, user: users(:alex)).until_on
+    post snooze_household_record_path(@home, record, until_on: (today + 90).iso8601)
+    assert_equal today + 7, ReminderSnooze.find_by!(record:).until_on
     delete snooze_household_record_path(@home, record)
     assert_empty ReminderSnooze.where(record:)
 
@@ -39,26 +43,26 @@ class RemindersTest < ActionDispatch::IntegrationTest
   end
 
   test "restart reminders after the cap is logged" do
-    record = bill(due_on: Date.current - 40)
+    record = bill(due_on: today - 40)
     get household_record_path(@home, record)
     assert_select "span", "提醒已停止"
     post restart_reminders_household_record_path(@home, record)
-    assert_equal Date.current, record.reload.reminders_restarted_on
+    assert_equal today, record.reload.reminders_restarted_on
     assert RecordEvent.exists?(record_id: record.id, action: "reminders_restarted")
   end
 
   test "maintenance Done opens a prefilled record in the same chain and clears the old next-due date" do
     ac = @home.categories.find_by!(name_zh: "冷氣清洗")
     old = @home.records.create!(record_type: "maintenance", category: ac, details: "客廳", period: Period.parse(2026, "4月"),
-      paid_on: Date.new(2026, 4, 1), next_due_on: Date.current)
+      paid_on: Date.new(2026, 4, 1), next_due_on: today)
     get done_household_record_path(@home, old)
     assert_select "input[name='record[details]'][value='客廳']"
     assert_select "input[name=continues_id][value='#{old.id}']"
     post household_records_path(@home), params: { continues_id: old.id, record: { category_id: ac.id, details: "客廳",
-      period_year: Date.current.year, period_start_month: Date.current.month, period_end_month: Date.current.month,
-      paid_on: Date.current.iso8601, next_due_on: (Date.current + 180).iso8601, currency: "TWD", reminder_frequency: "none" } }
+      period_year: today.year, period_start_month: today.month, period_end_month: today.month,
+      paid_on: today.iso8601, next_due_on: (today + 180).iso8601, currency: "TWD", reminder_frequency: "none" } }
     assert_nil old.reload.next_due_on
-    assert_equal Date.current + 180, @home.records.order(:id).last.next_due_on
+    assert_equal today + 180, @home.records.order(:id).last.next_due_on
   end
 
   test "inbox lists notifications and marks them read; preferences save per household" do

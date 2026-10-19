@@ -181,7 +181,6 @@ zh-TW:
       created: "家庭已建立。"
     show:
       role: "你的角色：%{role}"
-      coming_soon: "提醒、試算表匯入與儀表板即將推出。"
       records: "記錄"
       payment_methods: "付款方式"
       categories: "類別"

@@ -181,7 +181,6 @@ en:
       created: "Your household is ready."
     show:
       role: "Your role: %{role}"
-      coming_soon: "Reminders, the sheet import and the dashboard are coming next."
       members: "Members"
       records: "Records"
       payment_methods: "Payment methods"

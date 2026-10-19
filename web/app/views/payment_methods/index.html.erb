@@ -3,7 +3,7 @@
 <div class="w-full max-w-2xl space-y-6 py-4">
   <%= render "shared/flash" %>
   <div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+    <%= page_title("payment.png", t(".title")) %>
     <% if writer %><%= link_to t(".new"), new_household_payment_method_path(Current.household), class: "rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %><% end %>
   </div>
   <% if @payment_methods.empty? %>

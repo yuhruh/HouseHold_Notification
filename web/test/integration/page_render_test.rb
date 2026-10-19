@@ -20,7 +20,7 @@ class PageRenderTest < ActionDispatch::IntegrationTest
       household_records_path(home), new_household_record_path(home), household_payment_methods_path(home),
       new_household_payment_method_path(home), household_categories_path(home), new_household_category_path(home),
       new_household_import_path(home), household_recurring_templates_path(home), new_household_recurring_template_path(home),
-      household_upcoming_path(home), notifications_path, household_reminder_deliveries_path(home) ].each do |path|
+      household_upcoming_path(home), household_dashboard_path(home), notifications_path, household_reminder_deliveries_path(home) ].each do |path|
       get path
       assert_response :success, path
     end

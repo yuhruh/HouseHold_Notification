@@ -1,0 +1,64 @@
+require "test_helper"
+
+class DashboardQueryTest < ActiveSupport::TestCase
+  setup do
+    @home = households(:home)
+    Categories::Seed.call(@home)
+    @water = @home.categories.find_by!(name_zh: "水費")
+    @power = @home.categories.find_by!(name_zh: "電費")
+    @fee = @home.categories.find_by!(name_zh: "社區管理費")
+    @card = @home.payment_methods.create!(name: "玉山 ubear", kind: "card")
+    paid(@water, "1月-2月", 580, Date.new(2026, 4, 14), payment_method: @card)
+    paid(@water, "12月-1月", 600, Date.new(2026, 2, 15), year: 2025)
+    paid(@fee, "全年", 48_005, Date.new(2026, 1, 28), payment_method: @card)
+    [ 900, 950, 1000, 1050, 1100, 5000 ].each_with_index { |a, i| paid(@power, "#{i + 1}月", a, Date.new(2026, i + 2, 3)) }
+    paid(@power, "3月", 70, Date.new(2026, 4, 1), currency: "USD")
+    @home.records.create!(record_type: "expense", category: @water, period: Period.parse(2026, "5月-6月"), amount_required: 610) # unpaid: no spend
+  end
+
+  def paid(category, months, amount, paid_on, year: 2026, currency: "TWD", payment_method: nil)
+    @home.records.create!(record_type: category.record_type, category:, period: Period.parse(year, months), currency:,
+      amount_required: amount, amount_paid: amount, paid_on:, payment_method:)
+  end
+
+  def query(mode, currency: "TWD") = DashboardQuery.new(@home, mode:, year: 2026, currency:)
+
+  test "paid-date totals equal SQL sums per currency; unpaid bills aren't spend" do
+    assert_equal @home.records.where(currency: "TWD").where(paid_on: Date.new(2026, 1, 1)..Date.new(2026, 12, 31)).sum(:amount_paid), query("paid").total
+    assert_equal BigDecimal("70"), query("paid", currency: "USD").total
+    assert_equal BigDecimal("580"), query("paid").total(month: 4, category_id: @water.id)
+  end
+
+  test "billing-period mode splits across months and years" do
+    q = query("period")
+    assert_equal BigDecimal("300") + BigDecimal("290"), q.total(month: 1, category_id: @water.id), "600 over 12月–1月 gives Jan 300; 580 over 1–2 gives Jan 290"
+    assert_equal BigDecimal("4005"), q.total(month: 12, category_id: @fee.id)
+  end
+
+  test "every chart point's drill-down total equals its value, in both modes" do
+    DashboardQuery::MODES.each do |mode|
+      q = query(mode)
+      charts = DashboardCharts.new(q, utility_query: q.with(record_type: nil))
+      points = [ charts.monthly, charts.utilities, charts.categories, charts.payment_methods ]
+        .flat_map { |option| option[:series].flat_map { |s| s[:data] } }
+      assert points.size > 30
+      points.each do |point|
+        filters = point[:filters].symbolize_keys
+        drill = DashboardQuery.new(@home, mode: filters[:mode], year: filters[:year], currency: filters[:currency], record_type: filters[:record_type])
+        rows = drill.drilldown(**filters.slice(:month, :category_id, :payment_method_id))
+        assert_equal point[:value], rows.sum { |_, amount| amount }.to_f.round(2), "#{mode} #{filters}"
+      end
+    end
+  end
+
+  test "the box plot has a box for 5+ bills, outliers carry their record, small groups are points" do
+    option = DashboardCharts.new(query("paid"), utility_query: query("period")).boxplot
+    names = option[:xAxis][:data]
+    power = option[:series][0][:data][names.index("電費")]
+    assert_equal [ 962.5, 1025.0, 1087.5 ], power[:value][1..3], "QUARTILE.INC over all six bills"
+    assert_equal 1100.0, power[:value][4], "the whisker stops at the last value inside 1.5 × IQR"
+    outlier = option[:series][1][:data].find { |p| p[:value] == [ names.index("電費"), 5000.0 ] }
+    assert_equal @home.records.find_by!(amount_paid: 5000).id, outlier[:record_id]
+    assert_empty option[:series][0][:data][names.index("水費")][:value], "水費 has fewer than 5 bills: points only"
+  end
+end

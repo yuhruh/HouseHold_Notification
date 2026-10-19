@@ -1,0 +1,37 @@
+zh-TW:
+  layouts:
+    header:
+      dashboard: "儀表板"
+  dashboards:
+    show:
+      title: "儀表板"
+      count_by: "支出計算方式"
+      modes:
+        paid: "依繳費日期"
+        period: "依帳單期間"
+      switch_to: "改為%{mode}"
+      spend: "%{year} 已繳"
+      monthly: "每月支出（依類型）"
+      utilities: "水費、電費、瓦斯費"
+      categories: "依類別"
+      payment_methods: "依付款方式"
+      no_payment_method: "（未設定）"
+      boxplot: "各類別帳單金額分布"
+      box: "分布"
+      points: "記錄"
+      box_hint: "每筆帳單一個點。帳單少於 %{min} 筆的類別只顯示點；箱子外的紅點是不尋常的金額（點一下開啟）。"
+      amount: "金額"
+      min: "最小"
+      median: "中位數"
+      max: "最大"
+      count: "筆數"
+      as_table: "以表格檢視"
+      drill_hint: "點選長條、扇形、點或箱子，查看背後的記錄。"
+    drilldowns:
+      show:
+        title:
+          one: "1 筆記錄"
+          other: "%{count} 筆記錄"
+        counted: "計入金額"
+        total: "合計"
+        quartiles: "Q1 %{q1} · 中位數 %{median} · Q3 %{q3}"

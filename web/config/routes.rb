@@ -38,6 +38,9 @@ Rails.application.routes.draw do
       post :leave, on: :collection
     end
     get "upcoming" => "upcoming#show", as: :upcoming
+    resource :dashboard, only: :show do
+      get :drilldown, to: "dashboards/drilldowns#show"
+    end
     resources :reminder_deliveries, only: :index do
       post :resend, on: :member
       post :send_by_email, on: :member

@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "drilldown" do %>
+  <section class="space-y-2 rounded-lg border p-3">
+    <h2 class="font-semibold"><%= t(".title", count: @rows.size) %>
+      <span class="text-sm font-normal text-gray-600">· <%= @query.year %><%= " #{t('records.month', month: @month)}" if @month %> · <%= t("dashboards.show.modes.#{@query.mode}") %> · <%= @query.currency %></span></h2>
+    <% if @group&.dig(:stats) %>
+      <% box = @group[:stats][:box] %>
+      <p class="text-sm text-gray-600"><%= t(".quartiles", q1: money(box[1], @query.currency), median: money(box[2], @query.currency), q3: money(box[3], @query.currency)) %></p>
+    <% end %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left"><tr>
+          <th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t("records.index.item") %></th>
+          <th class="py-1 pr-2 text-right"><%= t("records.index.required") %></th><th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th>
+          <% unless @box %><th class="py-1 pr-2 text-right"><%= t(".counted") %></th><% end %>
+          <th class="py-1 pr-2"><%= t("records.index.paid_on") %></th><th class="py-1 pr-2"><%= Record.human_attribute_name(:payment_method) %></th>
+          <th class="py-1"><%= Record.human_attribute_name(:payment_note) %></th></tr></thead>
+        <tbody class="divide-y">
+          <% rows = @box ? @rows.sort_by { |r, _| r.amount_paid } : @rows %>
+          <% rows.each do |record, amount| %>
+            <tr class="align-top"><td class="whitespace-nowrap py-1 pr-2"><%= record.period %></td>
+              <td class="py-1 pr-2"><%= link_to record.title, household_record_path(Current.household, record), data: { turbo_frame: "_top" }, class: "text-blue-700 underline" %><span class="block text-xs text-gray-500"><%= record.details %></span></td>
+              <td class="whitespace-nowrap py-1 pr-2 text-right"><%= money(record.amount_required, record.currency) %></td>
+              <td class="whitespace-nowrap py-1 pr-2 text-right"><%= money(record.amount_paid, record.currency) %></td>
+              <% unless @box %><td class="whitespace-nowrap py-1 pr-2 text-right font-medium"><%= money(amount, record.currency) %></td><% end %>
+              <td class="whitespace-nowrap py-1 pr-2"><%= l(record.paid_on) %></td>
+              <td class="py-1 pr-2"><%= record.payment_method&.name %></td>
+              <td class="max-w-48 truncate py-1" title="<%= record.payment_note %>"><%= record.payment_note %></td></tr>
+          <% end %>
+        </tbody>
+        <% unless @box %>
+          <tfoot><tr class="font-semibold"><td colspan="4" class="py-1 pr-2 text-right"><%= t(".total") %></td>
+            <td class="whitespace-nowrap py-1 pr-2 text-right" id="drilldown-total"><%= money(@total, @query.currency) %></td><td colspan="3"></td></tr></tfoot>
+        <% end %>
+      </table>
+    </div>
+  </section>
+<% end %>

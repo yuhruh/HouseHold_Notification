@@ -1,0 +1,54 @@
+<% content_for :title, t(".title") %>
+<% q = @query %>
+<% months = @charts.months %>
+<div class="w-full space-y-6 py-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  </div>
+
+  <%= form_with url: household_dashboard_path(Current.household), method: :get, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
+    <%= f.select :year, q.years, { selected: q.year }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.year") %>
+    <%= f.select :currency, Household::CURRENCIES, { selected: q.currency }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": Record.human_attribute_name(:currency) %>
+    <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t("records.index.all_types"), selected: q.record_type }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.type") %>
+    <%= hidden_field_tag :mode, q.mode %>
+    <%= hidden_field_tag :utility_mode, @utility_query.mode %>
+    <%= f.submit t("records.index.filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
+  <% end %>
+
+  <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">
+    <span class="text-gray-600"><%= t(".count_by") %></span>
+    <% DashboardQuery::MODES.each do |mode| %>
+      <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode),
+            class: "rounded-full border px-3 py-1 #{q.mode == mode ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}",
+            data: { action: "remember-mode#save", remember_mode_mode_param: mode } %>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="rounded-lg border p-3"><p class="text-sm text-gray-600"><%= t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p></div>
+    <%= link_to household_records_path(Current.household, status: "unpaid"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.unpaid") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:unpaid] %></p><% end %>
+    <%= link_to household_records_path(Current.household, status: "overdue"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.overdue") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:overdue] %></p><% end %>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <%= render "chart", title: t(".monthly"), option: @charts.monthly,
+          table: { columns: months, rows: q.monthly_by_type.map { |type, values| [ t("records.types.#{type}"), values ] } } %>
+    <%= render "chart", title: t(".utilities"), option: @charts.utilities,
+          extra: link_to(t(".switch_to", mode: t(".modes.#{(DashboardQuery::MODES - [ @utility_query.mode ]).first}")), household_dashboard_path(Current.household, year: q.year, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: (DashboardQuery::MODES - [ @utility_query.mode ]).first), class: "text-xs text-blue-700 underline"),
+          table: { columns: months, rows: @utility_query.utility_trend.map { |c, values| [ c.name, values ] } } %>
+    <%= render "chart", title: t(".categories"), option: @charts.categories,
+          table: { columns: [ t(".amount") ], rows: q.by_category.map { |c, v| [ c.name, [ v ] ] } } %>
+    <%= render "chart", title: t(".payment_methods"), option: @charts.payment_methods,
+          table: { columns: [ t(".amount") ], rows: q.by_payment_method.map { |pm, v| [ pm&.name || t(".no_payment_method"), [ v ] ] } } %>
+    <div class="lg:col-span-2">
+      <%= render "chart", title: t(".boxplot"), option: @charts.boxplot,
+            table: { columns: [ t(".min"), "Q1", t(".median"), "Q3", t(".max"), t(".count") ],
+                     rows: q.box_groups.map { |g| [ g[:category].name, (g[:stats] ? g[:stats][:box] : [ "–" ] * 5) + [ g[:records].size.to_s ] ] } } %>
+      <p class="mt-1 text-xs text-gray-500"><%= t(".box_hint", min: DashboardQuery::BOX_MIN) %></p>
+    </div>
+  </div>
+
+  <%= turbo_frame_tag "drilldown" do %>
+    <p class="rounded-lg border border-dashed p-4 text-sm text-gray-500"><%= t(".drill_hint") %></p>
+  <% end %>
+</div>

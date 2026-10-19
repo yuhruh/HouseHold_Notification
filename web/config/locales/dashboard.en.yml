@@ -1,0 +1,37 @@
+en:
+  layouts:
+    header:
+      dashboard: "Dashboard"
+  dashboards:
+    show:
+      title: "Dashboard"
+      count_by: "Count spending"
+      modes:
+        paid: "by paid date"
+        period: "by billing period"
+      switch_to: "Show %{mode}"
+      spend: "Paid in %{year}"
+      monthly: "Monthly spending by type"
+      utilities: "Water, electricity and gas"
+      categories: "By category"
+      payment_methods: "By payment method"
+      no_payment_method: "(none)"
+      boxplot: "Bill amounts per category"
+      box: "Spread"
+      points: "Records"
+      box_hint: "One point per bill. Categories with fewer than %{min} bills show their points only; red dots outside a box are unusual amounts (tap to open)."
+      amount: "Amount"
+      min: "Min"
+      median: "Median"
+      max: "Max"
+      count: "Bills"
+      as_table: "View as table"
+      drill_hint: "Tap a bar, slice, point or box to see the records behind it."
+    drilldowns:
+      show:
+        title:
+          one: "1 record"
+          other: "%{count} records"
+        counted: "Counted here"
+        total: "Total"
+        quartiles: "Q1 %{q1} · median %{median} · Q3 %{q3}"

@@ -28,7 +28,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X1 Google forced re-auth | ☑ | failed (no password prompt, no `auth_time`); fallback adopted: emailed 6-digit code, PRD §13/§15 updated (ADR 0005) |
 | X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
 | X3 Railway backups | ☑ | failed (Hobby plan can't create backups); fallback: weekly encrypted `pg_dump` emailed to Alex + monthly photo download, built in M2 (ADR 0005) |
-| X9 push on every family phone | ⏸ | push spike on each phone (ADR 0003) |
+| X9 push on every family phone | ◐ | push spike on each phone (ADR 0003). 2026-10-20: the owner's Pixel 9 overnight retest ✅ (accepted 05:27:09, shown by 05:31:35). Left: the family member's phone |
 | Import dry-run #1 on the real CSV | ☑ | round 1 logged below (26 rows with errors) |
 
 Exit criteria: app live on Railway; volume file survives a redeploy; CI green; push received with

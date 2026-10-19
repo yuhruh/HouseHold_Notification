@@ -253,6 +253,7 @@ en:
     disconnect_google: "disconnect Google"
     transfer_ownership: "transfer household ownership"
     delete_household: "delete a household"
+    delete_records: "delete all records"
   reauthentications:
     show:
       title: "Confirm it's you"
@@ -345,6 +346,7 @@ en:
       lead_days_hint: "How many days before the due date the due-soon reminder is sent (0–30)."
       save: "Save"
       transfer: "Transfer ownership"
+      delete_records: "Delete all records"
       delete: "Delete household"
       activity: "Activity"
       former_member: "Former member"
@@ -355,6 +357,7 @@ en:
         member_left: "%{member} left the household"
         ownership_transferred: "%{actor} transferred ownership to %{member}"
         household_updated: "%{actor} changed household settings: %{fields}"
+        records_deleted: "%{actor} deleted all records (%{count})"
     update:
       saved: "Household settings saved."
   memberships:
@@ -374,6 +377,19 @@ en:
       confirm: "Transfer ownership now?"
     create:
       done: "%{name} is now the owner."
+  record_purges:
+    new:
+      title: "Delete all records"
+      explain: "This permanently deletes all %{count} records in %{name}."
+      removes: "Gone with them: their photos, activity history, reminders and the import history (undo is no longer possible)."
+      keeps: "Kept: the household, members, categories, payment methods and settings."
+      reimport: "Afterwards you can import the sheet again from scratch: every row comes back as new."
+      delete_templates: "Also delete the recurring bills (%{count})"
+      keep_templates_hint: "If you keep them, they start again from this month, so past bills aren't recreated."
+      submit: "Delete all records"
+      final_confirm: "Permanently delete all %{count} records?"
+    create:
+      deleted: "Deleted %{count} records."
   household_deletions:
     new:
       title: "Delete household"
@@ -396,6 +412,7 @@ en:
     ownership_transferred: "Ownership transferred"
     household_deleted: "Household deleted"
     account_deleted: "Account deleted"
+    records_deleted: "Deleted all records"
   account_mailer:
     deleted:
       subject: "Your Household Tracker account was deleted"

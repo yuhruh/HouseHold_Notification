@@ -343,7 +343,7 @@ en:
         deleted: "Your account was deleted."
   household_settings:
     show:
-      title: "Household settings"
+      title: "Household Settings"
       lead_days_hint: "How many days before the due date the due-soon reminder is sent (0–30)."
       save: "Save"
       transfer: "Transfer ownership"

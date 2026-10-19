@@ -10,6 +10,8 @@ Rails.application.routes.draw do
 
   # My Account and re-auth (PRD §13, §15)
   resource :account, only: %i[show update]
+  resource :avatar, only: %i[update destroy]
+  get "avatars/:user_id" => "avatars#show", as: :user_avatar
   namespace :account do
     resource :email, only: %i[update destroy] do
       post :resend
@@ -42,6 +44,8 @@ Rails.application.routes.draw do
       post :resend_all, on: :collection
     end
     resources :records do
+      resources :photos, only: %i[create destroy]
+      get "photos/:id(/:variant)" => "photos#show", as: :photo_file
       member do
         get :mark_paid
         post :mark_paid

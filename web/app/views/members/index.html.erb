@@ -6,14 +6,16 @@
   <ul class="divide-y rounded-lg border">
     <% @memberships.each do |membership| %>
       <li class="flex items-center justify-between gap-4 px-4 py-3">
-        <span><%= membership.user.display_name.presence || membership.user.email_address %>
+        <span class="flex items-start gap-2">
+          <% if membership.user.avatar.attached? %><%= image_tag user_avatar_path(membership.user), alt: "", class: "h-8 w-8 rounded-full border object-cover" %><% end %>
+          <span><%= membership.user.display_name.presence || membership.user.email_address %>
           <span class="block text-sm text-gray-500"><%= membership.user.email_address %></span>
           <% if policy(Current.household).manage_members? %>
             <% membership.user.push_subscriptions.each do |device| %>
               <span class="flex items-center gap-2 text-xs text-gray-500">📱 <%= device.device_label %>
                 <%= button_to t(".remove_device"), household_member_device_path(Current.household, device), method: :delete, class: "cursor-pointer text-red-700 underline", form: { data: { turbo_confirm: t(".remove_device_confirm") } } %></span>
             <% end %>
-          <% end %></span>
+          <% end %></span></span>
         <span class="flex items-center gap-2 text-sm text-gray-700">
           <% if policy(Current.household).manage_members? && !membership.owner? %>
             <%= form_with model: membership, url: household_membership_path(Current.household, membership), method: :patch, class: "flex items-center gap-1" do |form| %>

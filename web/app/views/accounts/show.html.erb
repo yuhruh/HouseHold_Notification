@@ -6,6 +6,16 @@
 
   <section class="space-y-4">
     <h2 class="text-lg font-semibold"><%= t(".profile") %></h2>
+    <div class="flex flex-wrap items-center gap-3">
+      <% if Current.user.avatar.attached? %>
+        <%= image_tag user_avatar_path(Current.user), alt: "", class: "h-14 w-14 rounded-full border object-cover" %>
+      <% end %>
+      <%= form_with url: avatar_path, method: :patch, multipart: true, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
+        <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, class: "max-w-full text-sm", "aria-label": t("photos.avatar.label") %>
+        <%= f.submit t("photos.avatar.upload"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+      <% end %>
+      <% if Current.user.avatar.attached? %><%= button_to t("photos.avatar.remove"), avatar_path, method: :delete, class: "cursor-pointer text-sm text-red-700 underline" %><% end %>
+    </div>
     <%= form_with model: @user, url: account_path, method: :patch, class: "space-y-4" do |form| %>
       <% if @user.errors.any? %>
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>

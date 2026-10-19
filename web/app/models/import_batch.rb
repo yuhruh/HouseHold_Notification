@@ -9,10 +9,11 @@ class ImportBatch < ApplicationRecord
 
   def undoable? = undone_at.nil? && household.import_batches.active.order(:id).last == self
 
-  # Undo is refused once any of its records was edited, marked paid or deleted in the app (PRD M5)
+  # Undo is refused once any of its records was edited, marked paid, deleted or given photos (PRD M5)
   def undo_blocked?
     ids = changes_made.pluck(:record_id)
     household.records.where(id: ids).count < ids.uniq.size ||
+      ActiveStorage::Attachment.where(record_type: "Record", record_id: ids, name: "photos").where(created_at: created_at..).exists? ||
       RecordEvent.where(household_id:, record_id: ids, action: %w[updated marked_paid deleted]).where(created_at: created_at..).exists?
   end
 end

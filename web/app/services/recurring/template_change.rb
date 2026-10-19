@@ -49,7 +49,10 @@ module Recurring
 
     def change_for(record)
       started = Date.new(record.period_year, record.period_start_month, 1) <= @today
-      return Change.new(record:, action: :delete, before: summary(record), after: nil) if schedule_changed? && !started
+      # Not started yet: regenerated under the new schedule, unless it has photos (updated in place)
+      if schedule_changed? && !started && !record.photos.attached?
+        return Change.new(record:, action: :delete, before: summary(record), after: nil)
+      end
 
       after = {}
       after[:amount_required] = @template.default_amount if amount_changed? && record.amount_required != @template.default_amount

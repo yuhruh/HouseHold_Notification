@@ -76,6 +76,14 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Owner removes a member's device (PRD §14) | ☑ | 成員 page lists each member's devices for the owner, with Remove |
 | M5 exit: push on installed Android PWA + desktop Chrome marks `sent`; phone off 24h → `failed`, owner notified, Resend delivers | ◐ | 2026-10-19: Pixel 9 ✅ (14:05 digest had no registered device → failed; after registering, Resend at 14:09:00 → receipt 14:09:01 → `sent`). Left: desktop Chrome, the 24h phone-off test, family phones (X9) |
 
+## M3: Attachments
+
+| Task | Status | Notes |
+|---|---|---|
+| Record photos + avatars, private serving, sanitize before attach, client downscale | ☑ | 2026-10-19: Active Storage Disk on the volume, `draw_routes = false`; `PhotosController` (members only; signed-out / non-member → 404; `Cache-Control: private, max-age=300`, `nosniff`, inline; 400px thumbnails); `Photos::Sanitizer` (autorotate, strip EXIF/GPS/XMP/ICC → sRGB, ≤2000px, JPEG q82, HEIC → JPEG); JPEG/PNG/WebP/HEIC, 10 MB, 10 per record; Stimulus canvas downscale; avatars (512 square, visible to shared households); household purge removes files; undo blocked by added photos; template changes keep bills with photos in place |
+| Monthly photo backup | ☑ | `PhotoBackupReminderJob` (1st of the month 09:00 Taipei, only when photos exist) emails Alex to run `bin/download-photos` (tar over `railway ssh`; **untested from here**, since `railway ssh` was denied in this session) |
+| M3 exit: upload from phone; survives a redeploy; non-member / signed-out → 404; no `/rails/active_storage` route | ◐ | 404s and the missing route are covered by tests. Left for Alex: upload from the Pixel, redeploy, photo still there; run `bin/download-photos` once |
+
 ## Sheet cleanup log
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |

@@ -26,6 +26,11 @@ module Web
     config.i18n.available_locales = [ :"zh-TW", :en ]
     config.i18n.default_locale = :"zh-TW"
     config.i18n.fallbacks = [ :en ]
+
+    # Photos are private (PRD §7): no public-by-link /rails/active_storage routes; PhotosController
+    # and AvatarsController serve files after the household check.
+    config.active_storage.draw_routes = false
+    config.active_storage.variant_processor = :vips
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

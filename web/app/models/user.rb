@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
   # Google-only users have no password, so presence isn't validated
   has_secure_password validations: false
+  has_one_attached :avatar
   has_many :sessions, dependent: :destroy
   has_many :identities, dependent: :destroy
   has_many :memberships, dependent: :destroy

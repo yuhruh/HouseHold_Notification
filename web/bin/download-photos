@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Monthly photo backup (PRD → Backups): a tar of the photo files on the Railway volume, saved on
+# this computer. Run from web/ (where the Railway CLI link lives): bin/download-photos [output.tgz]
+set -euo pipefail
+cd "$(dirname "$0")/.."
+out="${1:-$HOME/Downloads/household-photos-$(date +%F).tgz}"
+railway ssh -- tar czf - -C /rails/storage --exclude=./backups --exclude=./spike . > "$out"
+tar tzf "$out" > /dev/null # fails loudly if the download is not a valid archive
+echo "Saved $out ($(du -h "$out" | cut -f1), $(tar tzf "$out" | grep -vc '/$') files)"

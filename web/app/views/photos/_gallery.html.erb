@@ -1,0 +1,29 @@
+<%# Record photos (PRD §7): thumbnails open the full photo; writers add (camera or picker) and remove %>
+<% writer = policy(record).write? %>
+<section class="space-y-2">
+  <h2 class="text-lg font-semibold"><%= t("photos.gallery.title") %> (<%= record.photos.size %>)</h2>
+  <% if record.photos.any? %>
+    <ul class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+      <% record.photos.each do |photo| %>
+        <li class="space-y-1">
+          <%= link_to household_record_photo_file_path(Current.household, record, photo), target: "_blank", rel: "noopener" do %>
+            <%= image_tag household_record_photo_file_path(Current.household, record, photo, variant: "thumb"), alt: photo.filename.to_s, loading: "lazy", class: "aspect-square w-full rounded border object-cover" %>
+          <% end %>
+          <% if writer %>
+            <%= button_to t("photos.gallery.remove"), household_record_photo_path(Current.household, record, photo), method: :delete, form: { data: { turbo_confirm: t("photos.gallery.remove_confirm") } }, class: "cursor-pointer text-xs text-red-700 underline" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if writer && record.photos.size < Photos::Upload::MAX_PHOTOS %>
+    <%= form_with url: household_record_photos_path(Current.household, record), multipart: true, class: "flex flex-wrap items-center gap-2 text-sm",
+          data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing") } do |f| %>
+      <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true,
+            data: { photo_upload_target: "input", action: "change->photo-upload#resize" }, class: "max-w-full text-sm" %>
+      <%= f.submit t("photos.gallery.upload"), data: { photo_upload_target: "submit", turbo_submits_with: t("photos.gallery.uploading") }, class: "cursor-pointer rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white" %>
+      <span class="text-gray-500" data-photo-upload-target="status"></span>
+    <% end %>
+    <p class="text-xs text-gray-500"><%= t("photos.gallery.hint", max: Photos::Upload::MAX_PHOTOS) %></p>
+  <% end %>
+</section>

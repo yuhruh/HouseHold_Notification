@@ -10,6 +10,7 @@ class Record < ApplicationRecord
   belongs_to :created_by, class_name: "User", optional: true
   belongs_to :import_batch, optional: true
   belongs_to :recurring_template, optional: true
+  has_many_attached :photos
   has_many :reminder_logs, dependent: :delete_all
   has_many :reminder_snoozes, dependent: :delete_all
 

@@ -22,6 +22,9 @@ production:
   generate_recurring_records:
     class: GenerateRecurringRecordsJob
     schedule: "10 0 * * * Asia/Taipei"
+  photo_backup_reminder:
+    class: PhotoBackupReminderJob
+    schedule: "0 9 1 * * Asia/Taipei"
   backup:
     class: BackupJob
     schedule: "0 4 * * 0 Asia/Taipei"

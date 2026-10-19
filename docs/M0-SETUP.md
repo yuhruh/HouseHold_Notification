@@ -92,6 +92,8 @@ Railway Hobby can't create volume backups (X3). `BackupJob` runs every Sunday 04
        docker stop drill-pg18
 
    It prints row counts per table and "Restore drill OK".
+5. Photos (M3) aren't in the database email. On the 1st of each month an email reminds you to run
+   `cd web && bin/download-photos`, which saves `household-photos-YYYY-MM-DD.tgz` in Downloads.
 
 ### Manual deploy
 The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual

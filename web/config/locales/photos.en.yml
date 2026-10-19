@@ -1,0 +1,36 @@
+en:
+  photos:
+    errors:
+      none: "Choose at least one photo."
+      too_many: "A record can have at most %{max} photos."
+      too_large: "%{name} is larger than %{max} MB."
+      type: "%{name} isn't a JPEG, PNG, WebP or HEIC photo."
+      unreadable: "%{name} couldn't be read as a photo."
+    gallery:
+      title: "Photos"
+      upload: "Add photos"
+      uploading: "Uploading…"
+      preparing: "Preparing photos…"
+      remove: "Remove"
+      remove_confirm: "Remove this photo?"
+      hint: "Take a photo or pick from the gallery, up to %{max} per record. Location and other hidden details are removed."
+    avatar:
+      label: "Profile photo"
+      upload: "Upload photo"
+      remove: "Remove photo"
+    create:
+      added: "Photos added."
+    destroy:
+      removed: "Photo removed."
+  avatars:
+    update:
+      saved: "Profile photo saved."
+    destroy:
+      removed: "Profile photo removed."
+  backup_mailer:
+    photos_reminder:
+      subject:
+        one: "Household Tracker: download this month's photo backup (1 photo)"
+        other: "Household Tracker: download this month's photo backup (%{count} photos)"
+      body: "The weekly database backup doesn't include photos. There are %{count} photos (%{size} MB) on the Railway volume. On your computer, from the project's web folder, run:"
+      after: "It saves household-photos-YYYY-MM-DD.tgz in Downloads. Keep the latest few."

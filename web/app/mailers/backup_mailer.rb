@@ -11,4 +11,9 @@ class BackupMailer < ApplicationMailer
     @size_mb = (params[:size].to_f / 1.megabyte).round(1)
     mail to: params[:to], subject: t(".subject", filename: @filename)
   end
+
+  def photos_reminder
+    @count, @size_mb = params[:count], params[:size_mb]
+    mail to: params[:to], subject: t(".subject", count: @count)
+  end
 end

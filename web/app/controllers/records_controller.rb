@@ -112,7 +112,7 @@ class RecordsController < ApplicationController
   private
 
   def set_record
-    @record = Current.household.records.find(params[:id])
+    @record = Current.household.records.with_attached_photos.find(params[:id])
   end
 
   def assign(record)

@@ -79,4 +79,17 @@ class BackupJobTest < ActiveJob::TestCase
     assert_match "household-2026-10-18.dump", mail.subject
     assert_equal [ "" ], @pings
   end
+
+  test "the monthly photo reminder is sent only when there are photos" do
+    PhotoBackupReminderJob.perform_now
+    assert_empty ActionMailer::Base.deliveries
+    home = households(:home)
+    Categories::Seed.call(home)
+    record = home.records.create!(record_type: "expense", category: home.categories.first, period: Period.parse(2026, "1月"))
+    record.photos.attach(io: File.open(jpeg_fixture(with_metadata: false)), filename: "a.jpg", content_type: "image/jpeg")
+    PhotoBackupReminderJob.perform_now
+    mail = ActionMailer::Base.deliveries.sole
+    assert_match "1 張照片", mail.subject
+    assert_match "bin/download-photos", mail.body.to_s
+  end
 end

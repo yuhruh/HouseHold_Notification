@@ -95,7 +95,7 @@ jobs:
     steps:
       - name: Install packages
         working-directory: .
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips libheif-dev
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips libheif-dev libheif-plugin-libde265
 
       - name: Checkout code
         uses: actions/checkout@v7
@@ -136,7 +136,7 @@ jobs:
     steps:
       - name: Install packages
         working-directory: .
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips libheif-dev
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips libheif-dev libheif-plugin-libde265
 
       - name: Checkout code
         uses: actions/checkout@v7

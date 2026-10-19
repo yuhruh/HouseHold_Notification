@@ -62,7 +62,8 @@ that merely **expires** keeps receiving reminders. **Remove** stops a lost or so
 - **Heartbeats (Healthchecks.io):** `REMINDER_HEARTBEAT_URL` (job ran; period 1 h, grace 3 h; `/fail`
   on a revoked Gmail token or an unexpected error), `DELIVERY_HEALTH_HEARTBEAT_URL` (daily owner
   summary; `/fail` when anything failed), `GENERATE_HEARTBEAT_URL` (daily recurring generation,
-  grace 26 h), `BACKUP_HEARTBEAT_URL` (weekly backup, grace 8 days).
+  grace 26 h), `BACKUP_HEARTBEAT_URL` (weekly backup, grace 8 days), `DISK_HEARTBEAT_URL` (daily volume check;
+  `/fail` at 80% full).
 - **Gmail token revoked** (`invalid_grant`): re-run `bin/rails gmail:authorize` as the sender
   (docs/M0-SETUP.md §3), update credentials, deploy, then Resend all on 提醒送達狀態.
 - **VAPID keys must never be rotated casually.** Every push subscription is bound to the VAPID

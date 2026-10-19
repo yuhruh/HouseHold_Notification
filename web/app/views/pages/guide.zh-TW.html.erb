@@ -1,0 +1,63 @@
+<% content_for :title, "使用說明 · Household Tracker" %>
+<article class="mx-auto w-full max-w-2xl space-y-8 py-8 leading-relaxed">
+  <header class="space-y-1">
+    <h1 class="text-2xl font-bold">家人使用說明</h1>
+    <p class="text-sm text-gray-600">用 Android 手機的 Chrome 設定一次，之後每天的帳單提醒會直接跳到手機上。</p>
+  </header>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">1. 接受邀請</h2>
+    <ol class="list-decimal space-y-1 pl-6">
+      <li>打開邀請信（寄件人是 Household Tracker 的 Gmail；第一次請也看一下垃圾郵件）。</li>
+      <li>點信中的連結，用<strong>收到邀請的那個 Email</strong>「建立帳號」，或已經有帳號就「登入」。用 Google 登入也可以，但 Google 帳號要是同一個 Email。</li>
+      <li>點「接受」，就會看到家裡的帳單。</li>
+    </ol>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">2. 安裝到手機主畫面</h2>
+    <ol class="list-decimal space-y-1 pl-6">
+      <li>在手機的 <strong>Chrome</strong> 打開 <code><%= request.host %></code>，並登入。</li>
+      <li>點上方的「安裝 App」，或 Chrome 右上角 <strong>⋮ → 安裝應用程式</strong>（有些手機寫「加到主畫面」）。</li>
+      <li>以後都從<strong>主畫面的圖示</strong>打開。</li>
+    </ol>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">3. 開啟通知</h2>
+    <ol class="list-decimal space-y-1 pl-6">
+      <li>從主畫面圖示打開 App，進入<%= link_to "「我的帳戶」→「通知」", account_path(anchor: "notifications"), class: "text-blue-700 underline" %>。</li>
+      <li>確認家庭那一列勾了「推播」，按「儲存」。</li>
+      <li>按「啟用通知」，Chrome 詢問時選<strong>允許</strong>。「這個瀏覽器」會顯示已開啟。</li>
+      <li>不想讓鎖定畫面顯示金額，可以取消「在通知（鎖定畫面）顯示帳單名稱與金額」。</li>
+    </ol>
+    <p class="text-sm text-gray-600">換新手機時，在新手機重做第 2、3 步。舊手機可以在「我的帳戶」→「裝置」移除。</p>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">4. 讓通知準時（建議）</h2>
+    <p>Android 省電時可能會延後通知。到手機的<strong>設定 → 應用程式 → Chrome → 電池</strong>，選<strong>不受限制</strong>（各品牌名稱略有不同）。也不要清除 Chrome 的網站資料，否則需要重新啟用通知。</p>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">5. 每天會收到什麼</h2>
+    <ul class="list-disc space-y-1 pl-6">
+      <li>每天最多一則整理好的提醒：快到期、今天到期、已逾期的帳單。時間預設早上 9 點，可在「我的帳戶」改「提醒時間」。</li>
+      <li>同樣的內容也會寄 Email，並出現在 App 上方的 🔔。</li>
+      <li>繳完後在帳單上按「標記已繳」，大家就不會再收到這筆的提醒。</li>
+      <li>暫時不想看到某筆提醒，可以按「稍後提醒」，只對你自己有效。</li>
+      <li>帳單頁可以「新增照片」，拍收據或繳費證明。照片的位置資訊會被移除。</li>
+    </ul>
+  </section>
+
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">6. 遇到問題</h2>
+    <ul class="list-disc space-y-1 pl-6">
+      <li><strong>沒收到通知：</strong>從主畫面打開 App，到「我的帳戶」再按一次「啟用通知」。Email 和 🔔 還是會有提醒。</li>
+      <li><strong>手機遺失：</strong>在電腦登入，到「我的帳戶」→「裝置」移除那支手機，或請家庭擁有者移除。</li>
+      <li><strong>其他問題：</strong>問邀請你的家人。</li>
+    </ul>
+  </section>
+
+  <p class="text-sm"><%= link_to "隱私權政策", privacy_path, class: "text-blue-700 underline" %> · <%= link_to "← Household Tracker", root_path, class: "text-blue-700 underline" %></p>
+</article>

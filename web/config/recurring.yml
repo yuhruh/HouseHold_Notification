@@ -25,6 +25,9 @@ production:
   photo_backup_reminder:
     class: PhotoBackupReminderJob
     schedule: "0 9 1 * * Asia/Taipei"
+  disk_usage:
+    class: DiskUsageJob
+    schedule: "45 3 * * * Asia/Taipei"
   backup:
     class: BackupJob
     schedule: "0 4 * * 0 Asia/Taipei"

@@ -240,6 +240,7 @@ en:
       expires: "The invitation expires on %{date}."
       never_expires: "The invitation doesn't expire."
       match_hint: "Sign in or sign up with %{email}; the invitation only works for that address."
+      guide: "New here? Installing the app and turning on notifications:"
   reauth_purposes:
     delete_account: "delete your account"
     change_email: "change your email"
@@ -320,7 +321,7 @@ en:
         explain: "Deleting your account is permanent."
         removes: "Your profile, sign-in methods and devices are removed, and you leave every household. Bills you added stay in the household, shown as added by a former member."
         owner_rule: "If you own a household with other members, transfer ownership or delete the household first. A household where you're the only member is deleted with your account."
-        backups: "Encrypted backups expire within 4 weeks."
+        backups: "Encrypted backups on the server expire within 4 weeks. The app's operator also keeps encrypted copies off the server (email and a computer); ask them to delete the ones with your data."
         blocked_heading: "First, for each household you own that has other members:"
         transfer: "Transfer ownership"
         delete_household: "Delete household"

@@ -117,5 +117,6 @@ Rails.application.routes.draw do
   end
 
   get "privacy" => "pages#privacy"
+  get "guide" => "pages#guide"
   root "pages#home"
 end

@@ -91,9 +91,14 @@ Railway Hobby can't create volume backups (X3). `BackupJob` runs every Sunday 04
          bin/rails backup:restore_drill IN=~/Downloads/household-….dump.enc
        docker stop drill-pg18
 
-   It prints row counts per table and "Restore drill OK".
+   It prints row counts per table and "Restore drill OK". Add `PHOTOS=~/Downloads/household-photos-….tgz`
+   (from step 5, taken the same day as the dump) to also check every photo file against the restored
+   `active_storage_blobs` (present, same size, same MD5); a missing or changed file fails the drill.
 5. Photos (M3) aren't in the database email. On the 1st of each month an email reminds you to run
    `cd web && bin/download-photos`, which saves `household-photos-YYYY-MM-DD.tgz` in Downloads.
+6. Volume space: `DiskUsageJob` (daily 03:45 Taipei) reads the volume size with `df` and, at 80% or more,
+   reports a Sentry warning and pings `DISK_HEARTBEAT_URL`'s `/fail` (optional Healthchecks.io check,
+   period 1 day, grace 2 hours). Fix by deleting old photos or growing the volume in Railway.
 
 ### Manual deploy
 The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual

@@ -3,7 +3,7 @@ require "test_helper"
 # Renders every M1 page once, so a missing translation or broken template fails here
 class PageRenderTest < ActionDispatch::IntegrationTest
   test "signed-out pages" do
-    %w[/ /privacy /session/new /registration/new /passwords/new /email_confirmations/new /account/deletion].each do |path|
+    %w[/ /privacy /guide /session/new /registration/new /passwords/new /email_confirmations/new /account/deletion].each do |path|
       get path
       assert_response :success, path
     end

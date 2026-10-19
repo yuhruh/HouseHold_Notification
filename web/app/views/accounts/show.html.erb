@@ -134,7 +134,7 @@
       <label class="flex items-center gap-2"><%= f.check_box :push_show_amounts %> <%= t(".push_show_amounts") %></label>
       <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
     <% end %>
-    <p class="text-xs text-gray-500"><%= t(".push_tip") %></p>
+    <p class="text-xs text-gray-500"><%= t(".push_tip") %> <%= link_to t(".guide"), guide_path, class: "underline" %></p>
   </section>
 
   <section id="devices" class="space-y-3">

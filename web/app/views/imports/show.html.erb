@@ -6,7 +6,7 @@
 <% warned = p.rows.select { |r| r["warnings"].any? } %>
 <% box = "space-y-3 rounded-lg border p-4" %>
 <div class="w-full space-y-6 py-4">
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <%= page_title("import.png", t(".title")) %>
   <p class="text-gray-700"><%= t(".intro", filename: p.filename, rows: p.rows.size) %></p>
   <ul class="flex flex-wrap gap-2 text-sm">
     <% kinds.each do |k| %><li class="rounded bg-gray-100 px-2 py-1"><%= t(".kinds.#{k}") %>: <strong><%= counts[k] %></strong></li><% end %>

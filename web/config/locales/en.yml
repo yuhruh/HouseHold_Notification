@@ -186,10 +186,10 @@ en:
       role: "Your role: %{role}"
       members: "Members"
       records: "Records"
-      payment_methods: "Payment methods"
+      payment_methods: "Payment Methods"
       categories: "Categories"
-      templates: "Recurring bills"
-      import: "Import from the sheet"
+      templates: "Recurring Bills"
+      import: "Import from the Sheet"
   members:
     index:
       title: "Members"

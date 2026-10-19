@@ -3,7 +3,7 @@
 <% months = @charts.months %>
 <div class="w-full space-y-6 py-4">
   <div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+    <%= page_title("dashboard.png", t(".title")) %>
   </div>
 
   <%= form_with url: household_dashboard_path(Current.household), method: :get, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>

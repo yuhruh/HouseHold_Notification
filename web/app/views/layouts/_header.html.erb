@@ -28,9 +28,9 @@
       <% end %>
       <%= link_to notifications_path, class: "relative px-2 py-1", "aria-label": t("layouts.header.inbox", count: unread) do %>🔔<% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
       <% if nav_household %>
-        <%= link_to nav_label("📅", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= link_to nav_label("📋", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= link_to nav_label("📊", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= link_to nav_label("upcoming.png", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= link_to nav_label("records.png", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
         <%= link_to nav_label("⚙️", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
       <% end %>
       <%= link_to nav_label("📖", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>

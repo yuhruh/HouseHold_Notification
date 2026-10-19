@@ -19,7 +19,7 @@ en:
       boxplot: "Bill amounts per category"
       box: "Spread"
       points: "Records"
-      box_hint: "One point per bill. Categories with fewer than %{min} bills show their points only; red dots outside a box are unusual amounts (tap to open)."
+      box_hint: "One point per bill. Categories with fewer than %{min} bills show grey points only; red dots outside a box are unusual amounts. Tap a dot to open its record."
       amount: "Amount"
       min: "Min"
       median: "Median"

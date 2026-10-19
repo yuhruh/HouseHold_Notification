@@ -7,12 +7,12 @@
   </div>
 
   <%= form_with url: household_dashboard_path(Current.household), method: :get, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
-    <%= f.select :year, q.years, { selected: q.year }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.year") %>
-    <%= f.select :currency, Household::CURRENCIES, { selected: q.currency }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": Record.human_attribute_name(:currency) %>
-    <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t("records.index.all_types"), selected: q.record_type }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.type") %>
+    <%= f.select :year, q.years, { selected: q.year }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.year"), onchange: "this.form.requestSubmit()" %>
+    <%= f.select :currency, Household::CURRENCIES, { selected: q.currency }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": Record.human_attribute_name(:currency), onchange: "this.form.requestSubmit()" %>
+    <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t("records.index.all_types"), selected: q.record_type }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.type"), onchange: "this.form.requestSubmit()" %>
     <%= hidden_field_tag :mode, q.mode %>
     <%= hidden_field_tag :utility_mode, @utility_query.mode %>
-    <%= f.submit t("records.index.filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
+    <noscript><%= f.submit t("records.index.filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %></noscript>
   <% end %>
 
   <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">

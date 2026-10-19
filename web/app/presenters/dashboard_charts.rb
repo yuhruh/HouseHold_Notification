@@ -45,13 +45,15 @@ class DashboardCharts
       next { value: [], filters: drill(@q, category_id: g[:category].id, box: 1) } unless g[:stats]
       { value: g[:stats][:box].map { |v| v.to_f.round(2) }, filters: drill(@q, category_id: g[:category].id, box: 1) }
     end
+    # Outliers of a box are red; bills of categories too small for a box are plain grey points
+    point = ->(r, i, color) { { value: [ i, r.amount_paid.to_f ], record_id: r.id, name: r.title, itemStyle: { color: } } }
     points = groups.each_with_index.flat_map do |g, i|
-      g[:outliers].map { |r| { value: [ i, r.amount_paid.to_f ], record_id: r.id, name: r.title } }
+      g[:outliers].map { |r| point.(r, i, g[:stats] ? "#dc2626" : "#6b7280") }
     end
     base(tooltip: { trigger: "item" }).merge(xAxis: { type: "category", data: names, axisLabel: { interval: 0, rotate: 30 } },
       yAxis: { type: "value" }, grid: { left: 56, right: 16, top: 16, bottom: 72 },
       series: [ { name: I18n.t("dashboards.show.box"), type: "boxplot", data: boxes },
-                { name: I18n.t("dashboards.show.points"), type: "scatter", data: points, itemStyle: { color: "#dc2626" } } ])
+                { name: I18n.t("dashboards.show.points"), type: "scatter", data: points } ])
   end
 
   private

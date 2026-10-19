@@ -71,6 +71,12 @@ class InvitationTest < ActiveSupport::TestCase
     assert_not other.pending?
   end
 
+  test "accepting logs a member_joined entry for the household" do
+    invite(role: "viewer").accept!(users(:newbie))
+    event = SecurityEvent.find_by!(kind: "member_joined", household_id: households(:home).id)
+    assert_equal [ users(:newbie).id, "viewer" ], [ event.user_id, event.metadata["role"] ]
+  end
+
   test "masks the email for the wrong-account message" do
     assert_equal "m***@gmail.com", Invitation.new(email: "mum@gmail.com").masked_email
   end

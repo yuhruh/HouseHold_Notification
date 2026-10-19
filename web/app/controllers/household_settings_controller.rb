@@ -4,7 +4,7 @@ class HouseholdSettingsController < ApplicationController
 
   def show
     authorize Current.household
-    @events = SecurityEvent.where(household_id: Current.household.id).order(created_at: :desc).limit(30)
+    load_events
   end
 
   def update
@@ -13,8 +13,14 @@ class HouseholdSettingsController < ApplicationController
       SecurityEvent.record!("household_updated", actor: Current.user, household: Current.household, changes: Current.household.saved_changes.except("updated_at").keys)
       redirect_to household_settings_path(Current.household), notice: t(".saved")
     else
-      @events = SecurityEvent.where(household_id: Current.household.id).order(created_at: :desc).limit(30)
+      load_events
       render :show, status: :unprocessable_content
     end
   end
+
+  private
+    def load_events
+      @events = SecurityEvent.where(household_id: Current.household.id).order(created_at: :desc).limit(30).to_a
+      @event_users = User.where(id: @events.flat_map { [ _1.actor_id, _1.user_id ] }.compact.uniq).index_by(&:id)
+    end
 end

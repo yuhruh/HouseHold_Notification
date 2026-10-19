@@ -1,7 +1,7 @@
 # Audit trail for account and household changes (PRD data model). Keeps ids only, no personal data.
 class SecurityEvent < ApplicationRecord
   KINDS = %w[email_change_requested password_changed google_connected google_disconnected sessions_revoked
-             household_updated role_changed member_removed member_left ownership_transferred household_deleted
+             household_updated member_joined role_changed member_removed member_left ownership_transferred household_deleted
              account_deleted].freeze
 
   validates :kind, inclusion: { in: KINDS }

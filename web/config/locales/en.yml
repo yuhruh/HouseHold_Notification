@@ -346,6 +346,13 @@ en:
       delete: "Delete household"
       activity: "Activity"
       former_member: "Former member"
+      events:
+        member_joined: "%{member} joined as %{role}"
+        role_changed: "%{actor} changed %{member}'s role to %{role}"
+        member_removed: "%{actor} removed %{member}"
+        member_left: "%{member} left the household"
+        ownership_transferred: "%{actor} transferred ownership to %{member}"
+        household_updated: "%{actor} changed household settings: %{fields}"
     update:
       saved: "Household settings saved."
   memberships:
@@ -379,6 +386,7 @@ en:
     google_connected: "Google connected"
     google_disconnected: "Google disconnected"
     sessions_revoked: "Other devices signed out"
+    member_joined: "Member joined"
     household_updated: "Household settings changed"
     role_changed: "Member role changed"
     member_removed: "Member removed"

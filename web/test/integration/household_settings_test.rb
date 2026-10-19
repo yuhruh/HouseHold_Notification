@@ -14,6 +14,20 @@ class HouseholdSettingsTest < ActionDispatch::IntegrationTest
     assert SecurityEvent.exists?(kind: "household_updated", household_id: @home.id)
   end
 
+  test "the activity log says who did what to whom" do
+    I18n.with_locale(:en) do
+      patch household_membership_path(@home, memberships(:sam_home)), params: { membership: { role: "co_owner" } }
+      patch household_settings_path(@home), params: { household: { reminder_lead_days: 5 } }
+      Invitation.issue!(household: @home, invited_by: users(:alex), email: users(:newbie).email_address, role: "viewer", expires_at: nil)
+        .accept!(users(:newbie))
+      users(:alex).update!(locale: "en")
+      get household_settings_path(@home)
+      assert_select "li", text: /Alex changed Sam's role to Co-owner/
+      assert_select "li", text: /Alex changed household settings: #{Household.human_attribute_name(:reminder_lead_days)}/
+      assert_select "li", text: /joined as Viewer/
+    end
+  end
+
   test "lead days outside 0–30 show an inline error" do
     patch household_settings_path(@home), params: { household: { reminder_lead_days: 31 } }
     assert_response :unprocessable_content

@@ -1,0 +1,7 @@
+<%# ‹ Back on every signed-in page except the household home it falls back to (back_controller.js) %>
+<% unless (controller_name == "households" && action_name == "show") || controller_name == "pages" && action_name == "home" %>
+  <% home = Current.household || Current.user.home_household %>
+  <div class="container mx-auto px-4 pt-4 text-sm">
+    <%= link_to t("layouts.back"), home ? household_path(home) : root_path, data: { controller: "back", action: "back#go" }, class: "text-blue-700 hover:underline" %>
+  </div>
+<% end %>

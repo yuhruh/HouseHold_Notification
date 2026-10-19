@@ -5,6 +5,8 @@ class PagesTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "a[href=?]", privacy_path
+    assert_select "a[href=?]", guide_path
+    assert_select "[data-controller=install] button[hidden]"
   end
 
   test "privacy policy is public and covers Google user data" do

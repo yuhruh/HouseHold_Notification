@@ -1,0 +1,4 @@
+<%# Switches to the other language (PRD §11); each label is written in its own language %>
+<% other = I18n.locale.to_s == "en" ? "zh-TW" : "en" %>
+<%= button_to(other == "en" ? "English" : "中文", locale_path, method: :patch, params: { locale: other },
+      class: "cursor-pointer rounded-md border border-gray-300 px-2 py-1", lang: other, "aria-label": t("layouts.header.language")) %>

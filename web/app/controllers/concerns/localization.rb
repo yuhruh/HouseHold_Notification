@@ -1,5 +1,6 @@
 # Wraps each request in the user's locale and time zone (PRD §11, §17). Signed-out visitors get the
-# browser's language if supported, else zh-TW, and Asia/Taipei.
+# language they picked in the header (cookie), else the browser's if supported, else zh-TW, and
+# Asia/Taipei.
 module Localization
   extend ActiveSupport::Concern
 
@@ -10,9 +11,13 @@ module Localization
   private
     def use_locale_and_time_zone(&)
       user = Current.user || (resume_session && Current.user)
-      I18n.with_locale(user&.locale.presence || browser_locale || I18n.default_locale) do
+      I18n.with_locale(user&.locale.presence || cookie_locale || browser_locale || I18n.default_locale) do
         Time.use_zone(user&.time_zone || User::DEFAULT_TIME_ZONE, &)
       end
+    end
+
+    def cookie_locale
+      cookies[:locale].presence_in(I18n.available_locales.map(&:to_s))
     end
 
     def browser_locale

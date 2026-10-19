@@ -282,7 +282,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
      - On click, the controller loads `GET /dashboard/drilldown?…` into a Turbo Frame below the chart. The frame shows the **raw records** behind that element in a table (period, title, required, paid, paid date, payment method, note), with totals and links to each record.
      - **Box plot:** clicking a box shows all records in that category/period group, sorted by amount and with quartile markers. Clicking an **outlier dot** (scatter series) opens that single record directly, because outlier points carry the `record_id`.
      - The drilldown endpoint reuses the same `DashboardQuery` scopes as the chart, so the table always matches the clicked number, and it is tenant-scoped and Pundit-authorized.
-   - zh-TW locale via `echarts.registerLocale`; responsive resize; dark-mode theme; each chart has a "view as table" toggle for accessibility.
+   - responsive resize; each chart has a "view as table" toggle for accessibility. (The ECharts zh-TW locale and a dark-mode theme were dropped for v1 on 2026-10-19: the charts use no ECharts built-in text, and the app has no dark mode.)
    - ECharts is loaded via importmap as **one vendored, pinned file**: a custom build containing only bar, line, pie, boxplot and scatter. Importmap can't tree-shake, so the modular `echarts/core` imports aren't used (M0 check X6).
 9. **Google Sheet import (ships in M2, with records core):** CSV of the 記錄 tab → auto-map → preview with warnings → commit.
    - **`ID` column is required (one-time sheet change before the real import):**
@@ -487,6 +487,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
     - **Dead subscriptions:** delete the row when the push service returns **404/410**.
     - **Docs:** some Android OEM battery savers (Xiaomi, OPPO, Samsung, etc.) delay or drop pushes; NOTIFICATIONS.md gives per-brand "don't optimize Chrome" steps. Email is the fallback channel, so members are encouraged to enable both.
 17. **i18n:** zh-TW and en for all strings, mailers and push text; locale-aware dates and money.
+    - **Language switch (added 2026-10-19):** a button in the header (and top right on signed-out pages) switches between 中文 and English, each label written in its own language. Signed in, it saves `users.locale`, the same setting as My account; signed out, it sets a `locale` cookie. Order: the user's setting → the cookie → the browser's Accept-Language → zh-TW. It returns to the same page (internal referers only).
 
 **Out of scope (v1):** native apps, currency conversion, budgets, OCR, bank sync, cross-household views (combined dashboards, moving records between households; switching between households **is** in scope), offline mode, 保養記錄 / 電池更換紀錄.
 

@@ -12,7 +12,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | Docker entrypoint: chown Railway Volume, drop to uid 1000 | ☑ | verify on Railway |
 | CI at repo root (`working-directory: web`) | ☑ | green on main |
 | Sentry initializer (`SENTRY_DSN`) | ☑ | project `household-tracker/household-tracker-web` (EU ingest); `SENTRY_DSN` set on Railway; test exception arrived as HOUSEHOLD-TRACKER-WEB-1; default "high priority issues" alert emails Alex |
-| Gmail API delivery method + `bin/rails gmail:authorize` | ☑ | sender = the owner's personal Gmail (ADR 0005, X8); GCP project `household-mailer` In production; test email from production landed in the inbox 2026-10-18. Still to do: one to a family member's Gmail |
+| Gmail API delivery method + `bin/rails gmail:authorize` | ☑ | sender = the owner's personal Gmail (ADR 0005, X8); GCP project `household-mailer` In production; test email from production landed in the inbox 2026-10-18; family member's Gmail ✅ 2026-10-19 (the family member's invitation landed in his inbox, not spam) |
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |
 | VAPID keys in credentials | ☑ | never rotate casually |

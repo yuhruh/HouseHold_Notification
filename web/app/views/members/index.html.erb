@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <div class="w-full max-w-2xl space-y-8 py-4">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <%= page_title("members.png", t(".title")) %>
 
   <ul class="divide-y rounded-lg border">
     <% @memberships.each do |membership| %>

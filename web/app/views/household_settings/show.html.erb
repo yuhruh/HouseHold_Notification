@@ -37,8 +37,8 @@
     <h2 class="text-lg font-semibold"><%= t(".activity") %></h2>
     <ul class="divide-y rounded-lg border text-sm">
       <% @events.each do |event| %>
-        <li class="px-4 py-2"><%= t("security_events.#{event.kind}") %>
-          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %> · <%= event.actor&.display_name.presence || event.actor&.email_address || t(".former_member") %></span></li>
+        <li class="px-4 py-2"><%= activity_line(event, @event_users) %>
+          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %></span></li>
       <% end %>
     </ul>
   </section>

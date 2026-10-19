@@ -59,6 +59,7 @@ class Invitation < ApplicationRecord
 
       household.memberships.find_or_create_by!(user:) { |membership| membership.role = role }
       update!(accepted_at: Time.current)
+      SecurityEvent.record!("member_joined", user:, actor: user, household:, role:)
     end
   end
 

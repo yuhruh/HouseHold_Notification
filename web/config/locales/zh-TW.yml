@@ -346,6 +346,13 @@ zh-TW:
       delete: "刪除家庭"
       activity: "活動紀錄"
       former_member: "前成員"
+      events:
+        member_joined: "%{member} 加入，角色：%{role}"
+        role_changed: "%{actor} 將 %{member} 的角色改為%{role}"
+        member_removed: "%{actor} 移除了 %{member}"
+        member_left: "%{member} 離開了家庭"
+        ownership_transferred: "%{actor} 將擁有權轉移給 %{member}"
+        household_updated: "%{actor} 變更了家庭設定：%{fields}"
     update:
       saved: "家庭設定已儲存。"
   memberships:
@@ -379,6 +386,7 @@ zh-TW:
     google_connected: "連結 Google"
     google_disconnected: "取消連結 Google"
     sessions_revoked: "登出其他裝置"
+    member_joined: "成員加入"
     household_updated: "變更家庭設定"
     role_changed: "變更成員角色"
     member_removed: "移除成員"

@@ -45,6 +45,13 @@ class Reminders::RunTest < ActiveJob::TestCase
     assert_equal 6, deliveries.count, "at most one addition per day"
   end
 
+  test "maintenance bills are worded as maintenance" do
+    ac = @home.categories.find_by!(name_zh: "濾網/濾芯更換")
+    @home.records.create!(record_type: "maintenance", category: ac, details: "主臥", period: Period.parse(2026, "10月"), due_on: Date.new(2026, 10, 20))
+    run_at(taipei(2026, 10, 20, 8, 5))
+    assert_match "今天該保養", @alex.notifications.sole.body
+  end
+
   test "a late send words itself from today" do
     bill
     run_at(taipei(2026, 10, 21, 8, 5)) # due_today stage, delivered a day late

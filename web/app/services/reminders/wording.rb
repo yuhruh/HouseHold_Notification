@@ -17,7 +17,7 @@ module Reminders
       when "snooze_ended" then I18n.t("reminders.wording.snooze_ended")
       when /\Anext_/ then relative("maintenance", record.next_due_on, today)
       else
-        text = relative("bill", record.due_on, today)
+        text = relative(record.maintenance? ? "maintenance" : "bill", record.due_on, today)
         kind == "overdue_final" ? "#{text}#{I18n.t('reminders.wording.final')}" : text
       end
     end

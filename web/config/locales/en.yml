@@ -160,12 +160,13 @@ en:
     header:
       records: "Records"
       settings: "Settings"
-      account: "My account"
-      guide: "Getting started"
+      account: "My Account"
+      guide: "Getting Started"
+      sign_out: "Sign Out"
       language: "Switch language"
       languages: "Languages"
-      new_household: "＋ New household"
-      switch: "Switch household"
+      new_household: "＋ New Household"
+      switch: "Switch Household"
       invitations:
         one: "1 invitation"
         other: "%{count} invitations"

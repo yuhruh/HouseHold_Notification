@@ -1,5 +1,8 @@
 <% content_for :title, "使用說明 · Household Tracker" %>
-<article class="mx-auto w-full max-w-2xl space-y-8 py-8 leading-relaxed">
+<article class="mx-auto w-full max-w-2xl space-y-8 pb-8 leading-relaxed">
+  <div class="sticky top-0 z-10 -mx-4 border-b bg-white/95 px-4 py-2 text-sm backdrop-blur">
+    <%= link_to "← Household Tracker", root_path, class: "font-medium text-blue-700 hover:underline" %>
+  </div>
   <header class="space-y-1">
     <h1 class="text-2xl font-bold">家人使用說明</h1>
     <p class="text-sm text-gray-600">用 Android 手機的 Chrome 設定一次，之後每天的帳單提醒會直接跳到手機上。</p>
@@ -59,5 +62,5 @@
     </ul>
   </section>
 
-  <p class="text-sm"><%= link_to "隱私權政策", privacy_path, class: "text-blue-700 underline" %> · <%= link_to "← Household Tracker", root_path, class: "text-blue-700 underline" %></p>
+  <p class="text-sm"><%= link_to "隱私權政策", privacy_path, class: "text-blue-700 underline" %></p>
 </article>

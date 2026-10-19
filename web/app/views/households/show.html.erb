@@ -12,7 +12,7 @@
          [ "💳", t(".payment_methods"), household_payment_methods_path(Current.household) ],
          *([ [ "📥", t(".import"), new_household_import_path(Current.household) ] ] if policy(Current.household).write?),
          [ "👥", t(".members"), household_members_path(Current.household) ],
-         [ "⚙️", t("layouts.header.settings"), household_settings_path(Current.household) ] ].each do |icon, label, path| %>
+         [ "settings.png", t("layouts.header.settings"), household_settings_path(Current.household) ] ].each do |icon, label, path| %>
       <li><%= link_to nav_label(icon, label), path, class: "flex items-center gap-2 rounded-lg border px-4 py-3 font-medium hover:bg-gray-50" %></li>
     <% end %>
   </ul>

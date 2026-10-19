@@ -29,7 +29,7 @@
     <% else %>
       <nav class="container mx-auto flex flex-wrap items-center justify-end gap-3 px-4 pt-3 text-sm">
         <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-600 px-2 py-1 text-white"><%= t("layouts.header.install") %></button></span>
-        <%= link_to nav_label("📖", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
         <%= render "layouts/language_switch" %>
       </nav>
     <% end %>

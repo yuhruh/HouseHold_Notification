@@ -1,0 +1,44 @@
+<% content_for :title, t(".title") %>
+<% writer = policy(Category).write? %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p class="text-sm text-gray-600"><%= t(".intro") %></p>
+  <% @categories.group_by(&:record_type).each do |type, categories| %>
+    <section class="space-y-2">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold"><%= t("records.types.#{type}") %></h2>
+        <% if writer %><%= link_to t(".new"), new_household_category_path(Current.household, record_type: type), class: "text-sm underline" %><% end %>
+      </div>
+      <ul class="divide-y rounded-lg border">
+        <% categories.each do |category| %>
+          <% count = @counts[category.id].to_i %>
+          <li class="space-y-1 px-4 py-2 <%= 'text-gray-400' if category.archived_at %>">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span><%= category.name_zh %><%= " / #{category.name_en}" if category.name_en.present? %>
+                <span class="text-sm text-gray-500"><%= t(".records", count:) %><%= " · #{t('.detail', label: category.detail_label)}" if category.detail_required %><%= " · #{t('.archived')}" if category.archived_at %></span></span>
+              <% if writer %>
+                <span class="flex gap-3 text-sm">
+                  <%= link_to t(".edit"), edit_household_category_path(Current.household, category), class: "underline" %>
+                  <% if count.zero? %>
+                    <%= button_to t(".delete"), household_category_path(Current.household, category), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "cursor-pointer text-red-700 underline" %>
+                  <% else %>
+                    <%= button_to (category.archived_at ? t(".unarchive") : t(".archive")), archive_household_category_path(Current.household, category), class: "cursor-pointer underline" %>
+                  <% end %>
+                </span>
+              <% end %>
+            </div>
+            <% if category.category_aliases.any? %>
+              <p class="flex flex-wrap items-center gap-1 text-xs text-gray-600"><%= t(".aliases") %>
+                <% category.category_aliases.sort_by(&:alias).each do |item| %>
+                  <span class="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5"><%= item.alias %>
+                    <% if writer %><%= button_to "×", destroy_alias_household_categories_path(Current.household, alias_id: item.id), method: :delete, "aria-label": t(".remove_alias", alias: item.alias), class: "cursor-pointer text-gray-500" %><% end %></span>
+                <% end %>
+              </p>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

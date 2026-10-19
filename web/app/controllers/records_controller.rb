@@ -7,6 +7,13 @@ class RecordsController < ApplicationController
   def index
     authorize Record
     @filter = Records::Filter.new(Current.household, params.permit(*Records::Filter::KEYS))
+    respond_to do |format|
+      format.html
+      format.csv do
+        send_data Records::CsvExport.new(@filter.records).to_csv, type: "text/csv; charset=utf-8",
+          filename: "#{Current.household.name}-records-#{Date.current.iso8601}.csv"
+      end
+    end
   end
 
   def show

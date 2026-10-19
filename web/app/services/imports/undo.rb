@@ -1,9 +1,11 @@
 module Imports
   # Undo the latest import batch, all or nothing (PRD §9): created records are deleted (their sheet
   # IDs freed, or retired again for re-created ones) and updated records get their old values back.
+  # Refused once the app changed any of its records, so undo never overwrites later work.
   class Undo
     def self.call(batch, user:)
       raise ArgumentError, "only the latest import can be undone" unless batch.undoable?
+      raise ArgumentError, "records changed since the import" if batch.undo_blocked?
 
       ImportBatch.transaction do
         batch.changes_made.order(id: :desc).each do |change|

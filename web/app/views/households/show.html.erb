@@ -4,7 +4,7 @@
   <h1 class="text-3xl font-bold"><%= Current.household.name %></h1>
   <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
   <ul class="grid gap-3 sm:grid-cols-2">
-    <% [ [ t(".records"), household_records_path(Current.household) ], [ t(".payment_methods"), household_payment_methods_path(Current.household) ],
+    <% [ [ t(".records"), household_records_path(Current.household) ], [ t(".categories"), household_categories_path(Current.household) ], [ t(".payment_methods"), household_payment_methods_path(Current.household) ],
          *([ [ t(".import"), new_household_import_path(Current.household) ] ] if policy(Current.household).write?),
          [ t(".members"), household_members_path(Current.household) ], [ t("layouts.header.settings"), household_settings_path(Current.household) ] ].each do |label, path| %>
       <li><%= link_to label, path, class: "block rounded-lg border px-4 py-3 font-medium hover:bg-gray-50" %></li>

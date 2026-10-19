@@ -22,9 +22,10 @@
     <%= f.select :status, Records::Filter::STATUSES.map { |s| [ t("records.status.#{s}"), s ] }, { include_blank: t(".all_statuses"), selected: p[:status] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".status") %>
     <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".payment_method") %>
     <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "rounded-md border border-gray-400 px-2 py-1.5" %>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <%= f.submit t(".filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
+      <%= link_to t(".export"), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "px-2 py-1.5 underline" %>
     </div>
   <% end %>
 

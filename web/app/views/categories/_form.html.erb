@@ -1,0 +1,20 @@
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<%= form_with model: [ Current.household, category ], class: "space-y-4" do |form| %>
+  <% if category.errors.any? %>
+    <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% category.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+  <% end %>
+  <% if category.new_record? %>
+    <%= form.label :record_type, class: "block text-sm font-medium" %>
+    <%= form.select :record_type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, {}, class: field %>
+  <% else %>
+    <p class="text-sm text-gray-600"><%= t("records.types.#{category.record_type}") %></p>
+  <% end %>
+  <%= form.label :name_zh, class: "block text-sm font-medium" %>
+  <%= form.text_field :name_zh, required: true, maxlength: 40, class: field %>
+  <%= form.label :name_en, class: "block text-sm font-medium" %>
+  <%= form.text_field :name_en, maxlength: 40, class: field %>
+  <div class="flex gap-3">
+    <%= form.submit t("records.form.save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <%= link_to t("records.form.cancel"), household_categories_path(Current.household), class: "px-3.5 py-2 underline" %>
+  </div>
+<% end %>

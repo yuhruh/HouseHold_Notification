@@ -22,7 +22,9 @@
           <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
             <span><%= batch.filename %> · <%= l(batch.created_at, format: :short) %>
               <span class="block text-gray-500"><%= t(".counts", created: batch.created_count, updated: batch.updated_count, unchanged: batch.unchanged_count, skipped: batch.skipped_count) %><%= " · #{t('.undone')}" if batch.undone_at %></span></span>
-            <% if batch.undoable? %>
+            <% if batch.undoable? && batch.undo_blocked? %>
+              <span class="text-xs text-gray-500"><%= t(".undo_blocked") %></span>
+            <% elsif batch.undoable? %>
               <%= button_to t(".undo"), undo_household_import_path(Current.household, batch), form: { data: { turbo_confirm: t(".undo_confirm") } }, class: "cursor-pointer rounded-md border border-red-300 px-3 py-1 text-red-700" %>
             <% end %>
           </li>

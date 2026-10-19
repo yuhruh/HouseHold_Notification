@@ -137,7 +137,9 @@ module Imports
       end
       record.next_due_on = @next_due[row["key"]] if @next_due.key?(row["key"])
       record.assign_attributes(import_digest: row["digest"], import_snapshot: row["values"], imported_at: @now, import_batch: @batch)
+      record.import_key ||= row["key"] # an app-entered record linked by its exported app- ID
       save!(record, row)
+      @household.import_keys.create_with(record:, import_batch: @batch).find_or_create_by!(key: row["key"])
       @batch.changes_made.create!(record_id: record.id, action: "updated", before:, after: record.attributes.slice(*TRACKED))
       RecordEvent.create!(household: @household, record_id: record.id, user: @user, import_batch_id: @batch.id,
         action: "import_updated", diff: record.saved_changes.except(*RecordEvent::IGNORED, "import_snapshot", "imported_at", "import_digest", "import_batch_id"))

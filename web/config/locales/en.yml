@@ -164,6 +164,7 @@ en:
       members: "Members"
       records: "Records"
       payment_methods: "Payment methods"
+      categories: "Categories"
       import: "Import from the sheet"
   members:
     index:
@@ -419,6 +420,7 @@ en:
       search: "Search"
       filter: "Filter"
       clear: "Clear"
+      export: "Export CSV"
       summary: "Summary"
       by_period: "By billing period"
       required: "Required"
@@ -509,6 +511,7 @@ en:
       counts: "%{created} new · %{updated} updated · %{unchanged} unchanged · %{skipped} skipped"
       undone: "undone"
       undo: "Undo"
+      undo_blocked: "Can't undo: records were changed since"
       undo_confirm: "Undo this import? Records it created are deleted and records it updated get their old values back."
     create:
       no_file: "Choose a CSV file first."
@@ -571,6 +574,7 @@ en:
     undo:
       done: "Import undone."
       not_latest: "Only the latest import can be undone."
+      blocked: "This import can't be undone: some of its records were edited, marked paid or deleted since."
     aborted:
       title: "Import stopped"
       intro: "Nothing was saved; everything was rolled back."
@@ -583,3 +587,34 @@ en:
       row: "Line %{line}, ID %{key}"
       back: "Back to the preview"
       again: "Upload again"
+  categories:
+    index:
+      title: "Categories"
+      intro: "Rename, add or archive categories. Archived ones leave the record form but stay on existing records. Aliases are item names from the sheet that imports map here."
+      new: "Add"
+      records:
+        zero: "no records"
+        one: "1 record"
+        other: "%{count} records"
+      detail: "needs %{label}"
+      archived: "archived"
+      edit: "Edit"
+      delete: "Delete"
+      delete_confirm: "Delete this category?"
+      archive: "Archive"
+      unarchive: "Restore"
+      aliases: "Aliases:"
+      remove_alias: "Remove alias %{alias}"
+    new:
+      title: "New category"
+    edit:
+      title: "Edit category"
+    create:
+      created: "Category added."
+    update:
+      saved: "Saved."
+    destroy:
+      deleted: "Category deleted."
+      in_use: "This category has records; archive it instead."
+    destroy_alias:
+      alias_removed: "Alias removed. The next import will suggest a category for that item again."

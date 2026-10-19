@@ -21,6 +21,7 @@ module Imports
       end
       keys = assign_keys(result.rows, prepared)
       import_keys = @household.import_keys.includes(:record).where(key: keys.values).index_by(&:key)
+      app_records = app_records_for(keys.values)
       versions = {}
       rows = result.rows.map do |row|
         key = keys.fetch(row.line)
@@ -28,7 +29,7 @@ module Imports
         entry = { "line" => row.line, "key" => key, "sheet_key" => row.id, "record_type" => row.record_type.to_s,
                   "values" => values, "digest" => digest, "warnings" => row.warnings,
                   "suggested_category" => row.category.name }
-        classify(entry, import_keys[key], versions)
+        classify(entry, import_keys[key], versions, app_records[key])
       end
 
       preview = @household.import_previews.create!(
@@ -70,13 +71,20 @@ module Imports
       end
     end
 
-    def classify(entry, import_key, versions)
-      record = import_key&.record
-      if import_key.nil?
+    # "app-<record_no>" IDs come from the CSV export of records entered in the app
+    def app_records_for(keys)
+      numbers = keys.filter_map { |key| key[/\Aapp-(\d+)\z/, 1]&.to_i }
+      @household.records.where(record_no: numbers).index_by { |r| Records::CsvExport.app_key(r) }
+    end
+
+    def classify(entry, import_key, versions, app_record = nil)
+      record = import_key ? import_key.record : app_record
+      if import_key.nil? && app_record.nil?
         entry.merge("kind" => "new")
       elsif record.nil?
         entry.merge("kind" => "deleted")
-      elsif record.import_digest == entry["digest"]
+      elsif record.import_digest == entry["digest"] ||
+            (record.import_snapshot.nil? && SheetRow.from_record(record, item: record.title) == entry["values"])
         entry.merge("kind" => "unchanged", "record_id" => record.id)
       else
         versions[record.id.to_s] = record.lock_version
@@ -85,8 +93,8 @@ module Imports
     end
 
     def field_changes(record, sheet)
-      base = record.import_snapshot || {}
-      app = SheetRow.from_record(record, item: base["item"])
+      app = SheetRow.from_record(record, item: record.import_snapshot&.dig("item") || record.title)
+      base = record.import_snapshot || app
       SheetRow::FIELDS.filter_map do |field|
         next if sheet[field] == base[field] && base.key?(field)
         { "field" => field, "base" => base[field], "app" => app[field], "sheet" => sheet[field],

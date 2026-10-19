@@ -163,6 +163,7 @@ zh-TW:
       coming_soon: "提醒、試算表匯入與儀表板即將推出。"
       records: "記錄"
       payment_methods: "付款方式"
+      categories: "類別"
       import: "從試算表匯入"
       members: "成員"
   members:
@@ -419,6 +420,7 @@ zh-TW:
       search: "搜尋"
       filter: "篩選"
       clear: "清除"
+      export: "匯出 CSV"
       summary: "摘要"
       by_period: "依帳單期間"
       required: "應繳"
@@ -509,6 +511,7 @@ zh-TW:
       counts: "新增 %{created} · 更新 %{updated} · 未變更 %{unchanged} · 略過 %{skipped}"
       undone: "已復原"
       undo: "復原"
+      undo_blocked: "無法復原：之後有記錄被修改"
       undo_confirm: "要復原這次匯入嗎？這次新增的記錄會被刪除，更新過的記錄會恢復原本的值。"
     create:
       no_file: "請先選擇 CSV 檔案。"
@@ -571,6 +574,7 @@ zh-TW:
     undo:
       done: "已復原匯入。"
       not_latest: "只能復原最近一次的匯入。"
+      blocked: "無法復原這次匯入：之後有記錄被編輯、標記為已繳或刪除。"
     aborted:
       title: "匯入中止"
       intro: "沒有儲存任何資料，所有變更都已復原。"
@@ -583,3 +587,34 @@ zh-TW:
       row: "第 %{line} 列，ID %{key}"
       back: "回到預覽"
       again: "重新上傳"
+  categories:
+    index:
+      title: "類別"
+      intro: "可以重新命名、新增或封存類別。封存的類別不會出現在記錄表單中，但會保留在既有記錄上。別名是試算表中的項目名稱，匯入時會對應到這裡。"
+      new: "新增"
+      records:
+        zero: "沒有記錄"
+        one: "1 筆記錄"
+        other: "%{count} 筆記錄"
+      detail: "需要填寫%{label}"
+      archived: "已封存"
+      edit: "編輯"
+      delete: "刪除"
+      delete_confirm: "要刪除這個類別嗎？"
+      archive: "封存"
+      unarchive: "還原"
+      aliases: "別名："
+      remove_alias: "移除別名 %{alias}"
+    new:
+      title: "新增類別"
+    edit:
+      title: "編輯類別"
+    create:
+      created: "已新增類別。"
+    update:
+      saved: "已儲存。"
+    destroy:
+      deleted: "已刪除類別。"
+      in_use: "這個類別有記錄，請改為封存。"
+    destroy_alias:
+      alias_removed: "已移除別名。下次匯入時會重新為這個項目建議類別。"

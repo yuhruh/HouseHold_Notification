@@ -44,6 +44,7 @@ class ImportsController < ApplicationController
     authorize :import
     batch = Current.household.import_batches.find(params[:id])
     return redirect_to(new_household_import_path(Current.household), alert: t(".not_latest")) unless batch.undoable?
+    return redirect_to(new_household_import_path(Current.household), alert: t(".blocked")) if batch.undo_blocked?
 
     Imports::Undo.call(batch, user: Current.user)
     redirect_to new_household_import_path(Current.household), notice: t(".done")

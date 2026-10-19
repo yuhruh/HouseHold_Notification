@@ -54,9 +54,9 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Backups: weekly encrypted `BackupJob` + restore drill (before the real import) | ☑ | built 2026-10-19 (Sunday 04:00 Taipei, keep 4, encrypted email; `backup:decrypt`, `backup:restore_drill`). **Restore drill passed 2026-10-19 11:17** on the production backup emailed at ~11:15: decrypted with the passphrase from the password manager, restored into Postgres 18 (Docker), households 1 · users 1 · memberships 1 · categories 15 · records 0. Passphrase rotated 2026-10-19 12:01 (the drill-day one appeared in a screenshot); Railway and the password manager match by fingerprint. Monthly photo download comes with photos (M3) |
 | CSV import preview → commit, re-import updates, undo, `record_events` | ☑ | 2026-10-19: upload → dry-run validation (failure page lists rows, nothing saved) → preview (new / update with three-way ⚠ conflicts / unchanged / deleted in app Skip-Re-create / new IDs paste-back / category mapping saved as aliases / maintenance chains Keep-Clear-New date / warnings / sheet Total vs Paid) → one-transaction commit with lock_version check → latest-batch undo. Real CSV trial (rolled back): 130 created, Paid 429,869 = Total, re-import 130 unchanged. Not yet: moving rows between chains, payment-method suggestion from Note, bulk reminder for unpaid rows |
 | Real import into the family household | ☑ | Alex uploaded the 記錄 CSV into 我的家, 2026-10-19 (after backups + restore drill + passphrase rotation) |
-| Categories editing UI | ☐ | |
-| CSV export that round-trips | ☐ | |
-| Undo refused after later edits / deletions (PRD M5) | ☐ | current undo restores regardless |
+| Categories editing UI | ☑ | 2026-10-19: add, rename (titles follow; old name saved as an alias), archive used / delete unused, remove import aliases |
+| CSV export that round-trips | ☑ | 2026-10-19: Export CSV on the records list (current filters), 記錄 layout with the Total row; app-entered records export as `app-<record_no>` and re-import onto themselves. Real data: import → export → re-import = 130 unchanged |
+| Undo refused after later edits / deletions (PRD M5) | ☑ | 2026-10-19 (photos join the check in M3) |
 
 ## Sheet cleanup log
 

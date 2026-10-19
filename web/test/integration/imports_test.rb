@@ -129,6 +129,18 @@ class ImportsTest < ActionDispatch::IntegrationTest
     assert first.reload.undoable?
   end
 
+  test "undo is refused once a record from the import was edited or deleted" do
+    import!
+    batch = @home.import_batches.sole
+    patch household_record_path(@home, @home.records.find_by!(import_key: "79")),
+      params: { record: { details: "edited", lock_version: @home.records.find_by!(import_key: "79").lock_version } }
+    assert batch.undo_blocked?
+    post undo_household_import_path(@home, batch)
+    assert_redirected_to new_household_import_path(@home)
+    assert_nil batch.reload.undone_at
+    assert_equal 12, @home.records.count
+  end
+
   test "records changed after the preview stop the commit" do
     import!
     upload(@csv.sub("水費,水費,612,612", "水費,水費,575,575"))

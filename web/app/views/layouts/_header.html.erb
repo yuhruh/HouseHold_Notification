@@ -34,9 +34,9 @@
         <%= link_to t("layouts.header.settings"), household_settings_path(nav_household), class: "px-2 py-1 underline" %>
       <% end %>
       <%= link_to t("layouts.header.guide"), guide_path, class: "px-2 py-1 underline" %>
-      <%= render "layouts/language_switch" %>
       <%= link_to t("layouts.header.account"), account_path, class: "px-2 py-1 underline" %>
       <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "rounded-md px-2 py-1 text-gray-700 underline" %>
+      <%= render "layouts/language_switch" %>
     </nav>
   </div>
 </header>

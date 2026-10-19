@@ -26,6 +26,12 @@ module Spike
       redirect_to spike_checks_path, notice: "Email sent to #{params[:to]}"
     end
 
+    # Runs the weekly backup now (first run and restore drill, M2)
+    def run_backup
+      BackupJob.perform_later
+      redirect_to spike_checks_path, notice: "Backup queued; the encrypted copy arrives by email in a minute or two"
+    end
+
     private
 
     def volume_path

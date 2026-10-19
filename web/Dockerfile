@@ -25,7 +25,7 @@ RUN apt-get update -qq && \
     echo "deb [signed-by=/usr/share/keyrings/pgdg.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" \
       > /etc/apt/sources.list.d/pgdg.list && \
     apt-get update -qq && \
-    apt-get install --no-install-recommends -y libjemalloc2 libvips libheif1 postgresql-client-$PG_MAJOR \
+    apt-get install --no-install-recommends -y libjemalloc2 libvips libheif1 openssl postgresql-client-$PG_MAJOR \
       $(apt-cache show libheif-plugin-libde265 >/dev/null 2>&1 && echo libheif-plugin-libde265) && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives

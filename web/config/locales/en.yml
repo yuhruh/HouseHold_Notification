@@ -360,3 +360,11 @@ en:
     deleted:
       subject: "Your 家庭支出 account was deleted"
       body: "Your 家庭支出 account was deleted. If you didn't do this, reply to this email."
+  backup_mailer:
+    dump:
+      subject: "我的家 backup %{filename}"
+      body: "The weekly database backup is attached (%{filename}), encrypted with the backup passphrase from the password manager. Keep this email; it is the copy outside Railway."
+      decrypt: "To decrypt, from the project's web folder:"
+    too_large:
+      subject: "我的家 backup %{filename} is too large to email"
+      body: "This week's encrypted backup (%{filename}, %{size} MB) is over the 20 MB email limit, so it wasn't attached. It is on the Railway volume under storage/backups; download it from there."

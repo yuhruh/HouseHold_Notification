@@ -76,9 +76,22 @@ so type `'10月`; the **ID column must be plain values** (Copy → Paste special
 otherwise deleting a row renumbers every ID below it; the report checks the sheet's Total cell
 against the Paid sum.
 
-## 7. Backups
-Railway Hobby can't create volume backups (X3). The M2 `BackupJob` emails an encrypted weekly
-`pg_dump`; choose its passphrase and store it in the password manager before M2.
+## 7. Backups (built 2026-10-19)
+Railway Hobby can't create volume backups (X3). `BackupJob` runs every Sunday 04:00 Taipei: a
+`pg_dump -Fc` to `/rails/storage/backups/` (keeps 4) and an encrypted copy
+(`household-YYYY-MM-DD.dump.enc`, `openssl enc -aes-256-cbc -pbkdf2 -iter 600000`) emailed to Alex.
+1. Railway → `web` → Variables: `BACKUP_PASSPHRASE` = the passphrase from the password manager.
+   Optional: `BACKUP_RECIPIENT` (default: the Gmail sender), `BACKUP_HEARTBEAT_URL` (Healthchecks.io).
+2. First run: `/spike/checks` → **Run backup now**; the email arrives in a minute or two.
+3. Decrypt a copy: `cd web && bin/rails backup:decrypt IN=~/Downloads/household-….dump.enc`.
+4. Restore drill (the dump is Postgres 18, so restore into an 18 server, e.g. Docker):
+
+       docker run -d --rm --name drill-pg18 -e POSTGRES_PASSWORD=drill -p 55432:5432 postgres:18
+       DRILL_DATABASE_URL=postgres://postgres:drill@localhost:55432/household_restore_drill \
+         bin/rails backup:restore_drill IN=~/Downloads/household-….dump.enc
+       docker stop drill-pg18
+
+   It prints row counts per table and "Restore drill OK".
 
 ### Manual deploy
 The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual

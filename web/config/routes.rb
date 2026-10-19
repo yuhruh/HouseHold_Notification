@@ -67,6 +67,7 @@ Rails.application.routes.draw do
     post "checks/volume" => "checks#write_volume", as: :write_volume
     post "checks/error" => "checks#raise_error", as: :raise_error
     post "checks/email" => "checks#send_email", as: :send_email
+    post "checks/backup" => "checks#run_backup", as: :run_backup
     get "charts" => "charts#show"
   end
 

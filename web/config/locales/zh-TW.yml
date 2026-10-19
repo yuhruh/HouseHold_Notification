@@ -360,3 +360,11 @@ zh-TW:
     deleted:
       subject: "你在家庭支出的帳號已刪除"
       body: "你在家庭支出的帳號已刪除。如果這不是你本人的操作，請回覆這封信。"
+  backup_mailer:
+    dump:
+      subject: "我的家備份 %{filename}"
+      body: "附件是每週的資料庫備份（%{filename}），已用密碼管理器中的備份密碼加密。請保留這封郵件，這是 Railway 以外的備份。"
+      decrypt: "解密方式（在專案的 web 資料夾執行）："
+    too_large:
+      subject: "我的家備份 %{filename} 太大，無法寄送"
+      body: "本週加密備份（%{filename}，%{size} MB）超過 20 MB 的郵件限制，因此沒有附加。檔案在 Railway volume 的 storage/backups，請從那裡下載。"

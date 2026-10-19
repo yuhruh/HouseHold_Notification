@@ -23,6 +23,12 @@
     <% end %>
   </section>
 
+  <section class="space-y-2">
+    <h2 class="text-lg font-semibold">4. Backup (M2)</h2>
+    <p>Dumps the database to the volume and emails the encrypted copy (BackupJob, also weekly, Sunday 04:00).</p>
+    <%= button_to "Run backup now", spike_run_backup_path, class: "rounded bg-blue-600 px-3 py-2 text-white" %>
+  </section>
+
   <p><%= link_to "→ Push spike", spike_push_path, class: "text-blue-700 underline" %></p>
   <p><%= link_to "→ ECharts check (X6)", spike_charts_path, class: "text-blue-700 underline" %></p>
 </div>

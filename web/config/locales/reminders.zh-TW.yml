@@ -143,3 +143,7 @@ zh-TW:
   push_subscriptions:
     destroy:
       removed: "已移除裝置，之後不會再收到提醒。"
+  members:
+    index:
+      remove_device: "移除裝置"
+      remove_device_confirm: "要移除這個裝置嗎？除非對方在該裝置重新啟用通知，否則不會再收到提醒。"

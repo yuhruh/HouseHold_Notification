@@ -127,4 +127,17 @@ class PushTest < ActionDispatch::IntegrationTest
     delete push_subscription_path(sub)
     assert_empty @alex.push_subscriptions.reload
   end
+
+  test "the owner can remove a member's device; others can't" do
+    device = users(:google_only).push_subscriptions.create!(endpoint: "https://push/lost", p256dh: "a", auth: "b", device_label: "Android · Chrome")
+    sign_in_as users(:google_only)
+    delete household_member_device_path(@home, device)
+    assert_response :forbidden
+    sign_out
+    sign_in_as @alex
+    get household_members_path(@home)
+    assert_select "span", /Android · Chrome/
+    delete household_member_device_path(@home, device)
+    assert_not PushSubscription.exists?(device.id)
+  end
 end

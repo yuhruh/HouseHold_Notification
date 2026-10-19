@@ -3,7 +3,7 @@ class MembersController < ApplicationController
 
   def index
     authorize Current.household, :show?
-    @memberships = Current.household.memberships.includes(:user).order(:created_at)
+    @memberships = Current.household.memberships.includes(user: :push_subscriptions).order(:created_at)
     @invitations = Current.household.invitations.pending.order(:created_at) if policy(Current.household).manage_members?
     @invitation = Current.household.invitations.new(role: "viewer")
   end

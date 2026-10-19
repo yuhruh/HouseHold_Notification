@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   scope "h/:household_id", as: :household do
     get "/" => "households#show"
     resources :members, only: :index
+    resources :member_devices, only: :destroy
     resource :settings, only: %i[show update], controller: "household_settings"
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection

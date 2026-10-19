@@ -143,3 +143,7 @@ en:
   push_subscriptions:
     destroy:
       removed: "Device removed; it won't get reminders anymore."
+  members:
+    index:
+      remove_device: "Remove device"
+      remove_device_confirm: "Remove this device? It stops getting reminders until they enable notifications on it again."

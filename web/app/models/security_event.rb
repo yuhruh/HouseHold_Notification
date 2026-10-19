@@ -2,7 +2,7 @@
 class SecurityEvent < ApplicationRecord
   KINDS = %w[email_change_requested password_changed google_connected google_disconnected sessions_revoked
              household_updated member_joined role_changed member_removed member_left ownership_transferred household_deleted
-             account_deleted].freeze
+             account_deleted records_deleted].freeze
 
   validates :kind, inclusion: { in: KINDS }
 

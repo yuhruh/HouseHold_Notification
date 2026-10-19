@@ -74,6 +74,7 @@ Rails.application.routes.draw do
     end
     resource :ownership_transfer, only: %i[new create]
     resource :deletion, only: %i[new create], controller: "household_deletions"
+    resource :record_purge, only: %i[new create]
     resources :invitations, only: :create, controller: "household_invitations" do
       member do
         post :resend

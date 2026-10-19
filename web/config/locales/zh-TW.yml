@@ -253,6 +253,7 @@ zh-TW:
     disconnect_google: "取消連結 Google"
     transfer_ownership: "轉移家庭擁有權"
     delete_household: "刪除家庭"
+    delete_records: "刪除所有記錄"
   reauthentications:
     show:
       title: "確認是你本人"
@@ -345,6 +346,7 @@ zh-TW:
       lead_days_hint: "在到期日前幾天寄送即將到期提醒（0–30）。"
       save: "儲存"
       transfer: "轉移擁有權"
+      delete_records: "刪除所有記錄"
       delete: "刪除家庭"
       activity: "活動紀錄"
       former_member: "前成員"
@@ -355,6 +357,7 @@ zh-TW:
         member_left: "%{member} 離開了家庭"
         ownership_transferred: "%{actor} 將擁有權轉移給 %{member}"
         household_updated: "%{actor} 變更了家庭設定：%{fields}"
+        records_deleted: "%{actor} 刪除了所有記錄（%{count} 筆）"
     update:
       saved: "家庭設定已儲存。"
   memberships:
@@ -374,6 +377,19 @@ zh-TW:
       confirm: "確定要現在轉移擁有權？"
     create:
       done: "%{name} 現在是擁有者。"
+  record_purges:
+    new:
+      title: "刪除所有記錄"
+      explain: "這會永久刪除 %{name} 的全部 %{count} 筆記錄。"
+      removes: "一併刪除：記錄的照片、活動紀錄、提醒，以及匯入紀錄（之後無法再復原匯入）。"
+      keeps: "保留：家庭、成員、類別、付款方式與設定。"
+      reimport: "之後可以重新匯入試算表，每一列都會當作新記錄。"
+      delete_templates: "同時刪除定期帳單範本（%{count} 個）"
+      keep_templates_hint: "如果保留，範本會從這個月重新開始，不會補建過去的帳單。"
+      submit: "刪除所有記錄"
+      final_confirm: "確定要永久刪除全部 %{count} 筆記錄？"
+    create:
+      deleted: "已刪除 %{count} 筆記錄。"
   household_deletions:
     new:
       title: "刪除家庭"
@@ -396,6 +412,7 @@ zh-TW:
     ownership_transferred: "轉移擁有權"
     household_deleted: "刪除家庭"
     account_deleted: "刪除帳號"
+    records_deleted: "刪除所有記錄"
   account_mailer:
     deleted:
       subject: "你在 Household Tracker 的帳號已刪除"

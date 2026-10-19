@@ -6,7 +6,7 @@ module ApplicationHelper
     safe_join([ mark, tag.span(label) ])
   end
 
-  # A page title with its picture in front (Upcoming, Records, Dashboard)
+  # A page title with its picture in front (Upcoming, Records, Dashboard, My Account, the guide)
   def page_title(icon, title)
     tag.h1(class: "flex items-center gap-3 text-3xl font-bold") do
       safe_join([ image_tag("icons/#{icon}", alt: "", class: "h-10 w-10 object-contain"), tag.span(title) ])

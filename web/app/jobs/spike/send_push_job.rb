@@ -5,7 +5,7 @@ module Spike
     def perform(push_send)
       subscription = push_send.subscription
       payload = {
-        title: "我的家 push spike",
+        title: "Household Tracker push spike",
         body: "Scheduled #{push_send.scheduled_for.in_time_zone('Asia/Taipei').strftime('%H:%M')} · sent #{Time.current.in_time_zone('Asia/Taipei').strftime('%H:%M:%S')}",
         url: "/spike/push",
         receipt_url: "/spike/push/receipts/#{push_send.receipt_token}"

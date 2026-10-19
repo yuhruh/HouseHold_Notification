@@ -5,7 +5,7 @@ class SpikeTest < ActionDispatch::IntegrationTest
     get spike_push_path
     assert_response :success
     get pwa_manifest_path(format: :json)
-    assert_equal "家庭支出", response.parsed_body["name"]
+    assert_equal "Household Tracker", response.parsed_body["name"]
   end
 
   test "subscribe stores the browser subscription" do

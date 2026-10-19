@@ -1,4 +1,4 @@
-<%= t(".body", inviter: @invitation.invited_by&.display_name.presence || @invitation.invited_by&.email_address || "家庭支出", household: @invitation.household.name, role: t("roles.#{@invitation.role}")) %>
+<%= t(".body", inviter: @invitation.invited_by&.display_name.presence || @invitation.invited_by&.email_address || "Household Tracker", household: @invitation.household.name, role: t("roles.#{@invitation.role}")) %>
 
 <%= @url %>
 

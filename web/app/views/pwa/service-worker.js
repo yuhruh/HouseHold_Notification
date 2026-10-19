@@ -2,7 +2,7 @@
 // counts as "received by a device" (PRD §6 delivery status).
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {}
-  const title = data.title || "我的家"
+  const title = data.title || "Household Tracker"
   const options = { body: data.body, data: { url: data.url || "/" } }
 
   event.waitUntil((async () => {

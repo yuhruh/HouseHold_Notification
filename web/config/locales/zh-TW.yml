@@ -109,24 +109,24 @@ zh-TW:
   auth_mailer:
     ignore: "如果這不是你本人的操作，可以忽略這封信。"
     email_confirmation:
-      subject: "確認你在家庭支出的電子郵件"
+      subject: "確認你在 Household Tracker 的電子郵件"
       body: "請打開這個連結確認電子郵件並完成註冊，連結 24 小時內有效。"
     already_registered:
-      subject: "你已經有家庭支出的帳號"
+      subject: "你已經有 Household Tracker 的帳號"
       body: "有人（可能是你）想用這個地址註冊，但這個地址已經有帳號了。"
       sign_in: "登入："
       reset: "忘記密碼？重設密碼："
     email_change_notice:
-      subject: "你在家庭支出的電子郵件正在變更"
-      body: "有人申請把你在家庭支出的電子郵件變更為 %{email}。該地址確認後才會變更。"
+      subject: "你在 Household Tracker 的電子郵件正在變更"
+      body: "有人申請把你在 Household Tracker 的電子郵件變更為 %{email}。該地址確認後才會變更。"
       not_you: "如果這不是你本人的操作，請登入取消變更並更改密碼。"
     reauth_code:
-      subject: "你的家庭支出驗證碼：%{code}"
+      subject: "你的 Household Tracker 驗證碼：%{code}"
       body: "這組驗證碼用來%{action}，10 分鐘內有效。"
       warning: "如果不是你本人的操作，請不要分享驗證碼，並更改密碼。"
   passwords_mailer:
     reset:
-      subject: "重設你在家庭支出的密碼"
+      subject: "重設你在 Household Tracker 的密碼"
       body: "請打開這個連結設定新密碼，連結 %{minutes} 分鐘內有效。"
   pages:
     home:
@@ -216,7 +216,7 @@ zh-TW:
       body: "這個邀請連結無效、已過期、已使用或已撤銷。請擁有者重新寄送。"
   invitation_mailer:
     invite:
-      subject: "你受邀加入家庭支出的 %{household}"
+      subject: "你受邀加入 Household Tracker 的 %{household}"
       body: "%{inviter} 邀請你以「%{role}」身分加入 %{household}。請打開連結接受或拒絕："
       expires: "邀請將於 %{date} 到期。"
       never_expires: "這個邀請不會到期。"
@@ -363,15 +363,15 @@ zh-TW:
     account_deleted: "刪除帳號"
   account_mailer:
     deleted:
-      subject: "你在家庭支出的帳號已刪除"
-      body: "你在家庭支出的帳號已刪除。如果這不是你本人的操作，請回覆這封信。"
+      subject: "你在 Household Tracker 的帳號已刪除"
+      body: "你在 Household Tracker 的帳號已刪除。如果這不是你本人的操作，請回覆這封信。"
   backup_mailer:
     dump:
-      subject: "我的家備份 %{filename}"
+      subject: "Household Tracker 備份 %{filename}"
       body: "附件是每週的資料庫備份（%{filename}），已用密碼管理器中的備份密碼加密。請保留這封郵件，這是 Railway 以外的備份。"
       decrypt: "解密方式（在專案的 web 資料夾執行）："
     too_large:
-      subject: "我的家備份 %{filename} 太大，無法寄送"
+      subject: "Household Tracker 備份 %{filename} 太大，無法寄送"
       body: "本週加密備份（%{filename}，%{size} MB）超過 20 MB 的郵件限制，因此沒有附加。檔案在 Railway volume 的 storage/backups，請從那裡下載。"
   records:
     types:

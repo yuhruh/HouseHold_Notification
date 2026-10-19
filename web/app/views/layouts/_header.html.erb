@@ -8,7 +8,7 @@
   <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
     <%= link_to root_path, class: "flex items-center gap-2 font-semibold" do %>
       <%= image_tag "logo-sticker.png", alt: "", class: "h-7 w-auto" %>
-      <span><%= Current.household&.name || "Household Tracker" %></span>
+      <span>Household Tracker</span>
     <% end %>
     <nav class="flex flex-wrap items-center gap-3">
       <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-600 px-2 py-1 text-white"><%= t("layouts.header.install") %></button></span>
@@ -32,6 +32,7 @@
         <%= link_to t("layouts.header.dashboard"), household_dashboard_path(nav_household), class: "px-2 py-1 underline" %>
         <%= link_to t("layouts.header.settings"), household_settings_path(nav_household), class: "px-2 py-1 underline" %>
       <% end %>
+      <%= link_to t("layouts.header.guide"), guide_path, class: "px-2 py-1 underline" %>
       <%= link_to t("layouts.header.account"), account_path, class: "px-2 py-1 underline" %>
       <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "rounded-md px-2 py-1 text-gray-700 underline" %>
     </nav>

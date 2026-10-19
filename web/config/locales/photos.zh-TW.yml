@@ -33,4 +33,4 @@ zh-TW:
         one: "Household Tracker：下載本月照片備份（1 張照片）"
         other: "Household Tracker：下載本月照片備份（%{count} 張照片）"
       body: "每週的資料庫備份不包含照片。Railway volume 上目前有 %{count} 張照片（%{size} MB）。請在電腦上，於專案的 web 資料夾執行："
-      after: "檔案 household-photos-YYYY-MM-DD.tgz 會存到「下載」資料夾。保留最近幾份即可。"
+      after: "檔案 household-photos-YYYY-MM-DD.tgz 會存到「下載」資料夾。也請刪除超過 3 個月的照片封存檔和備份信（隱私權政策承諾的期限）。"

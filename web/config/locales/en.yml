@@ -160,6 +160,7 @@ en:
       records: "Records"
       settings: "Settings"
       account: "My account"
+      guide: "Getting started"
       switch: "Switch household"
       invitations:
         one: "1 invitation"
@@ -321,7 +322,7 @@ en:
         explain: "Deleting your account is permanent."
         removes: "Your profile, sign-in methods and devices are removed, and you leave every household. Bills you added stay in the household, shown as added by a former member."
         owner_rule: "If you own a household with other members, transfer ownership or delete the household first. A household where you're the only member is deleted with your account."
-        backups: "Encrypted backups on the server expire within 4 weeks. The app's operator also keeps encrypted copies off the server (email and a computer); ask them to delete the ones with your data."
+        backups: "Encrypted backups on the server expire within 4 weeks. Encrypted copies kept off the server (email and a computer) are deleted after 3 months."
         blocked_heading: "First, for each household you own that has other members:"
         transfer: "Transfer ownership"
         delete_household: "Delete household"

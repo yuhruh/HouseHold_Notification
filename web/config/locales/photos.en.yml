@@ -33,4 +33,4 @@ en:
         one: "Household Tracker: download this month's photo backup (1 photo)"
         other: "Household Tracker: download this month's photo backup (%{count} photos)"
       body: "The weekly database backup doesn't include photos. There are %{count} photos (%{size} MB) on the Railway volume. On your computer, from the project's web folder, run:"
-      after: "It saves household-photos-YYYY-MM-DD.tgz in Downloads. Keep the latest few."
+      after: "It saves household-photos-YYYY-MM-DD.tgz in Downloads. Also delete photo archives and backup emails older than 3 months (the privacy policy promises it)."

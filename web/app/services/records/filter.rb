@@ -3,8 +3,10 @@ module Records
   # period overlaps; the summary sums the full Required / Paid / Outstanding of the rows shown, per
   # type and currency. Only `overdue` depends on today, bound as a parameter.
   class Filter
-    STATUSES = %w[unpaid partial overdue paid].freeze
-    KEYS = %i[year month type category_id status payment_method_id q].freeze
+    # "outstanding" = the rows behind the summary's Outstanding column: not settled, with an amount due
+    STATUSES = %w[unpaid partial overdue paid outstanding].freeze
+    CURRENCIES = %w[TWD USD].freeze
+    KEYS = %i[year month type category_id status payment_method_id currency q].freeze
 
     Total = Data.define(:record_type, :currency, :required, :paid, :outstanding)
 
@@ -53,6 +55,7 @@ module Records
       relation = relation.where(record_type: params[:type]) if Category::RECORD_TYPES.value?(params[:type])
       relation = relation.where(category_id: params[:category_id]) if params[:category_id]
       relation = relation.where(payment_method_id: params[:payment_method_id]) if params[:payment_method_id]
+      relation = relation.where(currency: params[:currency]) if CURRENCIES.include?(params[:currency])
       relation = with_status(relation, params[:status]) if STATUSES.include?(params[:status])
       if params[:q]
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
@@ -63,6 +66,7 @@ module Records
 
     def with_status(relation, status)
       return relation.where(settled: true) if status == "paid"
+      return relation.where(settled: false).where.not(amount_required: nil) if status == "outstanding"
 
       unsettled = relation.where(settled: false)
       return unsettled.where(due_on: ...@today) if status == "overdue"

@@ -1,6 +1,7 @@
 <% content_for :title, t(".title") %>
 <% writer = policy(Record).write? %>
 <% records = @filter.records %>
+<% owing = @filter.params[:status] == "outstanding" %>
 <div class="w-full space-y-6 py-4">
   <%= render "shared/flash" %>
   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -22,6 +23,7 @@
     <%= f.select :status, Records::Filter::STATUSES.map { |s| [ t("records.status.#{s}"), s ] }, { include_blank: t(".all_statuses"), selected: p[:status] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".status") %>
     <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".payment_method") %>
     <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "rounded-md border border-gray-400 px-2 py-1.5" %>
+    <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
     <div class="flex flex-wrap gap-2">
       <%= f.submit t(".filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
@@ -40,13 +42,13 @@
           <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
             <td class="px-3 py-1.5 text-right"><%= money(row.required, row.currency) %></td>
             <td class="px-3 py-1.5 text-right"><%= money(row.paid, row.currency) %></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.outstanding, row.currency) %></td></tr>
+            <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
         <% @filter.totals.each do |row| %>
           <tr class="font-semibold"><td class="px-3 py-1.5"><%= t(".total") %> <span class="text-gray-500"><%= row.currency %></span></td>
             <td class="px-3 py-1.5 text-right"><%= money(row.required, row.currency) %></td>
             <td class="px-3 py-1.5 text-right"><%= money(row.paid, row.currency) %></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.outstanding, row.currency) %></td></tr>
+            <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
       </tbody>
     </table>
@@ -62,7 +64,7 @@
           <tr>
             <th class="px-2 py-2">✅</th><th class="px-2 py-2"><%= t(".period") %></th><th class="px-2 py-2"><%= t(".item") %></th>
             <th class="px-2 py-2"><%= t(".details") %></th><th class="px-2 py-2 text-right"><%= t(".required") %></th>
-            <th class="px-2 py-2 text-right"><%= t(".paid") %></th><th class="px-2 py-2"><%= t(".paid_on") %></th>
+            <th class="px-2 py-2 text-right"><%= t(".paid") %></th><% if owing %><th class="px-2 py-2 text-right"><%= t(".outstanding") %></th><% end %><th class="px-2 py-2"><%= t(".paid_on") %></th>
             <th class="px-2 py-2"><%= t(".status") %></th><% if writer %><th class="px-2 py-2"></th><% end %>
           </tr>
         </thead>
@@ -76,6 +78,7 @@
               <td class="max-w-48 truncate px-2 py-1.5" title="<%= record.details %>"><%= record.details %></td>
               <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_required, record.currency) %></td>
               <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_paid, record.currency) %></td>
+              <% if owing %><td class="whitespace-nowrap px-2 py-1.5 text-right font-medium text-red-700"><%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></td><% end %>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.paid_on && l(record.paid_on) %></td>
               <td class="px-2 py-1.5"><%= record_status_badge(record) %>
                 <% if !record.settled && record.due_on.nil? %><span class="block text-xs text-gray-500"><%= t(".no_due_date") %></span><% end %></td>

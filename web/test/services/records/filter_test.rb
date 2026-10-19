@@ -37,6 +37,18 @@ class Records::FilterTest < ActiveSupport::TestCase
     assert_equal [ new_unpaid, partial, old_unpaid, new_paid, old_paid ], filter.records.to_a
   end
 
+  test "status outstanding lists exactly the rows behind the summary's Outstanding" do
+    add([ 2026, "1月-2月" ], amount_required: 580, amount_paid: 580, paid_on: @today)
+    partial = add([ 2026, "1月-2月" ], amount_required: 580, amount_paid: 300, paid_on: @today)
+    overdue = add([ 2026, "3月-4月" ], amount_required: 600, due_on: @today - 1)
+    add([ 2026, "5月-6月" ]) # no amount yet: nothing owed to show
+    usd = add([ 2026, "5月-6月" ], amount_required: 20, currency: "USD")
+    twd = filter(status: "outstanding", currency: "TWD")
+    assert_equal [ overdue, partial ].sort_by(&:id), twd.records.sort_by(&:id)
+    assert_equal filter.totals.find { _1.currency == "TWD" }.outstanding, twd.records.sum { _1.amount_required - (_1.amount_paid || 0) }
+    assert_equal [ usd ], filter(status: "outstanding", currency: "USD").records.to_a
+  end
+
   test "year and month select by billing-period overlap, including periods crossing the year" do
     crossing = add([ 2025, "12月-1月" ])
     spring = add([ 2026, "3月-4月" ])

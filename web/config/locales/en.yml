@@ -436,6 +436,7 @@ en:
       partial: "Partly paid"
       overdue: "Overdue"
       paid: "Paid"
+      outstanding: "Outstanding"
     reminder_frequencies:
       none: "No reminder"
       daily: "Every day"
@@ -479,6 +480,7 @@ en:
       required: "Required"
       paid: "Paid"
       outstanding: "Outstanding"
+      show_outstanding: "Show the records still owed"
       total: "Total"
       empty: "No records yet. The sheet import will fill this list; you can also add one by hand."
       no_match: "No records match these filters."

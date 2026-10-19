@@ -18,6 +18,18 @@ class RecordsTest < ActionDispatch::IntegrationTest
       amount_required: "580", amount_paid: "", reminder_frequency: "none" }.merge(overrides)
   end
 
+  test "an Outstanding amount in the summary links to the records still owed" do
+    add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
+    owed = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
+    get household_records_path(@home)
+    link = household_records_path(@home, status: "outstanding", type: "expense", currency: "TWD")
+    assert_select "a[href=?]", link
+    get link
+    assert_select "tbody tr[id=?]", "record_#{owed.id}"
+    assert_select "table tbody tr", count: 1 + 2 # the one owed record + the summary's type and total rows
+    assert_select "td.text-red-700", /500/
+  end
+
   test "list shows records, the summary and a filter by status" do
     add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14), details: "大樓")
     add(amount_required: 600)

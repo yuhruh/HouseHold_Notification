@@ -2,7 +2,7 @@
 <% writer = policy(Category).write? %>
 <div class="w-full max-w-2xl space-y-6 py-4">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <%= page_title("categories.png", t(".title")) %>
   <p class="text-sm text-gray-600"><%= t(".intro") %></p>
   <% @categories.group_by(&:record_type).each do |type, categories| %>
     <section class="space-y-2">

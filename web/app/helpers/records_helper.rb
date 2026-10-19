@@ -1,6 +1,7 @@
 module RecordsHelper
-  STATUS_CLASSES = { paid: "bg-green-100 text-green-800", overdue: "bg-red-100 text-red-800",
-                     partial: "bg-amber-100 text-amber-900", unpaid: "bg-gray-100 text-gray-800" }.freeze
+  # Unpaid stands out in red; overdue is the strongest (solid red)
+  STATUS_CLASSES = { paid: "bg-green-100 text-green-800", overdue: "bg-red-600 text-white",
+                     partial: "bg-amber-100 text-amber-900", unpaid: "bg-red-100 text-red-700" }.freeze
 
   def record_status_badge(record)
     status = record.status

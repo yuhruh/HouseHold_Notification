@@ -268,7 +268,7 @@ en:
       sent: "We emailed a code to %{email}. It works for 10 minutes."
   accounts:
     show:
-      title: "My account"
+      title: "My Account"
       profile: "Profile"
       locale: "Language"
       locale_auto: "Same as the browser"

@@ -28,6 +28,15 @@ class Records::FilterTest < ActiveSupport::TestCase
     [ paid, partial, overdue, unpaid, no_amount ].each { |r| assert_equal filter(status: r.status(today: @today).to_s).records.include?(r), true }
   end
 
+  test "not fully paid records come first, each group newest period first" do
+    old_paid = add([ 2025, "11月-12月" ], amount_required: 500, amount_paid: 500, paid_on: @today)
+    new_paid = add([ 2026, "3月-4月" ], amount_required: 600, amount_paid: 600, paid_on: @today)
+    old_unpaid = add([ 2025, "9月-10月" ], amount_required: 400)
+    partial = add([ 2026, "1月-2月" ], amount_required: 580, amount_paid: 300, paid_on: @today)
+    new_unpaid = add([ 2026, "5月-6月" ])
+    assert_equal [ new_unpaid, partial, old_unpaid, new_paid, old_paid ], filter.records.to_a
+  end
+
   test "year and month select by billing-period overlap, including periods crossing the year" do
     crossing = add([ 2025, "12月-1月" ])
     spring = add([ 2026, "3月-4月" ])

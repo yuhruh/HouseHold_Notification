@@ -61,6 +61,8 @@
   (no logo, which would force brand verification; home page and `/privacy` links are required to
   publish). Account has 2-Step Verification and recovery options.
 - Verified: a test email sent from production through the Gmail API landed in the inbox (2026-10-18).
+- Log: 2026-10-19 09:00 run landed in the **Inbox** of both recipients; family.member shows
+  mailed-by and signed-by gmail.com, TLS.
 - Remaining: ~20 test mails to family inboxes over 8 days; on or after 2026-10-26 the refresh token
   must still work (proves it isn't on the 7-day Testing expiry) and nothing landed in spam.
 

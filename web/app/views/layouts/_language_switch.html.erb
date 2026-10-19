@@ -1,4 +1,17 @@
-<%# Switches to the other language (PRD §11); each label is written in its own language %>
-<% other = I18n.locale.to_s == "en" ? "zh-TW" : "en" %>
-<%= button_to(other == "en" ? "English" : "中文", locale_path, method: :patch, params: { locale: other },
-      class: "cursor-pointer rounded-md border border-gray-300 px-2 py-1", lang: other, "aria-label": t("layouts.header.language")) %>
+<%# Language menu (PRD §17): each language is written in its own language; the current one is ticked %>
+<details class="relative">
+  <summary class="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1" aria-label="<%= t("layouts.header.language") %>">
+    <span aria-hidden="true">🌐</span><span><%= t("layouts.header.languages") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
+  </summary>
+  <ul class="absolute right-0 z-10 mt-1 min-w-40 rounded-md border bg-white py-1 shadow">
+    <% [ [ "en", "🇺🇸", "English" ], [ "zh-TW", "🇹🇼", "繁體中文" ] ].each do |code, flag, name| %>
+      <li>
+        <%= button_to locale_path, method: :patch, params: { locale: code }, lang: code,
+              class: "flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 #{'font-semibold' if I18n.locale.to_s == code}",
+              "aria-current": (I18n.locale.to_s == code ? "true" : nil) do %>
+          <span aria-hidden="true"><%= flag %></span><span><%= name %></span><% if I18n.locale.to_s == code %><span aria-hidden="true" class="ml-auto text-blue-600">✓</span><% end %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</details>

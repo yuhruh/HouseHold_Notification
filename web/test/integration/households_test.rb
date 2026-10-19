@@ -77,7 +77,7 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     sign_out
     sign_in_as users(:alex)
     get household_path(households(:home))
-    assert_select "details summary", count: 0
+    assert_select "details summary", text: I18n.t("layouts.header.switch"), count: 0
   end
 
   test "a viewer can't invite (Pundit, server-side)" do

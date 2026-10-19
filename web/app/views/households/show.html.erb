@@ -4,9 +4,9 @@
   <h1 class="text-3xl font-bold"><%= Current.household.name %></h1>
   <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
   <ul class="flex flex-col space-y-2 pt-4 text-sm">
-    <% [ [ "📅", t("layouts.header.upcoming"), household_upcoming_path(Current.household) ],
-         [ "📋", t(".records"), household_records_path(Current.household) ],
-         [ "📊", t("layouts.header.dashboard"), household_dashboard_path(Current.household) ],
+    <% [ [ "upcoming.png", t("layouts.header.upcoming"), household_upcoming_path(Current.household) ],
+         [ "records.png", t(".records"), household_records_path(Current.household) ],
+         [ "dashboard.png", t("layouts.header.dashboard"), household_dashboard_path(Current.household) ],
          [ "🔁", t(".templates"), household_recurring_templates_path(Current.household) ],
          [ "🏷️", t(".categories"), household_categories_path(Current.household) ],
          [ "💳", t(".payment_methods"), household_payment_methods_path(Current.household) ],

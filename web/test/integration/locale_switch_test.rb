@@ -8,15 +8,15 @@ class LocaleSwitchTest < ActionDispatch::IntegrationTest
     assert_redirected_to "http://www.example.com/account"
     assert_equal "en", users(:alex).reload.locale
     follow_redirect!
-    assert_select "button", "中文"
+    assert_select "button[aria-current=true]", /English/
   end
 
   test "signed out: the choice is kept in a cookie" do
     get new_session_path, headers: { "Accept-Language" => "zh-TW" }
-    assert_select "button", "English"
+    assert_select "button[aria-current=true]", /繁體中文/
     patch locale_path, params: { locale: "en" }
     get new_session_path, headers: { "Accept-Language" => "zh-TW" }
-    assert_select "button", "中文"
+    assert_select "button[aria-current=true]", /English/
   end
 
   test "an unknown language is ignored" do

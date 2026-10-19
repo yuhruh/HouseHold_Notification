@@ -1,0 +1,55 @@
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<%= form_with model: [ Current.household, template ], url: (template.persisted? ? household_recurring_template_path(Current.household, template) : household_recurring_templates_path(Current.household)), class: "space-y-4" do |form| %>
+  <% if template.errors.any? %>
+    <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% template.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+  <% end %>
+  <div>
+    <%= form.label :category_id, class: "block text-sm font-medium" %>
+    <%= form.select :category_id, grouped_options_for_select(category_options(template), template.category_id), { include_blank: true }, required: true, class: field %>
+  </div>
+  <div class="grid grid-cols-2 gap-2">
+    <div><%= form.label :title, class: "block text-sm font-medium" %><%= form.text_field :title, maxlength: 100, placeholder: t("records.form.title_hint"), class: field %></div>
+    <div><%= form.label :details, class: "block text-sm font-medium" %><%= form.text_field :details, maxlength: 200, class: field %></div>
+  </div>
+
+  <fieldset class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <legend class="mb-1 text-sm font-medium"><%= t("recurring_templates.form.schedule") %></legend>
+    <div><%= form.label :interval_months, class: "block text-xs" %>
+      <%= form.select :interval_months, RecurringTemplatesHelper::INTERVALS.map { |m| [ interval_label(m), m ] }, {}, class: field %></div>
+    <div><%= form.label :anchor_month, class: "block text-xs" %>
+      <%= form.select :anchor_month, month_options, { include_blank: true }, class: field %></div>
+    <div><%= form.label :period_span_months, class: "block text-xs" %>
+      <%= form.number_field :period_span_months, min: 1, max: 12, class: field %></div>
+    <div><%= form.label :starts_on, class: "block text-xs" %>
+      <%= form.date_field :starts_on, required: true, class: field %></div>
+    <p class="col-span-full text-sm text-gray-500"><%= t("recurring_templates.form.schedule_hint") %></p>
+  </fieldset>
+
+  <fieldset class="grid grid-cols-3 gap-2">
+    <legend class="mb-1 text-sm font-medium"><%= t("recurring_templates.form.due") %></legend>
+    <div><%= form.label :due_day, class: "block text-xs" %><%= form.number_field :due_day, min: 1, max: 31, class: field %></div>
+    <div><%= form.label :due_month_offset, class: "block text-xs" %><%= form.number_field :due_month_offset, min: 0, max: 24, class: field %></div>
+    <div><%= form.label :lead_days, class: "block text-xs" %><%= form.number_field :lead_days, min: 0, max: 90, class: field %></div>
+    <p class="col-span-full text-sm text-gray-500"><%= t("recurring_templates.form.due_hint") %></p>
+  </fieldset>
+
+  <div class="grid grid-cols-3 gap-2">
+    <div><%= form.label :currency, class: "block text-sm font-medium" %><%= form.select :currency, Household::CURRENCIES, {}, class: field %></div>
+    <div><%= form.label :default_amount, class: "block text-sm font-medium" %><%= form.number_field :default_amount, min: 0, step: "0.01", class: field %></div>
+    <label class="flex items-end gap-2 pb-2 text-sm"><%= form.check_box :amount_fixed %> <%= RecurringTemplate.human_attribute_name(:amount_fixed) %></label>
+    <p class="col-span-3 text-sm text-gray-500"><%= t("recurring_templates.form.amount_hint") %></p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <div><%= form.label :default_reminder_frequency, class: "block text-sm font-medium" %>
+      <%= form.select :default_reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %></div>
+    <div><%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+      <%= form.select :payment_method_id, payment_method_options(template), { include_blank: t("records.form.none") }, class: field %></div>
+    <p class="col-span-2 text-sm text-gray-500"><%= t("recurring_templates.form.reminder_hint") %></p>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit t("records.form.save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <%= link_to t("records.form.cancel"), household_recurring_templates_path(Current.household), class: "px-3.5 py-2 underline" %>
+  </div>
+<% end %>

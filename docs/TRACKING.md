@@ -58,6 +58,14 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | CSV export that round-trips | ☑ | 2026-10-19: Export CSV on the records list (current filters), 記錄 layout with the Total row; app-entered records export as `app-<record_no>` and re-import onto themselves. Real data: import → export → re-import = 130 unchanged |
 | Undo refused after later edits / deletions (PRD M5) | ☑ | 2026-10-19 (photos join the check in M3) |
 
+## M4: Recurring + reminders
+
+| Task | Status | Notes |
+|---|---|---|
+| M4a: recurring templates + daily catch-up generation | ☑ | 2026-10-19: templates (interval, first month, months per bill, start date, due day + **due month offset** (our addition: due_day alone can't say "1月–2月 water is due in March"), lead days, fixed/variable amount, no-due-date reminder frequency); `GenerateRecurringRecordsJob` daily 00:10 Taipei in the owner's zone, links a single matching bill, asks when 2+ match; template changes confirm before updating untouched unpaid bills (amount; started period in place, not-started regenerated); delete keeps bills. Heartbeat via `GENERATE_HEARTBEAT_URL` (optional) |
+| M4b: reminder engine (schedule, digests, email + in-app inbox, Upcoming, snooze, restart, maintenance Done, preferences) | ☐ | |
+| M4c: owner failure summary, delivery status page + resend, reminder heartbeats | ☐ | |
+
 ## Sheet cleanup log
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |

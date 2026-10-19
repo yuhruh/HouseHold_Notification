@@ -86,10 +86,5 @@ class BackupJob < ApplicationJob
 
   def max_attachment = MAX_ATTACHMENT
 
-  def ping(suffix = "")
-    url = ENV["BACKUP_HEARTBEAT_URL"].presence or return
-    Net::HTTP.get_response(URI("#{url}#{suffix}"))
-  rescue StandardError => e
-    Rails.logger.warn("Backup heartbeat failed: #{e.message}")
-  end
+  def ping(suffix = "") = Heartbeat.ping(ENV["BACKUP_HEARTBEAT_URL"], suffix)
 end

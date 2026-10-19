@@ -1,6 +1,22 @@
 zh-TW:
   activerecord:
     attributes:
+      recurring_template:
+        category: "類別"
+        title: "名稱"
+        details: "明細"
+        currency: "幣別"
+        default_amount: "金額"
+        amount_fixed: "固定金額"
+        interval_months: "重複"
+        anchor_month: "起始月份"
+        period_span_months: "每期月數"
+        starts_on: "開始日期"
+        due_day: "到期日（幾號）"
+        due_month_offset: "期間開始後第幾個月到期"
+        lead_days: "提前幾天建立"
+        default_reminder_frequency: "提醒（無到期日）"
+        payment_method: "付款方式"
       user:
         display_name: "名稱"
         unconfirmed_email: "電子郵件"
@@ -164,6 +180,7 @@ zh-TW:
       records: "記錄"
       payment_methods: "付款方式"
       categories: "類別"
+      templates: "定期帳單"
       import: "從試算表匯入"
       members: "成員"
   members:
@@ -400,6 +417,8 @@ zh-TW:
       import_created: "匯入"
       import_updated: "匯入更新"
       import_undone: "復原匯入"
+      template_updated: "由定期帳單範本更新"
+      reminders_restarted: "重新提醒"
     month: "%{month}月"
     index:
       title: "記錄"
@@ -618,3 +637,61 @@ zh-TW:
       in_use: "這個類別有記錄，請改為封存。"
     destroy_alias:
       alias_removed: "已移除別名。下次匯入時會重新為這個項目建議類別。"
+  recurring_templates:
+    every_month: "每月"
+    every_year: "每年"
+    every_n_months:
+      one: "每月"
+      other: "每 %{count} 個月"
+    variable: "金額不固定"
+    hint: "上次約 %{amount}"
+    form:
+      schedule: "週期"
+      schedule_hint: "例如水費從 1 月開始每 2 個月一期：1月–2月、3月–4月……起始月份預設為開始日期的月份；每期月數預設與重複間隔相同。"
+      due: "到期日"
+      due_hint: "帳單沒有固定到期日就留空。期間開始後第幾個月到期：0 = 期間的第一個月，2 = 兩個月後（1月–2月的水費 3 月到期）。帳單會在到期日（或期間開始）前這麼多天建立。"
+      amount_hint: "固定金額（管理費、房屋稅）：每期帳單都填入這個金額。否則只作為參考，帳單建立時不填金額。"
+      reminder_hint: "沒有到期日的帳單，也可以設定重複提醒直到繳清。"
+    index:
+      title: "定期帳單"
+      new: "新增定期帳單"
+      intro: "每個範本會提前幾天建立下一期的未繳帳單。刪除範本不會刪除它建立過的帳單。"
+      empty: "還沒有定期帳單。"
+      next: "下一期：%{period}，%{date} 建立"
+      bills:
+        zero: "還沒有帳單"
+        one: "1 筆帳單"
+        other: "%{count} 筆帳單"
+      edit: "編輯"
+      delete: "刪除"
+      delete_confirm: "要刪除這個範本嗎？它建立過的帳單（不論是否已繳）都會保留，之後不會再建立新帳單。"
+      ambiguous:
+        one: "有 1 筆帳單符合 %{period}"
+        other: "有 %{count} 筆帳單符合 %{period}，請選擇"
+      link_this: "使用 %{title} · %{details} · %{amount}"
+      create_new: "建立新帳單"
+    new:
+      title: "新增定期帳單"
+    edit:
+      title: "編輯定期帳單"
+    create:
+      created:
+        zero: "已儲存範本。第一期帳單會在到期前建立。"
+        one: "已儲存範本，建立或連結了 1 筆帳單。"
+        other: "已儲存範本，建立或連結了 %{count} 筆帳單。"
+    update:
+      saved:
+        zero: "已儲存。"
+        one: "已儲存，更新了 1 筆未繳帳單。"
+        other: "已儲存，更新了 %{count} 筆未繳帳單。"
+    destroy:
+      deleted: "已刪除範本，帳單都保留。"
+    link:
+      linked: "完成。"
+    confirm:
+      title: "要更新未繳帳單嗎？"
+      intro:
+        one: "這次修改也會更新 1 筆還沒有人繳費或修改過的帳單："
+        other: "這次修改也會更新 %{count} 筆還沒有人繳費或修改過的帳單："
+      regenerated: "期間尚未開始：會刪除並依新週期重新建立"
+      apply: "儲存並更新這些帳單"

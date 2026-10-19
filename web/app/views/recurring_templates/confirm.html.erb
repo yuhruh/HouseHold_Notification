@@ -1,0 +1,29 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p><%= t(".intro", count: @change.changes.size) %></p>
+  <ul class="divide-y rounded-lg border text-sm">
+    <% @change.changes.each do |change| %>
+      <% record = change.record %>
+      <li class="px-4 py-2"><span class="font-medium"><%= record.period %> <%= record.title %></span>
+        <% if change.action == :delete %>
+          <span class="block text-red-700"><%= t(".regenerated") %></span>
+        <% else %>
+          <% change.after.each do |key, value| %>
+            <span class="block"><%= Record.human_attribute_name(key) %>: <%= template_change_value(key, change.before[key], record.currency) %> → <strong><%= template_change_value(key, value, record.currency) %></strong></span>
+          <% end %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <%= form_with model: [ Current.household, @template ], url: household_recurring_template_path(Current.household, @template), method: :patch do |form| %>
+    <% @submitted.each do |key, value| %>
+      <%= hidden_field_tag "recurring_template[#{key}]", value %>
+    <% end %>
+    <%= hidden_field_tag :confirmed, "1" %>
+    <div class="flex gap-3">
+      <%= form.submit t(".apply"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+      <%= link_to t("records.form.cancel"), edit_household_recurring_template_path(Current.household, @template), class: "px-3.5 py-2 underline" %>
+    </div>
+  <% end %>
+</div>

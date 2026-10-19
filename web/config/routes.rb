@@ -43,6 +43,9 @@ Rails.application.routes.draw do
       post :commit, on: :member
       post :undo, on: :member
     end
+    resources :recurring_templates, path: "templates", except: :show do
+      post :link, on: :member
+    end
     resources :categories, except: :show do
       post :archive, on: :member
       delete "aliases/:alias_id" => "categories#destroy_alias", on: :collection, as: :destroy_alias

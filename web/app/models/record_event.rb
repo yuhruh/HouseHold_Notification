@@ -6,7 +6,7 @@ class RecordEvent < ApplicationRecord
   belongs_to :household
   belongs_to :user, optional: true
 
-  enum :action, %w[created updated deleted marked_paid import_created import_updated import_undone].index_by(&:itself), validate: true
+  enum :action, %w[created updated deleted marked_paid import_created import_updated import_undone template_updated reminders_restarted].index_by(&:itself), validate: true
 
   # created/deleted keep a full snapshot; updates keep [before, after] per changed field
   def self.log!(record, action, user:)

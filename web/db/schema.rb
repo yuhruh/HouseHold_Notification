@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -211,7 +211,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
     t.index ["household_id", "created_at"], name: "index_record_events_on_household_id_and_created_at"
     t.index ["record_id", "created_at"], name: "index_record_events_on_record_id_and_created_at"
     t.index ["user_id"], name: "index_record_events_on_user_id"
-    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying, 'deleted'::character varying, 'marked_paid'::character varying, 'import_created'::character varying, 'import_updated'::character varying, 'import_undone'::character varying]::text[])", name: "record_events_action"
+    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying, 'deleted'::character varying, 'marked_paid'::character varying, 'import_created'::character varying, 'import_updated'::character varying, 'import_undone'::character varying, 'template_updated'::character varying, 'reminders_restarted'::character varying]::text[])", name: "record_events_action"
   end
 
   create_table "records", force: :cascade do |t|
@@ -245,6 +245,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "import_batch_id"
+    t.bigint "recurring_template_id"
     t.index ["category_id"], name: "index_records_on_category_id"
     t.index ["created_by_id"], name: "index_records_on_created_by_id"
     t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"
@@ -255,12 +256,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
     t.index ["household_id", "reminder_frequency"], name: "index_records_on_household_id_and_reminder_frequency", where: "((due_on IS NULL) AND (settled = false))"
     t.index ["import_batch_id"], name: "index_records_on_import_batch_id"
     t.index ["payment_method_id"], name: "index_records_on_payment_method_id"
+    t.index ["recurring_template_id", "period_year", "period_start_month"], name: "index_records_one_per_template_period", unique: true, where: "(recurring_template_id IS NOT NULL)"
     t.check_constraint "amount_paid IS NULL OR amount_paid >= 0::numeric", name: "records_amount_paid_nonnegative"
     t.check_constraint "amount_required IS NULL OR amount_required >= 0::numeric", name: "records_amount_required_nonnegative"
     t.check_constraint "currency::text = ANY (ARRAY['TWD'::character varying, 'USD'::character varying]::text[])", name: "records_currency"
     t.check_constraint "period_start_month >= 1 AND period_start_month <= 12 AND period_end_month >= 1 AND period_end_month <= 12", name: "records_period_months"
     t.check_constraint "record_type::text = ANY (ARRAY['expense'::character varying, 'maintenance'::character varying, 'tax'::character varying]::text[])", name: "records_record_type"
     t.check_constraint "reminder_frequency::text = ANY (ARRAY['none'::character varying, 'daily'::character varying, 'every_3_days'::character varying, 'weekly'::character varying, 'biweekly'::character varying, 'monthly'::character varying]::text[])", name: "records_reminder_frequency"
+  end
+
+  create_table "recurring_templates", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "record_type", null: false
+    t.bigint "category_id", null: false
+    t.string "title", null: false
+    t.string "details"
+    t.string "currency", default: "TWD", null: false
+    t.decimal "default_amount", precision: 12, scale: 2
+    t.boolean "amount_fixed", default: false, null: false
+    t.integer "interval_months", null: false
+    t.integer "anchor_month", null: false
+    t.integer "period_span_months", null: false
+    t.date "starts_on", null: false
+    t.integer "due_day"
+    t.integer "due_month_offset", default: 0, null: false
+    t.integer "lead_days", default: 7, null: false
+    t.string "default_reminder_frequency", default: "none", null: false
+    t.bigint "payment_method_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_recurring_templates_on_category_id"
+    t.index ["household_id"], name: "index_recurring_templates_on_household_id"
+    t.index ["payment_method_id"], name: "index_recurring_templates_on_payment_method_id"
+    t.check_constraint "anchor_month >= 1 AND anchor_month <= 12", name: "recurring_templates_anchor"
+    t.check_constraint "due_day IS NULL OR due_day >= 1 AND due_day <= 31", name: "recurring_templates_due_day"
+    t.check_constraint "due_month_offset >= 0 AND due_month_offset <= 24", name: "recurring_templates_due_offset"
+    t.check_constraint "interval_months >= 1 AND interval_months <= 60", name: "recurring_templates_interval"
+    t.check_constraint "lead_days >= 0 AND lead_days <= 90", name: "recurring_templates_lead_days"
+    t.check_constraint "period_span_months >= 1 AND period_span_months <= 12", name: "recurring_templates_span"
+    t.check_constraint "record_type::text = ANY (ARRAY['expense'::character varying, 'maintenance'::character varying, 'tax'::character varying]::text[])", name: "recurring_templates_record_type"
   end
 
   create_table "security_events", force: :cascade do |t|
@@ -523,7 +557,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_130000) do
   add_foreign_key "records", "households"
   add_foreign_key "records", "import_batches", on_delete: :nullify
   add_foreign_key "records", "payment_methods", on_delete: :nullify
+  add_foreign_key "records", "recurring_templates", on_delete: :nullify
   add_foreign_key "records", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "recurring_templates", "categories"
+  add_foreign_key "recurring_templates", "households"
+  add_foreign_key "recurring_templates", "payment_methods", on_delete: :nullify
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

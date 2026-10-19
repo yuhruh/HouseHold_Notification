@@ -80,3 +80,32 @@ zh-TW:
     notification_preferences:
       update:
         saved: "已儲存通知設定。"
+  reminder_deliveries:
+    channels:
+      in_app: "App 內"
+      email: "Email"
+      web_push: "推播"
+    summary:
+      title:
+        one: "%{household}：1 則提醒未送達"
+        other: "%{household}：%{count} 則提醒未送達"
+      line: "%{member}（%{channel}：%{error}）"
+      link: "詳細資料與重新傳送："
+    index:
+      title: "提醒送達狀態"
+      intro: "無法送達的提醒，最新的在前。重新傳送時只會包含仍未繳的項目。"
+      none: "所有提醒都已送達。"
+      streak: "%{member} 已連續 3 次沒有收到%{channel}提醒。請他確認電子郵件地址，或在手機上打開 App 並點「啟用通知」。"
+      resend: "重新傳送"
+      resend_all: "全部重新傳送"
+      attempts:
+        one: "嘗試 1 次"
+        other: "嘗試 %{count} 次"
+      resent: "%{date} 已重新傳送"
+    resend:
+      queued: "正在重新傳送。"
+      too_soon: "這則提醒 10 分鐘內已重新傳送過。"
+      unavailable: "目前無法用這個方式傳送給這位成員。"
+      nothing_left: "沒有需要提醒的項目：都已繳清。"
+    resend_all:
+      queued: "正在重新傳送所有失敗的提醒。"

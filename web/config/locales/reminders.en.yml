@@ -80,3 +80,32 @@ en:
     notification_preferences:
       update:
         saved: "Notification settings saved."
+  reminder_deliveries:
+    channels:
+      in_app: "In-app"
+      email: "Email"
+      web_push: "Web Push"
+    summary:
+      title:
+        one: "%{household}: 1 reminder wasn't delivered"
+        other: "%{household}: %{count} reminders weren't delivered"
+      line: "%{member} (%{channel}: %{error})"
+      link: "Details and Resend:"
+    index:
+      title: "Reminder delivery"
+      intro: "Reminders that couldn't be delivered, newest first. Resend rebuilds the message from the items still unpaid."
+      none: "Every reminder was delivered."
+      streak: "%{member} hasn't received %{channel} reminders 3 times in a row. Ask them to check their email address, or to open the app and tap Enable notifications on their phone."
+      resend: "Resend"
+      resend_all: "Resend all failed"
+      attempts:
+        one: "1 attempt"
+        other: "%{count} attempts"
+      resent: "resent %{date}"
+    resend:
+      queued: "Resending."
+      too_soon: "This one was resent less than 10 minutes ago."
+      unavailable: "This channel can't be used for this member right now."
+      nothing_left: "Nothing left to remind: everything in it is paid."
+    resend_all:
+      queued: "Resending every failed reminder."

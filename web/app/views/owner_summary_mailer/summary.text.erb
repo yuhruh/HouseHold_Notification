@@ -1,0 +1,6 @@
+<% @lines.each do |line| %>
+- <%= line %>
+<% end %>
+
+<%= t("reminder_deliveries.summary.link") %>
+<%= household_reminder_deliveries_url(@household) %>

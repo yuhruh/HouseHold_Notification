@@ -35,6 +35,10 @@ Rails.application.routes.draw do
       post :leave, on: :collection
     end
     get "upcoming" => "upcoming#show", as: :upcoming
+    resources :reminder_deliveries, only: :index do
+      post :resend, on: :member
+      post :resend_all, on: :collection
+    end
     resources :records do
       member do
         get :mark_paid

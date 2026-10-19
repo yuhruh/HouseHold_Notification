@@ -1,0 +1,28 @@
+<% content_for :title, t(".title") %>
+<div class="w-full max-w-3xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <p class="text-sm text-gray-600"><%= t(".intro") %></p>
+  <% @streaks.each do |user_id, channel| %>
+    <% member = Current.household.users.find_by(id: user_id) %>
+    <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t(".streak", member: member&.display_name.presence || member&.email_address, channel: t("reminder_deliveries.channels.#{channel}")) %></p>
+  <% end %>
+  <% if @failed.empty? %>
+    <p class="text-gray-600"><%= t(".none") %></p>
+  <% else %>
+    <%= button_to t(".resend_all"), resend_all_household_reminder_deliveries_path(Current.household), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1.5" %>
+    <ul class="divide-y rounded-lg border text-sm">
+      <% @failed.each do |delivery| %>
+        <li class="space-y-1 px-4 py-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-medium"><%= delivery.user.display_name.presence || delivery.user.email_address %> · <%= t("reminder_deliveries.channels.#{delivery.channel}") %> · <%= l(delivery.run_on) %></span>
+            <%= button_to t(".resend"), resend_household_reminder_delivery_path(Current.household, delivery), class: "cursor-pointer rounded border px-2 py-0.5" %>
+          </div>
+          <p class="text-red-700"><%= delivery.error %></p>
+          <ul class="text-gray-700"><% delivery.reminder_logs.each do |log| %><li>· <%= log.record.title %> <%= log.record.period %></li><% end %></ul>
+          <p class="text-xs text-gray-500"><%= t(".attempts", count: delivery.attempts) %><%= " · #{t('.resent', date: l(delivery.resent_at, format: :short))}" if delivery.resent_at %></p>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

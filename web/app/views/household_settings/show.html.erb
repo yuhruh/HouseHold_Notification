@@ -20,7 +20,8 @@
     </fieldset>
   <% end %>
 
-  <p><%= link_to t("households.show.members"), household_members_path(Current.household), class: "text-blue-700 underline" %></p>
+  <p class="flex gap-4"><%= link_to t("households.show.members"), household_members_path(Current.household), class: "text-blue-700 underline" %>
+    <% if owner %><%= link_to t("reminder_deliveries.index.title"), household_reminder_deliveries_path(Current.household), class: "text-blue-700 underline" %><% end %></p>
 
   <% if owner %>
     <section class="space-y-3 rounded-lg border border-red-200 p-4">

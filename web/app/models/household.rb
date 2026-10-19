@@ -14,6 +14,7 @@ class Household < ApplicationRecord
   has_many :import_keys
   has_many :import_previews
   has_many :recurring_templates
+  has_many :reminder_deliveries
   has_one :owner_membership, -> { where(role: "owner") }, class_name: "Membership"
   has_one :owner, through: :owner_membership, source: :user
 

@@ -4,7 +4,7 @@ class ReminderMailer < ApplicationMailer
     @delivery = params[:delivery]
     @household = @delivery.household
     @today = Time.use_zone(@delivery.user.time_zone) { Date.current }
-    @logs = @delivery.reminder_logs.includes(:record).order(:id).to_a
+    @logs = Reminders::Resend.remaining_logs(@delivery).sort_by(&:id)
     I18n.with_locale(@delivery.user.locale.presence || I18n.default_locale) do
       mail to: @delivery.user.email_address, subject: t("reminders.digest.title", household: @household.name, count: @logs.size)
     end

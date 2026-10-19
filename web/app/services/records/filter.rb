@@ -16,9 +16,10 @@ module Records
       @today = today
     end
 
+    # Not fully paid first (unpaid, partial, overdue), then paid; each group newest billing period first
     def records
       @records ||= scope.includes(:category, :payment_method)
-        .order(period_year: :desc, period_start_month: :desc, record_no: :desc)
+        .order(settled: :asc, period_year: :desc, period_start_month: :desc, record_no: :desc)
     end
 
     def summary

@@ -23,7 +23,11 @@
   </head>
 
   <body>
-    <%= render "layouts/header" if authenticated? %>
+    <% if authenticated? %>
+      <%= render "layouts/header" %>
+    <% else %>
+      <div class="container mx-auto flex justify-end px-4 pt-3 text-sm"><%= render "layouts/language_switch" %></div>
+    <% end %>
     <main class="container mx-auto mt-10 px-4 flex">
       <%= yield %>
     </main>

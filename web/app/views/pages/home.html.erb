@@ -9,10 +9,6 @@
     <%= link_to t(".sign_in"), new_session_path, class: "rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white" %>
     <%= link_to t(".sign_up"), new_registration_path, class: "rounded-md border border-gray-400 px-3.5 py-2.5 font-medium" %>
   </div>
-  <div class="flex flex-wrap items-center justify-center gap-3">
-    <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md border border-blue-600 px-3.5 py-2 font-medium text-blue-700 hover:bg-blue-50"><%= t("layouts.header.install") %></button></span>
-    <%= link_to t("layouts.header.guide"), guide_path, class: "text-blue-700 underline" %>
-  </div>
   <p><%= link_to "隱私權政策 / Privacy policy", privacy_path, class: "text-blue-700 underline" %></p>
   <%# M0 spike pages (basic auth) are otherwise unreachable from the installed PWA; removed after M5. %>
   <p class="text-sm"><%= link_to "M0 checks", spike_checks_path, class: "text-gray-500 underline" %></p>

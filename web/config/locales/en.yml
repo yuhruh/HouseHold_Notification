@@ -31,6 +31,8 @@ en:
         payment_note: "Payment note"
         next_due_on: "Next due date"
         import_key: "Sheet ID"
+        reminder_frequency: "Reminder (no due date)"
+        reminder_starts_on: "Start reminding on"
       category:
         name_zh: "Name (中文)"
         name_en: "Name (English)"
@@ -139,6 +141,7 @@ en:
     viewer: "Viewer"
   layouts:
     header:
+      records: "Records"
       settings: "Settings"
       account: "My account"
       switch: "Switch household"
@@ -157,8 +160,10 @@ en:
       created: "Your household is ready."
     show:
       role: "Your role: %{role}"
-      coming_soon: "Bills, reminders and the dashboard are coming next."
+      coming_soon: "Reminders, the sheet import and the dashboard are coming next."
       members: "Members"
+      records: "Records"
+      payment_methods: "Payment methods"
   members:
     index:
       title: "Members"
@@ -368,3 +373,124 @@ en:
     too_large:
       subject: "我的家 backup %{filename} is too large to email"
       body: "This week's encrypted backup (%{filename}, %{size} MB) is over the 20 MB email limit, so it wasn't attached. It is on the Railway volume under storage/backups; download it from there."
+  records:
+    types:
+      expense: "Expense"
+      maintenance: "Maintenance"
+      tax: "Tax"
+    status:
+      unpaid: "Unpaid"
+      partial: "Partly paid"
+      overdue: "Overdue"
+      paid: "Paid"
+    reminder_frequencies:
+      none: "No reminder"
+      daily: "Every day"
+      every_3_days: "Every 3 days"
+      weekly: "Every week"
+      biweekly: "Every 2 weeks"
+      monthly: "Every month"
+    events:
+      created: "Created"
+      updated: "Edited"
+      deleted: "Deleted"
+      marked_paid: "Marked paid"
+      import_created: "Imported"
+      import_updated: "Updated by import"
+      import_undone: "Import undone"
+    month: "%{month}月"
+    index:
+      title: "Records"
+      new: "New record"
+      year: "Year"
+      month: "Month"
+      type: "Type"
+      category: "Category"
+      status: "Status"
+      payment_method: "Payment method"
+      all_years: "All years"
+      all_months: "All months"
+      all_types: "All types"
+      all_categories: "All categories"
+      all_statuses: "All statuses"
+      all_payment_methods: "All payment methods"
+      search: "Search"
+      filter: "Filter"
+      clear: "Clear"
+      summary: "Summary"
+      by_period: "By billing period"
+      required: "Required"
+      paid: "Paid"
+      outstanding: "Outstanding"
+      total: "Total"
+      empty: "No records yet. The sheet import will fill this list; you can also add one by hand."
+      no_match: "No records match these filters."
+      count:
+        one: "1 record"
+        other: "%{count} records"
+      period: "Period"
+      item: "Item"
+      details: "Details"
+      paid_on: "Paid date"
+      no_due_date: "No due date"
+      mark_paid: "Mark paid"
+    form:
+      title_hint: "Defaults to the category name"
+      details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
+      period: "Billing period"
+      period_hint: "Year, first month, last month. A period like 12月–1月 ends in the next year."
+      amounts_hint: "Paid is the running total paid so far; it can't be more than Required."
+      reminder_hint: "Only for records without a due date: repeats until the record is paid."
+      next_due_hint: "For maintenance: when it's due again."
+      none: "None"
+      save: "Save"
+      cancel: "Cancel"
+    new:
+      title: "New record"
+    edit:
+      title: "Edit record"
+    create:
+      created: "Record created."
+    update:
+      saved: "Saved."
+      stale: "Someone else changed this record while you were editing. Reload it and try again."
+    destroy:
+      deleted: "Record deleted. Its details stay in the household's activity log."
+    mark_paid:
+      title: "Mark paid"
+      amount: "Bill amount (%{currency})"
+      hint: "Sets Required and Paid to this amount and the paid date to today."
+      submit: "Mark paid"
+      done: "%{title} marked paid."
+    show:
+      back: "← Records"
+      sheet_id: "sheet ID %{id}"
+      no_due_date: "No due date"
+      edit: "Edit"
+      delete: "Delete"
+      delete_confirm: "Delete this record? It can't be undone."
+      activity: "Activity"
+      former_member: "former member"
+  payment_methods:
+    kinds:
+      card: "Card"
+      bank: "Bank"
+      e_wallet: "E-wallet"
+      cash: "Cash"
+      other: "Other"
+    index:
+      title: "Payment methods"
+      new: "New payment method"
+      empty: "No payment methods yet."
+      edit: "Edit"
+      archive: "Archive"
+      unarchive: "Restore"
+      archived: "archived"
+    new:
+      title: "New payment method"
+    edit:
+      title: "Edit payment method"
+    create:
+      created: "Payment method added."
+    update:
+      saved: "Saved."

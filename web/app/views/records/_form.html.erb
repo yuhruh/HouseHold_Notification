@@ -1,0 +1,87 @@
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4" do |form| %>
+  <% if record.errors.any? %>
+    <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+  <% end %>
+  <%= form.hidden_field :lock_version %>
+
+  <div>
+    <%= form.label :category_id, class: "block text-sm font-medium" %>
+    <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field %>
+  </div>
+  <div>
+    <%= form.label :title, class: "block text-sm font-medium" %>
+    <%= form.text_field :title, maxlength: 100, placeholder: t("records.form.title_hint"), class: field %>
+  </div>
+  <div>
+    <%= form.label :details, class: "block text-sm font-medium" %>
+    <%= form.text_field :details, maxlength: 200, class: field %>
+    <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
+  </div>
+
+  <fieldset class="grid grid-cols-3 gap-2">
+    <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
+    <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
+    <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>
+    <%= form.select :period_end_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_end_month) %>
+    <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
+  </fieldset>
+
+  <div class="grid grid-cols-3 gap-2">
+    <div>
+      <%= form.label :currency, class: "block text-sm font-medium" %>
+      <%= form.select :currency, Household::CURRENCIES, {}, class: field %>
+    </div>
+    <div>
+      <%= form.label :amount_required, class: "block text-sm font-medium" %>
+      <%= form.number_field :amount_required, min: 0, step: "0.01", class: field %>
+    </div>
+    <div>
+      <%= form.label :amount_paid, class: "block text-sm font-medium" %>
+      <%= form.number_field :amount_paid, min: 0, step: "0.01", class: field %>
+    </div>
+  </div>
+  <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
+
+  <div class="grid grid-cols-2 gap-2">
+    <div>
+      <%= form.label :due_on, class: "block text-sm font-medium" %>
+      <%= form.date_field :due_on, class: field %>
+    </div>
+    <div>
+      <%= form.label :paid_on, class: "block text-sm font-medium" %>
+      <%= form.date_field :paid_on, class: field %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <div>
+      <%= form.label :reminder_frequency, class: "block text-sm font-medium" %>
+      <%= form.select :reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %>
+    </div>
+    <div>
+      <%= form.label :reminder_starts_on, class: "block text-sm font-medium" %>
+      <%= form.date_field :reminder_starts_on, class: field %>
+    </div>
+    <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
+  </div>
+
+  <div>
+    <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+    <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field %>
+  </div>
+  <div>
+    <%= form.label :payment_note, class: "block text-sm font-medium" %>
+    <%= form.text_area :payment_note, rows: 3, maxlength: 2000, class: field %>
+  </div>
+  <div>
+    <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+    <%= form.date_field :next_due_on, class: field %>
+    <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit t("records.form.save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <%= link_to t("records.form.cancel"), (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "px-3.5 py-2 underline" %>
+  </div>
+<% end %>

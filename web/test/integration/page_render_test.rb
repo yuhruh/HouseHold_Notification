@@ -16,7 +16,9 @@ class PageRenderTest < ActionDispatch::IntegrationTest
     assert_response :success
     reauthenticate!
     [ account_path, account_deletion_path, household_path(home), household_members_path(home), household_settings_path(home),
-      new_household_ownership_transfer_path(home), new_household_deletion_path(home), invitations_path ].each do |path|
+      new_household_ownership_transfer_path(home), new_household_deletion_path(home), invitations_path,
+      household_records_path(home), new_household_record_path(home), household_payment_methods_path(home),
+      new_household_payment_method_path(home) ].each do |path|
       get path
       assert_response :success, path
     end

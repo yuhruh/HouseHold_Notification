@@ -22,6 +22,7 @@
         <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
       <% end %>
       <% if Current.household %>
+        <%= link_to t("layouts.header.records"), household_records_path(Current.household), class: "px-2 py-1 underline" %>
         <%= link_to t("layouts.header.settings"), household_settings_path(Current.household), class: "px-2 py-1 underline" %>
       <% end %>
       <%= link_to t("layouts.header.account"), account_path, class: "px-2 py-1 underline" %>

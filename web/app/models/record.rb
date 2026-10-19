@@ -26,9 +26,14 @@ class Record < ApplicationRecord
   validates :import_key, presence: true, on: :import
   validate :paid_on_not_in_future, on: :import
 
-  before_validation { self.reminder_frequency = "none" if due_on.present? }
+  before_validation :fill_derived_fields
   before_save { self.settled = paid_by_rule? }
   before_create :assign_record_no
+
+  # Billing period overlaps [from, to], both as year * 12 + month
+  scope :overlapping, ->(from, to) {
+    where("period_year * 12 + period_start_month <= ? AND period_end_year * 12 + period_end_month >= ?", to, from)
+  }
 
   def period
     Period.new(start_year: period_year, start_month: period_start_month, end_year: period_end_year, end_month: period_end_month)
@@ -59,6 +64,16 @@ class Record < ApplicationRecord
   end
 
   private
+
+  # Title defaults to the category name (titles merge per category); the end year follows the
+  # year boundary rule unless it was set explicitly (the import sets it, and it's validated).
+  def fill_derived_fields
+    self.title = category.name_zh if title.blank? && category
+    if period_year && period_start_month && period_end_month && !period_end_year_changed?
+      self.period_end_year = period_end_month.to_i < period_start_month.to_i ? period_year.to_i + 1 : period_year.to_i
+    end
+    self.reminder_frequency = "none" if due_on.present?
+  end
 
   def period_end_year_follows_rule
     return unless period_year && period_start_month && period_end_month

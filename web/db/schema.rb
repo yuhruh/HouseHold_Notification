@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_100003) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -138,6 +138,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_100003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_reauth_codes_on_user_id"
+  end
+
+  create_table "record_events", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "user_id"
+    t.bigint "import_batch_id"
+    t.string "action", null: false
+    t.jsonb "diff", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.index ["household_id", "created_at"], name: "index_record_events_on_household_id_and_created_at"
+    t.index ["record_id", "created_at"], name: "index_record_events_on_record_id_and_created_at"
+    t.index ["user_id"], name: "index_record_events_on_user_id"
+    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying, 'deleted'::character varying, 'marked_paid'::character varying, 'import_created'::character varying, 'import_updated'::character varying, 'import_undone'::character varying]::text[])", name: "record_events_action"
   end
 
   create_table "records", force: :cascade do |t|
@@ -433,6 +447,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_100003) do
   add_foreign_key "memberships", "users"
   add_foreign_key "payment_methods", "households"
   add_foreign_key "reauth_codes", "users", on_delete: :cascade
+  add_foreign_key "record_events", "households"
+  add_foreign_key "record_events", "users", on_delete: :nullify
   add_foreign_key "records", "categories"
   add_foreign_key "records", "households"
   add_foreign_key "records", "payment_methods", on_delete: :nullify

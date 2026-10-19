@@ -33,6 +33,15 @@ Rails.application.routes.draw do
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection
     end
+    resources :records do
+      member do
+        get :mark_paid
+        post :mark_paid
+      end
+    end
+    resources :payment_methods, except: %i[show destroy] do
+      post :archive, on: :member
+    end
     resource :ownership_transfer, only: %i[new create]
     resource :deletion, only: %i[new create], controller: "household_deletions"
     resources :invitations, only: :create, controller: "household_invitations" do

@@ -1,0 +1,26 @@
+<% content_for :title, t(".title") %>
+<% writer = policy(PaymentMethod).write? %>
+<div class="w-full max-w-2xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+    <% if writer %><%= link_to t(".new"), new_household_payment_method_path(Current.household), class: "rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %><% end %>
+  </div>
+  <% if @payment_methods.empty? %>
+    <p class="text-gray-600"><%= t(".empty") %></p>
+  <% else %>
+    <ul class="divide-y rounded-lg border">
+      <% @payment_methods.each do |pm| %>
+        <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 <%= 'text-gray-400' if pm.archived_at %>">
+          <span><%= pm.name %><%= " ··#{pm.last4}" if pm.last4.present? %> <span class="text-sm text-gray-500"><%= t("payment_methods.kinds.#{pm.kind}") %><%= " · #{t('.archived')}" if pm.archived_at %></span></span>
+          <% if writer %>
+            <span class="flex gap-3 text-sm">
+              <%= link_to t(".edit"), edit_household_payment_method_path(Current.household, pm), class: "underline" %>
+              <%= button_to (pm.archived_at ? t(".unarchive") : t(".archive")), archive_household_payment_method_path(Current.household, pm), class: "cursor-pointer underline" %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

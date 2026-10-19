@@ -4,3 +4,6 @@
 
 <%= @invitation.expires_at ? t(".expires", date: l(@invitation.expires_at.to_date)) : t(".never_expires") %>
 <%= t(".match_hint", email: @invitation.email) %>
+
+<%= t(".guide") %>
+<%= guide_url %>

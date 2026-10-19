@@ -93,6 +93,17 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | M6 exit: each clicked element's drill-down total equals the chart value | ☑ | tested for every point of every chart in both modes (`DashboardQueryTest`) |
 | Dark-mode chart theme, ECharts zh-TW locale | ☐ | not done: the app has no dark mode yet, and all chart text comes from the server's zh-TW/en strings |
 
+## M7: Release
+
+| Task | Status | Notes |
+|---|---|---|
+| Privacy policy + `/account/deletion` page | ☑ | 2026-10-19: `/privacy` updated: self-service deletion link, what's collected (avatar, language/time zone, signed-in devices), the services the app runs on (Railway, Gmail, push service, Sentry), and backups: server copies expire within 4 weeks, off-server encrypted copies (email, computer) are deleted on request. Same wording on `/account/deletion` |
+| Volume disk-usage alert | ☑ | 2026-10-19: `DiskUsageJob` daily 03:45 Taipei, `df` on `/rails/storage`, ≥80% → Sentry warning + `DISK_HEARTBEAT_URL` `/fail`. Optional for Alex: a 5th Healthchecks.io check (1 day / 2 h) and the variable |
+| Repeat restore drill, now including photos | ◐ | 2026-10-19: `backup:restore_drill PHOTOS=…tgz` checks every restored blob's file (present, size, MD5). Left for Alex: Run backup now + `bin/download-photos` the same day, then the drill (docs/M0-SETUP.md §7) |
+| Family onboarding guide (install + enable notifications) | ☑ | 2026-10-19: `/guide` (zh-TW / en by locale): accept invite, install, enable push, Chrome battery Unrestricted, what arrives daily, troubleshooting. Linked from the invitation email and My account → Notifications. Revisit the battery tip after the X9 overnight retest |
+| Remove the M0 spike pages and jobs | ☐ | after X8 (2026-10-26: `Spike::GmailDurabilityJob`) and X9 (`/spike/push` on family phones) |
+| M7 exit: family uses it for one billing cycle | ☐ | starts once M0 and M5 close |
+
 ## Pending decisions
 
 ### Payment methods from notes (proposed 2026-10-19, waiting for Alex)

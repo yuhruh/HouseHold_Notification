@@ -15,7 +15,7 @@
 | X6 | ECharts via importmap as one vendored file | ❌ → fallback, ✅ | see below |
 | X7 | Volume writable without running the app as root | ✅ | `bin/docker-entrypoint` chowns, drops to uid 1000; file survived redeploy (TRACKING) |
 | X8 | Gmail sender durable over 8 days | ◐ started 2026-10-18 | see below |
-| X9 | Web Push on every family phone | ⏸ | ADR 0003 |
+| X9 | Web Push on every family phone | ◐ Pixel 9 ✅ (overnight 2026-10-20); the family member's phone pending | ADR 0003 |
 | X10 | Sign-in GCP project usable by non-test users | ✅ | see below |
 
 ## X4: `pg_dump` version (2026-10-18)

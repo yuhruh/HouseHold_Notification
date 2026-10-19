@@ -10,7 +10,12 @@ export default class extends Controller {
     if (!this.supported) return this.render("unsupported")
     const registration = await navigator.serviceWorker.register("/service-worker.js")
     const subscription = await registration.pushManager.getSubscription()
-    this.render(Notification.permission === "denied" ? "denied" : subscription ? "enabled" : "disabled")
+    if (Notification.permission === "denied") return this.render("denied")
+    if (!subscription) return this.render("disabled")
+
+    // A subscription made elsewhere (e.g. the M0 spike page) must also be registered for this user
+    const response = await this.request("POST", "/push_subscriptions", { subscription: subscription.toJSON() })
+    this.render(response.ok ? "enabled" : "failed")
   }
 
   async enable() {

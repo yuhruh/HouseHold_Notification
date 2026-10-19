@@ -5,8 +5,8 @@ namespace :backup do
 
   desc "Decrypt an emailed backup (IN=household-YYYY-MM-DD.dump.enc [OUT=…dump])"
   task decrypt: :environment do
-    input = ENV["IN"] or abort "Usage: bin/rails backup:decrypt IN=path/to/household-YYYY-MM-DD.dump.enc"
-    output = ENV["OUT"].presence || input.delete_suffix(".enc")
+    input = ENV["IN"].presence&.then { File.expand_path(_1) } or abort "Usage: bin/rails backup:decrypt IN=path/to/household-YYYY-MM-DD.dump.enc"
+    output = ENV["OUT"].presence&.then { File.expand_path(_1) } || input.delete_suffix(".enc")
     BackupJob.openssl!("-d", "-in", input, "-out", output, passphrase: passphrase.call)
     puts "Decrypted to #{output}"
     puts BackupJob.run!({}, "pg_restore", "--list", output).lines.grep(/TABLE DATA/).size.to_s + " tables with data"
@@ -14,7 +14,7 @@ namespace :backup do
 
   desc "Restore drill: decrypt an emailed backup into a scratch database and count rows (IN=… [DRILL_DATABASE_URL=…])"
   task restore_drill: :environment do
-    input = ENV["IN"] or abort "Usage: bin/rails backup:restore_drill IN=path/to/household-YYYY-MM-DD.dump.enc"
+    input = ENV["IN"].presence&.then { File.expand_path(_1) } or abort "Usage: bin/rails backup:restore_drill IN=path/to/household-YYYY-MM-DD.dump.enc"
     target = ENV["DRILL_DATABASE_URL"].presence || "postgres:///household_restore_drill"
     name = URI(target).path.delete_prefix("/")
     abort "Refusing to restore over #{name}" if name.empty? || name == ActiveRecord::Base.connection_db_config.database

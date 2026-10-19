@@ -91,7 +91,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 |---|---|---|
 | Charts, filters, drill-down | ☑ | 2026-10-19: `DashboardQuery` (spend pieces: paid-date month, or `Spend::Allocator` split by billing period; TWD/USD never mixed) feeds monthly-by-type bars, 水/電/瓦斯 lines (billing period by default, own toggle), category bars, payment-method pie, box plot (`Stats` = QUARTILE.INC, 5+ bills, outliers carry record_id → open the record), paid / unpaid / overdue cards; filters year, currency, type; mode remembered per browser; every chart has "view as table"; clicks load `/dashboard/drilldown` into a Turbo Frame from the same query |
 | M6 exit: each clicked element's drill-down total equals the chart value | ☑ | tested for every point of every chart in both modes (`DashboardQueryTest`) |
-| Dark-mode chart theme, ECharts zh-TW locale | ☐ | not done: the app has no dark mode yet, and all chart text comes from the server's zh-TW/en strings |
+| Dark-mode chart theme, ECharts zh-TW locale | ➖ | not needed for v1 (decided 2026-10-19): the app has no dark mode, and every chart label already comes from the app's own zh-TW/en strings. Not part of the M6 exit |
 
 ## M7: Release
 

@@ -51,7 +51,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 |---|---|---|
 | First PR: `Record` / `Category` (+ `CategoryAlias`, `PaymentMethod`) models, default categories per household, import dry-run #2 (every `Record#valid?(:import)` + DB constraints in a rolled-back scratch household) | ☑ | committed to main 2026-10-19. Status rules + stored `settled`, `record_no` counter, Purge order updated. Real CSV (round 3 export): 130 rows, 0 errors |
 | Records CRUD, filters, summary, mark-paid, payment methods UI | ☐ | |
-| Backups: weekly encrypted `BackupJob` + restore drill (before the real import) | ◐ | built 2026-10-19 (Sunday 04:00 Taipei, keep 4, encrypted email; `backup:decrypt`, `backup:restore_drill`). Local drill on a dev dump into Postgres 18 passed. Left: `BACKUP_PASSPHRASE` in Railway, first production run, drill on the emailed copy. Monthly photo download comes with photos (M3) |
+| Backups: weekly encrypted `BackupJob` + restore drill (before the real import) | ☑ | built 2026-10-19 (Sunday 04:00 Taipei, keep 4, encrypted email; `backup:decrypt`, `backup:restore_drill`). **Restore drill passed 2026-10-19 11:17** on the production backup emailed at ~11:15: decrypted with the passphrase from the password manager, restored into Postgres 18 (Docker), households 1 · users 1 · memberships 1 · categories 15 · records 0. Passphrase to be rotated (it appeared in a screenshot). Monthly photo download comes with photos (M3) |
 | CSV import preview → commit, re-import updates, undo, `record_events` | ☐ | |
 | Real import into the family household | ☐ | gated on backups + frozen ID column |
 

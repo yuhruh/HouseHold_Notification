@@ -13,6 +13,40 @@ zh-TW:
         reminder_lead_days: "提醒提前天數"
       invitation:
         role: "角色"
+      record:
+        record_type: "類型"
+        category: "類別"
+        title: "名稱"
+        details: "明細"
+        period_year: "年份"
+        period_start_month: "起始月份"
+        period_end_month: "結束月份"
+        period_end_year: "結束年份"
+        currency: "幣別"
+        amount_required: "應繳金額"
+        amount_paid: "已繳金額"
+        due_on: "到期日"
+        paid_on: "繳費日期"
+        payment_method: "付款方式"
+        payment_note: "付款備註"
+        next_due_on: "下次到期日"
+        import_key: "試算表 ID"
+      category:
+        name_zh: "名稱（中文）"
+        name_en: "名稱（英文）"
+      payment_method:
+        name: "名稱"
+        kind: "種類"
+        last4: "末四碼"
+    errors:
+      messages:
+        year_boundary: "必須是起始年份；期間跨年時為下一年"
+        wrong_type: "屬於不同的記錄類型"
+        required_for_category: "必須填寫%{category}的%{label}"
+        required_for_payment: "已繳金額大於 0 時必須填寫"
+        exceeds_required: "不能大於應繳金額（手續費請併入應繳金額）"
+        required_with_paid_on: "填寫繳費日期時必須填寫"
+        in_future: "不能是未來的日期"
   auth:
     continue_with_google: "使用 Google 繼續"
     or: "或"

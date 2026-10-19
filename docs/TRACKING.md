@@ -45,6 +45,16 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | M1b: households, roles, invitations, household-scoped routing + switcher, onboarding, Pundit | ☑ | PR #6, merged and deployed 2026-10-18. Default notification preferences on accept wait for M4/M5 (no table yet) |
 | M1c: My Account, Household settings, ownership transfer, account/household deletion, emailed re-auth code | ☑ | PR #7, merged and deployed 2026-10-19. Avatar (M3), Devices / notification toggles / lock-screen privacy (M5) come with those milestones |
 
+## M2: Records core + Sheet import
+
+| Task | Status | Notes |
+|---|---|---|
+| First PR: `Record` / `Category` (+ `CategoryAlias`, `PaymentMethod`) models, default categories per household, import dry-run #2 (every `Record#valid?(:import)` + DB constraints in a rolled-back scratch household) | ☑ | committed to main 2026-10-19. Status rules + stored `settled`, `record_no` counter, Purge order updated. Real CSV (round 3 export): 130 rows, 0 errors |
+| Records CRUD, filters, summary, mark-paid, payment methods UI | ☐ | |
+| Backups: weekly encrypted `BackupJob` + restore drill (before the real import) | ☐ | needs the owner's passphrase |
+| CSV import preview → commit, re-import updates, undo, `record_events` | ☐ | |
+| Real import into the family household | ☐ | gated on backups + frozen ID column |
+
 ## Sheet cleanup log
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |
@@ -52,3 +62,4 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | 1 | 2026-10-18 | 26 rows (29 errors) | 4 | 0 | – | 132 rows, NOT READY. Errors: Paid > Required ×11; Paid without Finished Date ×10; blank Item + blank year ×2 rows (31–32); unrecognized month ×2 (49–50); 保險 missing 保單號碼/標的 ×2 (56, 74). Warnings: ✅ but underpaid ×2, complete but not ✅ ×1, maintenance chain without room ×1. Totals of clean rows: TWD Required 328,719 · Paid 324,016. Estimated fix: ~30–45 min in the sheet |
 | 2 | 2026-10-18 | 4 rows (6 errors) | 4 | 22 rows | ~10 min | Left: IDs 26–27 empty placeholder rows; ID 44 month holds a date; ID 45 month blank. Warnings: complete but not ✅ ×2 (lines 6, 74), ✅ but underpaid ×2 (44, 59). Totals of clean rows: TWD Required 431,069 · Paid 426,366 |
 | 3 | 2026-10-18 | 0 | 0 | 4 rows | ~30 min (several exports) | **READY.** 130 rows. Empty rows removed; month cells fixed (Sheets kept turning `10月` into dates: type `'10月`). Totals: TWD Required 433,569 · Paid 429,869 = sheet Total 429,869 ✓ (the sheet's Total sums Paid). ⚠ The ID column renumbers when rows are deleted (formula or refilled): before the M2 import it must be plain values that never change |
+| 4 (dry-run #2) | 2026-10-19 | 0 | 0 | 0 | – | Same export as round 3, now also saved as Records with every import validation (rolled back): **READY**, Total 429,869 = Paid ✓. Re-run after freezing the ID column |

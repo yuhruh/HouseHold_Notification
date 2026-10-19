@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.index ["user_id"], name: "index_auth_handoffs_on_user_id"
   end
 
+  create_table "categories", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "record_type", null: false
+    t.string "name_zh", null: false
+    t.string "name_en"
+    t.string "detail_label_zh"
+    t.string "detail_label_en"
+    t.boolean "detail_required", default: false, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "record_type", "name_zh"], name: "index_categories_on_household_id_and_record_type_and_name_zh", unique: true
+    t.index ["household_id"], name: "index_categories_on_household_id"
+    t.check_constraint "record_type::text = ANY (ARRAY['expense'::character varying, 'maintenance'::character varying, 'tax'::character varying]::text[])", name: "categories_record_type"
+  end
+
+  create_table "category_aliases", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "category_id", null: false
+    t.string "alias", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_category_aliases_on_category_id"
+    t.index ["household_id", "alias"], name: "index_category_aliases_on_household_id_and_alias", unique: true
+    t.index ["household_id"], name: "index_category_aliases_on_household_id"
+  end
+
   create_table "households", force: :cascade do |t|
     t.string "name", null: false
     t.string "default_currency", default: "TWD", null: false
@@ -37,7 +65,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.date "last_failure_summary_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.check_constraint "default_currency::text = ANY (ARRAY['TWD'::character varying::text, 'USD'::character varying::text])", name: "households_default_currency"
+    t.integer "next_record_no", default: 0, null: false
+    t.check_constraint "default_currency::text = ANY (ARRAY['TWD'::character varying, 'USD'::character varying]::text[])", name: "households_default_currency"
     t.check_constraint "reminder_lead_days >= 0 AND reminder_lead_days <= 30", name: "households_reminder_lead_days_range"
   end
 
@@ -71,7 +100,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.index ["household_id"], name: "index_invitations_on_household_id"
     t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
     t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
-    t.check_constraint "role::text = ANY (ARRAY['co_owner'::character varying::text, 'viewer'::character varying::text])", name: "invitations_role"
+    t.check_constraint "role::text = ANY (ARRAY['co_owner'::character varying, 'viewer'::character varying]::text[])", name: "invitations_role"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -84,7 +113,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.index ["household_id"], name: "index_memberships_on_household_id"
     t.index ["household_id"], name: "index_memberships_one_owner", unique: true, where: "((role)::text = 'owner'::text)"
     t.index ["user_id"], name: "index_memberships_on_user_id"
-    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying::text, 'co_owner'::character varying::text, 'viewer'::character varying::text])", name: "memberships_role"
+    t.check_constraint "role::text = ANY (ARRAY['owner'::character varying, 'co_owner'::character varying, 'viewer'::character varying]::text[])", name: "memberships_role"
+  end
+
+  create_table "payment_methods", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", null: false
+    t.string "kind", default: "other", null: false
+    t.string "last4"
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_payment_methods_on_household_id"
+    t.check_constraint "kind::text = ANY (ARRAY['card'::character varying, 'bank'::character varying, 'e_wallet'::character varying, 'cash'::character varying, 'other'::character varying]::text[])", name: "payment_methods_kind"
   end
 
   create_table "reauth_codes", force: :cascade do |t|
@@ -97,6 +138,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_reauth_codes_on_user_id"
+  end
+
+  create_table "records", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "record_type", null: false
+    t.bigint "category_id", null: false
+    t.string "title", null: false
+    t.string "details"
+    t.integer "period_year", null: false
+    t.integer "period_start_month", null: false
+    t.integer "period_end_year", null: false
+    t.integer "period_end_month", null: false
+    t.string "currency", default: "TWD", null: false
+    t.decimal "amount_required", precision: 12, scale: 2
+    t.decimal "amount_paid", precision: 12, scale: 2
+    t.boolean "settled", default: false, null: false
+    t.date "due_on"
+    t.date "paid_on"
+    t.bigint "payment_method_id"
+    t.text "payment_note"
+    t.date "next_due_on"
+    t.string "reminder_frequency", default: "none", null: false
+    t.date "reminder_starts_on"
+    t.integer "record_no", null: false
+    t.string "import_key"
+    t.string "import_digest"
+    t.datetime "imported_at"
+    t.jsonb "import_snapshot"
+    t.integer "lock_version", default: 0, null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_records_on_category_id"
+    t.index ["created_by_id"], name: "index_records_on_created_by_id"
+    t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"
+    t.index ["household_id", "import_key"], name: "index_records_on_household_id_and_import_key", unique: true
+    t.index ["household_id", "next_due_on"], name: "index_records_on_household_id_and_next_due_on", where: "(next_due_on IS NOT NULL)"
+    t.index ["household_id", "period_year", "record_type"], name: "index_records_on_household_id_and_period_year_and_record_type"
+    t.index ["household_id", "record_no"], name: "index_records_on_household_id_and_record_no", unique: true
+    t.index ["household_id", "reminder_frequency"], name: "index_records_on_household_id_and_reminder_frequency", where: "((due_on IS NULL) AND (settled = false))"
+    t.index ["payment_method_id"], name: "index_records_on_payment_method_id"
+    t.check_constraint "amount_paid IS NULL OR amount_paid >= 0::numeric", name: "records_amount_paid_nonnegative"
+    t.check_constraint "amount_required IS NULL OR amount_required >= 0::numeric", name: "records_amount_required_nonnegative"
+    t.check_constraint "currency::text = ANY (ARRAY['TWD'::character varying, 'USD'::character varying]::text[])", name: "records_currency"
+    t.check_constraint "period_start_month >= 1 AND period_start_month <= 12 AND period_end_month >= 1 AND period_end_month <= 12", name: "records_period_months"
+    t.check_constraint "record_type::text = ANY (ARRAY['expense'::character varying, 'maintenance'::character varying, 'tax'::character varying]::text[])", name: "records_record_type"
+    t.check_constraint "reminder_frequency::text = ANY (ARRAY['none'::character varying, 'daily'::character varying, 'every_3_days'::character varying, 'weekly'::character varying, 'biweekly'::character varying, 'monthly'::character varying]::text[])", name: "records_reminder_frequency"
   end
 
   create_table "security_events", force: :cascade do |t|
@@ -335,12 +423,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
   end
 
   add_foreign_key "auth_handoffs", "users", on_delete: :cascade
+  add_foreign_key "categories", "households"
+  add_foreign_key "category_aliases", "categories"
+  add_foreign_key "category_aliases", "households"
   add_foreign_key "identities", "users"
   add_foreign_key "invitations", "households"
   add_foreign_key "invitations", "users", column: "invited_by_id", on_delete: :nullify
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "payment_methods", "households"
   add_foreign_key "reauth_codes", "users", on_delete: :cascade
+  add_foreign_key "records", "categories"
+  add_foreign_key "records", "households"
+  add_foreign_key "records", "payment_methods", on_delete: :nullify
+  add_foreign_key "records", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

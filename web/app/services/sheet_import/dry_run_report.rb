@@ -9,7 +9,7 @@ module SheetImport
     def to_s
       out = []
       r = @result
-      out << "== Sheet import dry run (nothing was written) =="
+      out << "== Sheet import dry run: parser + Record validations (nothing was written) =="
       if r.file_errors.any?
         out.push("", "FILE ERRORS (fix these first):")
         r.file_errors.each { |e| out << "  - #{e}" }

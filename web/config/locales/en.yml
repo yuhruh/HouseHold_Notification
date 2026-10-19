@@ -13,6 +13,40 @@ en:
         reminder_lead_days: "Reminder lead days"
       invitation:
         role: "Role"
+      record:
+        record_type: "Type"
+        category: "Category"
+        title: "Title"
+        details: "Details"
+        period_year: "Year"
+        period_start_month: "Start month"
+        period_end_month: "End month"
+        period_end_year: "End year"
+        currency: "Currency"
+        amount_required: "Required"
+        amount_paid: "Paid"
+        due_on: "Due date"
+        paid_on: "Paid date"
+        payment_method: "Payment method"
+        payment_note: "Payment note"
+        next_due_on: "Next due date"
+        import_key: "Sheet ID"
+      category:
+        name_zh: "Name (中文)"
+        name_en: "Name (English)"
+      payment_method:
+        name: "Name"
+        kind: "Kind"
+        last4: "Last 4 digits"
+    errors:
+      messages:
+        year_boundary: "must be the start year, or the next year when the period crosses the year end"
+        wrong_type: "belongs to a different record type"
+        required_for_category: "must have the %{label} for %{category}"
+        required_for_payment: "is required when an amount is paid"
+        exceeds_required: "can't be more than Required (put fees into Required)"
+        required_with_paid_on: "is required when the paid date is set"
+        in_future: "can't be in the future"
   auth:
     continue_with_google: "Continue with Google"
     or: "or"

@@ -4,6 +4,11 @@ class Household < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :invitations, dependent: :destroy
+  # Deleted only by Households::Purge, in order
+  has_many :categories
+  has_many :category_aliases
+  has_many :payment_methods
+  has_many :records
   has_one :owner_membership, -> { where(role: "owner") }, class_name: "Membership"
   has_one :owner, through: :owner_membership, source: :user
 

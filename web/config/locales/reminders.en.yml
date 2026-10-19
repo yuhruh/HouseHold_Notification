@@ -1,11 +1,16 @@
 en:
   layouts:
     header:
+      install: "Install app"
       upcoming: "Upcoming"
       inbox:
         one: "Inbox, 1 unread"
         other: "Inbox, %{count} unread"
   reminders:
+    push:
+      generic: "Open the app to see which bills need attention."
+      no_device: "no device has notifications enabled"
+      no_receipt: "no confirmation in 24h"
     digest:
       title:
         one: "%{household}: 1 bill needs attention"
@@ -68,6 +73,23 @@ en:
       empty: "No notifications yet."
   accounts:
     show:
+      this_browser: "This browser"
+      enable_push: "Enable notifications"
+      disable_push: "Turn off on this browser"
+      push_enabled: "notifications on ✓"
+      push_disabled: "notifications off"
+      push_denied: "blocked in browser settings (tap the icon left of the address bar → Permissions → Notifications → Allow)"
+      push_unsupported: "this browser can't receive push notifications"
+      push_failed: "couldn't turn on; try again"
+      push_show_amounts: "Show bill names and amounts in notifications (lock screen)"
+      push_tip: "Tip: on Android, install the app (menu → Install app) and allow Chrome to run in the background. See docs/NOTIFICATIONS.md for brand-specific battery settings. Keep email on too as a fallback."
+      devices: "Devices"
+      no_devices: "No device has notifications enabled yet."
+      last_receipt: "last confirmed %{time}"
+      no_receipt_yet: "no reminder confirmed yet"
+      signed_in: "signed in"
+      signed_out: "signed out (still gets reminders)"
+      remove_device: "Remove"
       notifications: "Notifications"
       notifications_hint: "Reminders arrive once a day at %{hour} (change it under Profile). The in-app inbox always gets them."
       lead_days:
@@ -75,7 +97,6 @@ en:
         other: "Due-soon reminders %{count} days ahead (set by the owner)"
       channel_email: "Email"
       channel_push: "Push"
-      push_later: "Push notifications arrive with the next update (M5)."
   account:
     notification_preferences:
       update:
@@ -92,6 +113,15 @@ en:
       line: "%{member} (%{channel}: %{error})"
       link: "Details and Resend:"
     index:
+      send_by_email: "Send by email instead"
+      resend_disabled:
+        email: "Resend unavailable: this member has no email address"
+        web_push: "Resend unavailable: no device has notifications enabled"
+      attempt:
+        accepted: "accepted by the push service, waiting for the device"
+        rejected: "rejected"
+        received: "received by the device"
+        error: "error"
       title: "Reminder delivery"
       intro: "Reminders that couldn't be delivered, newest first. Resend rebuilds the message from the items still unpaid."
       none: "Every reminder was delivered."
@@ -103,9 +133,13 @@ en:
         other: "%{count} attempts"
       resent: "resent %{date}"
     resend:
+      sent_by_email: "Sent by email instead."
       queued: "Resending."
       too_soon: "This one was resent less than 10 minutes ago."
       unavailable: "This channel can't be used for this member right now."
       nothing_left: "Nothing left to remind: everything in it is paid."
     resend_all:
       queued: "Resending every failed reminder."
+  push_subscriptions:
+    destroy:
+      removed: "Device removed; it won't get reminders anymore."

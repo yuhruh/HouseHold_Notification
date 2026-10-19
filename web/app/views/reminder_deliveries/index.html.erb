@@ -16,9 +16,21 @@
         <li class="space-y-1 px-4 py-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="font-medium"><%= delivery.user.display_name.presence || delivery.user.email_address %> · <%= t("reminder_deliveries.channels.#{delivery.channel}") %> · <%= l(delivery.run_on) %></span>
-            <%= button_to t(".resend"), resend_household_reminder_delivery_path(Current.household, delivery), class: "cursor-pointer rounded border px-2 py-0.5" %>
+            <span class="flex flex-wrap gap-2">
+              <% if channel_available?(delivery) %>
+                <%= button_to t(".resend"), resend_household_reminder_delivery_path(Current.household, delivery), class: "cursor-pointer rounded border px-2 py-0.5" %>
+              <% else %>
+                <span class="text-xs text-gray-500"><%= t(".resend_disabled.#{delivery.channel}") %></span>
+              <% end %>
+              <% if delivery.web_push? && delivery.user.email_address.present? %>
+                <%= button_to t(".send_by_email"), send_by_email_household_reminder_delivery_path(Current.household, delivery), class: "cursor-pointer rounded border px-2 py-0.5" %>
+              <% end %>
+            </span>
           </div>
           <p class="text-red-700"><%= delivery.error %></p>
+          <% delivery.delivery_attempts.select { |a| a.channel == "web_push" }.each do |attempt| %>
+            <p class="text-xs text-gray-600">· <%= attempt.error.presence || t(".attempt.#{attempt.status}") %></p>
+          <% end %>
           <ul class="text-gray-700"><% delivery.reminder_logs.each do |log| %><li>· <%= log.record.title %> <%= log.record.period %></li><% end %></ul>
           <p class="text-xs text-gray-500"><%= t(".attempts", count: delivery.attempts) %><%= " · #{t('.resent', date: l(delivery.resent_at, format: :short))}" if delivery.resent_at %></p>
         </li>

@@ -4,6 +4,9 @@ class Session < ApplicationRecord
   REFRESH_AFTER = 1.day
 
   belongs_to :user
+  # Explicit sign-out (destroy) removes this browser's push subscriptions; expiry cleanup
+  # (delete_all) leaves them, nullified, so reminders keep arriving (PRD §16)
+  has_many :push_subscriptions, dependent: :delete_all
 
   before_validation(on: :create) { self.last_seen_at = Time.current; self.expires_at = LIFETIME.from_now }
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -68,6 +68,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
     t.string "receipt_token_digest"
     t.datetime "attempted_at", null: false
     t.datetime "received_at"
+    t.index ["receipt_token_digest"], name: "index_delivery_attempts_on_receipt_token_digest", unique: true, where: "(receipt_token_digest IS NOT NULL)"
     t.index ["reminder_delivery_id"], name: "index_delivery_attempts_on_reminder_delivery_id"
   end
 
@@ -226,6 +227,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
     t.datetime "updated_at", null: false
     t.index ["household_id"], name: "index_payment_methods_on_household_id"
     t.check_constraint "kind::text = ANY (ARRAY['card'::character varying, 'bank'::character varying, 'e_wallet'::character varying, 'cash'::character varying, 'other'::character varying]::text[])", name: "payment_methods_kind"
+  end
+
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "session_id"
+    t.string "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.string "device_label"
+    t.datetime "last_success_at"
+    t.datetime "last_receipt_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["session_id"], name: "index_push_subscriptions_on_session_id"
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
   end
 
   create_table "reauth_codes", force: :cascade do |t|
@@ -646,6 +664,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
   add_foreign_key "notifications", "reminder_deliveries", on_delete: :nullify
   add_foreign_key "notifications", "users", on_delete: :cascade
   add_foreign_key "payment_methods", "households"
+  add_foreign_key "push_subscriptions", "sessions", on_delete: :nullify
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reauth_codes", "users", on_delete: :cascade
   add_foreign_key "record_events", "households"
   add_foreign_key "record_events", "users", on_delete: :nullify

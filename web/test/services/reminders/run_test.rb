@@ -21,16 +21,16 @@ class Reminders::RunTest < ActiveJob::TestCase
     bill
     run_at(taipei(2026, 10, 20, 7, 30))
     assert_empty deliveries
-    assert_enqueued_jobs 1, only: DeliverReminderJob do
+    assert_enqueued_jobs 2, only: DeliverReminderJob do
       run_at(taipei(2026, 10, 20, 8, 5))
     end
-    assert_equal %w[in_app email], deliveries.pluck(:channel)
-    assert_equal %w[sent pending], deliveries.pluck(:status)
+    assert_equal %w[in_app email web_push], deliveries.pluck(:channel)
+    assert_equal %w[sent pending pending], deliveries.pluck(:status)
     note = @alex.notifications.sole
     assert_match "我的家：1 筆帳單需要處理", note.title
     assert_match "今天到期", note.body
     run_at(taipei(2026, 10, 20, 9, 5))
-    assert_equal 2, deliveries.count
+    assert_equal 3, deliveries.count
   end
 
   test "a bill due today that hasn't reminded this member yet gets one same-day addition" do
@@ -38,11 +38,11 @@ class Reminders::RunTest < ActiveJob::TestCase
     run_at(taipei(2026, 10, 20, 8, 5)) # due soon digest
     late = bill(due_on: Date.new(2026, 10, 20), details: "B 棟")
     run_at(taipei(2026, 10, 20, 14, 5))
-    assert_equal [ false, false, true, true ], deliveries.pluck(:addition)
+    assert_equal [ false, false, false, true, true, true ], deliveries.pluck(:addition)
     assert_equal [ late.id ], deliveries.last.reminder_logs.pluck(:record_id)
     bill(due_on: Date.new(2026, 10, 19), details: "C 棟")
     run_at(taipei(2026, 10, 20, 16, 5))
-    assert_equal 4, deliveries.count, "at most one addition per day"
+    assert_equal 6, deliveries.count, "at most one addition per day"
   end
 
   test "a late send words itself from today" do

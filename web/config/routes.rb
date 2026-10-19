@@ -37,6 +37,7 @@ Rails.application.routes.draw do
     get "upcoming" => "upcoming#show", as: :upcoming
     resources :reminder_deliveries, only: :index do
       post :resend, on: :member
+      post :send_by_email, on: :member
       post :resend_all, on: :collection
     end
     resources :records do
@@ -72,6 +73,9 @@ Rails.application.routes.draw do
       end
     end
   end
+  delete "push_subscriptions/current" => "push_subscriptions#destroy_current"
+  resources :push_subscriptions, only: %i[create destroy]
+  post "push_receipts/:token" => "push_receipts#create", as: :push_receipt
   resources :notifications, only: :index do
     post :read_all, on: :collection
   end

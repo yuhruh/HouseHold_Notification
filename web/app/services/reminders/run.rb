@@ -25,7 +25,7 @@ module Reminders
 
     # Claimed but never dispatched (the run died in between): dispatch on the next run
     def recover_stuck_deliveries
-      ReminderDelivery.pending.where(channel: "email", dispatched_at: nil).where(created_at: ...(@now - STUCK_AFTER))
+      ReminderDelivery.pending.where(channel: %w[email web_push], dispatched_at: nil).where(created_at: ...(@now - STUCK_AFTER))
         .find_each { |delivery| DeliverReminderJob.perform_later(delivery.id) }
     end
 
@@ -50,7 +50,8 @@ module Reminders
       pref = NotificationPreference.for(membership)
       list = [ "in_app" ]
       list << "email" if pref.email && membership.user.email_address.present?
-      list # Web Push joins in M5
+      list << "web_push" if pref.web_push
+      list
     end
 
     def items_for(household, user, today)

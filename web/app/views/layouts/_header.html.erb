@@ -9,6 +9,7 @@
       <span><%= Current.household&.name || "Household Tracker" %></span>
     <% end %>
     <nav class="flex flex-wrap items-center gap-3">
+      <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-600 px-2 py-1 text-white"><%= t("layouts.header.install") %></button></span>
       <% if households.size > 1 %>
         <details class="relative">
           <summary class="cursor-pointer rounded-md border border-gray-300 px-2 py-1"><%= t("layouts.header.switch") %></summary>

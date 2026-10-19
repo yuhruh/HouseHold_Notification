@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :notification_preferences, dependent: :delete_all
   has_many :reminder_deliveries, dependent: :destroy
   has_many :notifications, dependent: :delete_all
+  has_many :push_subscriptions, dependent: :delete_all
   has_many :sent_invitations, class_name: "Invitation", foreign_key: :invited_by_id, inverse_of: :invited_by, dependent: :nullify
   belongs_to :last_household, class_name: "Household", optional: true
 

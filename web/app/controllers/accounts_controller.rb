@@ -6,7 +6,7 @@ class AccountsController < ApplicationController
 
   def update
     @user = Current.user
-    if @user.update(params.expect(user: %i[display_name locale time_zone reminder_hour]).tap { |p| p[:locale] = p[:locale].presence })
+    if @user.update(params.expect(user: %i[display_name locale time_zone reminder_hour push_show_amounts]).tap { |p| p[:locale] = p[:locale].presence })
       redirect_to account_path, notice: t(".saved")
     else
       render :show, status: :unprocessable_content

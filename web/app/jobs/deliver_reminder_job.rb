@@ -1,4 +1,4 @@
-# Sends one email digest (PRD §6). Transient errors retry 3 times with backoff; a final failure
+# Sends one email or Web Push digest (PRD §6). Transient errors retry 3 times with backoff; a final failure
 # marks the delivery failed and reports to Sentry. A revoked Gmail token fails at once and pings
 # the reminder heartbeat's /fail (a system-wide, synchronous failure).
 class DeliverReminderJob < ApplicationJob
@@ -10,7 +10,9 @@ class DeliverReminderJob < ApplicationJob
 
   def perform(delivery_id, resend: false)
     @delivery = ReminderDelivery.find_by(id: delivery_id)
-    return unless @delivery&.email? && (@delivery.pending? || resend)
+    return unless @delivery && (@delivery.pending? || resend)
+    return Reminders::PushSender.call(@delivery) if @delivery.web_push?
+    return unless @delivery.email?
 
     @delivery.update!(attempts: @delivery.attempts + 1, dispatched_at: @delivery.dispatched_at || Time.current)
     ReminderMailer.with(delivery: @delivery).digest.deliver_now

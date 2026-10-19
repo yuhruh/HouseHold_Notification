@@ -67,6 +67,15 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | M4c: owner failure summary, delivery status page + resend, reminder heartbeats | ☑ | 2026-10-19: `OwnerFailureSummaryJob` after every reminder run, once per household per owner-local day (in-app always, email unless email failed), `DELIVERY_HEALTH_HEARTBEAT_URL`; Household settings → 提醒送達狀態 (owner only): failed digests, reasons, 3-in-a-row hint, Resend (10-min limit, drops paid items, resolves when nothing is left) and Resend all |
 | M4 exit: Healthchecks.io checks created and URLs set in Railway | ⏸ | Alex: create checks "reminder job ran" (period 1h, grace 3h), "delivery health" (1 day, grace 2h), "recurring generation" (1 day, grace 26h), "backup" (1 week, grace 8 days); set `REMINDER_HEARTBEAT_URL`, `DELIVERY_HEALTH_HEARTBEAT_URL`, `GENERATE_HEARTBEAT_URL`, `BACKUP_HEARTBEAT_URL`; then pause the job 3h+ to see the alert |
 
+## M5: PWA + Web Push
+
+| Task | Status | Notes |
+|---|---|---|
+| Push subscriptions, Enable notifications, Install app, Devices, lock-screen privacy | ☑ | 2026-10-19: `push_subscriptions` (upsert by endpoint, reassigned to the signed-in user; deleted on sign-out / sign-out-others / Remove / 404-410 / account deletion; kept, nullified, on session expiry); "Enable notifications" only from a tap; "安裝 App" via `beforeinstallprompt`; My account → 裝置 with Remove; `push_show_amounts` |
+| Web Push channel: digests, device receipts, 24h failure, resend / send by email | ☑ | `Reminders::PushSender` (urgency high, TTL 24h, per-device `delivery_attempts`), `/push_receipts/:token` (single-use, rate-limited) marks `sent`; `ConfirmPushReceiptsJob` hourly fails unconfirmed pushes after 24h; owner summary also by push; 提醒送達狀態 shows per-device reasons, Resend, Send by email instead. `docs/NOTIFICATIONS.md` |
+| Owner removes a member's device (PRD §14) | ☐ | members can remove their own devices; owner-side removal still to do |
+| M5 exit: push on installed Android PWA + desktop Chrome marks `sent`; phone off 24h → `failed`, owner notified, Resend delivers | ⏸ | Alex: on each phone, install the app → My account → 通知 → 啟用通知; family phones (X9) |
+
 ## Sheet cleanup log
 
 | Round | Date | Errors | Warnings | Fixed | Time spent | Notes |

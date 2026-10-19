@@ -110,11 +110,40 @@
         <span class="grow font-medium"><%= membership.household.name %>
           <span class="block text-xs font-normal text-gray-500"><%= t(".lead_days", count: membership.household.reminder_lead_days) %></span></span>
         <label class="flex items-center gap-1"><%= f.check_box :email %> <%= t(".channel_email") %></label>
-        <label class="flex items-center gap-1 text-gray-400" title="<%= t(".push_later") %>"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
+        <label class="flex items-center gap-1"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
         <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
       <% end %>
     <% end %>
-    <p class="text-xs text-gray-500"><%= t(".push_later") %></p>
+    <div class="space-y-2 rounded-lg border px-4 py-3 text-sm" data-controller="push" data-push-vapid-public-key-value="<%= Vapid.public_key %>"
+         data-push-labels-value="<%= { enabled: t(".push_enabled"), disabled: t(".push_disabled"), denied: t(".push_denied"), unsupported: t(".push_unsupported"), failed: t(".push_failed") }.to_json %>">
+      <p class="font-medium"><%= t(".this_browser") %>: <span data-push-target="status">…</span></p>
+      <button type="button" hidden data-push-target="enable" data-action="push#enable" class="cursor-pointer rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white"><%= t(".enable_push") %></button>
+      <button type="button" hidden data-push-target="disable" data-action="push#disable" class="cursor-pointer rounded-md border border-gray-400 px-3 py-1.5"><%= t(".disable_push") %></button>
+    </div>
+    <%= form_with model: Current.user, url: account_path, method: :patch, class: "flex items-center gap-3 text-sm" do |f| %>
+      <label class="flex items-center gap-2"><%= f.check_box :push_show_amounts %> <%= t(".push_show_amounts") %></label>
+      <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+    <% end %>
+    <p class="text-xs text-gray-500"><%= t(".push_tip") %></p>
+  </section>
+
+  <section id="devices" class="space-y-3">
+    <h2 class="text-lg font-semibold"><%= t(".devices") %></h2>
+    <% devices = Current.user.push_subscriptions.includes(:session).order(created_at: :desc) %>
+    <% if devices.empty? %>
+      <p class="text-sm text-gray-600"><%= t(".no_devices") %></p>
+    <% else %>
+      <ul class="divide-y rounded-lg border text-sm">
+        <% devices.each do |device| %>
+          <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+            <span><%= device.device_label %>
+              <span class="block text-xs text-gray-500"><%= device.last_receipt_at ? t(".last_receipt", time: l(device.last_receipt_at, format: :short)) : t(".no_receipt_yet") %> ·
+                <%= device.session&.expires_at&.future? ? t(".signed_in") : t(".signed_out") %></span></span>
+            <%= button_to t(".remove_device"), push_subscription_path(device), method: :delete, class: "cursor-pointer text-red-700 underline" %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
   </section>
 
   <section class="space-y-3 rounded-lg border border-red-200 p-4">

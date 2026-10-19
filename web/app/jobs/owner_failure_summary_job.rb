@@ -1,6 +1,6 @@
 # Once a day per household, after the owner's reminder hour (PRD §6): one summary of every failed
-# delivery the owner hasn't been told about, in-app always and by email unless email is what
-# failed. Also pings the delivery-health heartbeat (DELIVERY_HEALTH_HEARTBEAT_URL): success when
+# delivery the owner hasn't been told about: in-app always, and by push / email when enabled
+# unless that channel is what failed. Also pings the delivery-health heartbeat (DELIVERY_HEALTH_HEARTBEAT_URL): success when
 # nothing failed since the last summary, /fail when something did. Enqueued after each reminder run.
 class OwnerFailureSummaryJob < ApplicationJob
   queue_as :default
@@ -35,7 +35,9 @@ class OwnerFailureSummaryJob < ApplicationJob
       title = I18n.t("reminder_deliveries.summary.title", household: household.name, count: failed.size)
       url = Rails.application.routes.url_helpers.household_reminder_deliveries_path(household)
       Notification.create!(household:, user: owner, kind: "delivery_failed", title:, body: lines.join("\n"), url:)
-      return if failed.any?(&:email?) || owner.email_address.blank?
+      pref = NotificationPreference.for(household.owner_membership)
+      WebPushNotifier.notify(owner, title:, body: lines.join("\n"), url:) if pref.web_push && failed.none?(&:web_push?)
+      return if failed.any?(&:email?) || owner.email_address.blank? || !pref.email
 
       OwnerSummaryMailer.with(household:, owner:, title:, lines:).summary.deliver_later
     end

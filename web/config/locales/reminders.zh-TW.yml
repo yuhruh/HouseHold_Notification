@@ -1,11 +1,16 @@
 zh-TW:
   layouts:
     header:
+      install: "安裝 App"
       upcoming: "待處理"
       inbox:
         one: "通知，1 則未讀"
         other: "通知，%{count} 則未讀"
   reminders:
+    push:
+      generic: "打開 App 查看需要處理的帳單。"
+      no_device: "沒有任何裝置啟用通知"
+      no_receipt: "24 小時內沒有裝置確認收到"
     digest:
       title:
         one: "%{household}：1 筆帳單需要處理"
@@ -68,6 +73,23 @@ zh-TW:
       empty: "還沒有通知。"
   accounts:
     show:
+      this_browser: "這個瀏覽器"
+      enable_push: "啟用通知"
+      disable_push: "在這個瀏覽器關閉"
+      push_enabled: "已啟用通知 ✓"
+      push_disabled: "未啟用通知"
+      push_denied: "已在瀏覽器設定中封鎖（點網址列左邊的圖示 → 權限 → 通知 → 允許）"
+      push_unsupported: "這個瀏覽器無法接收推播通知"
+      push_failed: "無法啟用，請再試一次"
+      push_show_amounts: "在通知（鎖定畫面）顯示帳單名稱與金額"
+      push_tip: "提示：Android 請先安裝 App（選單 → 安裝應用程式），並允許 Chrome 在背景執行。各品牌的省電設定請見 docs/NOTIFICATIONS.md。建議同時開啟 Email 作為備援。"
+      devices: "裝置"
+      no_devices: "還沒有任何裝置啟用通知。"
+      last_receipt: "上次確認收到 %{time}"
+      no_receipt_yet: "還沒有確認收到的提醒"
+      signed_in: "已登入"
+      signed_out: "已登出（仍會收到提醒）"
+      remove_device: "移除"
       notifications: "通知"
       notifications_hint: "提醒每天 %{hour} 寄送一次（可在個人資料變更）。App 內的通知一定會收到。"
       lead_days:
@@ -75,7 +97,6 @@ zh-TW:
         other: "到期前 %{count} 天提醒（由擁有者設定）"
       channel_email: "Email"
       channel_push: "推播"
-      push_later: "推播通知會在下次更新（M5）推出。"
   account:
     notification_preferences:
       update:
@@ -92,6 +113,15 @@ zh-TW:
       line: "%{member}（%{channel}：%{error}）"
       link: "詳細資料與重新傳送："
     index:
+      send_by_email: "改用 Email 傳送"
+      resend_disabled:
+        email: "無法重新傳送：這位成員沒有電子郵件地址"
+        web_push: "無法重新傳送：沒有任何裝置啟用通知"
+      attempt:
+        accepted: "推播服務已接受，等待裝置確認"
+        rejected: "被拒絕"
+        received: "裝置已收到"
+        error: "錯誤"
       title: "提醒送達狀態"
       intro: "無法送達的提醒，最新的在前。重新傳送時只會包含仍未繳的項目。"
       none: "所有提醒都已送達。"
@@ -103,9 +133,13 @@ zh-TW:
         other: "嘗試 %{count} 次"
       resent: "%{date} 已重新傳送"
     resend:
+      sent_by_email: "已改用 Email 傳送。"
       queued: "正在重新傳送。"
       too_soon: "這則提醒 10 分鐘內已重新傳送過。"
       unavailable: "目前無法用這個方式傳送給這位成員。"
       nothing_left: "沒有需要提醒的項目：都已繳清。"
     resend_all:
       queued: "正在重新傳送所有失敗的提醒。"
+  push_subscriptions:
+    destroy:
+      removed: "已移除裝置，之後不會再收到提醒。"

@@ -20,17 +20,34 @@ class ReminderDeliveriesController < ApplicationController
     redirect_to household_reminder_deliveries_path(Current.household), notice:
   end
 
+  # A push that can't reach any device can go by email instead (PRD §6)
+  def send_by_email
+    authorize ReminderDelivery, :resend?
+    delivery = Current.household.reminder_deliveries.failed.web_push.find(params[:id])
+    return redirect_to(household_reminder_deliveries_path(Current.household), alert: t("reminder_deliveries.resend.unavailable")) if delivery.user.email_address.blank?
+
+    ReminderMailer.with(delivery:).digest.deliver_later
+    delivery.update!(status: "resolved", resent_by: Current.user, resent_at: Time.current, error: t("reminder_deliveries.resend.sent_by_email"))
+    redirect_to household_reminder_deliveries_path(Current.household), notice: t("reminder_deliveries.resend.sent_by_email")
+  end
+
   def resend_all
     authorize ReminderDelivery
     Current.household.reminder_deliveries.failed.find_each { |delivery| resend_one(delivery) }
     redirect_to household_reminder_deliveries_path(Current.household), notice: t(".queued")
   end
 
+  helper_method :channel_available?
+
   private
+
+  def channel_available?(delivery)
+    delivery.email? ? delivery.user.email_address.present? : delivery.user.push_subscriptions.exists?
+  end
 
   def resend_one(delivery)
     return t("reminder_deliveries.resend.too_soon") if delivery.resent_at && delivery.resent_at > RESEND_EVERY.ago
-    return t("reminder_deliveries.resend.unavailable") unless delivery.email? && delivery.user.email_address.present?
+    return t("reminder_deliveries.resend.unavailable") unless channel_available?(delivery)
 
     if Reminders::Resend.remaining_logs(delivery).empty?
       delivery.update!(status: "resolved", error: t("reminder_deliveries.resend.nothing_left"))

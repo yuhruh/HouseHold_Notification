@@ -3,7 +3,7 @@
   <summary class="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1">
     <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("layouts.header.apartment") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
   </summary>
-  <ul class="absolute right-0 z-10 mt-1 min-w-48 rounded-md border bg-white py-1 shadow">
+  <ul class="absolute right-0 z-50 mt-1 min-w-48 rounded-md border bg-white py-1 shadow">
     <% households.each do |household| %>
       <li><%= link_to household_path(household), class: "flex items-center gap-2 px-3 py-2 hover:bg-gray-50 #{'font-semibold' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
         <span><%= household.name %></span><% if household == current %><span aria-hidden="true" class="ml-auto text-blue-600">✓</span><% end %>

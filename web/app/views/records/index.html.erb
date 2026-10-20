@@ -14,18 +14,18 @@
     <% end %>
   </div>
 
-  <%= form_with url: household_records_path(Current.household), method: :get, class: "grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 text-sm" do |f| %>
+  <%= form_with url: household_records_path(Current.household), method: :get, class: "grid grid-cols-2 items-start gap-2 sm:grid-cols-4 lg:grid-cols-7 text-sm" do |f| %>
     <% p = @filter.params %>
-    <%= f.select :year, @filter.years, { include_blank: t(".all_years"), selected: p[:year] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".year") %>
-    <%= f.select :month, month_options, { include_blank: t(".all_months"), selected: p[:month] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".month") %>
-    <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t(".all_types"), selected: p[:type] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".type") %>
-    <%= f.select :category_id, Current.household.categories.ordered.map { |c| [ "#{t("records.types.#{c.record_type}")} · #{c.name}", c.id ] }, { include_blank: t(".all_categories"), selected: p[:category_id] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".category") %>
-    <%= f.select :status, Records::Filter::STATUSES.map { |s| [ t("records.status.#{s}"), s ] }, { include_blank: t(".all_statuses"), selected: p[:status] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".status") %>
-    <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".payment_method") %>
-    <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "rounded-md border border-gray-400 px-2 py-1.5" %>
+    <%= f.select :year, @filter.years, { include_blank: t(".all_years"), selected: p[:year] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".year") %>
+    <%= f.select :month, month_options, { include_blank: t(".all_months"), selected: p[:month] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".month") %>
+    <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t(".all_types"), selected: p[:type] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".type") %>
+    <%= f.select :category_id, Current.household.categories.ordered.map { |c| [ "#{t("records.types.#{c.record_type}")} · #{c.name}", c.id ] }, { include_blank: t(".all_categories"), selected: p[:category_id] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".category") %>
+    <%= f.select :status, Records::Filter::STATUSES.map { |s| [ t("records.status.#{s}"), s ] }, { include_blank: t(".all_statuses"), selected: p[:status] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".status") %>
+    <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".payment_method") %>
+    <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "h-9 rounded-md border border-gray-400 px-2" %>
     <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
     <% if p[:amount] %><%= hidden_field_tag :amount, p[:amount] %><% end %>
-    <div class="flex flex-wrap justify-end gap-2">
+    <div class="col-span-full flex flex-wrap items-center justify-end gap-2">
       <%= f.submit t(".filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
       <%= link_to t(".export"), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "px-2 py-1.5 underline" %>

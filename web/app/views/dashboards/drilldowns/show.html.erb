@@ -8,13 +8,13 @@
     <% end %>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
-        <thead class="text-left"><tr>
+        <thead class="text-left border-b border-gray-400"><tr>
           <th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t("records.index.item") %></th>
           <th class="py-1 pr-2 text-right"><%= t("records.index.required") %></th><th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th>
           <% unless @box %><th class="py-1 pr-2 text-right"><%= t(".counted") %></th><% end %>
           <th class="py-1 pr-2"><%= t("records.index.paid_on") %></th><th class="py-1 pr-2"><%= Record.human_attribute_name(:payment_method) %></th>
           <th class="py-1"><%= Record.human_attribute_name(:payment_note) %></th></tr></thead>
-        <tbody class="divide-y">
+        <tbody>
           <% rows = @box ? @rows.sort_by { |r, _| r.amount_paid } : @rows %>
           <% rows.each do |record, amount| %>
             <tr class="align-top"><td class="whitespace-nowrap py-1 pr-2"><%= record.period %></td>

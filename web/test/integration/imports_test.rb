@@ -168,4 +168,28 @@ class ImportsTest < ActionDispatch::IntegrationTest
     upload
     assert_response :forbidden
   end
+
+  test "saved note keywords pre-fill payment methods in the preview; a changed choice is remembered" do
+    card = @home.payment_methods.create!(name: "玉山 ubear 卡", kind: "card")
+    @home.payment_keywords.create!(keyword: "ubear", payment_method: card, position: 0)
+    @home.payment_keywords.create!(keyword: "LINE Pay", payment_method: nil, position: 1) # not in this sheet
+    upload
+    assert_equal [ { "keyword" => "ubear", "choice" => "pm:#{card.id}" } ], preview.choices["payment_keywords"]
+    get household_import_path(@home, preview)
+    assert_select "select[name='choices[payment_keywords][0]'] option[selected]", "玉山 ubear 卡"
+
+    commit
+    ubear = @home.records.where("payment_note ILIKE ?", "%ubear%")
+    assert ubear.any?
+    assert ubear.all? { |r| r.payment_method == card }
+    assert @home.records.where.not(id: ubear).all? { |r| r.payment_method.nil? }
+  end
+
+  test "skipping a keyword in the preview leaves the records blank and saves the skip" do
+    card = @home.payment_methods.create!(name: "玉山 ubear 卡", kind: "card")
+    keyword = @home.payment_keywords.create!(keyword: "ubear", payment_method: card, position: 0)
+    import!(@csv, { payment_keywords: { "0" => "skip" } })
+    assert @home.records.all? { |r| r.payment_method.nil? }
+    assert_nil keyword.reload.payment_method
+  end
 end

@@ -89,7 +89,7 @@ module SheetImport
       }
       columns[:item] = find.("item", "項目") || (columns[:month] && names[columns[:month] + 1].to_s.empty? ? columns[:month] + 1 : nil)
       columns[:done] = find.("done", "✅") || (columns[:type] && columns[:type].positive? && names[columns[:type] - 1].to_s.empty? ? columns[:type] - 1 : nil)
-      columns[:note] = find.("note", "備註") || (columns[:finished] && names[columns[:finished] + 1].to_s.empty? ? columns[:finished] + 1 : nil)
+      columns[:note] = find.("note", "comment", "備註") || (columns[:finished] && names[columns[:finished] + 1].to_s.empty? ? columns[:finished] + 1 : nil)
 
       errors << "Missing ID column. Add an ID column to the sheet once (1, 2, 3… pasted as values)." unless columns[:id]
       %i[type year month item required paid finished].each { |key| errors << "Missing column: #{key}" unless columns[key] }

@@ -106,7 +106,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 
 ## Pending decisions
 
-### Payment methods from notes (proposed 2026-10-19, waiting for Alex)
+### Payment methods from notes (proposed 2026-10-19, decided and built 2026-10-20)
 **Problem:** the sheet has no payment-method column; how a bill was paid is free text in Note
 ("玉山ubear", "全支付(玉山unicard)", "中信轉帳"…). The import put it in `payment_note` and set no
 `payment_method` (the PRD's "suggested payment method from Note" step was deferred), so the dashboard's
@@ -127,7 +127,13 @@ payment-method pie shows a single "(none)" slice and the records filter by payme
 **Open question:** for "全支付(玉山ubear)", count it under the **card** (ubear: "how much on each card",
 recommended) or as a separate **全支付** method ("how much through each app")?
 
-**Decision:** _pending (Alex)._
+**Decision (2026-10-20, Alex):** 全支付(玉山ubear) counts under the **ubear card**; 全支付 is not a keyword.
+Built: Payment methods → 從備註指定付款方式 (`PaymentMethods::FromNotes`, saved as `payment_keywords`, ↑↓ priority),
+import preview pre-fill from the saved keywords, and new records defaulting to the category's latest payment
+method. On the real sheet: ubear 17, unicard 9, 玉山帳戶 6, 中信轉帳 5, 大戶卡 4, 新光信用卡 2, 街口 2, Pi錢包 1
+→ 46 records, 8 new methods; 12 notes without a keyword stay as they are.
+Found while checking: the sheet's note column is headed "Comment", which the parser didn't recognize, so the
+import brought in no notes (and no "Next Time:" dates). Fixed; a re-import adds the notes as field updates.
 
 ## Sheet cleanup log
 

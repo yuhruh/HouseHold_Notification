@@ -35,6 +35,7 @@ module Imports
       preview = @household.import_previews.create!(
         user: @user, filename: @filename, csv_sha256: Digest::SHA256.hexdigest(@csv), rows:, record_versions: versions,
         choices: { "categories" => category_suggestions(rows), "chains" => chains(result, rows), "conflicts" => {}, "deleted" => {},
+                   "payment_keywords" => payment_keywords(rows),
                    "sheet_total" => SheetRow.decimal(result.sheet_total) },
         expires_at: ImportPreview::TTL.from_now
       )
@@ -113,6 +114,21 @@ module Imports
           categories.find { |c| c.record_type == type && c.name_zh == normalized } ||
           categories.find { |c| c.record_type == type && c.name_zh == list.first["suggested_category"] }
         [ "#{type}|#{item}", found ? found.id.to_s : "new:#{list.first['suggested_category']}" ]
+      end
+    end
+
+    # Saved note keyword → payment method choices (從備註指定付款方式) that match a row the commit may
+    # fill: new rows, re-created deleted rows, and updates of records without a payment method.
+    # An array, so the priority order survives jsonb.
+    def payment_keywords(rows)
+      saved = @household.payment_keywords.ordered.includes(:payment_method).to_a
+      return [] if saved.empty?
+      no_method = @household.records.where(id: rows.filter_map { |r| r["record_id"] if r["kind"] == "update" }, payment_method_id: nil).pluck(:id).to_set
+      notes = rows.select { |r| %w[new deleted].include?(r["kind"]) || (r["kind"] == "update" && no_method.include?(r["record_id"])) }
+        .filter_map { |r| r["values"]["payment_note"].presence }
+      saved.select { |k| notes.any? { |note| PaymentKeyword.match?(k.keyword, note) } }.map do |k|
+        method = k.payment_method if k.payment_method&.archived_at.nil?
+        { "keyword" => k.keyword, "choice" => method ? "pm:#{method.id}" : PaymentMethods::FromNotes::SKIP }
       end
     end
 

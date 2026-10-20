@@ -1,5 +1,6 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-<%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4" do |form| %>
+<%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4",
+      data: (record.new_record? ? { controller: "default-payment", default_payment_map_value: last_payment_methods.to_json } : {}) do |form| %>
   <% if record.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
   <% end %>
@@ -10,7 +11,8 @@
 
   <div>
     <%= form.label :category_id, class: "block text-sm font-medium" %>
-    <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field %>
+    <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field,
+          data: { default_payment_target: "category", action: "default-payment#apply" } %>
   </div>
   <div>
     <%= form.label :title, class: "block text-sm font-medium" %>
@@ -22,7 +24,7 @@
     <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
   </div>
 
-  <fieldset class="grid grid-cols-3 gap-2">
+  <fieldset class="grid grid-cols-2 gap-2">
     <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
     <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
     <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>
@@ -30,7 +32,7 @@
     <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
   </fieldset>
 
-  <div class="grid grid-cols-3 gap-2">
+  <div class="grid grid-cols-2 gap-2">
     <div>
       <%= form.label :currency, class: "block text-sm font-medium" %>
       <%= form.select :currency, Household::CURRENCIES, {}, class: field %>
@@ -71,7 +73,8 @@
 
   <div>
     <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-    <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field %>
+    <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
+          data: { default_payment_target: "payment" } %>
   </div>
   <div>
     <%= form.label :payment_note, class: "block text-sm font-medium" %>

@@ -23,6 +23,14 @@ module RecordsHelper
       .order(:name).map { |pm| [ pm.last4.present? ? "#{pm.name} ··#{pm.last4}" : pm.name, pm.id ] }
   end
 
+  # New records start with the payment method of the household's latest record in the same
+  # category (latest paid first): { "category_id" => payment_method_id }, active methods only
+  def last_payment_methods
+    active = Current.household.payment_methods.active.pluck(:id).to_set
+    Current.household.records.where.not(payment_method_id: nil).order(Arel.sql("paid_on DESC NULLS LAST"), id: :desc)
+      .pluck(:category_id, :payment_method_id).each_with_object({}) { |(category, pm), map| map[category.to_s] ||= pm if active.include?(pm) }
+  end
+
   def month_options = (1..12).map { |m| [ t("records.month", month: m), m ] }
 
   # A summary-row Outstanding amount links to the records behind it (same filters, that type and

@@ -13,6 +13,14 @@ class SheetImport::ParserTest < ActiveSupport::TestCase
     assert_equal 12, @result.rows.size
   end
 
+  test "the note column is found when headed Comment, as in the real sheet" do
+    csv = file_fixture("sheet_sample.csv").read.sub("Finished Date,\n", "Finished Date,Comment\n")
+    result = SheetImport::Parser.new(csv, today: Date.new(2026, 10, 18)).call
+    assert_empty result.file_errors
+    assert_equal "中信轉帳", result.rows.find { |r| r.id == "78" }.note
+    assert_equal @result.rows.map(&:note), result.rows.map(&:note)
+  end
+
   test "reads the sheet's Total cell above the header" do
     assert_equal BigDecimal("300000"), @result.sheet_total
   end

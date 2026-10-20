@@ -43,6 +43,19 @@ class PaymentMethodsController < ApplicationController
     redirect_to household_payment_methods_path(Current.household)
   end
 
+  # 從備註指定付款方式: one choice per payment keyword found in notes
+  def from_notes
+    authorize PaymentMethod
+    @plan = PaymentMethods::FromNotes.new(Current.household)
+  end
+
+  def assign_from_notes
+    authorize PaymentMethod
+    choices = params[:choices].respond_to?(:to_unsafe_h) ? params[:choices].to_unsafe_h.transform_values(&:to_s) : {}
+    result = PaymentMethods::FromNotes.new(Current.household).apply!(order: Array(params[:keywords]), choices:, user: Current.user)
+    redirect_to household_payment_methods_path(Current.household), notice: t(".done", records: result[:records], methods: result[:methods])
+  end
+
   private
 
   def set_payment_method

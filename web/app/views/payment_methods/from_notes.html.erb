@@ -1,0 +1,53 @@
+<% content_for :title, t(".title") %>
+<% keywords = @plan.keywords %>
+<div class="w-full max-w-2xl space-y-5 py-4">
+  <%= page_title("payment.png", t(".title")) %>
+  <p class="text-gray-700"><%= t(".intro", count: @plan.records.size) %></p>
+
+  <% if keywords.empty? %>
+    <p class="rounded-lg border border-dashed p-4 text-gray-600"><%= t(".none_found") %></p>
+    <%= link_to t(".back"), household_payment_methods_path(Current.household), class: "underline" %>
+  <% else %>
+    <%= form_with url: from_notes_household_payment_methods_path(Current.household), method: :post, class: "space-y-4",
+          data: { controller: "note-keywords", note_keywords_matches_value: @plan.matches.to_json,
+                  note_keywords_unmatched_value: @plan.unmatched_count, note_keywords_summary_value: t(".summary_js"),
+                  note_keywords_count_value: t(".count_js") } do %>
+      <div class="space-y-3" data-note-keywords-target="list">
+        <% keywords.each do |keyword| %>
+          <div class="space-y-2 rounded-lg border p-3" data-note-keywords-target="card" data-keyword="<%= keyword.keyword %>">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-semibold"><%= keyword.keyword %></span>
+              <span class="flex items-center gap-2 text-sm text-gray-500">
+                <span data-note-keywords-target="count"><%= t(".count", count: keyword.count) %></span>
+                <button type="button" class="cursor-pointer rounded border px-1.5 hover:bg-gray-50" data-action="note-keywords#up" aria-label="<%= t(".up") %>">↑</button>
+                <button type="button" class="cursor-pointer rounded border px-1.5 hover:bg-gray-50" data-action="note-keywords#down" aria-label="<%= t(".down") %>">↓</button>
+              </span>
+            </div>
+            <p class="text-sm text-gray-500"><%= t(".examples", list: keyword.examples.join(" · ")) %></p>
+            <%= hidden_field_tag "keywords[]", keyword.keyword, id: nil %>
+            <%= select_tag "choices[#{keyword.keyword}]", note_keyword_options(@plan, keyword), id: nil,
+                  class: "w-full rounded-md border border-gray-400 px-2 py-1.5", "aria-label": keyword.keyword, data: { action: "note-keywords#recount" } %>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @plan.overlaps.any? %>
+        <div class="space-y-1 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <% @plan.overlaps.each do |note, list| %>
+            <p>⚠ <%= t(".overlap", note:, keywords: list.map { |k| "「#{k}」" }.join(t(".and"))) %></p>
+          <% end %>
+          <p><%= t(".overlap_hint") %></p>
+        </div>
+      <% end %>
+
+      <% methods = keywords.select { |k| k.count.positive? && k.choice.start_with?("new:") }.map(&:choice).uniq.size %>
+      <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900" data-note-keywords-target="summary">
+        <%= t(".summary", records: keywords.sum(&:count), methods:, unmatched: @plan.unmatched_count) %>
+      </p>
+      <div class="flex items-center gap-3">
+        <%= submit_tag t(".apply"), class: "cursor-pointer rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500" %>
+        <%= link_to t("records.form.cancel"), household_payment_methods_path(Current.household), class: "underline" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -71,6 +71,8 @@ Rails.application.routes.draw do
     end
     resources :payment_methods, except: %i[show destroy] do
       post :archive, on: :member
+      get :from_notes, on: :collection
+      post :from_notes, on: :collection, action: :assign_from_notes
     end
     resource :ownership_transfer, only: %i[new create]
     resource :deletion, only: %i[new create], controller: "household_deletions"

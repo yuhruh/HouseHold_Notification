@@ -1,0 +1,4 @@
+<section class="space-y-2">
+  <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/#{icon}", alt: "", class: "h-6 w-6 object-contain" %><span><%= title %></span></h2>
+  <ul class="list-disc space-y-1 pl-6"><% items.each do |item| %><li><%= item %></li><% end %></ul>
+</section>

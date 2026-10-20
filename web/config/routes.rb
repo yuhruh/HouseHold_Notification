@@ -121,6 +121,7 @@ Rails.application.routes.draw do
 
   get "privacy" => "pages#privacy"
   get "guide" => "pages#guide"
+  get "features" => "pages#features"
   patch "locale" => "locales#update"
   root "pages#home"
 end

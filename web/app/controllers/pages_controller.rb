@@ -1,5 +1,5 @@
 # Public pages: home, privacy policy (linked from the Google OAuth consent screens) and the family
-# onboarding guide (zh-TW / en templates, picked by locale).
+# onboarding guide and the features overview (zh-TW / en templates, picked by locale).
 class PagesController < ApplicationController
   allow_unauthenticated_access
 
@@ -20,5 +20,8 @@ class PagesController < ApplicationController
   end
 
   def guide
+  end
+
+  def features
   end
 end

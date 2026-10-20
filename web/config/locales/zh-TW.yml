@@ -166,7 +166,7 @@ zh-TW:
       language: "切換語言"
       languages: "語言"
       new_household: "＋ 新家庭"
-      switch: "切換家庭"
+      apartment: "公寓"
       invitations:
         one: "1 個邀請"
         other: "%{count} 個邀請"

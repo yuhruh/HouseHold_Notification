@@ -166,7 +166,7 @@ en:
       language: "Switch language"
       languages: "Languages"
       new_household: "＋ New Household"
-      switch: "Switch Household"
+      apartment: "Apartment"
       invitations:
         one: "1 invitation"
         other: "%{count} invitations"

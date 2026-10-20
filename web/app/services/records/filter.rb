@@ -6,7 +6,9 @@ module Records
     # "outstanding" = the rows behind the summary's Outstanding column: not settled, with an amount due
     STATUSES = %w[unpaid partial overdue paid outstanding].freeze
     CURRENCIES = %w[TWD USD].freeze
-    KEYS = %i[year month type category_id status payment_method_id currency q].freeze
+    # "required" / "paid" = the rows behind the summary's Required / Paid columns (an amount is set)
+    AMOUNTS = %w[required paid].freeze
+    KEYS = %i[year month type category_id status payment_method_id currency amount q].freeze
 
     Total = Data.define(:record_type, :currency, :required, :paid, :outstanding)
 
@@ -57,6 +59,8 @@ module Records
       relation = relation.where(payment_method_id: params[:payment_method_id]) if params[:payment_method_id]
       relation = relation.where(currency: params[:currency]) if CURRENCIES.include?(params[:currency])
       relation = with_status(relation, params[:status]) if STATUSES.include?(params[:status])
+      relation = relation.where.not(amount_required: nil) if params[:amount] == "required"
+      relation = relation.where("amount_paid > 0") if params[:amount] == "paid"
       if params[:q]
         like = "%#{ActiveRecord::Base.sanitize_sql_like(params[:q])}%"
         relation = relation.where("title ILIKE :like OR details ILIKE :like OR payment_note ILIKE :like", like:)

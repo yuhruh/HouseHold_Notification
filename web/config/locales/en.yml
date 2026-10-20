@@ -481,6 +481,12 @@ en:
       paid: "Paid"
       outstanding: "Outstanding"
       show_outstanding: "Show the records still owed"
+      show_required: "Show the records with a required amount"
+      show_paid: "Show the records with a payment"
+      amount_filter:
+        required: "Records with a required amount"
+        paid: "Records with a payment"
+        remove: "Show all"
       total: "Total"
       empty: "No records yet. The sheet import will fill this list; you can also add one by hand."
       no_match: "No records match these filters."

@@ -24,11 +24,19 @@
     <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t(".payment_method") %>
     <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "rounded-md border border-gray-400 px-2 py-1.5" %>
     <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
+    <% if p[:amount] %><%= hidden_field_tag :amount, p[:amount] %><% end %>
     <div class="flex flex-wrap justify-end gap-2">
       <%= f.submit t(".filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
       <%= link_to t(".export"), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "px-2 py-1.5 underline" %>
     </div>
+  <% end %>
+
+  <% if (amount = @filter.params[:amount]) %>
+    <p class="flex flex-wrap items-center gap-2 text-sm">
+      <span class="rounded-full bg-blue-50 px-3 py-1 text-blue-900"><%= t(".amount_filter.#{amount}") %><%= " · #{@filter.params[:currency]}" if @filter.params[:currency] %></span>
+      <%= link_to t(".amount_filter.remove"), household_records_path(Current.household, @filter.params.except(:amount, :currency)), class: "text-blue-700 underline" %>
+    </p>
   <% end %>
 
   <section aria-label="<%= t(".summary") %>" class="overflow-x-auto rounded-lg border">
@@ -40,14 +48,14 @@
       <tbody class="divide-y">
         <% @filter.summary.each do |row| %>
           <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.required, row.currency) %></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.paid, row.currency) %></td>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :required) %></td>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
             <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
         <% @filter.totals.each do |row| %>
           <tr class="font-semibold"><td class="px-3 py-1.5"><%= t(".total") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.required, row.currency) %></td>
-            <td class="px-3 py-1.5 text-right"><%= money(row.paid, row.currency) %></td>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :required) %></td>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
             <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
       </tbody>

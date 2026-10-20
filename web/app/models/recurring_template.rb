@@ -58,6 +58,21 @@ class RecurringTemplate < ApplicationRecord
 
   def next_period(today) = periods_from(today.beginning_of_month).first
 
+  # "Make this recurring" on a record: the template starts at the record's period (so the record is
+  # linked as its first bill) and repeats every period length (1月-2月 → every 2 months)
+  def self.attributes_from(record)
+    start = record.period_year * 12 + record.period_start_month - 1
+    span = record.period_end_year * 12 + record.period_end_month - 1 - start + 1
+    offset = record.due_on && (record.due_on.year * 12 + record.due_on.month - 1 - start)
+    due = offset&.between?(0, 24)
+    { category_id: record.category_id, title: record.title, details: record.details, currency: record.currency,
+      default_amount: record.amount_required, payment_method_id: record.payment_method_id,
+      interval_months: span, anchor_month: record.period_start_month, period_span_months: span,
+      starts_on: Date.new(record.period_year, record.period_start_month, 1),
+      due_day: (record.due_on.day if due), due_month_offset: (due ? offset : 0),
+      default_reminder_frequency: (due ? "none" : record.reminder_frequency) }
+  end
+
   # Periods due for generation where 2+ bills without a template match: someone has to pick one
   def ambiguous_periods(today)
     existing = records.pluck(:period_year, :period_start_month).to_set

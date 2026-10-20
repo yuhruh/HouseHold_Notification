@@ -88,4 +88,38 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
     post household_recurring_templates_path(@home), params: { recurring_template: params }
     assert_response :forbidden
   end
+
+  test "New Record links to setting up a recurring bill" do
+    get new_household_record_path(@home)
+    assert_select "a[href=?]", new_household_recurring_template_path(@home)
+  end
+
+  test "Make This Recurring fills the template from the record, which becomes its first bill" do
+    water = @home.categories.find_by!(name_zh: "水費")
+    record = @home.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "1月-2月"),
+      amount_required: 600, due_on: Date.new(2026, 3, 10), currency: "TWD")
+    get household_record_path(@home, record)
+    assert_select "a[href=?]", new_household_recurring_template_path(@home, from_record: record.id)
+
+    get new_household_recurring_template_path(@home, from_record: record.id)
+    assert_select "p", /##{record.record_no}/
+    assert_select "select[name='recurring_template[category_id]'] option[selected][value='#{water.id}']"
+    assert_select "select[name='recurring_template[interval_months]'] option[selected][value='2']"
+    assert_select "select[name='recurring_template[anchor_month]'] option[selected][value='1']"
+    assert_select "input[name='recurring_template[starts_on]'][value='2026-01-01']"
+    assert_select "input[name='recurring_template[due_day]'][value='10']"
+    assert_select "input[name='recurring_template[due_month_offset]'][value='2']"
+    assert_select "input[name='recurring_template[default_amount]'][value='600.0']"
+
+    travel_to Time.zone.local(2026, 3, 5) do
+      post household_recurring_templates_path(@home), params: { recurring_template: params(category_id: water.id, anchor_month: 1,
+        due_month_offset: 2, default_amount: 600, amount_fixed: "0") }
+    end
+    template = @home.recurring_templates.sole
+    assert_equal [ record ], template.records.to_a, "linked, not duplicated"
+
+    get household_record_path(@home, record)
+    assert_select "a[href=?]", edit_household_recurring_template_path(@home, template)
+    assert_select "a[href*='from_record']", count: 0
+  end
 end

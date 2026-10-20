@@ -21,6 +21,10 @@
     <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.name || "–" %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:next_due_on) %></dt><dd><%= @record.next_due_on ? l(@record.next_due_on) : "–" %></dd>
+    <% if @record.recurring_template %>
+      <dt class="text-gray-500"><%= t("households.show.templates") %></dt>
+      <dd><%= link_to @record.recurring_template.title, (writer ? edit_household_recurring_template_path(Current.household, @record.recurring_template) : household_recurring_templates_path(Current.household)), class: "text-blue-700 underline" %></dd>
+    <% end %>
   </dl>
 
   <%= render "records/reminder_actions", record: @record, snooze: @snooze&.until_on %>
@@ -33,6 +37,9 @@
         <% else %>
           <%= button_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, @record), class: "cursor-pointer rounded-md bg-green-700 px-3.5 py-2 font-medium text-white" %>
         <% end %>
+      <% end %>
+      <% if @record.recurring_template_id.nil? %>
+        <%= link_to t(".make_recurring"), new_household_recurring_template_path(Current.household, from_record: @record.id), class: "rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
       <% end %>
       <%= link_to t(".edit"), edit_household_record_path(Current.household, @record), class: "rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
       <%= button_to t(".delete"), household_record_path(Current.household, @record), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "cursor-pointer rounded-md border border-red-300 px-3.5 py-2 font-medium text-red-700 hover:bg-red-50" %>

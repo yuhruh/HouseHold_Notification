@@ -14,6 +14,8 @@ class RecurringTemplatesController < ApplicationController
     authorize RecurringTemplate
     @template = Current.household.recurring_templates.new(currency: Current.household.default_currency,
       interval_months: 2, starts_on: Date.current, lead_days: 7)
+    @from_record = Current.household.records.find_by(id: params[:from_record], recurring_template_id: nil) if params[:from_record]
+    @template.assign_attributes(RecurringTemplate.attributes_from(@from_record)) if @from_record
   end
 
   def create

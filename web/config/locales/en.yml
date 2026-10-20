@@ -509,6 +509,8 @@ en:
       mark_paid: "Mark paid"
     form:
       title_hint: "Defaults to the category name"
+      recurring_tip: "Does this bill repeat (e.g. water every 2 months)? Set it up once and each bill is created for you."
+      recurring_link: "Set up a recurring bill →"
       details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
       period: "Billing period"
       period_hint: "Year, first month, last month. A period like 12月–1月 ends in the next year."
@@ -537,6 +539,7 @@ en:
       done: "%{title} marked paid."
     show:
       sheet_id: "sheet ID %{id}"
+      make_recurring: "Make This Recurring"
       no_due_date: "No due date"
       edit: "Edit"
       delete: "Delete"
@@ -748,6 +751,7 @@ en:
       create_new: "Create a new bill"
     new:
       title: "New recurring bill"
+      from_record: "Filled in from record #%{no} (%{period}). Check how often it repeats and when it's due, then save: this record becomes the first bill, and the next ones are created for you."
     edit:
       title: "Edit recurring bill"
     create:

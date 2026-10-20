@@ -5,6 +5,8 @@ class ThemeSwitchTest < ActionDispatch::IntegrationTest
     get new_session_path
     assert_select "html[data-theme=light]"
     assert_select "button[aria-current=true]", /Light|淺色/
+    # A full reload (not Turbo), so the new data-theme on <html> takes effect
+    assert_select "form[action=\"#{theme_path}\"][data-turbo=false]", 3
   end
 
   test "the choice is kept in a cookie and goes back" do

@@ -511,6 +511,7 @@ en:
       title_hint: "Defaults to the category name"
       recurring_tip: "Does this bill repeat (e.g. water every 2 months)? Set it up once and each bill is created for you."
       recurring_link: "Set up a recurring bill →"
+      save_recurring: "Save and Make Recurring"
       details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
       period: "Billing period"
       period_hint: "Year, first month, last month. A period like 12月–1月 ends in the next year."

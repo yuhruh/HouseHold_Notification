@@ -511,6 +511,7 @@ zh-TW:
       title_hint: "預設為類別名稱"
       recurring_tip: "這筆帳單會定期出現嗎（例如每 2 個月的水費）？設定一次，之後每筆帳單都會自動建立。"
       recurring_link: "設定定期帳單 →"
+      save_recurring: "儲存並設為定期帳單"
       details_hint: "牌照稅填車牌號碼，保險填保單號碼或標的，保養填房間或位置。"
       period: "帳單期間"
       period_hint: "年份、起始月份、結束月份。12月–1月這類期間會在隔年結束。"

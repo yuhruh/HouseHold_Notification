@@ -55,7 +55,12 @@ class RecordsController < ApplicationController
     assign(@record)
     @continues = Current.household.records.find_by(id: params[:continues_id]) if params[:continues_id].present?
     if save_with_event(@record, :created) { @continues&.update!(next_due_on: nil) }
-      redirect_to household_record_path(Current.household, @record), notice: t(".created")
+      # "Save and Make Recurring": on to New recurring bill, filled in from this record
+      if params[:make_recurring].present? && policy(RecurringTemplate).new?
+        redirect_to new_household_recurring_template_path(Current.household, from_record: @record.id), notice: t(".created")
+      else
+        redirect_to household_record_path(Current.household, @record), notice: t(".created")
+      end
     else
       render :new, status: :unprocessable_content
     end

@@ -7,22 +7,23 @@ class DashboardCharts
     @q, @utility = query, utility_query
   end
 
-  def months = (1..12).map { |m| I18n.t("records.month", month: m) }
+  # X-axis labels: months, or years when all years are shown
+  def labels(query = @q) = query.all_years? ? query.buckets.map(&:to_s) : (1..12).map { |m| I18n.t("records.month", month: m) }
 
   def monthly
     series = @q.monthly_by_type.map do |type, values|
       { name: I18n.t("records.types.#{type}"), type: "bar", stack: "spend", itemStyle: { color: COLORS[type] },
-        data: values.each_with_index.map { |v, i| point(v, @q, month: i + 1, record_type: type) } }
+        data: values.zip(@q.buckets).map { |v, b| point(v, @q, **@q.bucket_filter(b), record_type: type) } }
     end
-    base(legend: true).merge(xAxis: { type: "category", data: months }, yAxis: { type: "value" }, series:)
+    base(legend: true).merge(xAxis: { type: "category", data: labels }, yAxis: { type: "value" }, series:)
   end
 
   def utilities
     series = @utility.utility_trend.map do |category, values|
       { name: category.name, type: "line", smooth: true,
-        data: values.each_with_index.map { |v, i| point(v, @utility, month: i + 1, category_id: category.id, record_type: nil) } }
+        data: values.zip(@utility.buckets).map { |v, b| point(v, @utility, **@utility.bucket_filter(b), category_id: category.id, record_type: nil) } }
     end
-    base(legend: true).merge(xAxis: { type: "category", data: months }, yAxis: { type: "value" }, series:)
+    base(legend: true).merge(xAxis: { type: "category", data: labels(@utility) }, yAxis: { type: "value" }, series:)
   end
 
   def categories

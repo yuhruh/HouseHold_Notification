@@ -1,7 +1,7 @@
 <%= turbo_frame_tag "drilldown" do %>
   <section class="space-y-2 rounded-lg border p-3">
     <h2 class="font-semibold"><%= t(".title", count: @rows.size) %>
-      <span class="text-sm font-normal text-gray-600">· <%= @query.year %><%= " #{t('records.month', month: @month)}" if @month %> · <%= t("dashboards.show.modes.#{@query.mode}") %> · <%= @query.currency %></span></h2>
+      <span class="text-sm font-normal text-gray-600">· <%= @query.year || t("dashboards.show.all_years") %><%= " #{t('records.month', month: @month)}" if @month %> · <%= t("dashboards.show.modes.#{@query.mode}") %> · <%= @query.currency %></span></h2>
     <% if @group&.dig(:stats) %>
       <% box = @group[:stats][:box] %>
       <p class="text-sm text-gray-600"><%= t(".quartiles", q1: money(box[1], @query.currency), median: money(box[2], @query.currency), q3: money(box[3], @query.currency)) %></p>

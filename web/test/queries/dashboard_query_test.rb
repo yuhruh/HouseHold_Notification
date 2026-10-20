@@ -21,7 +21,7 @@ class DashboardQueryTest < ActiveSupport::TestCase
       amount_required: amount, amount_paid: amount, paid_on:, payment_method:)
   end
 
-  def query(mode, currency: "TWD") = DashboardQuery.new(@home, mode:, year: 2026, currency:)
+  def query(mode, currency: "TWD", year: 2026) = DashboardQuery.new(@home, mode:, year:, currency:)
 
   test "paid-date totals equal SQL sums per currency; unpaid bills aren't spend" do
     assert_equal @home.records.where(currency: "TWD").where(paid_on: Date.new(2026, 1, 1)..Date.new(2026, 12, 31)).sum(:amount_paid), query("paid").total
@@ -35,18 +35,32 @@ class DashboardQueryTest < ActiveSupport::TestCase
     assert_equal BigDecimal("4005"), q.total(month: 12, category_id: @fee.id)
   end
 
-  test "every chart point's drill-down total equals its value, in both modes" do
-    DashboardQuery::MODES.each do |mode|
-      q = query(mode)
+  test "all years: totals cover every year, and the monthly charts get one bucket per year" do
+    q = query("paid", year: DashboardQuery::ALL)
+    assert q.all_years?
+    assert_equal @home.records.where(currency: "TWD").where.not(paid_on: nil).sum(:amount_paid), q.total
+    assert_equal [ 2026 ], q.buckets, "every TWD bill was paid in 2026"
+    assert_equal [ q.total ], q.monthly_by_type.values.transpose.map(&:sum)
+
+    period = query("period", year: DashboardQuery::ALL)
+    assert_equal [ 2025, 2026 ], period.buckets, "12月-1月 2025 puts half of the 600 in 2025"
+    assert_equal BigDecimal("300"), period.total(year: 2025)
+    assert_equal q.total, period.total, "splitting by period moves spend between years, never changes the sum"
+    assert_equal %w[2025 2026], DashboardCharts.new(period, utility_query: period).labels
+  end
+
+  test "every chart point's drill-down total equals its value, in both modes, for a year and all years" do
+    DashboardQuery::MODES.product([ 2026, DashboardQuery::ALL ]).each do |mode, year|
+      q = query(mode, year:)
       charts = DashboardCharts.new(q, utility_query: q.with(record_type: nil))
       points = [ charts.monthly, charts.utilities, charts.categories, charts.payment_methods ]
         .flat_map { |option| option[:series].flat_map { |s| s[:data] } }
-      assert points.size > 30
+      assert points.size > (q.all_years? ? 5 : 30)
       points.each do |point|
         filters = point[:filters].symbolize_keys
         drill = DashboardQuery.new(@home, mode: filters[:mode], year: filters[:year], currency: filters[:currency], record_type: filters[:record_type])
         rows = drill.drilldown(**filters.slice(:month, :category_id, :payment_method_id))
-        assert_equal point[:value], rows.sum { |_, amount| amount }.to_f.round(2), "#{mode} #{filters}"
+        assert_equal point[:value], rows.sum { |_, amount| amount }.to_f.round(2), "#{mode} #{year} #{filters}"
       end
     end
   end

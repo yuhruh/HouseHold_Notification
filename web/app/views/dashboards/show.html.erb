@@ -1,13 +1,12 @@
 <% content_for :title, t(".title") %>
 <% q = @query %>
-<% months = @charts.months %>
 <div class="w-full space-y-6 py-4">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <%= page_title("dashboard.png", t(".title")) %>
   </div>
 
   <%= form_with url: household_dashboard_path(Current.household), method: :get, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
-    <%= f.select :year, q.years, { selected: q.year }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.year"), onchange: "this.form.requestSubmit()" %>
+    <%= f.select :year, [ [ t(".all_years"), DashboardQuery::ALL ] ] + q.years, { selected: q.year_param }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.year"), onchange: "this.form.requestSubmit()" %>
     <%= f.select :currency, Household::CURRENCIES, { selected: q.currency }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": Record.human_attribute_name(:currency), onchange: "this.form.requestSubmit()" %>
     <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t("records.index.all_types"), selected: q.record_type }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.type"), onchange: "this.form.requestSubmit()" %>
     <%= hidden_field_tag :mode, q.mode %>
@@ -18,24 +17,24 @@
   <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">
     <span class="text-gray-600"><%= t(".count_by") %></span>
     <% DashboardQuery::MODES.each do |mode| %>
-      <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode),
+      <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode),
             class: "rounded-full border px-3 py-1 #{q.mode == mode ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}",
             data: { action: "remember-mode#save", remember_mode_mode_param: mode } %>
     <% end %>
   </div>
 
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <div class="rounded-lg border p-3"><p class="text-sm text-gray-600"><%= t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p></div>
+    <div class="rounded-lg border p-3"><p class="text-sm text-gray-600"><%= q.all_years? ? t(".spend_all") : t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p></div>
     <%= link_to household_records_path(Current.household, status: "unpaid"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.unpaid") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:unpaid] %></p><% end %>
     <%= link_to household_records_path(Current.household, status: "overdue"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.overdue") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:overdue] %></p><% end %>
   </div>
 
   <div class="grid gap-4 lg:grid-cols-2">
-    <%= render "chart", title: t(".monthly"), option: @charts.monthly,
-          table: { columns: months, rows: q.monthly_by_type.map { |type, values| [ t("records.types.#{type}"), values ] } } %>
+    <%= render "chart", title: q.all_years? ? t(".yearly") : t(".monthly"), option: @charts.monthly,
+          table: { columns: @charts.labels, rows: q.monthly_by_type.map { |type, values| [ t("records.types.#{type}"), values ] } } %>
     <%= render "chart", title: t(".utilities"), option: @charts.utilities,
-          extra: link_to(t(".switch_to", mode: t(".modes.#{(DashboardQuery::MODES - [ @utility_query.mode ]).first}")), household_dashboard_path(Current.household, year: q.year, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: (DashboardQuery::MODES - [ @utility_query.mode ]).first), class: "text-xs text-blue-700 underline"),
-          table: { columns: months, rows: @utility_query.utility_trend.map { |c, values| [ c.name, values ] } } %>
+          extra: link_to(t(".switch_to", mode: t(".modes.#{(DashboardQuery::MODES - [ @utility_query.mode ]).first}")), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: (DashboardQuery::MODES - [ @utility_query.mode ]).first), class: "text-xs text-blue-700 underline"),
+          table: { columns: @charts.labels(@utility_query), rows: @utility_query.utility_trend.map { |c, values| [ c.name, values ] } } %>
     <%= render "chart", title: t(".categories"), option: @charts.categories,
           table: { columns: [ t(".amount") ], rows: q.by_category.map { |c, v| [ c.name, [ v ] ] } } %>
     <%= render "chart", title: t(".payment_methods"), option: @charts.payment_methods,

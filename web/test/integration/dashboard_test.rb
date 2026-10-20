@@ -15,6 +15,13 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "[data-controller=chart]", 5
     assert_select "details summary", text: "以表格檢視"
+    assert_select "select[name=year] option[value=all]", "全部年度"
+
+    get household_dashboard_path(@home, year: "all")
+    assert_response :success
+    assert_select "select[name=year] option[selected][value=all]"
+    assert_select "p", text: "全部年度已繳"
+    assert_select "h2", text: "每年支出（依類型）"
 
     get drilldown_household_dashboard_path(@home, mode: "period", year: Date.current.year, currency: "TWD", month: 2)
     assert_response :success

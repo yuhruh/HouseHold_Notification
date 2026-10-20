@@ -115,7 +115,7 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", new_household_recurring_template_path(@home, from_record: record.id)
 
     get new_household_recurring_template_path(@home, from_record: record.id)
-    assert_select "p", /##{record.record_no}/
+    assert_select "p", /#{record.title}/
     assert_select "select[name='recurring_template[category_id]'] option[selected][value='#{water.id}']"
     assert_select "select[name='recurring_template[interval_months]'] option[selected][value='2']"
     assert_select "select[name='recurring_template[anchor_month]'] option[selected][value='1']"

@@ -752,7 +752,7 @@ en:
       create_new: "Create a new bill"
     new:
       title: "New recurring bill"
-      from_record: "Filled in from record #%{no} (%{period}). Check how often it repeats and when it's due, then save: this record becomes the first bill, and the next ones are created for you."
+      from_record: "Filled in from the record %{title} (%{period}). Check how often it repeats and when it's due, then save: this record becomes the first bill, and the next ones are created for you."
     edit:
       title: "Edit recurring bill"
     create:

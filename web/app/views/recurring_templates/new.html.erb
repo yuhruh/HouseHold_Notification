@@ -3,7 +3,7 @@
   <%= render "shared/flash" %>
   <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
   <% if @from_record %>
-    <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t(".from_record", no: @from_record.record_no, period: @from_record.period) %></p>
+    <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t(".from_record", title: @from_record.title, period: @from_record.period) %></p>
   <% end %>
   <%= render "form", template: @template %>
 </div>

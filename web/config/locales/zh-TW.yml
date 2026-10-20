@@ -752,7 +752,7 @@ zh-TW:
       create_new: "建立新帳單"
     new:
       title: "新增定期帳單"
-      from_record: "已依紀錄 #%{no}（%{period}）填好。確認多久一次和繳費日後儲存：這筆紀錄會成為第一筆帳單，之後的帳單會自動建立。"
+      from_record: "已依紀錄「%{title}」（%{period}）填好。確認多久一次和繳費日後儲存：這筆紀錄會成為第一筆帳單，之後的帳單會自動建立。"
     edit:
       title: "編輯定期帳單"
     create:

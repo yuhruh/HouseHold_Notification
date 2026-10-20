@@ -31,7 +31,8 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - List filters for year, month, type, category, status (including Outstanding), payment method and
   search. The summary bar shows Paid / Outstanding per type and currency, and each
   amount links to the matching records.
-- CSV export.
+- The list is paged: 10, 20 or 50 records per page, or a custom number (remembered on each device).
+- CSV export (every matching record, not just the page shown).
 
 **Recurring bills**
 - Templates (e.g. 水/電/瓦斯 every 2 months, 管理費 yearly) generate the next unpaid bill ahead of

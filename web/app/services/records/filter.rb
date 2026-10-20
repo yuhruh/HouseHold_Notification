@@ -9,10 +9,14 @@ module Records
     # "required" / "paid" = the rows behind the summary's Required / Paid columns (an amount is set)
     AMOUNTS = %w[required paid].freeze
     KEYS = %i[year month type category_id status payment_method_id currency amount q].freeze
+    # Rows per page: the presets, or a custom number up to MAX_PER_PAGE
+    PER_PAGE = [ 10, 20, 50 ].freeze
+    DEFAULT_PER_PAGE = 20
+    MAX_PER_PAGE = 500
 
     Total = Data.define(:record_type, :currency, :required, :paid, :outstanding)
 
-    attr_reader :params
+    attr_reader :params, :page, :per
 
     def initialize(household, params, today: Date.current)
       @household = household
@@ -25,6 +29,17 @@ module Records
       @records ||= scope.includes(:category, :payment_method)
         .order(settled: :asc, period_year: :desc, period_start_month: :desc, record_no: :desc)
     end
+
+    # One page of the list (page numbers past the end show the last page)
+    def paginate(page:, per:)
+      @per = per.to_i.between?(1, MAX_PER_PAGE) ? per.to_i : DEFAULT_PER_PAGE
+      @page = page.to_i.clamp(1, pages)
+      self
+    end
+
+    def page_records = records.limit(per).offset((page - 1) * per)
+    def total = @total ||= scope.count
+    def pages = [ (total + per - 1) / per, 1 ].max
 
     def summary
       scope.group(:record_type, :currency).order(:record_type, :currency).pluck(

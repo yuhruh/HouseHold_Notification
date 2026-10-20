@@ -64,7 +64,10 @@
   <% if records.empty? %>
     <p class="text-gray-600"><%= @filter.active? ? t(".no_match") : t(".empty") %></p>
   <% else %>
-    <p class="text-sm text-gray-600"><%= t(".count", count: @filter.total) %></p>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-sm text-gray-600"><%= t(".count", count: @filter.total) %></p>
+      <%= render "per_page", filter: @filter %>
+    </div>
     <div class="overflow-x-auto rounded-lg border">
       <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
         <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">

@@ -94,6 +94,19 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", new_household_recurring_template_path(@home)
   end
 
+  test "Save and Make Recurring saves the record, then opens the template filled in from it" do
+    water = @home.categories.find_by!(name_zh: "水費")
+    get new_household_record_path(@home)
+    assert_select "input[type=submit][name=make_recurring]"
+
+    post household_records_path(@home), params: { make_recurring: "Save and Make Recurring", record: { category_id: water.id,
+      period_year: 2026, period_start_month: 9, period_end_month: 10, currency: "TWD", amount_required: 600 } }
+    record = @home.records.sole
+    assert_redirected_to new_household_recurring_template_path(@home, from_record: record.id)
+    follow_redirect!
+    assert_select "select[name='recurring_template[anchor_month]'] option[selected][value='9']"
+  end
+
   test "Make This Recurring fills the template from the record, which becomes its first bill" do
     water = @home.categories.find_by!(name_zh: "水費")
     record = @home.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "1月-2月"),

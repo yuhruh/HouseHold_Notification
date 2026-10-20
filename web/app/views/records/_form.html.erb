@@ -86,8 +86,12 @@
     <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
   </div>
 
-  <div class="flex gap-3">
+  <div class="flex flex-wrap gap-3">
     <%= form.submit t("records.form.save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <% if record.new_record? && policy(RecurringTemplate).new? %>
+      <%# Saves, then opens New recurring bill filled in from this record %>
+      <%= form.submit t("records.form.save_recurring"), name: "make_recurring", class: "cursor-pointer rounded-md border border-blue-600 px-3.5 py-2 font-medium text-blue-700 hover:bg-blue-50" %>
+    <% end %>
     <%= link_to t("records.form.cancel"), (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "px-3.5 py-2 underline" %>
   </div>
 <% end %>

@@ -3,6 +3,15 @@ module RecordsHelper
   STATUS_CLASSES = { paid: "bg-green-100 text-green-800", overdue: "bg-red-600 text-white",
                      partial: "bg-amber-100 text-amber-900", unpaid: "bg-red-100 text-red-700" }.freeze
 
+  # Records list rows that still need paying: a light tint plus a bar on the left edge (drawn as an
+  # inset shadow on the first cell, since table rows ignore borders here), a softer tint in dark mode;
+  # paid rows stay plain
+  ROW_CLASSES = { unpaid: "bg-amber-50 dark:bg-amber-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-400)]",
+                  partial: "bg-amber-50 dark:bg-amber-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-300)]",
+                  overdue: "bg-red-50 dark:bg-red-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-500)]" }.freeze
+
+  def record_row_class(record) = ROW_CLASSES[record.status]
+
   def record_status_badge(record)
     status = record.status
     tag.span(t("records.status.#{status}"), class: "whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium #{STATUS_CLASSES[status]}")

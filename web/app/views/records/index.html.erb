@@ -77,7 +77,7 @@
         </thead>
         <tbody>
           <% records.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="align-top">
+            <tr id="<%= dom_id(record) %>" class="align-top <%= record_row_class(record) %>">
               <td class="px-2 py-1.5"><%= record_check(record) %></td>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.period %></td>
               <td class="px-2 py-1.5"><%= link_to record.title, household_record_path(Current.household, record), class: "text-blue-700 underline" %>

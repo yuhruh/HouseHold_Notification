@@ -169,6 +169,7 @@ zh-TW:
       themes:
         light: "淺色"
         dark: "深色"
+        system: "跟隨裝置"
       new_household: "＋ 新家庭"
       apartment: "公寓"
       invitations:
@@ -274,6 +275,9 @@ zh-TW:
     show:
       title: "我的帳戶"
       profile: "個人資料"
+      theme: "外觀"
+      theme_label: "此裝置的外觀"
+      theme_hint: "只儲存在這台裝置。「跟隨裝置」會依手機或電腦本身的淺色／深色模式顯示。"
       locale: "語言"
       locale_auto: "跟隨瀏覽器"
       time_zone: "時區"

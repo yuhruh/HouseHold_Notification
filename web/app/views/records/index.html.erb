@@ -81,8 +81,8 @@
               <td class="px-2 py-1.5"><%= record_check(record) %></td>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.period %></td>
               <td class="px-2 py-1.5"><%= link_to record.title, household_record_path(Current.household, record), class: "text-blue-700 underline" %>
-                <span class="block text-xs text-gray-500"><%= t("records.types.#{record.record_type}") %> · #<%= record.record_no %></span></td>
-              <td class="max-w-48 truncate px-2 py-1.5" title="<%= record.details %>"><%= record.details %></td>
+                <span class="block text-xs text-gray-500"><%= t("records.types.#{record.record_type}") %></span></td>
+              <td class="min-w-40 max-w-xs whitespace-pre-line break-words px-2 py-1.5"><%= record.details %></td>
               <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_paid, record.currency) %></td>
               <% if owing %><td class="whitespace-nowrap px-2 py-1.5 text-right font-medium text-red-700"><%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></td><% end %>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.paid_on && l(record.paid_on) %></td>

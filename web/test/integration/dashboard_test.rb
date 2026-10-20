@@ -23,6 +23,15 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "全部年度已繳"
     assert_select "h2", text: "每年支出（依類型）"
 
+    all_paid = drilldown_household_dashboard_path(@home, mode: "paid", year: "all", currency: "TWD")
+    assert_select "a[href=?][data-turbo-frame=drilldown]", all_paid, /全部年度已繳/
+    get all_paid
+    assert_select "turbo-frame#drilldown td#drilldown-total", "NT$580"
+    assert_select "turbo-frame#drilldown h2", /全部年度/
+
+    get household_dashboard_path(@home)
+    assert_select "a[href=?][data-turbo-frame=drilldown]", drilldown_household_dashboard_path(@home, mode: "paid", year: Date.current.year, currency: "TWD"), /已繳/
+
     get drilldown_household_dashboard_path(@home, mode: "period", year: Date.current.year, currency: "TWD", month: 2)
     assert_response :success
     assert_select "turbo-frame#drilldown td#drilldown-total", "NT$290"

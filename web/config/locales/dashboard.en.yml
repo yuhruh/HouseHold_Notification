@@ -1,10 +1,10 @@
 en:
   layouts:
     header:
-      dashboard: "Dashboard"
+      dashboard: "Expense Analysis"
   dashboards:
     show:
-      title: "Dashboard"
+      title: "Expense Analysis"
       count_by: "Count spending"
       modes:
         paid: "by paid date"
@@ -12,6 +12,7 @@ en:
       switch_to: "Show %{mode}"
       spend: "Paid in %{year}"
       spend_all: "Paid, all years"
+      show_paid: "Show the records behind this amount"
       all_years: "All years"
       monthly: "Monthly spending by type"
       yearly: "Yearly spending by type"

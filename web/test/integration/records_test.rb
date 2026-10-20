@@ -30,7 +30,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "td.text-red-700", /500/
   end
 
-  test "Required and Paid amounts in the summary link to the records they add up, keeping the filters" do
+  test "the summary Paid amount links to the records it adds up, keeping the filters (Required is no longer shown)" do
     paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
     partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
     unpaid = add(amount_required: 700)
@@ -38,7 +38,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
     get household_records_path(@home)
     required = household_records_path(@home, amount: "required", type: "expense", currency: "TWD")
     paid_link = household_records_path(@home, amount: "paid", type: "expense", currency: "TWD")
-    assert_select "a[href=?]", required, "NT$1,880"
+    assert_select "a[href=?]", required, 0
     assert_select "a[href=?]", paid_link, "NT$680"
 
     get required
@@ -49,8 +49,8 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_equal [ paid, partial ].map { |r| "record_#{r.id}" }.sort, css_select("tbody tr[id^=record_]").map { _1["id"] }.sort
     assert_select "tbody tr[id=?]", "record_#{no_amount.id}", 0
 
-    get household_records_path(@home, status: "unpaid")
-    assert_select "a[href=?]", household_records_path(@home, status: "unpaid", amount: "required", type: "expense", currency: "TWD"), "NT$700"
+    get household_records_path(@home, status: "partial")
+    assert_select "a[href=?]", household_records_path(@home, status: "partial", amount: "paid", type: "expense", currency: "TWD"), "NT$100"
   end
 
   test "list shows records, the summary and a filter by status" do
@@ -59,7 +59,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
     get household_records_path(@home)
     assert_response :success
     assert_select "tbody tr[id^=record_]", 2
-    assert_select "td", text: "NT$1,180"
+    assert_select "section[aria-label] td", text: "NT$580"
     get household_records_path(@home, status: "paid")
     assert_select "tbody tr[id^=record_]", 1
   end

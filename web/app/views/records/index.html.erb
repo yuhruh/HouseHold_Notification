@@ -42,19 +42,18 @@
   <section aria-label="<%= t(".summary") %>" class="overflow-x-auto rounded-lg border">
     <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
       <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
-        <tr><th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".required") %></th>
-          <th class="px-3 py-2 text-right"><%= t(".paid") %></th><th class="px-3 py-2 text-right"><%= t(".outstanding") %></th></tr>
+        <tr>
+          <th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".paid") %></th><th class="px-3 py-2 text-right"><%= t(".outstanding") %></th>
+        </tr>
       </thead>
       <tbody>
         <% @filter.summary.each do |row| %>
           <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :required) %></td>
             <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
             <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
         <% @filter.totals.each do |row| %>
           <tr class="font-semibold"><td class="px-3 py-1.5"><%= t(".total") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :required) %></td>
             <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
             <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
         <% end %>
@@ -71,7 +70,7 @@
         <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
           <tr>
             <th class="px-2 py-2">✅</th><th class="px-2 py-2"><%= t(".period") %></th><th class="px-2 py-2"><%= t(".item") %></th>
-            <th class="px-2 py-2"><%= t(".details") %></th><th class="px-2 py-2 text-right"><%= t(".required") %></th>
+            <th class="px-2 py-2"><%= t(".details") %></th>
             <th class="px-2 py-2 text-right"><%= t(".paid") %></th><% if owing %><th class="px-2 py-2 text-right"><%= t(".outstanding") %></th><% end %><th class="px-2 py-2"><%= t(".paid_on") %></th>
             <th class="px-2 py-2"><%= t(".status") %></th><% if writer %><th class="px-2 py-2"></th><% end %>
           </tr>
@@ -84,7 +83,6 @@
               <td class="px-2 py-1.5"><%= link_to record.title, household_record_path(Current.household, record), class: "text-blue-700 underline" %>
                 <span class="block text-xs text-gray-500"><%= t("records.types.#{record.record_type}") %> · #<%= record.record_no %></span></td>
               <td class="max-w-48 truncate px-2 py-1.5" title="<%= record.details %>"><%= record.details %></td>
-              <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_required, record.currency) %></td>
               <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_paid, record.currency) %></td>
               <% if owing %><td class="whitespace-nowrap px-2 py-1.5 text-right font-medium text-red-700"><%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></td><% end %>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.paid_on && l(record.paid_on) %></td>

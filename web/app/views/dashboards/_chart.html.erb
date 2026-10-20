@@ -12,10 +12,10 @@
     <summary class="cursor-pointer text-gray-600"><%= t("dashboards.show.as_table") %></summary>
     <div class="mt-2 overflow-x-auto">
       <table class="w-full text-left border-separate border-spacing-0">
-        <thead class="[&_th]:border-b [&_th]:border-gray-400"><tr><th class="pr-3"></th><% table[:columns].each do |c| %><th class="pr-3 text-right"><%= c %></th><% end %></tr></thead>
+        <thead class="[&_th]:border-b [&_th]:border-gray-400"><tr><th class="pr-3 text-center"></th><% table[:columns].each do |c| %><th class="pr-3 text-center"><%= c %></th><% end %></tr></thead>
         <tbody>
           <% table[:rows].each do |label, values| %>
-            <tr><th class="pr-3 font-sm"><%= label %></th><% values.each do |v| %><td class="text-right"><%= v.is_a?(Numeric) ? money(v, @query.currency) : v %></td><% end %></tr>
+            <tr><th class="pr-3 font-sm text-center"><%= label %></th><% values.each do |v| %><td class="pr-3 text-center"><%= v.is_a?(Numeric) ? money(v, @query.currency) : v %></td><% end %></tr>
           <% end %>
         </tbody>
       </table>

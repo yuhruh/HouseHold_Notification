@@ -49,16 +49,6 @@ module RecordsHelper
 
   def month_options = (1..12).map { |m| [ t("records.month", month: m), m ] }
 
-  # A summary-row Outstanding amount links to the records behind it (same filters, that type and
-  # currency, status "outstanding"); zero stays plain text
-  def outstanding_link(row, params)
-    amount = money(row.outstanding, row.currency)
-    return amount unless row.outstanding.positive?
-
-    link_to amount, household_records_path(Current.household, params.merge({ status: "outstanding", type: row.record_type, currency: row.currency }.compact)),
-      class: "text-red-700 underline", title: t("records.index.show_outstanding")
-  end
-
   # A summary Required / Paid amount that lists the records it adds up (current filters kept)
   def amount_link(row, params, column)
     value = row.public_send(column)

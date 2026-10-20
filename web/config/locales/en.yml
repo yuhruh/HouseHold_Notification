@@ -500,7 +500,6 @@ en:
       required: "Required"
       paid: "Paid"
       outstanding: "Outstanding"
-      show_outstanding: "Show the records still owed"
       show_required: "Show the records with a required amount"
       show_paid: "Show the records with a payment"
       amount_filter:

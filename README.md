@@ -29,7 +29,7 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - Derived status (unpaid, partial, paid ✅, overdue) using each viewer's local date.
 - One-tap **Mark paid**, per-user **Snooze**, and a history of every change.
 - List filters for year, month, type, category, status (including Outstanding), payment method and
-  search. The summary bar shows Paid / Outstanding per type and currency, and each
+  search. The summary bar shows Paid per type and currency, and each
   amount links to the matching records.
 - The list is paged: 10, 20 or 50 records per page, or a custom number (remembered on each device).
 - CSV export (every matching record, not just the page shown).

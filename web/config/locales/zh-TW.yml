@@ -165,6 +165,11 @@ zh-TW:
       sign_out: "登出"
       language: "切換語言"
       languages: "語言"
+      theme: "外觀"
+      themes:
+        light: "淺色"
+        dark: "深色"
+        system: "跟隨裝置"
       new_household: "＋ 新家庭"
       apartment: "公寓"
       invitations:

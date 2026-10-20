@@ -26,6 +26,7 @@
       <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
       <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
       <%= button_to nav_label("logout.png", t("layouts.header.sign_out")), session_path, method: :delete, class: "inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-gray-700 underline" %>
+      <%= render "layouts/theme_switch" %>
       <%= render "layouts/language_switch" %>
     </nav>
   </div>

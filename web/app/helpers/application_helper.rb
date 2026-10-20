@@ -13,4 +13,7 @@ module ApplicationHelper
       safe_join([ image_tag("icons/#{icon}", alt: "", class: "h-10 w-10 object-contain"), tag.span(title) ])
     end
   end
+
+  # The theme picked in the header menu (cookie), light by default
+  def current_theme = ThemesController::THEMES.include?(cookies[:theme]) ? cookies[:theme] : "light"
 end

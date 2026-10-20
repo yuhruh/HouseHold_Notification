@@ -435,6 +435,15 @@ en:
       subject: "Household Tracker backup %{filename} is too large to email"
       body: "This week's encrypted backup (%{filename}, %{size} MB) is over the 20 MB email limit, so it wasn't attached. It is on the Railway volume under storage/backups; download it from there."
   records:
+    pagination:
+      showing: "%{from}–%{to} of %{total}"
+      per_page: "Per page"
+      custom: "Custom…"
+      custom_label: "Records per page (1–500)"
+      go: "Go"
+      label: "Pages"
+      previous: "‹ Previous"
+      next: "Next ›"
     types:
       expense: "Expense"
       maintenance: "Maintenance"

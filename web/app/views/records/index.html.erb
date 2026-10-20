@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <% writer = policy(Record).write? %>
-<% records = @filter.records %>
+<% records = @filter.page_records %>
 <% owing = @filter.params[:status] == "outstanding" %>
 <div class="w-full space-y-6 py-4">
   <%= render "shared/flash" %>
@@ -64,7 +64,7 @@
   <% if records.empty? %>
     <p class="text-gray-600"><%= @filter.active? ? t(".no_match") : t(".empty") %></p>
   <% else %>
-    <p class="text-sm text-gray-600"><%= t(".count", count: records.size) %></p>
+    <p class="text-sm text-gray-600"><%= t(".count", count: @filter.total) %></p>
     <div class="overflow-x-auto rounded-lg border">
       <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
         <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
@@ -104,5 +104,6 @@
         </tbody>
       </table>
     </div>
+    <%= render "pagination", filter: @filter %>
   <% end %>
 </div>

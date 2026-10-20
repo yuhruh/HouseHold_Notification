@@ -31,6 +31,12 @@ module RecordsHelper
       .pluck(:category_id, :payment_method_id).each_with_object({}) { |(category, pm), map| map[category.to_s] ||= pm if active.include?(pm) }
   end
 
+  # Page numbers to link: the first, the last and two either side of the current one; nil = a gap
+  def page_window(page, pages)
+    shown = ([ 1, pages ] + ((page - 2)..(page + 2)).to_a).select { |n| n.between?(1, pages) }.uniq.sort
+    shown.each_with_object([]) { |n, list| list << nil if list.any? && n > list.last + 1; list << n }
+  end
+
   def month_options = (1..12).map { |m| [ t("records.month", month: m), m ] }
 
   # A summary-row Outstanding amount links to the records behind it (same filters, that type and

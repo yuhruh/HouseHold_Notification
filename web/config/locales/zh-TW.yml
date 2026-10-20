@@ -435,6 +435,15 @@ zh-TW:
       subject: "Household Tracker 備份 %{filename} 太大，無法寄送"
       body: "本週加密備份（%{filename}，%{size} MB）超過 20 MB 的郵件限制，因此沒有附加。檔案在 Railway volume 的 storage/backups，請從那裡下載。"
   records:
+    pagination:
+      showing: "第 %{from}–%{to} 筆，共 %{total} 筆"
+      per_page: "每頁"
+      custom: "自訂…"
+      custom_label: "每頁筆數（1–500）"
+      go: "套用"
+      label: "分頁"
+      previous: "‹ 上一頁"
+      next: "下一頁 ›"
     types:
       expense: "支出"
       maintenance: "保養"

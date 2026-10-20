@@ -171,4 +171,41 @@ class RecordsTest < ActionDispatch::IntegrationTest
     post household_payment_methods_path(@home), params: { payment_method: { name: "x", kind: "cash" } }
     assert_response :forbidden
   end
+
+  test "the list is paged: 20 per page by default, 10 / 20 / 50 or a custom number, remembered on this device" do
+    25.times { |i| add(amount_required: 100 + i) }
+    get household_records_path(@home)
+    assert_select "tbody tr[id^=record_]", 20
+    assert_select "p", "第 1–20 筆，共 25 筆"
+    assert_select "nav a[href=?]", household_records_path(@home, page: 2), "2"
+
+    get household_records_path(@home, page: 2)
+    assert_select "tbody tr[id^=record_]", 5
+    assert_select "nav [aria-current=page]", "2"
+    get household_records_path(@home, page: 99)
+    assert_select "tbody tr[id^=record_]", 5, "past the end shows the last page"
+
+    get household_records_path(@home, per: 10)
+    assert_select "tbody tr[id^=record_]", 10
+    get household_records_path(@home)
+    assert_select "tbody tr[id^=record_]", 10, "the choice is remembered"
+    assert_select "select[name=per] option[selected][value='10']"
+
+    get household_records_path(@home, per: "custom", per_custom: 7)
+    assert_select "tbody tr[id^=record_]", 7
+    assert_select "select[name=per] option[selected][value=custom]"
+    assert_select "input[name=per_custom][value='7']"
+    get household_records_path(@home, per: "custom", per_custom: 9999)
+    assert_select "tbody tr[id^=record_]", 7, "out of range keeps the last choice"
+  end
+
+  test "paging keeps the filters, and the summary still counts every matching record" do
+    25.times { add(amount_required: 100, amount_paid: 100, paid_on: Date.new(2026, 3, 1)) }
+    add(amount_required: 50)
+    get household_records_path(@home, status: "paid")
+    assert_select "tbody tr[id^=record_]", 20
+    assert_select "nav a[href=?]", household_records_path(@home, status: "paid", page: 2)
+    assert_select "section[aria-label] td", text: "NT$2,500"
+    assert_select "form[data-controller=per-page] input[type=hidden][name=status][value=paid]"
+  end
 end

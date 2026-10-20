@@ -7,6 +7,7 @@ class RecordsController < ApplicationController
   def index
     authorize Record
     @filter = Records::Filter.new(Current.household, params.permit(*Records::Filter::KEYS))
+    @filter.paginate(page: params[:page], per: per_page)
     respond_to do |format|
       format.html
       format.csv do
@@ -115,6 +116,14 @@ class RecordsController < ApplicationController
   end
 
   private
+
+  # Rows per page: 10 / 20 / 50 or a custom number, remembered on this device
+  def per_page
+    per = (params[:per] == "custom" ? params[:per_custom] : params[:per]).to_i
+    return cookies.permanent[:records_per] = per if per.between?(1, Records::Filter::MAX_PER_PAGE)
+
+    cookies[:records_per]
+  end
 
   def set_record
     @record = Current.household.records.with_attached_photos.find(params[:id])

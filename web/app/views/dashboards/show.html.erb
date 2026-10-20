@@ -24,7 +24,8 @@
   </div>
 
   <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <div class="rounded-lg border p-3"><p class="text-sm text-gray-600"><%= q.all_years? ? t(".spend_all") : t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p></div>
+    <%= link_to drilldown_household_dashboard_path(Current.household, mode: q.mode, year: q.year_param, currency: q.currency, record_type: q.record_type),
+          class: "rounded-lg border p-3 hover:bg-gray-50", title: t(".show_paid"), data: { turbo_frame: "drilldown" } do %><p class="text-sm text-gray-600"><%= q.all_years? ? t(".spend_all") : t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p><% end %>
     <%= link_to household_records_path(Current.household, status: "unpaid"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.unpaid") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:unpaid] %></p><% end %>
     <%= link_to household_records_path(Current.household, status: "overdue"), class: "rounded-lg border p-3 hover:bg-gray-50" do %><p class="text-sm text-gray-600"><%= t("records.status.overdue") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:overdue] %></p><% end %>
   </div>
@@ -47,7 +48,7 @@
     </div>
   </div>
 
-  <%= turbo_frame_tag "drilldown" do %>
+  <%= turbo_frame_tag "drilldown", autoscroll: true, data: { autoscroll_block: "nearest", autoscroll_behavior: "smooth" } do %>
     <p class="rounded-lg border border-dashed p-4 text-sm text-gray-500"><%= t(".drill_hint") %></p>
   <% end %>
 </div>

@@ -1,10 +1,10 @@
 zh-TW:
   layouts:
     header:
-      dashboard: "儀表板"
+      dashboard: "支出分析"
   dashboards:
     show:
-      title: "儀表板"
+      title: "支出分析"
       count_by: "支出計算方式"
       modes:
         paid: "依繳費日期"
@@ -12,6 +12,7 @@ zh-TW:
       switch_to: "改為%{mode}"
       spend: "%{year} 已繳"
       spend_all: "全部年度已繳"
+      show_paid: "列出這個金額的記錄"
       all_years: "全部年度"
       monthly: "每月支出（依類型）"
       yearly: "每年支出（依類型）"

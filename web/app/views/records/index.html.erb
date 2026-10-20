@@ -7,10 +7,10 @@
   <div class="flex flex-wrap items-center justify-between gap-2">
     <%= page_title("records.png", t(".title")) %>
     <span class="flex gap-2">
-      <%= link_to t(".export"), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "rounded-md bg-stone-500 px-3.5 py-2 font-medium text-white hover:bg-stone-100 hover:text-stone-500 hover:scale-110 hover:border-stone-500" %>
+      <%= link_to nav_label("export.png", t(".export")), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "inline-flex items-center gap-2 rounded-md bg-stone-500 px-3.5 py-2 font-medium text-white hover:bg-stone-100 hover:text-stone-500 hover:scale-110 hover:border-stone-500" %>
       <% if writer %>
         <%= link_to nav_label("import.png", t(".import")), new_household_import_path(Current.household), class: "inline-flex items-center gap-2 rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50 hover:scale-110" %>
-        <%= link_to t(".new"), new_household_record_path(Current.household), class: "rounded-md bg-indigo-500 px-3.5 py-2 font-medium text-white hover:bg-indigo-100 hover:text-indigo-500 hover:scale-110 hover:border-indigo-500" %>
+        <%= link_to nav_label("new_entry.png", t(".new")), new_household_record_path(Current.household), class: "inline-flex items-center gap-2 rounded-md bg-indigo-500 px-3.5 py-2 font-medium text-white hover:bg-indigo-100 hover:text-indigo-500 hover:scale-110 hover:border-indigo-500" %>
       <% end %>
     </span>
   </div>

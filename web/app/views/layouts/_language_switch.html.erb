@@ -3,7 +3,7 @@
   <summary class="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1" aria-label="<%= t("layouts.header.language") %>">
     <span aria-hidden="true">🌐</span><span><%= t("layouts.header.languages") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
   </summary>
-  <ul class="absolute right-0 z-10 mt-1 min-w-40 rounded-md border bg-white py-1 shadow">
+  <ul class="absolute right-0 z-50 mt-1 min-w-40 rounded-md border bg-white py-1 shadow">
     <% [ [ "en", "🇺🇸", "English" ], [ "zh-TW", "🇹🇼", "繁體中文" ] ].each do |code, flag, name| %>
       <li>
         <%= button_to locale_path, method: :patch, params: { locale: code }, lang: code,

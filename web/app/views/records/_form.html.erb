@@ -32,30 +32,48 @@
     <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
   </fieldset>
 
-  <div class="grid grid-cols-2 gap-2">
-    <div>
-      <%= form.label :currency, class: "block text-sm font-medium" %>
-      <%= form.select :currency, Household::CURRENCIES, {}, class: field %>
+  <%# Amount paid: Not paid yet / Paid in full (copies the amount due) / Partly paid (up to the amount due);
+      choosing a payment fills an empty paid date with today. Without JavaScript the plain fields show %>
+  <% choice = if record.paid_on.blank? && record.amount_paid.to_d.zero? then "none"
+              elsif record.amount_paid.blank? || record.amount_paid == record.amount_required then "full"
+              else "partial" end %>
+  <div class="space-y-4" data-controller="paid-amount">
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <%= form.label :currency, class: "block text-sm font-medium" %>
+        <%= form.select :currency, Household::CURRENCIES, {}, class: field %>
+      </div>
+      <div>
+        <%= form.label :amount_required, class: "block text-sm font-medium" %>
+        <%= form.number_field :amount_required, min: 0, step: "0.01", class: field, data: { paid_amount_target: "due", action: "input->paid-amount#sync" } %>
+      </div>
     </div>
-    <div>
-      <%= form.label :amount_required, class: "block text-sm font-medium" %>
-      <%= form.number_field :amount_required, min: 0, step: "0.01", class: field %>
-    </div>
-    <div>
-      <%= form.label :amount_paid, class: "block text-sm font-medium" %>
-      <%= form.number_field :amount_paid, min: 0, step: "0.01", class: field %>
-    </div>
-  </div>
-  <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
+    <fieldset class="space-y-2">
+      <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
+      <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+        <% %w[none full partial].each do |option| %>
+          <label class="inline-flex cursor-pointer items-center gap-1.5">
+            <%= radio_button_tag :paid_choice, option, choice == option, id: "paid_choice_#{option}", data: { paid_amount_target: "choice", action: "paid-amount#choose" } %>
+            <%= t("records.form.paid_choice.#{option}") %>
+          </label>
+        <% end %>
+      </div>
+      <div data-paid-amount-target="paidField">
+        <%= form.number_field :amount_paid, min: 0, step: "0.01", class: field, "aria-label": Record.human_attribute_name(:amount_paid),
+              data: { paid_amount_target: "paid" } %>
+      </div>
+    </fieldset>
+    <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
 
-  <div class="grid grid-cols-2 gap-2">
-    <div>
-      <%= form.label :due_on, class: "block text-sm font-medium" %>
-      <%= form.date_field :due_on, class: field %>
-    </div>
-    <div>
-      <%= form.label :paid_on, class: "block text-sm font-medium" %>
-      <%= form.date_field :paid_on, class: field %>
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <%= form.label :due_on, class: "block text-sm font-medium" %>
+        <%= form.date_field :due_on, class: field %>
+      </div>
+      <div>
+        <%= form.label :paid_on, class: "block text-sm font-medium" %>
+        <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+      </div>
     </div>
   </div>
 

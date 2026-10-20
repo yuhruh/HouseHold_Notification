@@ -220,4 +220,17 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "tr#record_#{overdue.id}.bg-red-50"
     assert_select "tr#record_#{paid.id}.bg-amber-50, tr#record_#{paid.id}.bg-red-50", 0
   end
+
+  test "the form asks how much was paid: Not paid yet, Paid in full or Partly paid, picked from the record" do
+    get new_household_record_path(@home)
+    assert_select "label", /Amount due|應繳金額/
+    assert_select "input[type=radio][name=paid_choice][value=none][checked]"
+    full = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
+    get edit_household_record_path(@home, full)
+    assert_select "input[type=radio][name=paid_choice][value=full][checked]"
+    get edit_household_record_path(@home, partial)
+    assert_select "input[type=radio][name=paid_choice][value=partial][checked]"
+    assert_select "input[name='record[amount_paid]'][value='100.0']"
+  end
 end

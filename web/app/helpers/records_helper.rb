@@ -4,11 +4,12 @@ module RecordsHelper
                      partial: "bg-amber-100 text-amber-900", unpaid: "bg-red-100 text-red-700" }.freeze
 
   # Records list rows that still need paying: a light tint plus a bar on the left edge (drawn as an
-  # inset shadow on the first cell, since table rows ignore borders here), a softer tint in dark mode;
-  # paid rows stay plain
-  ROW_CLASSES = { unpaid: "bg-amber-50 dark:bg-amber-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-400)]",
-                  partial: "bg-amber-50 dark:bg-amber-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-300)]",
-                  overdue: "bg-red-50 dark:bg-red-50/40 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-500)]" }.freeze
+  # inset shadow on the first cell, since table rows ignore borders here); paid rows stay plain.
+  # Dark mode: a softer tint, and the bar names the mirrored shade so it shows bright (amber-600 → 400)
+  # (classes are written out in full so Tailwind finds them)
+  ROW_CLASSES = { unpaid: "bg-amber-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-400)] dark:bg-amber-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-600)]",
+                  partial: "bg-amber-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-300)] dark:bg-amber-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-700)]",
+                  overdue: "bg-red-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-500)] dark:bg-red-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-600)]" }.freeze
 
   def record_row_class(record) = ROW_CLASSES[record.status]
 

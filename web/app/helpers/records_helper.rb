@@ -39,7 +39,17 @@ module RecordsHelper
     amount = money(row.outstanding, row.currency)
     return amount unless row.outstanding.positive?
 
-    link_to amount, household_records_path(Current.household, params.merge(status: "outstanding", type: row.record_type, currency: row.currency).compact),
+    link_to amount, household_records_path(Current.household, params.merge({ status: "outstanding", type: row.record_type, currency: row.currency }.compact)),
       class: "text-red-700 underline", title: t("records.index.show_outstanding")
+  end
+
+  # A summary Required / Paid amount that lists the records it adds up (current filters kept)
+  def amount_link(row, params, column)
+    value = row.public_send(column)
+    amount = money(value, row.currency)
+    return amount unless value.positive?
+
+    link_to amount, household_records_path(Current.household, params.merge({ amount: column.to_s, type: row.record_type, currency: row.currency }.compact)),
+      class: "underline", title: t("records.index.show_#{column}")
   end
 end

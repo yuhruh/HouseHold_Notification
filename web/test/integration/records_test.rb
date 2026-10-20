@@ -30,6 +30,29 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "td.text-red-700", /500/
   end
 
+  test "Required and Paid amounts in the summary link to the records they add up, keeping the filters" do
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
+    unpaid = add(amount_required: 700)
+    no_amount = add(amount_required: nil)
+    get household_records_path(@home)
+    required = household_records_path(@home, amount: "required", type: "expense", currency: "TWD")
+    paid_link = household_records_path(@home, amount: "paid", type: "expense", currency: "TWD")
+    assert_select "a[href=?]", required, "NT$1,880"
+    assert_select "a[href=?]", paid_link, "NT$680"
+
+    get required
+    assert_equal [ paid, partial, unpaid ].map { |r| "record_#{r.id}" }.sort, css_select("tbody tr[id^=record_]").map { _1["id"] }.sort
+    assert_select "span", "有應繳金額的記錄 · TWD"
+    assert_select "a[href=?]", household_records_path(@home, type: "expense"), "顯示全部"
+    get paid_link
+    assert_equal [ paid, partial ].map { |r| "record_#{r.id}" }.sort, css_select("tbody tr[id^=record_]").map { _1["id"] }.sort
+    assert_select "tbody tr[id=?]", "record_#{no_amount.id}", 0
+
+    get household_records_path(@home, status: "unpaid")
+    assert_select "a[href=?]", household_records_path(@home, status: "unpaid", amount: "required", type: "expense", currency: "TWD"), "NT$700"
+  end
+
   test "list shows records, the summary and a filter by status" do
     add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14), details: "大樓")
     add(amount_required: 600)

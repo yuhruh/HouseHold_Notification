@@ -41,4 +41,12 @@ class ThemeSwitchTest < ActionDispatch::IntegrationTest
     get new_session_path
     assert_select "html[data-theme=light]"
   end
+
+  test "signed out, the hamburger menu has Getting Started and Languages but no account links" do
+    get new_session_path
+    assert_select "dialog a[href=?]", guide_path
+    assert_select "dialog form[action=?]", locale_path, 2
+    assert_select "dialog a[href=?]", account_path, 0
+    assert_select "dialog form[action=?]", session_path, 0
+  end
 end

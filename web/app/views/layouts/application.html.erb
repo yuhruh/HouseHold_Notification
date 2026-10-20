@@ -27,12 +27,22 @@
       <%= render "layouts/header" %>
       <%= render "layouts/back_link" %>
     <% else %>
-      <nav class="container mx-auto flex flex-wrap items-center justify-end gap-3 px-4 pt-3 text-sm">
-        <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-300 px-2 py-1 text-blue-900 transition-transform duration-150 hover:bg-blue-400 motion-safe:hover:scale-110"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
-        <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= render "layouts/theme_switch" %>
-        <%= render "layouts/language_switch" %>
-      </nav>
+      <%# Signed out: the same links; under 1550px the theme toggle stays and the rest is in the hamburger menu %>
+      <div class="container mx-auto flex items-center justify-end gap-3 px-4 pt-3 text-sm">
+        <nav class="hidden flex-wrap items-center justify-end gap-3 min-[1550px]:flex">
+          <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-300 px-2 py-1 text-blue-900 transition-transform duration-150 hover:bg-blue-400 motion-safe:hover:scale-110"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
+          <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+          <%= render "layouts/theme_switch" %>
+          <%= render "layouts/language_switch" %>
+        </nav>
+        <div class="flex items-center gap-2 min-[1550px]:hidden" data-controller="menu">
+          <%= render "layouts/theme_switch" %>
+          <button type="button" class="cursor-pointer rounded-md p-2 hover:bg-gray-50" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
+            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <%= render "layouts/menu", households: [], current: nil, pending: 0, unread: 0 %>
+        </div>
+      </div>
     <% end %>
     <main class="container mx-auto mt-10 px-4 flex">
       <%= yield %>

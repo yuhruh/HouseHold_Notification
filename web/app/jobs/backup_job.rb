@@ -1,7 +1,7 @@
 require "open3"
 
 # Weekly logical backup (PRD → Backups, ADR 0005 X3): a `pg_dump -Fc` on the volume, keeping the
-# last KEEP, and an encrypted copy emailed to Alex as the off-Railway copy. A version mismatch or
+# last KEEP, and an encrypted copy emailed to the owner as the off-Railway copy. A version mismatch or
 # a failed command raises (Sentry) and pings the heartbeat's /fail.
 #
 # Settings: BACKUP_PASSPHRASE (or credentials backup.passphrase), BACKUP_RECIPIENT (default: the

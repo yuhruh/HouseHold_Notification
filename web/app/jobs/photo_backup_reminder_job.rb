@@ -1,4 +1,4 @@
-# Monthly (PRD → Backups): photos aren't in the weekly database email, so remind Alex to download
+# Monthly (PRD → Backups): photos aren't in the weekly database email, so remind the owner to download
 # them with bin/download-photos. Skipped while there are no photos.
 class PhotoBackupReminderJob < ApplicationJob
   queue_as :default

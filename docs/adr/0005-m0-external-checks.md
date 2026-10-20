@@ -53,7 +53,7 @@
 
 ## X8: Gmail sender (started 2026-10-18)
 - Decision: the sender is **the owner's personal Gmail** (`owner@gmail.com`), not a dedicated
-  household account as the PRD planned. Accepted risks: a leaked refresh token can send mail as Alex;
+  household account as the PRD planned. Accepted risks: a leaked refresh token can send mail as the owner;
   every reminder shows in her Sent folder; an automated-sending lock would hit her main account.
   Switching later needs no code change: authorize a dedicated account with `bin/rails gmail:authorize`
   and update `gmail.sender`.
@@ -100,8 +100,8 @@
   new backups, set up automated schedules, or enable point-in-time recovery". Railway's docs also say
   a backup restores only into the same project and environment (a new volume replaces the mounted
   one), so the "restore into a scratch environment" half could not pass on any plan.
-- Decision (Alex, the PRD fallback): stay on Hobby. The weekly `BackupJob` (M2) writes a `pg_dump`
-  to the volume (keep 4) **and emails it to Alex encrypted** (`openssl enc -aes-256-cbc -pbkdf2`,
+- Decision (the owner, the PRD fallback): stay on Hobby. The weekly `BackupJob` (M2) writes a `pg_dump`
+  to the volume (keep 4) **and emails it to the owner encrypted** (`openssl enc -aes-256-cbc -pbkdf2`,
   passphrase in credentials and the household password manager) through the Gmail sender: an
   off-Railway copy every week, which Pro's in-Railway backups would not give. Photos: monthly
   download (`bin/download-photos`). The M2 restore drill restores the decrypted dump into a scratch

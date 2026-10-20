@@ -1,4 +1,4 @@
-# The weekly backup email to Alex (BackupJob)
+# The weekly backup email to the owner (BackupJob)
 class BackupMailer < ApplicationMailer
   def dump
     @filename = File.basename(params[:path])

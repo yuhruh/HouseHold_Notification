@@ -1,7 +1,7 @@
 # M0 setup steps that need the owner's accounts
 
 The code for M0 is in `web/`. These steps create or connect external accounts, so they are done by
-Alex (or by Claude with the owner's go-ahead). All of them were done on 2026-10-17/18; the notes
+the owner (or by Claude with the owner's go-ahead). All of them were done on 2026-10-17/18; the notes
 below record what actually worked.
 
 ## 1. Railway (done 2026-10-17 by Claude)
@@ -9,7 +9,7 @@ Project **household-tracker** (separate from Cat_Feeder_Tracker_V4): services `w
 volume `web-volume` at `/rails/storage`, URL **https://household-tracker.up.railway.app**
 (permanent). The domain's target port is **80** (Thruster in front of Puma on 3000). Deployed with
 `railway up` from `web/`; connect the GitHub repo for auto-deploys once it's pushed.
-Spike basic auth: user `alex`, password in the `SPIKE_PASSWORD` Railway variable.
+Spike basic auth: user and password in the `SPIKE_USER` / `SPIKE_PASSWORD` Railway variables.
 
 Original steps, for reference:
 1. New service from this repo (or `railway up` from `web/`). **Root directory: `web`**. Builder:
@@ -29,7 +29,7 @@ Original steps, for reference:
 
 ## 2. Sentry (done 2026-10-18)
 Project `household-tracker/household-tracker-web` (EU ingest); DSN in the Railway variable
-`SENTRY_DSN`. The default "high priority issues" alert emails Alex; the test exception from
+`SENTRY_DSN`. The default "high priority issues" alert emails the owner; the test exception from
 `/spike/checks` arrived as HOUSEHOLD-TRACKER-WEB-1. Gmail files Sentry mail under Updates: a filter
 on `from:noreply@md.getsentry.com` → Categorize as Primary keeps alerts visible.
 
@@ -79,7 +79,7 @@ against the Paid sum.
 ## 7. Backups (built 2026-10-19)
 Railway Hobby can't create volume backups (X3). `BackupJob` runs every Sunday 04:00 Taipei: a
 `pg_dump -Fc` to `/rails/storage/backups/` (keeps 4) and an encrypted copy
-(`household-YYYY-MM-DD.dump.enc`, `openssl enc -aes-256-cbc -pbkdf2 -iter 600000`) emailed to Alex.
+(`household-YYYY-MM-DD.dump.enc`, `openssl enc -aes-256-cbc -pbkdf2 -iter 600000`) emailed to the owner.
 1. Railway → `web` → Variables: `BACKUP_PASSPHRASE` = the passphrase from the password manager.
    Optional: `BACKUP_RECIPIENT` (default: the Gmail sender), `BACKUP_HEARTBEAT_URL` (Healthchecks.io).
 2. First run: `/spike/checks` → **Run backup now**; the email arrives in a minute or two.

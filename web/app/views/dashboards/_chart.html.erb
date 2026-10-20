@@ -11,7 +11,7 @@
   <details class="text-sm">
     <summary class="cursor-pointer text-gray-600"><%= t("dashboards.show.as_table") %></summary>
     <div class="mt-2 overflow-x-auto">
-      <table class="w-full text-left">
+      <table class="w-full text-left border-2 border-zinc-700">
         <thead class="border-b border-gray-400"><tr><th class="pr-3"></th><% table[:columns].each do |c| %><th class="pr-3 text-right"><%= c %></th><% end %></tr></thead>
         <tbody>
           <% table[:rows].each do |label, values| %>

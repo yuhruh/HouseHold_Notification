@@ -1,0 +1,13 @@
+<%# Rows per page above the records list: 10 / 20 / 50 or a custom number (remembered on this device) %>
+<% custom = !Records::Filter::PER_PAGE.include?(filter.per) %>
+<%= form_with url: household_records_path(Current.household), method: :get, class: "flex flex-wrap items-center gap-2 text-sm", data: { controller: "per-page" } do %>
+  <% filter.params.each do |key, value| %><%= hidden_field_tag key, value, id: nil %><% end %>
+  <%= label_tag :per, t("records.pagination.per_page") %>
+  <%= select_tag :per, options_for_select(Records::Filter::PER_PAGE.map { |n| [ n, n ] } + [ [ t("records.pagination.custom"), "custom" ] ], custom ? "custom" : filter.per),
+        class: "h-9 rounded-md border border-gray-400 px-2", data: { per_page_target: "select", action: "per-page#change" } %>
+  <span class="flex items-center gap-2" data-per-page-target="custom" <%= "hidden" unless custom %>>
+    <%= number_field_tag :per_custom, (filter.per if custom), min: 1, max: Records::Filter::MAX_PER_PAGE,
+          class: "h-9 w-20 rounded-md border border-gray-400 px-2", "aria-label": t("records.pagination.custom_label") %>
+    <%= submit_tag t("records.pagination.go"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
+  </span>
+<% end %>

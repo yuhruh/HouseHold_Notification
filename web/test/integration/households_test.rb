@@ -69,15 +69,32 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     assert_select "header", /Parents/
   end
 
-  test "the switcher shows only with more than one membership" do
+  test "the Apartment menu lists every household, ticks the current one and offers a new household" do
     sign_in_as users(:google_only)
     get household_path(households(:home))
-    assert_select "details summary", I18n.t("layouts.header.switch")
+    assert_select "details summary", /#{I18n.t("layouts.header.apartment")}/
+    assert_select "details li a[href=?]", household_path(households(:parents)), /Parents/
+    assert_select "details li a[aria-current=true][href=?]", household_path(households(:home)), /我的家/
+    assert_select "details li a[href=?]", onboarding_path
 
     sign_out
     sign_in_as users(:alex)
     get household_path(households(:home))
-    assert_select "details summary", text: I18n.t("layouts.header.switch"), count: 0
+    assert_select "details li a[href^='/h/']", 1, "one household, still in the menu"
+  end
+
+  test "the Household Tracker logo goes to the features page, which works signed in and out" do
+    sign_in_as users(:alex)
+    get household_path(households(:home))
+    assert_select "header a[href=?]", features_path, /Household Tracker/
+    get features_path
+    assert_select "h1", /功能介紹/
+    assert_select "a[href=?]", guide_path
+
+    sign_out
+    get features_path, headers: { "Accept-Language" => "en" }
+    assert_response :success
+    assert_select "h1", /Features/
   end
 
   test "a viewer can't invite (Pundit, server-side)" do

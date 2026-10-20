@@ -1,6 +1,6 @@
 # Tracking
 
-Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Alex)
+Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs the owner)
 
 ## M0: Foundations + push spike
 
@@ -11,7 +11,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | Solid Queue/Cache/Cable on the single Postgres | ☑ | `db/migrate/*_create_solid_*`; verify a job runs on Railway |
 | Docker entrypoint: chown Railway Volume, drop to uid 1000 | ☑ | verify on Railway |
 | CI at repo root (`working-directory: web`) | ☑ | green on main |
-| Sentry initializer (`SENTRY_DSN`) | ☑ | project `household-tracker/household-tracker-web` (EU ingest); `SENTRY_DSN` set on Railway; test exception arrived as HOUSEHOLD-TRACKER-WEB-1; default "high priority issues" alert emails Alex |
+| Sentry initializer (`SENTRY_DSN`) | ☑ | project `household-tracker/household-tracker-web` (EU ingest); `SENTRY_DSN` set on Railway; test exception arrived as HOUSEHOLD-TRACKER-WEB-1; default "high priority issues" alert emails the owner |
 | Gmail API delivery method + `bin/rails gmail:authorize` | ☑ | sender = the owner's personal Gmail (ADR 0005, X8); GCP project `household-mailer` In production; test email from production landed in the inbox 2026-10-18; family member's Gmail ✅ 2026-10-19 (the family member's invitation landed in his inbox, not spam) |
 | PWA manifest + service worker (push + receipt) | ☑ | |
 | Push spike `/spike/push`, checks `/spike/checks` | ☑ | basic auth via `SPIKE_USER`/`SPIKE_PASSWORD` |
@@ -27,7 +27,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs Ale
 | X2 Railway URL as permanent OAuth host | ☑ | both GCP projects accept it; Google sign-in works on `/spike/google` (ADR 0005) |
 | X1 Google forced re-auth | ☑ | failed (no password prompt, no `auth_time`); fallback adopted: emailed 6-digit code, PRD §13/§15 updated (ADR 0005) |
 | X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
-| X3 Railway backups | ☑ | failed (Hobby plan can't create backups); fallback: weekly encrypted `pg_dump` emailed to Alex + monthly photo download, built in M2 (ADR 0005) |
+| X3 Railway backups | ☑ | failed (Hobby plan can't create backups); fallback: weekly encrypted `pg_dump` emailed to the owner + monthly photo download, built in M2 (ADR 0005) |
 | X9 push on every family phone | ◐ | push spike on each phone (ADR 0003). 2026-10-20: the owner's Pixel 9 overnight retest ✅ (accepted 05:27:09, shown by 05:31:35). Left: the family member's phone |
 | Import dry-run #1 on the real CSV | ☑ | round 1 logged below (26 rows with errors) |
 
@@ -53,11 +53,11 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Records CRUD, filters, summary, mark-paid, payment methods UI | ☑ | 2026-10-19: list with year/month (period overlap), type, category, status, payment method and search; per-type and per-currency Required/Paid/Outstanding; record form (category sets the type, title defaults to it, end year from the year rule), optimistic locking; mark-paid (asks for the amount when Required is blank, date-only for Maintenance); `record_events` activity log (column `diff`, since `changes` is an Active Record method) with a snapshot on delete; payment methods add/edit/archive. Categories editing UI still to do |
 | Backups: weekly encrypted `BackupJob` + restore drill (before the real import) | ☑ | built 2026-10-19 (Sunday 04:00 Taipei, keep 4, encrypted email; `backup:decrypt`, `backup:restore_drill`). **Restore drill passed 2026-10-19 11:17** on the production backup emailed at ~11:15: decrypted with the passphrase from the password manager, restored into Postgres 18 (Docker), households 1 · users 1 · memberships 1 · categories 15 · records 0. Passphrase rotated 2026-10-19 12:01 (the drill-day one appeared in a screenshot); Railway and the password manager match by fingerprint. Monthly photo download comes with photos (M3) |
 | CSV import preview → commit, re-import updates, undo, `record_events` | ☑ | 2026-10-19: upload → dry-run validation (failure page lists rows, nothing saved) → preview (new / update with three-way ⚠ conflicts / unchanged / deleted in app Skip-Re-create / new IDs paste-back / category mapping saved as aliases / maintenance chains Keep-Clear-New date / warnings / sheet Total vs Paid) → one-transaction commit with lock_version check → latest-batch undo. Real CSV trial (rolled back): 130 created, Paid 429,869 = Total, re-import 130 unchanged. Not yet: moving rows between chains, payment-method suggestion from Note, bulk reminder for unpaid rows |
-| Real import into the family household | ☑ | Alex uploaded the 記錄 CSV into 我的家, 2026-10-19 (after backups + restore drill + passphrase rotation). **Production re-import check passed 2026-10-19 17:11:** same CSV → 0 new, 0 updated, 130 unchanged; still 130 records, Paid 429,869 (committed, so a 0-change batch is in the import history) |
+| Real import into the family household | ☑ | The owner uploaded the 記錄 CSV into 我的家, 2026-10-19 (after backups + restore drill + passphrase rotation). **Production re-import check passed 2026-10-19 17:11:** same CSV → 0 new, 0 updated, 130 unchanged; still 130 records, Paid 429,869 (committed, so a 0-change batch is in the import history) |
 | Categories editing UI | ☑ | 2026-10-19: add, rename (titles follow; old name saved as an alias), archive used / delete unused, remove import aliases |
 | CSV export that round-trips | ☑ | 2026-10-19: Export CSV on the records list (current filters), 記錄 layout with the Total row; app-entered records export as `app-<record_no>` and re-import onto themselves. Real data: import → export → re-import = 130 unchanged |
 | Undo refused after later edits / deletions (PRD M5) | ☑ | 2026-10-19 (photos join the check in M3) |
-| M2 exit: family member invited and browsing the imported data | ☑ | 2026-10-19 17:16: Sam accepted the invitation and is a Co-owner of 我的家; no pending invitations left |
+| M2 exit: family member invited and browsing the imported data | ☑ | 2026-10-19 17:16: the family member accepted the invitation and is a Co-owner of 我的家; no pending invitations left |
 
 ## M4: Recurring + reminders
 
@@ -82,7 +82,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Task | Status | Notes |
 |---|---|---|
 | Record photos + avatars, private serving, sanitize before attach, client downscale | ☑ | 2026-10-19: Active Storage Disk on the volume, `draw_routes = false`; `PhotosController` (members only; signed-out / non-member → 404; `Cache-Control: private, max-age=300`, `nosniff`, inline; 400px thumbnails); `Photos::Sanitizer` (autorotate, strip EXIF/GPS/XMP/ICC → sRGB, ≤2000px, JPEG q82, HEIC → JPEG); JPEG/PNG/WebP/HEIC, 10 MB, 10 per record; Stimulus canvas downscale; avatars (512 square, visible to shared households); household purge removes files; undo blocked by added photos; template changes keep bills with photos in place |
-| Monthly photo backup | ☑ | `PhotoBackupReminderJob` (1st of the month 09:00 Taipei, only when photos exist) emails Alex to run `bin/download-photos` (tar over `railway ssh`; **untested from here**, since `railway ssh` was denied in this session) |
+| Monthly photo backup | ☑ | `PhotoBackupReminderJob` (1st of the month 09:00 Taipei, only when photos exist) emails the owner to run `bin/download-photos` (tar over `railway ssh`; **untested from here**, since `railway ssh` was denied in this session) |
 | M3 exit: upload from phone; survives a redeploy; non-member / signed-out → 404; no `/rails/active_storage` route | ☑ | 404s and the missing route are covered by tests. 2026-10-19: uploaded from the Pixel, redeployed (17:22, deployment 3f20cb3c), photo still there ✅. `bin/download-photos` ran after it: 192 KB archive, 3 valid JPEGs (photo, thumbnail, avatar), no GPS data |
 
 ## M6: Dashboard
@@ -98,7 +98,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Task | Status | Notes |
 |---|---|---|
 | Privacy policy + `/account/deletion` page | ☑ | 2026-10-19: `/privacy` updated: self-service deletion link, what's collected (avatar, language/time zone, signed-in devices), the services the app runs on (Railway, Gmail, push service, Sentry), and backups: server copies expire within 4 weeks, off-server encrypted copies (email, computer) are deleted after 3 months (the owner's choice, 2026-10-19; the monthly photo-backup email reminds her). Same wording on `/account/deletion`. `/guide` is also in the header nav |
-| Volume disk-usage alert | ☑ | 2026-10-19: `DiskUsageJob` daily 03:45 Taipei, `df` on `/rails/storage`, ≥80% → Sentry warning + `DISK_HEARTBEAT_URL` `/fail`. Optional for Alex: a 5th Healthchecks.io check (1 day / 2 h) and the variable |
+| Volume disk-usage alert | ☑ | 2026-10-19: `DiskUsageJob` daily 03:45 Taipei, `df` on `/rails/storage`, ≥80% → Sentry warning + `DISK_HEARTBEAT_URL` `/fail`. Optional for the owner: a 5th Healthchecks.io check (1 day / 2 h) and the variable |
 | Repeat restore drill, now including photos | ☑ | 2026-10-20: backup `household-2026-10-20.dump.enc` (Run backup now, 11:16) + `bin/download-photos` the same day, restored into a Docker Postgres 18: households 1, users 2, memberships 2, categories 16, records 130, blobs 1; photo files 1 checked, 0 without a blob; "Restore drill OK". Backup heartbeat green |
 | Family onboarding guide (install + enable notifications) | ☑ | 2026-10-19: `/guide` (zh-TW / en by locale): accept invite, install, enable push, Chrome battery Unrestricted, what arrives daily, troubleshooting. Linked from the invitation email and My account → Notifications. Revisit the battery tip after the X9 overnight retest |
 | Remove the M0 spike pages and jobs | ☐ | after X8 (2026-10-26: `Spike::GmailDurabilityJob`) and X9 (`/spike/push` on family phones) |
@@ -127,7 +127,7 @@ payment-method pie shows a single "(none)" slice and the records filter by payme
 **Open question:** for "全支付(玉山ubear)", count it under the **card** (ubear: "how much on each card",
 recommended) or as a separate **全支付** method ("how much through each app")?
 
-**Decision (2026-10-20, Alex):** 全支付(玉山ubear) counts under the **ubear card**; 全支付 is not a keyword.
+**Decision (2026-10-20, the owner):** 全支付(玉山ubear) counts under the **ubear card**; 全支付 is not a keyword.
 Built: Payment methods → 從備註指定付款方式 (`PaymentMethods::FromNotes`, saved as `payment_keywords`, ↑↓ priority),
 import preview pre-fill from the saved keywords, and new records defaulting to the category's latest payment
 method. On the real sheet: ubear 17, unicard 9, 玉山帳戶 6, 中信轉帳 5, 大戶卡 4, 新光信用卡 2, 街口 2, Pi錢包 1

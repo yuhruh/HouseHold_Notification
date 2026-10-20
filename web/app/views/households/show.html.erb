@@ -1,9 +1,9 @@
 <% content_for :title, Current.household.name %>
 <div class="w-full max-w-2xl space-y-6 py-4">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= Current.household.name %></h1>
+  <%= page_title("apartment.png", Current.household.name) %>
   <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
-  <ul class="flex flex-col space-y-2 pt-4 text-sm">
+  <ul class="flex flex-col space-y-2 pt-4 text-base text-gray-700 sm:flex-row sm:flex-wrap sm:gap-2 sm:space-y-0">
     <% [ [ "upcoming.png", t("layouts.header.upcoming"), household_upcoming_path(Current.household) ],
          [ "records.png", t(".records"), household_records_path(Current.household) ],
          [ "dashboard.png", t("layouts.header.dashboard"), household_dashboard_path(Current.household) ],

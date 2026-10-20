@@ -28,7 +28,7 @@
         <summary class="cursor-pointer text-lg font-semibold"><%= t(".categories") %> (<%= p.choices["categories"].size %>)</summary>
         <p class="text-sm text-gray-600"><%= t(".categories_hint") %></p>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-full text-sm border-2 border-zinc-700">
             <thead class="text-left border-b border-gray-400"><tr><th class="py-1 pr-3"><%= t(".item") %></th><th class="py-1 pr-3"><%= t(".rows") %></th><th class="py-1"><%= t(".category") %></th></tr></thead>
             <tbody>
               <% p.choices["categories"].each do |mapping, choice| %>
@@ -48,7 +48,7 @@
       <details open class="<%= box %>">
         <summary class="cursor-pointer text-lg font-semibold"><%= t(".payment_keywords") %> (<%= p.choices["payment_keywords"].size %>)</summary>
         <p class="text-sm text-gray-600"><%= t(".payment_keywords_hint") %></p>
-        <table class="w-full text-sm">
+        <table class="w-full text-sm border-2 border-zinc-700">
           <thead class="text-left border-b border-gray-400"><tr><th class="py-1 pr-3"><%= t(".keyword") %></th><th class="py-1"><%= Record.human_attribute_name(:payment_method) %></th></tr></thead>
           <tbody>
             <% p.choices["payment_keywords"].each_with_index do |entry, index| %>
@@ -64,7 +64,7 @@
       <details class="<%= box %>">
         <summary class="cursor-pointer text-lg font-semibold"><%= t(".kinds.new") %> (<%= counts["new"] %>)</summary>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-full text-sm border-2 border-zinc-700">
             <thead class="text-left border-b border-gray-400"><tr><th class="py-1 pr-2">ID</th><th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t(".item") %></th>
               <th class="py-1 pr-2"><%= t("records.index.details") %></th><th class="py-1 pr-2 text-right"><%= t("records.index.required") %></th>
               <th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th><th class="py-1"><%= t("records.index.paid_on") %></th></tr></thead>

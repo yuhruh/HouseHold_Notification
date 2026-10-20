@@ -1,7 +1,7 @@
 # Household Expense Tracker (家庭支出) — PRD, Architecture, Orchestration & Tracking
 
 ## Context
-the owner's household tracks bills in a Google Sheet (家庭支出). Its columns are: ✅ done, Type (Expense / Maintenance / Tax), year, month period (1月-2月, 全年, 7月), item, detail, Required, Paid, Finished Date, and a note holding the payment method (玉山ubear, 全支付(玉山帳戶), …) or "Next Time: …" for maintenance. The orange header shows totals per type. The sheet has no reminders, no mobile entry, and no structure for payment methods, periods or attachments; photos live in separate tabs.
+the owner's household tracks bills in a Google Sheet. Its columns are: ✅ done, Type (Expense / Maintenance / Tax), year, month period (1月-2月, 全年, 7月), item, detail, Required, Paid, Finished Date, and a note holding the payment method (玉山ubear, 全支付(玉山帳戶), …) or "Next Time: …" for maintenance. The orange header shows totals per type. The sheet has no reminders, no mobile entry, and no structure for payment methods, periods or attachments; photos live in separate tabs.
 
 **Goal:** a shared, installable web app (PWA) that replaces the sheet on desktop and Android. It records Expense, Maintenance and Tax items with required vs paid amounts, payment date, payment method and notes, filters by year/month/type, reminds members before things are due, and imports the existing sheet history.
 

@@ -1,0 +1,17 @@
+<%# Theme menu: light, dark or follow the device; the current one is ticked %>
+<details class="relative" data-controller="dropdown">
+  <summary class="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1" aria-label="<%= t("layouts.header.theme") %>">
+    <span aria-hidden="true">🌗</span><span><%= t("layouts.header.theme") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
+  </summary>
+  <ul class="absolute right-0 z-50 mt-1 min-w-40 rounded-md border bg-white py-1 shadow">
+    <% [ [ "light", "☀️" ], [ "dark", "🌙" ], [ "system", "💻" ] ].each do |theme, icon| %>
+      <li>
+        <%= button_to theme_path, method: :patch, params: { theme: },
+              class: "flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 #{'font-semibold' if current_theme == theme}",
+              "aria-current": (current_theme == theme ? "true" : nil) do %>
+          <span aria-hidden="true"><%= icon %></span><span><%= t("layouts.header.themes.#{theme}") %></span><% if current_theme == theme %><span aria-hidden="true" class="ml-auto text-blue-600">✓</span><% end %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</details>

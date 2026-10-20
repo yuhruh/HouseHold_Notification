@@ -123,5 +123,6 @@ Rails.application.routes.draw do
   get "guide" => "pages#guide"
   get "features" => "pages#features"
   patch "locale" => "locales#update"
+  patch "theme" => "themes#update"
   root "pages#home"
 end

@@ -57,6 +57,7 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - The owner can **delete all records** (re-authentication and the typed household name required),
   optionally keeping the recurring templates.
 - A language switch (🇺🇸 English / 🇹🇼 繁體中文) for signed-in and signed-out visitors.
+- A theme menu (Light / Dark / Device setting), remembered on each device.
 
 **Photos**
 - Downscaled in the browser, then rotated, stripped of all metadata (including GPS) and saved as

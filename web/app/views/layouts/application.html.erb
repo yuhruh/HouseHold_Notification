@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="<%= current_theme %>">
   <head>
     <title><%= content_for(:title) || "Household Tracker" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -30,6 +30,7 @@
       <nav class="container mx-auto flex flex-wrap items-center justify-end gap-3 px-4 pt-3 text-sm">
         <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-300 px-2 py-1 text-blue-900 transition-transform duration-150 hover:bg-blue-400 motion-safe:hover:scale-110"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
         <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= render "layouts/theme_switch" %>
         <%= render "layouts/language_switch" %>
       </nav>
     <% end %>

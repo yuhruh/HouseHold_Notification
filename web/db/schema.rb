@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -243,6 +243,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_200000) do
     t.index ["household_id"], name: "index_notifications_on_household_id"
     t.index ["reminder_delivery_id"], name: "index_notifications_on_reminder_delivery_id"
     t.index ["user_id", "read_at", "created_at"], name: "index_notifications_on_user_id_and_read_at_and_created_at"
+  end
+
+  create_table "payment_keywords", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "keyword", null: false
+    t.bigint "payment_method_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "keyword"], name: "index_payment_keywords_on_household_id_and_keyword", unique: true
+    t.index ["household_id"], name: "index_payment_keywords_on_household_id"
+    t.index ["payment_method_id"], name: "index_payment_keywords_on_payment_method_id"
   end
 
   create_table "payment_methods", force: :cascade do |t|
@@ -693,6 +705,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_200000) do
   add_foreign_key "notifications", "households"
   add_foreign_key "notifications", "reminder_deliveries", on_delete: :nullify
   add_foreign_key "notifications", "users", on_delete: :cascade
+  add_foreign_key "payment_keywords", "households"
+  add_foreign_key "payment_keywords", "payment_methods", on_delete: :nullify
   add_foreign_key "payment_methods", "households"
   add_foreign_key "push_subscriptions", "sessions", on_delete: :nullify
   add_foreign_key "push_subscriptions", "users"

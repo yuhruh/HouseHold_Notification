@@ -30,6 +30,7 @@ module Imports
         @batch = @household.import_batches.create!(created_by: @user, filename: @preview.filename, row_count: @preview.rows.size)
         @categories = resolve_categories
         save_aliases
+        @payment_keywords = resolve_payment_keywords
         @next_due = chain_next_due
         counts = Hash.new(0)
         @preview.rows.each do |row|
@@ -87,6 +88,23 @@ module Imports
       end
     end
 
+    # [[keyword, payment method or nil]] in priority order; a changed choice is saved for next time
+    def resolve_payment_keywords
+      methods = @household.payment_methods.active.index_by { |pm| "pm:#{pm.id}" }
+      Array(@choices["payment_keywords"]).map do |entry|
+        method = methods[entry["choice"]]
+        @household.payment_keywords.find_by(keyword: entry["keyword"])&.update!(payment_method: method)
+        [ entry["keyword"], method ]
+      end
+    end
+
+    # A record without a payment method gets the first matching keyword's (never overwrites one)
+    def fill_payment_method(record)
+      return if record.payment_method_id || record.payment_note.blank?
+      _, method = @payment_keywords.find { |keyword, pm| pm && PaymentKeyword.match?(keyword, record.payment_note) }
+      record.payment_method = method if method
+    end
+
     # Only the chain's latest row keeps a next-due date: Keep, Clear or a new date (PRD §9)
     def chain_next_due
       @choices.fetch("chains", []).each_with_object({}) do |chain, due|
@@ -109,6 +127,7 @@ module Imports
         "imported_at" => @now, "import_batch" => @batch, "created_by" => @user
       ))
       record.next_due_on = @next_due[row["key"]] if @next_due.key?(row["key"])
+      fill_payment_method(record)
       save!(record, row)
 
       key = @household.import_keys.find_by(key: row["key"])
@@ -138,6 +157,7 @@ module Imports
       record.next_due_on = @next_due[row["key"]] if @next_due.key?(row["key"])
       record.assign_attributes(import_digest: row["digest"], import_snapshot: row["values"], imported_at: @now, import_batch: @batch)
       record.import_key ||= row["key"] # an app-entered record linked by its exported app- ID
+      fill_payment_method(record)
       save!(record, row)
       @household.import_keys.create_with(record:, import_batch: @batch).find_or_create_by!(key: row["key"])
       @batch.changes_made.create!(record_id: record.id, action: "updated", before:, after: record.attributes.slice(*TRACKED))

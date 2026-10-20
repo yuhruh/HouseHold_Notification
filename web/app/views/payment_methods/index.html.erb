@@ -6,6 +6,10 @@
     <%= page_title("payment.png", t(".title")) %>
     <% if writer %><%= link_to t(".new"), new_household_payment_method_path(Current.household), class: "rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %><% end %>
   </div>
+  <% if writer %>
+    <p class="text-sm"><%= link_to t(".from_notes"), from_notes_household_payment_methods_path(Current.household), class: "text-blue-700 underline" %>
+      <span class="text-gray-500"><%= t(".from_notes_hint") %></span></p>
+  <% end %>
   <% if @payment_methods.empty? %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% else %>

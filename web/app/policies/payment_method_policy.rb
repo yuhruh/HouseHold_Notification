@@ -7,4 +7,6 @@ class PaymentMethodPolicy < ApplicationPolicy
   alias_method :edit?, :write?
   alias_method :update?, :write?
   alias_method :archive?, :write?
+  alias_method :from_notes?, :write?
+  alias_method :assign_from_notes?, :write?
 end

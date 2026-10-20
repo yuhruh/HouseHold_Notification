@@ -8,6 +8,7 @@ class Household < ApplicationRecord
   has_many :categories
   has_many :category_aliases
   has_many :payment_methods
+  has_many :payment_keywords
   has_many :records
   has_many :record_events
   has_many :import_batches

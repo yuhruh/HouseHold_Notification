@@ -79,6 +79,11 @@ class ImportsController < ApplicationController
     preview.rows_of("deleted").each do |row|
       choices["deleted"][row["line"].to_s] = submitted.dig(:deleted, row["line"].to_s) == "recreate" ? "recreate" : "skip"
     end
+    method_choices = Current.household.payment_methods.active.pluck(:id).map { |id| "pm:#{id}" } + [ PaymentMethods::FromNotes::SKIP ]
+    Array(choices["payment_keywords"]).each_with_index do |entry, index|
+      value = submitted.dig(:payment_keywords, index.to_s).to_s
+      entry["choice"] = value if method_choices.include?(value)
+    end
     choices["chains"].each_with_index do |chain, index|
       action = submitted.dig(:chains, index.to_s, :action).to_s
       chain["action"] = action if %w[keep clear new_date].include?(action)

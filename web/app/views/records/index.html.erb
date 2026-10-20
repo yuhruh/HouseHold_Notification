@@ -41,11 +41,11 @@
 
   <section aria-label="<%= t(".summary") %>" class="overflow-x-auto rounded-lg border">
     <table class="w-full text-sm">
-      <thead class="bg-gray-50 text-left">
+      <thead class="bg-gray-50 text-left border-b border-gray-400">
         <tr><th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".required") %></th>
           <th class="px-3 py-2 text-right"><%= t(".paid") %></th><th class="px-3 py-2 text-right"><%= t(".outstanding") %></th></tr>
       </thead>
-      <tbody class="divide-y">
+      <tbody>
         <% @filter.summary.each do |row| %>
           <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
             <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :required) %></td>
@@ -68,7 +68,7 @@
     <p class="text-sm text-gray-600"><%= t(".count", count: records.size) %></p>
     <div class="overflow-x-auto rounded-lg border">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-left">
+        <thead class="bg-gray-50 text-left border-b border-gray-400">
           <tr>
             <th class="px-2 py-2">✅</th><th class="px-2 py-2"><%= t(".period") %></th><th class="px-2 py-2"><%= t(".item") %></th>
             <th class="px-2 py-2"><%= t(".details") %></th><th class="px-2 py-2 text-right"><%= t(".required") %></th>
@@ -76,7 +76,7 @@
             <th class="px-2 py-2"><%= t(".status") %></th><% if writer %><th class="px-2 py-2"></th><% end %>
           </tr>
         </thead>
-        <tbody class="divide-y">
+        <tbody>
           <% records.each do |record| %>
             <tr id="<%= dom_id(record) %>" class="align-top">
               <td class="px-2 py-1.5"><%= record_check(record) %></td>

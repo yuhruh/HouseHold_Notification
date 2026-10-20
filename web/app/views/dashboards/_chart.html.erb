@@ -12,8 +12,8 @@
     <summary class="cursor-pointer text-gray-600"><%= t("dashboards.show.as_table") %></summary>
     <div class="mt-2 overflow-x-auto">
       <table class="w-full text-left">
-        <thead><tr><th class="pr-3"></th><% table[:columns].each do |c| %><th class="pr-3 text-right"><%= c %></th><% end %></tr></thead>
-        <tbody class="divide-y">
+        <thead class="border-b border-gray-400"><tr><th class="pr-3"></th><% table[:columns].each do |c| %><th class="pr-3 text-right"><%= c %></th><% end %></tr></thead>
+        <tbody>
           <% table[:rows].each do |label, values| %>
             <tr><th class="pr-3 font-normal"><%= label %></th><% values.each do |v| %><td class="pr-3 text-right"><%= v.is_a?(Numeric) ? money(v, @query.currency) : v %></td><% end %></tr>
           <% end %>

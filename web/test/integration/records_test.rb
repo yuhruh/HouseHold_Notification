@@ -208,4 +208,16 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "section[aria-label] td", text: "NT$2,500"
     assert_select "form[data-controller=per-page] input[type=hidden][name=status][value=paid]"
   end
+
+  test "rows still to pay are highlighted: unpaid and partly paid in amber, overdue in red, paid plain" do
+    unpaid = add(amount_required: 700)
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
+    overdue = add(amount_required: 500, due_on: 3.days.ago.to_date)
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
+    get household_records_path(@home)
+    assert_select "tr#record_#{unpaid.id}.bg-amber-50"
+    assert_select "tr#record_#{partial.id}.bg-amber-50"
+    assert_select "tr#record_#{overdue.id}.bg-red-50"
+    assert_select "tr#record_#{paid.id}.bg-amber-50, tr#record_#{paid.id}.bg-red-50", 0
+  end
 end

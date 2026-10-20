@@ -32,13 +32,6 @@
     </div>
   <% end %>
 
-  <% if (amount = @filter.params[:amount]) %>
-    <p class="flex flex-wrap items-center gap-2 text-sm">
-      <span class="rounded-full bg-blue-50 px-3 py-1 text-blue-900"><%= t(".amount_filter.#{amount}") %><%= " · #{@filter.params[:currency]}" if @filter.params[:currency] %></span>
-      <%= link_to t(".amount_filter.remove"), household_records_path(Current.household, @filter.params.except(:amount, :currency)), class: "text-blue-700 underline" %>
-    </p>
-  <% end %>
-
   <section aria-label="<%= t(".summary") %>" class="overflow-x-auto rounded-lg border">
     <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
       <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
@@ -60,6 +53,13 @@
       </tbody>
     </table>
   </section>
+
+  <% if (amount = @filter.params[:amount]) %>
+    <p class="flex flex-wrap justify-end items-center gap-2 text-sm">
+      <span class="rounded-full bg-blue-50 px-3 py-1 text-blue-900"><%= t(".amount_filter.#{amount}") %><%= " · #{@filter.params[:currency]}" if @filter.params[:currency] %></span>
+      <%= link_to t(".amount_filter.remove"), household_records_path(Current.household, @filter.params.except(:amount, :currency)), class: "text-blue-700 underline" %>
+    </p>
+  <% end %>
 
   <% if records.empty? %>
     <p class="text-gray-600"><%= @filter.active? ? t(".no_match") : t(".empty") %></p>

@@ -81,4 +81,24 @@ class RemindersTest < ActionDispatch::IntegrationTest
     get account_path
     assert_response :success
   end
+
+  test "deleting a bill takes it out of the inbox: its own digest goes, a shared digest is rewritten without it" do
+    zone = Time.find_zone!("Asia/Taipei")
+    water = bill(due_on: Date.new(2026, 10, 20))
+    gas = bill(due_on: Date.new(2026, 10, 20), details: "B 棟")
+    travel_to(zone.local(2026, 10, 20, 8, 5)) { Reminders::Run.call }
+    note = users(:alex).notifications.sole
+    assert_match "2 筆", note.title
+    note.update!(read_at: Time.current)
+
+    delete household_record_path(@home, gas)
+    note.reload
+    assert_match "1 筆", note.title
+    assert_no_match "B 棟", note.body
+    assert_equal household_record_path(@home, water), note.url
+    assert note.read_at, "stays read"
+
+    delete household_record_path(@home, water)
+    assert_empty users(:alex).notifications
+  end
 end

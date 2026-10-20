@@ -36,19 +36,17 @@
     <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
       <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
         <tr>
-          <th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".paid") %></th><th class="px-3 py-2 text-right"><%= t(".outstanding") %></th>
+          <th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".paid") %></th>
         </tr>
       </thead>
       <tbody>
         <% @filter.summary.each do |row| %>
           <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
-            <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td></tr>
         <% end %>
         <% @filter.totals.each do |row| %>
           <tr class="font-semibold"><td class="px-3 py-1.5"><%= t(".total") %> <span class="text-gray-500"><%= row.currency %></span></td>
-            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td>
-            <td class="px-3 py-1.5 text-right"><%= outstanding_link(row, @filter.params) %></td></tr>
+            <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td></tr>
         <% end %>
       </tbody>
     </table>

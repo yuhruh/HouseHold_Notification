@@ -500,7 +500,6 @@ zh-TW:
       required: "應繳"
       paid: "已繳"
       outstanding: "未繳"
-      show_outstanding: "列出尚未繳清的記錄"
       show_required: "列出有應繳金額的記錄"
       show_paid: "列出有已繳金額的記錄"
       amount_filter:

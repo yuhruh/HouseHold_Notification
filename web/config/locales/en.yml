@@ -169,6 +169,7 @@ en:
       themes:
         light: "Light"
         dark: "Dark"
+        system: "Device setting"
       new_household: "＋ New Household"
       apartment: "Apartment"
       invitations:
@@ -274,6 +275,9 @@ en:
     show:
       title: "My Account"
       profile: "Profile"
+      theme: "Theme"
+      theme_label: "Theme on this device"
+      theme_hint: "Saved on this device only. Device setting follows the phone or computer's own light or dark mode."
       locale: "Language"
       locale_auto: "Same as the browser"
       time_zone: "Time zone"

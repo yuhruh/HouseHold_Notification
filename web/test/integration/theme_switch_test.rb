@@ -22,6 +22,19 @@ class ThemeSwitchTest < ActionDispatch::IntegrationTest
     assert_select "html[data-theme=light]"
   end
 
+  test "My account offers Device setting too, and shows this device's choice" do
+    sign_in_as users(:alex)
+    get account_path
+    assert_select "form[action=\"#{theme_path}\"][data-turbo=false] select[name=theme] option", 3
+    assert_select "select[name=theme] option[selected][value=light]"
+
+    patch theme_path, params: { theme: "system" }, headers: { "Referer" => "http://www.example.com/account" }
+    assert_redirected_to "http://www.example.com/account"
+    follow_redirect!
+    assert_select "html[data-theme=system]"
+    assert_select "select[name=theme] option[selected][value=system]"
+  end
+
   test "an unknown theme is ignored" do
     patch theme_path, params: { theme: "neon" }
     assert_redirected_to root_path

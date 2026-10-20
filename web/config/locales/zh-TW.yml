@@ -172,6 +172,9 @@ zh-TW:
         system: "跟隨裝置"
       new_household: "＋ 新家庭"
       apartment: "公寓"
+      menu: "選單"
+      close_menu: "關閉選單"
+      inbox_label: "通知"
       invitations:
         one: "1 個邀請"
         other: "%{count} 個邀請"

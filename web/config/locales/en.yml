@@ -172,6 +172,9 @@ en:
         system: "Device setting"
       new_household: "＋ New Household"
       apartment: "Apartment"
+      menu: "Menu"
+      close_menu: "Close menu"
+      inbox_label: "Inbox"
       invitations:
         one: "1 invitation"
         other: "%{count} invitations"

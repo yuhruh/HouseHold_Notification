@@ -1,21 +1,26 @@
-<%# Signed-in header: Apartment menu (households + new household), pending invitations, sign out (PRD §12a) %>
+<%# Signed-in header: Apartment menu (households + new household), pending invitations, sign out (PRD §12a).
+    From 1550px wide every link is in the bar; narrower screens get the logo, theme toggle, inbox and a
+    hamburger that opens the same links full screen %>
 <% households = Current.user.households.order(:name).to_a %>
 <% pending = Invitation.pending_for(Current.user).count %>
 <% unread = Current.user.notifications.unread.count %>
 <%# Pages outside a household (inbox, My account) still link to the last one used %>
 <% nav_household = Current.household || households.find { |h| h.id == Current.user.last_household_id } || households.first %>
+<% inbox = capture do %>
+  <%= link_to notifications_path, class: "relative px-2 py-1", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+<% end %>
 <header class="border-b">
   <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
     <%= link_to features_path, class: "flex items-center gap-2 font-semibold" do %>
       <%= image_tag "logo-sticker.png", alt: "", class: "h-7 w-auto" %>
       <span>Household Tracker</span>
     <% end %>
-    <nav class="flex flex-wrap items-center gap-3">
+    <nav class="hidden flex-wrap items-center gap-3 min-[1550px]:flex">
       <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-300 px-2 py-1 text-blue-900 transition-transform duration-150 hover:bg-blue-400 motion-safe:hover:scale-110"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
       <% if pending.positive? %>
         <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
       <% end %>
-      <%= link_to notifications_path, class: "relative px-2 py-1", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+      <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
         <%= link_to nav_label("upcoming.png", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
@@ -29,5 +34,14 @@
       <%= render "layouts/theme_switch" %>
       <%= render "layouts/language_switch" %>
     </nav>
+
+    <div class="flex items-center gap-2 min-[1550px]:hidden" data-controller="menu">
+      <%= render "layouts/theme_switch" %>
+      <%= inbox %>
+      <button type="button" class="cursor-pointer rounded-md p-2 hover:bg-gray-50" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <%= render "layouts/menu", households:, current: nav_household, pending:, unread: %>
+    </div>
   </div>
 </header>

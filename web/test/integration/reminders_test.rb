@@ -71,7 +71,8 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "header a[href='#{notifications_path}'] span", "1"
     get notifications_path
     assert_select "li", /水費/
-    assert_select "header a[href='#{household_upcoming_path(@home)}']", 1, "the header keeps household links outside a household"
+    assert_select "header nav a[href='#{household_upcoming_path(@home)}']", 1, "the header keeps household links outside a household"
+    assert_select "header dialog a[href='#{household_upcoming_path(@home)}']", 1, "so does the hamburger menu"
     assert_empty users(:alex).notifications.unread
 
     patch account_notification_preference_path(@home.id), params: { notification_preference: { email: "0", web_push: "1" } }

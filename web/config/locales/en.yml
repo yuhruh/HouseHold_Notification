@@ -465,7 +465,7 @@ en:
     month: "%{month}月"
     index:
       title: "Records"
-      new: "New record"
+      new: "New Record"
       import: "Import"
       year: "Year"
       month: "Month"
@@ -519,9 +519,9 @@ en:
       save: "Save"
       cancel: "Cancel"
     new:
-      title: "New record"
+      title: "New Record"
     edit:
-      title: "Edit record"
+      title: "Edit Record"
     create:
       created: "Record created."
     update:

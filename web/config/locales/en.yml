@@ -527,6 +527,7 @@ en:
       period: "Billing period"
       period_hint: "Year, first month, last month. A period like 12月–1月 ends in the next year."
       amounts_hint: "Paid in full copies the amount due; Partly paid takes what has been paid so far, up to the amount due."
+      paid_over_due: "Amount paid can't be more than the amount due."
       paid_choice:
         none: "Not paid yet"
         full: "Paid in full"

@@ -63,6 +63,8 @@
 - Verified: a test email sent from production through the Gmail API landed in the inbox (2026-10-18).
 - Log: 2026-10-19 09:00 run landed in the **Inbox** of both recipients; family.member shows
   mailed-by and signed-by gmail.com, TLS.
+- Interim check 2026-10-20: the 20:00 run landed in the owner's **Inbox**; the owner's Spam folder has
+  no test mails.
 - Remaining: ~20 test mails to family inboxes over 8 days; on or after 2026-10-26 the refresh token
   must still work (proves it isn't on the 7-day Testing expiry) and nothing landed in spam.
 

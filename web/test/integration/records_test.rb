@@ -221,6 +221,25 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "tr#record_#{paid.id}.bg-amber-50, tr#record_#{paid.id}.bg-red-50", 0
   end
 
+  test "unpaid rows show the due date (red once overdue) or No due date; paid rows show neither" do
+    due = add(amount_required: 700, due_on: Date.current + 10)
+    overdue = add(amount_required: 500, due_on: 3.days.ago.to_date)
+    undated = add(amount_required: 600)
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14), due_on: Date.current + 10)
+    get household_records_path(@home)
+    assert_select "tr#record_#{due.id} span.text-gray-500", "到期 #{I18n.l(due.due_on, locale: :"zh-TW")}"
+    assert_select "tr#record_#{overdue.id} span.text-red-700", "到期 #{I18n.l(overdue.due_on, locale: :"zh-TW")}"
+    assert_select "tr#record_#{undated.id} span.text-gray-500", "未設定到期日"
+    assert_select "tr#record_#{paid.id}", text: /到期|未設定到期日/, count: 0
+  end
+
+  test "the record page doesn't show the sheet ID" do
+    record = add(amount_required: 700, import_key: "125")
+    get household_record_path(@home, record)
+    assert_response :success
+    assert_no_match(/試算表 ID/, response.body)
+  end
+
   test "the form asks how much was paid: Not paid yet, Paid in full or Partly paid, picked from the record" do
     get new_household_record_path(@home)
     assert_select "label", /Amount due|應繳金額/

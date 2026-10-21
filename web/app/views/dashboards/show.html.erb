@@ -11,13 +11,15 @@
     <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t("records.index.all_types"), selected: q.record_type }, class: "rounded-md border border-gray-400 px-2 py-1.5", "aria-label": t("records.index.type"), onchange: "this.form.requestSubmit()" %>
     <%= hidden_field_tag :mode, q.mode %>
     <%= hidden_field_tag :utility_mode, @utility_query.mode %>
+    <%= hidden_field_tag :cycle_category, @cycle_category&.id %>
+    <%= hidden_field_tag :cycle_view, @cycle_view %>
     <noscript><%= f.submit t("records.index.filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %></noscript>
   <% end %>
 
   <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">
     <span class="text-gray-600"><%= t(".count_by") %></span>
     <% DashboardQuery::MODES.each do |mode| %>
-      <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode),
+      <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode, cycle_category: @cycle_category&.id, cycle_view: @cycle_view),
             class: "rounded-full border px-3 py-1 #{q.mode == mode ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}",
             data: { action: "remember-mode#save", remember_mode_mode_param: mode } %>
     <% end %>
@@ -34,8 +36,29 @@
     <%= render "chart", title: q.all_years? ? t(".yearly") : t(".monthly"), option: @charts.monthly,
           table: { columns: @charts.labels, rows: q.monthly_by_type.map { |type, values| [ t("records.types.#{type}"), values ] } } %>
     <%= render "chart", title: t(".utilities"), option: @charts.utilities,
-          extra: link_to(t(".switch_to", mode: t(".modes.#{(DashboardQuery::MODES - [ @utility_query.mode ]).first}")), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: (DashboardQuery::MODES - [ @utility_query.mode ]).first), class: "text-xs text-blue-700 underline"),
+          extra: link_to(t(".switch_to", mode: t(".modes.#{(DashboardQuery::MODES - [ @utility_query.mode ]).first}")), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: (DashboardQuery::MODES - [ @utility_query.mode ]).first, cycle_category: @cycle_category&.id, cycle_view: @cycle_view), class: "text-xs text-blue-700 underline"),
           table: { columns: @charts.labels(@utility_query), rows: @utility_query.utility_trend.map { |c, values| [ c.name, values ] } } %>
+    <% if @cycle_category %>
+      <div class="lg:col-span-2">
+        <% cycles = q.cycles(@cycle_category, gaps: @cycle_view == "timeline") %>
+        <% keep = { year: q.year_param, currency: q.currency, type: q.record_type, mode: q.mode, utility_mode: @utility_query.mode } %>
+        <% pill = ->(on) { "rounded-full border px-2 py-0.5 text-xs #{on ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-50'}" } %>
+        <% switches = capture do %>
+          <div class="flex flex-wrap items-center gap-1">
+            <% q.utility_categories.each do |c| %>
+              <%= link_to c.name, household_dashboard_path(Current.household, **keep, cycle_category: c.id, cycle_view: @cycle_view), class: pill.(c == @cycle_category), aria: { current: (c == @cycle_category) } %>
+            <% end %>
+            <span class="mx-1 text-gray-400">|</span>
+            <% DashboardsController::CYCLE_VIEWS.each do |view| %>
+              <%= link_to t(".cycle_views.#{view}"), household_dashboard_path(Current.household, **keep, cycle_category: @cycle_category.id, cycle_view: view), class: pill.(view == @cycle_view), aria: { current: (view == @cycle_view) } %>
+            <% end %>
+          </div>
+        <% end %>
+        <%= render "chart", title: t(".cycles"), option: @cycle_view == "timeline" ? @charts.cycle_timeline(cycles) : @charts.cycle_yoy(cycles),
+              extra: switches, table: @cycle_view == "timeline" ? @charts.cycle_timeline_table(cycles) : @charts.cycle_yoy_table(cycles) %>
+        <p class="mt-1 text-xs text-gray-500"><%= t(".cycles_hint") %></p>
+      </div>
+    <% end %>
     <%= render "chart", title: t(".categories"), option: @charts.categories,
           table: { columns: [ t(".amount") ], rows: q.by_category.map { |c, v| [ c.name, [ v ] ] } } %>
     <%= render "chart", title: t(".payment_methods"), option: @charts.payment_methods,

@@ -55,10 +55,36 @@ class DashboardQuery
     types.index_with { |type| buckets.map { |b| total(**bucket_filter(b), record_type: type) } }
   end
 
+  # The 水/電/瓦斯 categories that exist, in that order
+  def utility_categories
+    @utility_categories ||= household.categories.where(record_type: "expense", name_zh: UTILITIES).to_a.sort_by { |c| UTILITIES.index(c.name_zh) }
+  end
+
   # Utility lines: {category => [one sum per bucket]} for the 水/電/瓦斯 categories that exist
   def utility_trend
-    household.categories.where(record_type: "expense", name_zh: UTILITIES).to_a.sort_by { |c| UTILITIES.index(c.name_zh) }
-      .index_with { |c| buckets.map { |b| total(**bucket_filter(b), category_id: c.id, record_type: nil) } }
+    utility_categories.index_with { |c| buckets.map { |b| total(**bucket_filter(b), category_id: c.id, record_type: nil) } }
+  end
+
+  Cycle = Data.define(:period, :amount, :records)
+
+  # Bills by billing cycle for one category, every year, this currency: one Cycle per billing period
+  # with its paid bills' amount_paid summed (not split across months), oldest first. With gaps: true a
+  # Cycle with no amount fills each run of months no bill covers, so the timeline shows it missing
+  def cycles(category, gaps: false)
+    list = household.records.where(currency:, category:).where.not(paid_on: nil).where.not(amount_paid: nil)
+      .order(:period_year, :period_start_month, :id).group_by(&:period)
+      .map { |period, records| Cycle.new(period:, amount: records.sum { |r| r.amount_paid.to_d }, records:) }
+    return list unless gaps
+
+    list.each_with_object([]) do |cycle, out|
+      covered = out.filter_map { |c| month_index(c.period, :end) if c.amount }.max
+      start = month_index(cycle.period, :start)
+      if covered && start > covered + 1
+        from, to = covered + 1, start - 1
+        out << Cycle.new(period: Period.new(start_year: from / 12, start_month: from % 12 + 1, end_year: to / 12, end_month: to % 12 + 1), amount: nil, records: [])
+      end
+      out << cycle
+    end
   end
 
   def by_category
@@ -99,6 +125,10 @@ class DashboardQuery
   end
 
   private
+
+  def month_index(period, side)
+    side == :start ? period.start_year * 12 + period.start_month - 1 : period.end_year * 12 + period.end_month - 1
+  end
 
   def all_pieces
     @all_pieces ||= paid_records.flat_map do |record|

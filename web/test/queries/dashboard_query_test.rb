@@ -75,4 +75,30 @@ class DashboardQueryTest < ActiveSupport::TestCase
     assert_equal @home.records.find_by!(amount_paid: 5000).id, outlier[:record_id]
     assert_empty option[:series][0][:data][names.index("水費")][:value], "水費 has fewer than 5 bills: points only"
   end
+
+  test "bills by billing cycle: one bar per period (not split), a gap where no bill covers the months, year against year by period" do
+    @home.records.where(category: @water).delete_all
+    { [ 2024, "9月-10月" ] => 538, [ 2025, "1月-2月" ] => 532, [ 2025, "3月-4月" ] => 573, [ 2025, "9月-10月" ] => 654,
+      [ 2026, "1月-2月" ] => 624, [ 2026, "3月-4月" ] => 667 }.each { |(year, months), amount| paid(@water, months, amount, Date.new(2026, 5, 1), year:) }
+    @home.records.create!(record_type: "expense", category: @water, period: Period.parse(2026, "5月-6月"), amount_required: 580) # unpaid: left out
+    q = query("paid", year: 2025) # the year filter and mode don't apply
+
+    assert_equal [ 538, 532, 573, 654, 624, 667 ], q.cycles(@water).map { |c| c.amount.to_i }
+    timeline = q.cycles(@water, gaps: true)
+    charts = DashboardCharts.new(q, utility_query: q)
+    assert_equal [ "2024 9月-10月", "2024 11月-12月 （缺）", "2025 1月-2月", "2025 3月-4月", "2025 5月-8月 （缺）", "2025 9月-10月", "2025 11月-12月 （缺）", "2026 1月-2月", "2026 3月-4月" ],
+      timeline.map { |c| charts.cycle_label(c) }
+    option = charts.cycle_timeline(timeline)
+    assert_equal [ 538.0, nil, 532.0, 573.0, nil, 654.0, nil, 624.0, 667.0 ], option[:series][0][:data].map { |d| d[:value] }
+    assert_equal [ 598.0 ] * 9, option[:series][1][:data], "average of the paid bills: 3588 / 6"
+    assert option[:series][0][:data].first[:record_id], "a bar opens its record"
+    assert_equal [ "–", "–", "-1%", "+8%", "–", "+14%", "–", "-5%", "+7%" ], charts.cycle_timeline_table(timeline)[:rows].map { |_, (_, change)| change }
+
+    yoy = charts.cycle_yoy(q.cycles(@water))
+    assert_equal [ "1月-2月", "3月-4月", "9月-10月" ], yoy[:xAxis][:data]
+    assert_equal %w[2024 2025 2026], yoy[:series].map { |s| s[:name] }
+    assert_equal [ nil, nil, 538.0 ], yoy[:series][0][:data].map { |d| d[:value] }
+    assert_equal "#f59e0b", yoy[:series].last[:itemStyle][:color], "the newest year is orange"
+    assert_equal [ "+17%", "+16%", "+22%" ], charts.cycle_yoy_table(q.cycles(@water))[:rows].last.last, "each cycle's latest two years: 9月-10月 is 2025 vs 2024"
+  end
 end

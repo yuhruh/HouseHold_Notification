@@ -13,7 +13,9 @@ class DashboardTest < ActionDispatch::IntegrationTest
     sign_in_as users(:google_only) # viewer
     get household_dashboard_path(@home)
     assert_response :success
-    assert_select "[data-controller=chart]", 5
+    assert_select "[data-controller=chart]", 6
+    assert_select "h2", text: "帳單期間比較"
+    assert_select "a[aria-current=true]", text: "時間軸"
     assert_select "details summary", text: "以表格檢視"
     assert_select "select[name=year] option[value=all]", "全部年度"
 

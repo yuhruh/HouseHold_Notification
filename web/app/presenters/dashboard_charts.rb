@@ -2,6 +2,7 @@
 # uses (`filters`), and box plot outliers carry their record_id, so clicks map back to records.
 class DashboardCharts
   COLORS = { "expense" => "#2563eb", "maintenance" => "#16a34a", "tax" => "#d97706" }.freeze
+  YEAR_COLORS = [ "#f59e0b", "#2563eb", "#9ca3af", "#16a34a", "#7c3aed" ].freeze
 
   def initialize(query, utility_query:)
     @q, @utility = query, utility_query
@@ -57,7 +58,74 @@ class DashboardCharts
                 { name: I18n.t("dashboards.show.points"), type: "scatter", data: points } ])
   end
 
+  # Bills by billing cycle, A: one bar per period oldest first, a gap where no bill covers the months,
+  # and a dashed average line (drawn as a line series: the ECharts build has no markLine)
+  def cycle_timeline(cycles)
+    paid = cycles.filter_map(&:amount)
+    average = paid.empty? ? nil : (paid.sum / paid.size).round(2).to_f
+    bars = cycles.map do |c|
+      next { value: nil } unless c.amount
+      { value: c.amount.to_f.round(2), record_id: (c.records.first.id if c.records.one?) }.compact
+    end
+    base(legend: true).merge(xAxis: { type: "category", data: cycles.map { |c| cycle_label(c) }, axisLabel: { interval: 0, rotate: 30 } },
+      yAxis: { type: "value" }, grid: { left: 56, right: 16, top: 40, bottom: 72 },
+      series: [ { name: I18n.t("dashboards.show.amount"), type: "bar", data: bars, itemStyle: { color: COLORS["expense"] } },
+                { name: I18n.t("dashboards.show.average"), type: "line", symbol: "none", data: [ average ] * cycles.size,
+                  lineStyle: { type: "dashed", color: "#6b7280" }, itemStyle: { color: "#6b7280" } } ])
+  end
+
+  # Bills by billing cycle, B: the same months side by side, one bar per year (newest orange, then
+  # blue, then grey). {cycles: ["1月-2月", …], years: {2025 => [amount or nil per cycle]}}
+  def cycle_years(cycles)
+    keys = cycles.map { |c| [ c.period.start_month, c.period.end_month ] }.uniq.sort
+    years = cycles.map { |c| c.period.start_year }.uniq.sort
+    { cycles: keys.map { |s, e| months_label(s, e) },
+      years: years.index_with { |y| keys.map { |k| cycles.find { |c| c.period.start_year == y && [ c.period.start_month, c.period.end_month ] == k } } } }
+  end
+
+  def cycle_yoy(cycles)
+    table = cycle_years(cycles)
+    series = table[:years].to_a.reverse.each_with_index.map do |(year, list), i|
+      { name: year.to_s, type: "bar", itemStyle: { color: YEAR_COLORS[i] || YEAR_COLORS.last },
+        data: list.map { |c| c ? { value: c.amount.to_f.round(2), record_id: (c.records.first.id if c.records.one?) }.compact : { value: nil } } }
+    end.reverse
+    base(legend: true).merge(xAxis: { type: "category", data: table[:cycles] }, yAxis: { type: "value" }, series:)
+  end
+
+  # "View as table" for A: each period with its amount and the change from the previous paid bill
+  def cycle_timeline_table(cycles)
+    previous = nil
+    rows = cycles.map do |c|
+      row = [ cycle_label(c), [ c.amount || "–", change(previous, c.amount) ] ]
+      previous = c.amount if c.amount
+      row
+    end
+    { columns: [ I18n.t("dashboards.show.amount"), I18n.t("dashboards.show.change") ], rows: }
+  end
+
+  # "View as table" for B: one row per year, plus each cycle's change between its latest two years
+  def cycle_yoy_table(cycles)
+    table = cycle_years(cycles)
+    amounts = table[:years].transform_values { |list| list.map { |c| c&.amount } }
+    rows = amounts.map { |year, list| [ year.to_s, list.map { |v| v || "–" } ] }
+    rows << [ I18n.t("dashboards.show.change"), amounts.values.transpose.map { |column| change(*column.compact.last(2).then { |l| l.size == 2 ? l : [ nil, nil ] }) } ] if amounts.size > 1
+    { columns: table[:cycles], rows: }
+  end
+
+  def cycle_label(cycle) = "#{cycle.period.start_year} #{months_label(cycle.period.start_month, cycle.period.end_month)}#{cycle.amount ? "" : " #{I18n.t("dashboards.show.missing")}"}"
+
   private
+
+  def change(before, now)
+    return "–" unless before && now && before.positive?
+    percent = ((now - before) / before * 100).round
+    "#{'+' if percent.positive?}#{percent}%"
+  end
+
+  def months_label(start_month, end_month)
+    return I18n.t("dashboards.show.full_year") if start_month == 1 && end_month == 12
+    start_month == end_month ? "#{start_month}月" : "#{start_month}月-#{end_month}月"
+  end
 
   def point(value, query, **filters) = { value: value.to_f.round(2), filters: drill(query, **filters) }
 

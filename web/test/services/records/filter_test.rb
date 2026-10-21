@@ -28,13 +28,15 @@ class Records::FilterTest < ActiveSupport::TestCase
     [ paid, partial, overdue, unpaid, no_amount ].each { |r| assert_equal filter(status: r.status(today: @today).to_s).records.include?(r), true }
   end
 
-  test "not fully paid records come first, each group newest period first" do
+  test "not fully paid records come first, earliest due date first, then no due date oldest period first; paid newest period first" do
     old_paid = add([ 2025, "11月-12月" ], amount_required: 500, amount_paid: 500, paid_on: @today)
-    new_paid = add([ 2026, "3月-4月" ], amount_required: 600, amount_paid: 600, paid_on: @today)
-    old_unpaid = add([ 2025, "9月-10月" ], amount_required: 400)
-    partial = add([ 2026, "1月-2月" ], amount_required: 580, amount_paid: 300, paid_on: @today)
-    new_unpaid = add([ 2026, "5月-6月" ])
-    assert_equal [ new_unpaid, partial, old_unpaid, new_paid, old_paid ], filter.records.to_a
+    new_paid = add([ 2026, "3月-4月" ], amount_required: 600, amount_paid: 600, paid_on: @today, due_on: @today + 1)
+    due_later = add([ 2025, "9月-10月" ], amount_required: 400, due_on: @today + 27)
+    overdue = add([ 2026, "3月-4月" ], amount_required: 600, due_on: @today - 3)
+    partial = add([ 2026, "1月-2月" ], amount_required: 580, amount_paid: 300, paid_on: @today, due_on: @today + 10)
+    new_undated = add([ 2026, "5月-6月" ])
+    old_undated = add([ 2025, "7月-8月" ], amount_required: 400)
+    assert_equal [ overdue, partial, due_later, old_undated, new_undated, new_paid, old_paid ], filter.records.to_a
   end
 
   test "status outstanding lists exactly the rows behind the summary's Outstanding" do
@@ -53,7 +55,7 @@ class Records::FilterTest < ActiveSupport::TestCase
     crossing = add([ 2025, "12月-1月" ])
     spring = add([ 2026, "3月-4月" ])
     assert_equal [ crossing ], filter(year: 2026, month: 1).records.to_a
-    assert_equal [ spring, crossing ], filter(year: 2026).records.to_a
+    assert_equal [ crossing, spring ], filter(year: 2026).records.to_a
     assert_equal [ crossing ], filter(year: 2025).records.to_a
     assert_includes filter.years, 2025
   end

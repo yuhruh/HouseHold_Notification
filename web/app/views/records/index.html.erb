@@ -88,7 +88,7 @@
               <% if owing %><td class="whitespace-nowrap px-2 py-1.5 text-right font-medium text-red-700"><%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></td><% end %>
               <td class="whitespace-nowrap px-2 py-1.5"><%= record.paid_on && l(record.paid_on) %></td>
               <td class="px-2 py-1.5"><%= record_status_badge(record) %>
-                <% if !record.settled && record.due_on.nil? %><span class="block text-xs text-gray-500"><%= t(".no_due_date") %></span><% end %></td>
+                <% unless record.settled %><span class="block whitespace-nowrap text-xs <%= record.status == :overdue ? "text-red-700" : "text-gray-500" %>"><%= record.due_on ? t(".due_on", date: l(record.due_on)) : t(".no_due_date") %></span><% end %></td>
               <% if writer %>
                 <td class="px-2 py-1.5">
                   <% unless record.settled %>

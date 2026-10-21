@@ -516,6 +516,7 @@ zh-TW:
       item: "項目"
       details: "明細"
       paid_on: "繳費日期"
+      due_on: "到期 %{date}"
       no_due_date: "未設定到期日"
       mark_paid: "標記已繳"
     form:
@@ -555,7 +556,6 @@ zh-TW:
       submit: "標記已繳"
       done: "已將%{title}標記為已繳。"
     show:
-      sheet_id: "試算表 ID %{id}"
       make_recurring: "設為定期帳單"
       no_due_date: "未設定到期日"
       edit: "編輯"

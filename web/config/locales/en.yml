@@ -516,6 +516,7 @@ en:
       item: "Item"
       details: "Details"
       paid_on: "Paid date"
+      due_on: "Due %{date}"
       no_due_date: "No due date"
       mark_paid: "Mark paid"
     form:
@@ -555,7 +556,6 @@ en:
       submit: "Mark paid"
       done: "%{title} marked paid."
     show:
-      sheet_id: "sheet ID %{id}"
       make_recurring: "Make This Recurring"
       no_due_date: "No due date"
       edit: "Edit"

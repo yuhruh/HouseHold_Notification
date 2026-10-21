@@ -14,7 +14,7 @@
   <%= form.label :name_en, class: "block text-sm font-medium" %>
   <%= form.text_field :name_en, maxlength: 40, class: field %>
   <div class="flex gap-3">
-    <%= form.submit t("records.form.save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+    <%= form.submit t("records.form.save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
     <%= link_to t("records.form.cancel"), household_categories_path(Current.household), class: "px-3.5 py-2 underline" %>
   </div>
 <% end %>

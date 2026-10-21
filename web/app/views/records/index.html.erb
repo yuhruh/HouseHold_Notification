@@ -27,7 +27,7 @@
     <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
     <% if p[:amount] %><%= hidden_field_tag :amount, p[:amount] %><% end %>
     <div class="col-span-full flex flex-wrap items-center justify-end gap-2">
-      <%= f.submit t(".filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
+      <%= f.submit t(".filter"), name: nil, class: "btn-press rounded-xl bg-gray-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" %>
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
     </div>
   <% end %>

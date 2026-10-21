@@ -8,6 +8,6 @@
   <span class="flex items-center gap-2" data-per-page-target="custom" <%= "hidden" unless custom %>>
     <%= number_field_tag :per_custom, (filter.per if custom), min: 1, max: Records::Filter::MAX_PER_PAGE,
           class: "h-9 w-20 rounded-md border border-gray-400 px-2", "aria-label": t("records.pagination.custom_label") %>
-    <%= submit_tag t("records.pagination.go"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %>
+    <%= submit_tag t("records.pagination.go"), name: nil, class: "btn-press rounded-xl bg-gray-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" %>
   </span>
 <% end %>

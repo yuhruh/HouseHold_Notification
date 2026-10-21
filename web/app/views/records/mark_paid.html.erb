@@ -9,6 +9,6 @@
     <%= f.label :amount, t(".amount", currency: @record.currency), class: "block text-sm font-medium" %>
     <%= f.number_field :amount, min: 0.01, step: "0.01", required: true, autofocus: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
     <p class="text-sm text-gray-500"><%= t(".hint") %></p>
-    <%= f.submit t(".submit"), class: "cursor-pointer rounded-md bg-green-700 px-3.5 py-2 font-medium text-white" %>
+    <%= f.submit t(".submit"), class: "btn-press rounded-xl bg-green-200 text-green-900 cursor-pointer px-3.5 py-2 font-medium" %>
   <% end %>
 </div>

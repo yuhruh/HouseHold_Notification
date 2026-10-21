@@ -2,5 +2,5 @@
 <div class="mx-auto w-full max-w-sm space-y-4 py-8">
   <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
   <p><%= t(".body", masked: @invitation.masked_email) %></p>
-  <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+  <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
 </div>

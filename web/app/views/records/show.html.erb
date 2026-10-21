@@ -33,16 +33,16 @@
     <div class="flex flex-wrap gap-2">
       <% unless @record.settled %>
         <% if @record.amount_required.nil? && !@record.maintenance? %>
-          <%= link_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, @record), class: "rounded-md bg-green-700 px-3.5 py-2 font-medium text-white" %>
+          <%= link_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, @record), class: "btn-press rounded-xl bg-green-200 text-green-900 px-3.5 py-2 font-medium" %>
         <% else %>
-          <%= button_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, @record), class: "cursor-pointer rounded-md bg-green-700 px-3.5 py-2 font-medium text-white" %>
+          <%= button_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, @record), class: "btn-press rounded-xl bg-green-200 text-green-900 cursor-pointer px-3.5 py-2 font-medium" %>
         <% end %>
       <% end %>
       <% if @record.recurring_template_id.nil? %>
-        <%= link_to t(".make_recurring"), new_household_recurring_template_path(Current.household, from_record: @record.id), class: "rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+        <%= link_to t(".make_recurring"), new_household_recurring_template_path(Current.household, from_record: @record.id), class: "btn-press rounded-xl bg-white text-gray-900 px-3.5 py-2 font-medium" %>
       <% end %>
-      <%= link_to t(".edit"), edit_household_record_path(Current.household, @record), class: "rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
-      <%= button_to t(".delete"), household_record_path(Current.household, @record), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "cursor-pointer rounded-md border border-red-300 px-3.5 py-2 font-medium text-red-700 hover:bg-red-50" %>
+      <%= link_to t(".edit"), edit_household_record_path(Current.household, @record), class: "btn-press rounded-xl bg-white text-gray-900 px-3.5 py-2 font-medium" %>
+      <%= button_to t(".delete"), household_record_path(Current.household, @record), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "btn-press rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-red-700" %>
     </div>
   <% end %>
 

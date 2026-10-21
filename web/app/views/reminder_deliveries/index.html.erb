@@ -10,7 +10,7 @@
   <% if @failed.empty? %>
     <p class="text-gray-600"><%= t(".none") %></p>
   <% else %>
-    <%= button_to t(".resend_all"), resend_all_household_reminder_deliveries_path(Current.household), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1.5" %>
+    <%= button_to t(".resend_all"), resend_all_household_reminder_deliveries_path(Current.household), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1.5" %>
     <ul class="divide-y rounded-lg border text-sm">
       <% @failed.each do |delivery| %>
         <li class="space-y-1 px-4 py-3">

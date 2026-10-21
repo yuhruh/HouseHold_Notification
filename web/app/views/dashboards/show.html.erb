@@ -13,7 +13,7 @@
     <%= hidden_field_tag :utility_mode, @utility_query.mode %>
     <%= hidden_field_tag :cycle_category, @cycle_category&.id %>
     <%= hidden_field_tag :cycle_view, @cycle_view %>
-    <noscript><%= f.submit t("records.index.filter"), name: nil, class: "cursor-pointer rounded-md bg-gray-800 px-3 py-1.5 font-medium text-white" %></noscript>
+    <noscript><%= f.submit t("records.index.filter"), name: nil, class: "btn-press rounded-xl bg-gray-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" %></noscript>
   <% end %>
 
   <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">

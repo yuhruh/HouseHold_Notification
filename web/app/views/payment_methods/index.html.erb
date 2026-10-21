@@ -4,7 +4,7 @@
   <%= render "shared/flash" %>
   <div class="flex flex-wrap items-center justify-between gap-3">
     <%= page_title("payment.png", t(".title")) %>
-    <% if writer %><%= link_to t(".new"), new_household_payment_method_path(Current.household), class: "rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %><% end %>
+    <% if writer %><%= link_to t(".new"), new_household_payment_method_path(Current.household), class: "btn-press rounded-xl bg-blue-200 text-gray-900 px-3.5 py-2 font-medium" %><% end %>
   </div>
   <% if writer %>
     <p class="text-sm"><%= link_to t(".from_notes"), from_notes_household_payment_methods_path(Current.household), class: "text-blue-700 underline" %>

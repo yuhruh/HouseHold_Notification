@@ -24,10 +24,18 @@ module Records
       @today = today
     end
 
-    # Not fully paid first (unpaid, partial, overdue), then paid; each group newest billing period first
+    # Not fully paid first (unpaid, partial, overdue): earliest due date first, then those with no due
+    # date, oldest billing period first. Then paid, newest billing period first
+    UNPAID_ORDER = Arel.sql(<<~SQL.squish)
+      CASE WHEN settled THEN NULL ELSE due_on END ASC NULLS LAST,
+      CASE WHEN settled THEN NULL ELSE period_year END ASC,
+      CASE WHEN settled THEN NULL ELSE period_start_month END ASC,
+      CASE WHEN settled THEN NULL ELSE record_no END ASC
+    SQL
+
     def records
       @records ||= scope.includes(:category, :payment_method)
-        .order(settled: :asc, period_year: :desc, period_start_month: :desc, record_no: :desc)
+        .order(settled: :asc).order(UNPAID_ORDER).order(period_year: :desc, period_start_month: :desc, record_no: :desc)
     end
 
     # One page of the list (page numbers past the end show the last page)

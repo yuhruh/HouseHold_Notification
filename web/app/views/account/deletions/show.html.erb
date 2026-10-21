@@ -25,7 +25,7 @@
           <%= label_tag "confirm_#{h.id}", t(".type_name", name: h.name), class: "block text-sm font-medium" %>
           <%= text_field_tag "confirm[#{h.id}]", nil, id: "confirm_#{h.id}", required: true, autocomplete: "off", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
         <% end %>
-        <%= form.submit t(".delete"), class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500", data: { turbo_confirm: t(".final_confirm") } %>
+        <%= form.submit t(".delete"), class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium", data: { turbo_confirm: t(".final_confirm") } %>
       <% end %>
     <% end %>
   <% else %>

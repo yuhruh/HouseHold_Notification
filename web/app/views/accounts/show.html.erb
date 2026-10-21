@@ -12,7 +12,7 @@
       <% end %>
       <%= form_with url: avatar_path, method: :patch, multipart: true, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
         <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, class: "max-w-full text-sm", "aria-label": t("photos.avatar.label") %>
-        <%= f.submit t("photos.avatar.upload"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+        <%= f.submit t("photos.avatar.upload"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
       <% end %>
       <% if Current.user.avatar.attached? %><%= button_to t("photos.avatar.remove"), avatar_path, method: :delete, class: "cursor-pointer text-sm text-red-700 underline" %><% end %>
     </div>
@@ -29,7 +29,7 @@
       <datalist id="time-zones"><% tz_options.each do |tz| %><option value="<%= tz %>"></option><% end %></datalist>
       <%= form.label :reminder_hour, t(".reminder_hour"), class: "block text-sm font-medium" %>
       <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-      <%= form.submit t(".save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+      <%= form.submit t(".save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
     <% end %>
   </section>
 
@@ -41,7 +41,7 @@
       <%= form.select :theme, ThemesController::THEMES.map { |theme| [ t("layouts.header.themes.#{theme}"), theme ] }, { selected: current_theme },
             class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <p class="text-sm text-gray-500"><%= t(".theme_hint") %></p>
-      <%= form.submit t(".save"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2 font-medium text-white hover:bg-blue-500" %>
+      <%= form.submit t(".save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
     <% end %>
   </section>
 
@@ -62,7 +62,7 @@
         <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
         <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <% end %>
-      <%= form.submit t(".change_email"), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+      <%= form.submit t(".change_email"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
     <% end %>
   </section>
 
@@ -76,11 +76,11 @@
         <%= form.password_field :password, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
         <%= form.label :password_confirmation, t("activerecord.attributes.user.password_confirmation"), class: "block text-sm font-medium" %>
         <%= form.password_field :password_confirmation, required: true, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-        <%= form.submit t(".change_password"), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+        <%= form.submit t(".change_password"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
       <% end %>
     <% else %>
       <p class="text-sm text-gray-700"><%= t(".no_password") %></p>
-      <%= button_to t(".set_password"), passwords_path, params: { email_address: Current.user.email_address }, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+      <%= button_to t(".set_password"), passwords_path, params: { email_address: Current.user.email_address }, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
     <% end %>
   </section>
 
@@ -89,7 +89,7 @@
     <% if identity = Current.user.google_identity %>
       <p><%= t(".google_connected", email: identity.email) %></p>
       <% if Current.user.can_disconnect_google? %>
-        <%= button_to t(".disconnect_google"), account_google_identity_path, method: :delete, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+        <%= button_to t(".disconnect_google"), account_google_identity_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
       <% else %>
         <p class="text-sm text-gray-500"><%= t(".last_method") %></p>
       <% end %>
@@ -106,7 +106,7 @@
           <span class="block text-gray-500"><%= t(".last_seen", time: l(s.last_seen_at, format: :short)) %><%= " · #{t('.this_device')}" if s == Current.session %></span></li>
       <% end %>
     </ul>
-    <%= button_to t(".sign_out_others"), account_sessions_path, method: :delete, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50" %>
+    <%= button_to t(".sign_out_others"), account_sessions_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
   </section>
 
   <section class="space-y-3">
@@ -134,18 +134,18 @@
           <span class="block text-xs font-normal text-gray-500"><%= t(".lead_days", count: membership.household.reminder_lead_days) %></span></span>
         <label class="flex items-center gap-1"><%= f.check_box :email %> <%= t(".channel_email") %></label>
         <label class="flex items-center gap-1"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
-        <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+        <%= f.submit t(".save"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
       <% end %>
     <% end %>
     <div class="space-y-2 rounded-lg border px-4 py-3 text-sm" data-controller="push" data-push-vapid-public-key-value="<%= Vapid.public_key %>"
          data-push-labels-value="<%= { enabled: t(".push_enabled"), disabled: t(".push_disabled"), denied: t(".push_denied"), unsupported: t(".push_unsupported"), failed: t(".push_failed") }.to_json %>">
       <p class="font-medium"><%= t(".this_browser") %>: <span data-push-target="status">…</span></p>
-      <button type="button" hidden data-push-target="enable" data-action="push#enable" class="cursor-pointer rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white"><%= t(".enable_push") %></button>
-      <button type="button" hidden data-push-target="disable" data-action="push#disable" class="cursor-pointer rounded-md border border-gray-400 px-3 py-1.5"><%= t(".disable_push") %></button>
+      <button type="button" hidden data-push-target="enable" data-action="push#enable" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium"><%= t(".enable_push") %></button>
+      <button type="button" hidden data-push-target="disable" data-action="push#disable" class="btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1.5"><%= t(".disable_push") %></button>
     </div>
     <%= form_with model: Current.user, url: account_path, method: :patch, class: "flex items-center gap-3 text-sm" do |f| %>
       <label class="flex items-center gap-2"><%= f.check_box :push_show_amounts %> <%= t(".push_show_amounts") %></label>
-      <%= f.submit t(".save"), class: "cursor-pointer rounded-md border border-gray-400 px-3 py-1" %>
+      <%= f.submit t(".save"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
     <% end %>
     <p class="text-xs text-gray-500"><%= t(".push_tip") %> <%= link_to t(".guide"), guide_path, class: "underline" %></p>
   </section>
@@ -171,6 +171,6 @@
 
   <section class="space-y-3 rounded-lg border border-red-200 p-4">
     <h2 class="text-lg font-semibold text-red-700"><%= t(".danger_zone") %></h2>
-    <%= link_to t(".delete_account"), account_deletion_path, class: "cursor-pointer rounded-md bg-red-600 px-3.5 py-2 font-medium text-white hover:bg-red-500 inline-block" %>
+    <%= link_to t(".delete_account"), account_deletion_path, class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium inline-block" %>
   </section>
 </div>

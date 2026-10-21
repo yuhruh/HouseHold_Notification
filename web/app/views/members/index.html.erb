@@ -47,8 +47,8 @@
             <span><%= invitation.email %> · <%= t("roles.#{invitation.role}") %>
               <span class="block text-sm text-gray-500"><%= invitation.expires_at ? t(".expires", date: l(invitation.expires_at.to_date)) : t(".never_expires") %></span></span>
             <span class="flex gap-2">
-              <%= button_to t(".resend"), resend_household_invitation_path(Current.household, invitation), params: { expiry: "7" }, class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50 text-sm" %>
-              <%= button_to t(".revoke"), revoke_household_invitation_path(Current.household, invitation), class: "cursor-pointer rounded-md border border-gray-400 px-3.5 py-2 font-medium hover:bg-gray-50 text-sm text-red-700" %>
+              <%= button_to t(".resend"), resend_household_invitation_path(Current.household, invitation), params: { expiry: "7" }, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium text-sm" %>
+              <%= button_to t(".revoke"), revoke_household_invitation_path(Current.household, invitation), class: "btn-press rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-sm text-red-700" %>
             </span>
           </li>
         <% end %>
@@ -66,7 +66,7 @@
         <%= form.select :expiry, Invitation::EXPIRY_CHOICES.map { |c| [ t(".expiry_#{c}"), c ] }, { selected: "7" }, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
         <%= form.label :custom_date, t(".custom_date"), class: "block text-sm font-medium" %>
         <%= form.date_field :custom_date, min: Date.current + 1, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-        <%= form.submit t(".send"), class: "cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+        <%= form.submit t(".send"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2.5 font-medium" %>
       <% end %>
     </section>
   <% end %>

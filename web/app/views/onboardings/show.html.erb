@@ -21,7 +21,7 @@
       <%= form.text_field :name, required: true, maxlength: 60, placeholder: "我的家", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <%= form.label :default_currency, class: "block text-sm font-medium" %>
       <%= form.select :default_currency, Household::CURRENCIES, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-      <%= form.submit t("onboardings.show.create"), class: "w-full cursor-pointer rounded-md bg-blue-600 px-3.5 py-2.5 font-medium text-white hover:bg-blue-500" %>
+      <%= form.submit t("onboardings.show.create"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 w-full cursor-pointer px-3.5 py-2.5 font-medium" %>
     <% end %>
   </section>
 

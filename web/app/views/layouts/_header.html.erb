@@ -16,7 +16,7 @@
       <span>Household Tracker</span>
     <% end %>
     <nav class="hidden flex-wrap items-center gap-3 min-[1550px]:flex">
-      <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="cursor-pointer rounded-md bg-blue-300 px-2 py-1 text-blue-900 transition-transform duration-150 hover:bg-blue-400 motion-safe:hover:scale-110"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
+      <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-2 py-1"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
       <% if pending.positive? %>
         <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
       <% end %>

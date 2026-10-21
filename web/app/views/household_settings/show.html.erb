@@ -21,7 +21,7 @@
   <% end %>
 
   <p class="flex gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "inline-flex items-center gap-1 text-blue-700 underline" %>
-    <% if owner %><%= link_to t("reminder_deliveries.index.title"), household_reminder_deliveries_path(Current.household), class: "text-blue-700 underline" %><% end %></p>
+    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "inline-flex items-center gap-1 text-blue-700 underline" %><% end %></p>
 
   <% if owner %>
     <section class="space-y-3 rounded-lg border border-red-200 p-4">

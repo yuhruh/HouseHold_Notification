@@ -20,7 +20,7 @@
     </fieldset>
   <% end %>
 
-  <p class="flex gap-4"><%= link_to t("households.show.members"), household_members_path(Current.household), class: "text-blue-700 underline" %>
+  <p class="flex gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "inline-flex items-center gap-1 text-blue-700 underline" %>
     <% if owner %><%= link_to t("reminder_deliveries.index.title"), household_reminder_deliveries_path(Current.household), class: "text-blue-700 underline" %><% end %></p>
 
   <% if owner %>

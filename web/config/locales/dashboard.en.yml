@@ -5,7 +5,7 @@ en:
   dashboards:
     show:
       title: "Expense Analysis"
-      count_by: "Count spending"
+      count_by: "Count Spending"
       modes:
         paid: "By Paid Date"
         period: "By Billing Period"
@@ -13,7 +13,7 @@ en:
       spend: "Paid In %{year}"
       spend_all: "Paid, All Years"
       show_paid: "Show the records behind this amount"
-      all_years: "All years"
+      all_years: "All Years"
       monthly: "Monthly Spending By Type"
       yearly: "Yearly Spending By Type"
       utilities: "Water, Electricity And Gas"
@@ -25,8 +25,8 @@ en:
       average: "Average"
       change: "Change"
       missing: "(missing)"
-      full_year: "Full year"
-      categories: "By category"
+      full_year: "Full Year"
+      categories: "By Category"
       payment_methods: "By Payment Method"
       no_payment_method: "(none)"
       boxplot: "Bill Amounts Per Category"
@@ -45,6 +45,6 @@ en:
         title:
           one: "1 record"
           other: "%{count} records"
-        counted: "Counted here"
+        counted: "Counted Here"
         total: "Total"
         quartiles: "Q1 %{q1} · median %{median} · Q3 %{q3}"

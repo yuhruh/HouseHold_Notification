@@ -2,7 +2,7 @@ en:
   app_update:
     updated: "Updated to %{version}. What's new:"
     ready: "A new version is ready. Update when you've saved your changes."
-    update_now: "Update now"
+    update_now: "Update Now"
     close: "Close"
     checking: "Checking…"
     latest: "You have the latest version."
@@ -14,4 +14,4 @@ en:
       version_now: "Version %{version}"
       check_updates: "Check For Updates"
       auto_update_hint: "The app also checks by itself when you open it, and updates automatically."
-      whats_new: "What's new"
+      whats_new: "What's New"

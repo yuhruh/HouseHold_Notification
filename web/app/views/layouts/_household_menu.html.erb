@@ -1,6 +1,6 @@
 <%# Apartment menu (PRD §12a): the user's households, the current one ticked, and ＋ New household %>
 <details class="relative" data-controller="dropdown">
-  <summary class="flex cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1">
+  <summary class="inline-flex cursor-pointer list-none items-center gap-1 px-2 py-1 hover:underline hover:font-bold">
     <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("layouts.header.apartment") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
   </summary>
   <ul class="absolute right-0 z-50 mt-1 min-w-48 rounded-md border bg-white py-1 shadow">

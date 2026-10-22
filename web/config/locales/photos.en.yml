@@ -30,7 +30,7 @@ en:
   backup_mailer:
     photos_reminder:
       subject:
-        one: "Household Tracker: download this month's photo backup (1 photo)"
-        other: "Household Tracker: download this month's photo backup (%{count} photos)"
+        one: "Household Tracker: Download This Month's Photo Backup (1 Photo)"
+        other: "Household Tracker: Download This Month's Photo Backup (%{count} Photos)"
       body: "The weekly database backup doesn't include photos. There are %{count} photos (%{size} MB) on the Railway volume. On your computer, from the project's web folder, run:"
       after: "It saves household-photos-YYYY-MM-DD.tgz in Downloads. Also delete photo archives and backup emails older than 3 months (the privacy policy promises it)."

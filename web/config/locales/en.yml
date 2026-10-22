@@ -125,24 +125,24 @@ en:
   auth_mailer:
     ignore: "If you didn't ask for this, you can ignore this email."
     email_confirmation:
-      subject: "Confirm your email for Household Tracker"
+      subject: "Confirm Your Email For Household Tracker"
       body: "Open this link to confirm your email and finish signing up. It works for 24 hours."
     already_registered:
-      subject: "You already have a Household Tracker account"
+      subject: "You Already Have A Household Tracker Account"
       body: "Someone (probably you) tried to sign up with this address, but it already has an account."
       sign_in: "Sign in:"
       reset: "Forgot your password? Reset it:"
     email_change_notice:
-      subject: "Your Household Tracker email is being changed"
+      subject: "Your Household Tracker Email Is Being Changed"
       body: "Someone asked to change your Household Tracker email to %{email}. It changes only after that address is confirmed."
       not_you: "If this wasn't you, sign in and cancel the change, then change your password."
     reauth_code:
-      subject: "Your Household Tracker code: %{code}"
+      subject: "Your Household Tracker Code: %{code}"
       body: "Use this code to %{action}. It works for 10 minutes."
       warning: "If you didn't try to do this, don't share the code and change your password."
   passwords_mailer:
     reset:
-      subject: "Reset your Household Tracker password"
+      subject: "Reset Your Household Tracker Password"
       body: "Open this link to set a new password. It works for %{minutes} minutes."
   pages:
     home:
@@ -250,7 +250,7 @@ en:
       body: "This invitation link is invalid, expired, already used or revoked. Ask the owner to send a new one."
   invitation_mailer:
     invite:
-      subject: "You're invited to %{household} on Household Tracker"
+      subject: "You're Invited To %{household} On Household Tracker"
       body: "%{inviter} invited you to %{household} as %{role}. Open this link to accept or decline:"
       expires: "The invitation expires on %{date}."
       never_expires: "The invitation doesn't expire."
@@ -427,15 +427,15 @@ en:
     records_deleted: "Deleted all records"
   account_mailer:
     deleted:
-      subject: "Your Household Tracker account was deleted"
+      subject: "Your Household Tracker Account Was Deleted"
       body: "Your Household Tracker account was deleted. If you didn't do this, reply to this email."
   backup_mailer:
     dump:
-      subject: "Household Tracker backup %{filename}"
+      subject: "Household Tracker Backup %{filename}"
       body: "The weekly database backup is attached (%{filename}), encrypted with the backup passphrase from the password manager. Keep this email; it is the copy outside Railway."
       decrypt: "To decrypt, from the project's web folder:"
     too_large:
-      subject: "Household Tracker backup %{filename} is too large to email"
+      subject: "Household Tracker Backup %{filename} Is Too Large To Email"
       body: "This week's encrypted backup (%{filename}, %{size} MB) is over the 20 MB email limit, so it wasn't attached. It is on the Railway volume under storage/backups; download it from there."
   records:
     pagination:

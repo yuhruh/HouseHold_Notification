@@ -20,8 +20,8 @@
     </fieldset>
   <% end %>
 
-  <p class="flex gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "inline-flex items-center gap-1 text-blue-700 underline" %>
-    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "inline-flex items-center gap-1 text-blue-700 underline" %><% end %></p>
+  <p class="flex gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "btn-press rounded-xl inline-flex items-center gap-1 bg-amber-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "btn-press rounded-xl inline-flex items-center gap-1 bg-teal-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %><% end %></p>
 
   <% if owner %>
     <section class="space-y-3 rounded-lg shadow-md shadow-red-100 border-2 border-red-200 p-4">

@@ -32,8 +32,8 @@
     </div>
   <% end %>
 
-  <section aria-label="<%= t(".summary") %>" class="overflow-x-auto rounded-lg border">
-    <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
+  <section aria-label="<%= t(".summary") %>" class="card-raised overflow-x-auto rounded-xl bg-white">
+    <table class="w-full text-sm border-separate border-spacing-0">
       <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
         <tr>
           <th class="px-3 py-2"><%= t(".by_period") %></th><th class="px-3 py-2 text-right"><%= t(".paid") %></th>
@@ -66,8 +66,8 @@
       <p class="text-sm text-gray-600"><%= t(".count", count: @filter.total) %></p>
       <%= render "per_page", filter: @filter %>
     </div>
-    <div class="overflow-x-auto rounded-lg border">
-      <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
+    <div class="card-raised overflow-x-auto rounded-xl bg-white">
+      <table class="w-full text-sm border-separate border-spacing-0">
         <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
           <tr>
             <th class="px-2 py-2">✅</th><th class="px-2 py-2"><%= t(".period") %></th><th class="px-2 py-2"><%= t(".item") %></th>

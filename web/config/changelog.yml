@@ -6,11 +6,13 @@
   en:
     - "Settings → App version: check for updates; the app updates itself and shows what's new."
     - "Buttons, pills and summary cards press in like real buttons."
+    - "Records and Upcoming: Mark Paid, Snooze and Done are flat pill buttons."
     - "Icons in front of Members and Reminder delivery in Settings."
     - "English: buttons, titles, labels and email subjects of two words or more capitalize every word."
   zh-TW:
     - "設定 → 應用程式版本：可檢查更新；應用程式會自動更新並顯示更新內容。"
     - "按鈕、切換鈕和摘要卡片按下去會像真的按鈕一樣凹下。"
+    - "記錄與即將到期：「標記已繳」、「延後提醒」和「完成」改為扁平的膠囊按鈕。"
     - "設定中的「成員」和「提醒寄送」前面加上圖示。"
     - "英文介面：兩個字以上的按鈕、標題、標籤和郵件主旨，每個字的字首都大寫。"
 - version: "2026.10.21"

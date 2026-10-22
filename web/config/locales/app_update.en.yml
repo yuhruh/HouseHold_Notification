@@ -12,6 +12,6 @@ en:
     show:
       app_version: "App Version"
       version_now: "Version %{version}"
-      check_updates: "Check for updates"
+      check_updates: "Check For Updates"
       auto_update_hint: "The app also checks by itself when you open it, and updates automatically."
       whats_new: "What's new"

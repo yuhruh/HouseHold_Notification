@@ -10,12 +10,12 @@ en:
         amount_fixed: "Fixed amount"
         interval_months: "Repeats"
         anchor_month: "First month"
-        period_span_months: "Months per bill"
+        period_span_months: "Months Per Bill"
         starts_on: "Start from"
         due_day: "Due day"
-        due_month_offset: "Due months after start"
-        lead_days: "Create days ahead"
-        default_reminder_frequency: "Reminder (no due date)"
+        due_month_offset: "Due Months After Start"
+        lead_days: "Create Days Ahead"
+        default_reminder_frequency: "Reminder (No Due Date)"
         payment_method: "Payment method"
       user:
         display_name: "Name"
@@ -26,7 +26,7 @@ en:
       household:
         name: "Household name"
         default_currency: "Default currency"
-        reminder_lead_days: "Reminder lead days"
+        reminder_lead_days: "Reminder Lead Days"
       invitation:
         role: "Role"
       record:
@@ -45,17 +45,17 @@ en:
         paid_on: "Paid date"
         payment_method: "Payment method"
         payment_note: "Payment note"
-        next_due_on: "Next due date"
+        next_due_on: "Next Due Date"
         import_key: "Sheet ID"
-        reminder_frequency: "Reminder (no due date)"
-        reminder_starts_on: "Start reminding on"
+        reminder_frequency: "Reminder (No Due Date)"
+        reminder_starts_on: "Start Reminding On"
       category:
         name_zh: "Name (中文)"
         name_en: "Name (English)"
       payment_method:
         name: "Name"
         kind: "Kind"
-        last4: "Last 4 digits"
+        last4: "Last 4 Digits"
     errors:
       messages:
         year_boundary: "must be the start year, or the next year when the period crosses the year end"
@@ -66,7 +66,7 @@ en:
         required_with_paid_on: "is required when the paid date is set"
         in_future: "can't be in the future"
   auth:
-    continue_with_google: "Continue with Google"
+    continue_with_google: "Continue With Google"
     or: "or"
     email: "Email"
     password: "Password"
@@ -82,11 +82,11 @@ en:
       invalid: "Invalid email or password."
   registrations:
     new:
-      title: "Create an account"
+      title: "Create An Account"
       submit: "Create account"
       sign_in: "Already have an account? Sign in"
     check_email:
-      title: "Check your email"
+      title: "Check Your Email"
       body: "We've sent a message to the address you entered. Open the link in it to finish signing up."
       spam_hint: "It can take a minute. If it isn't in your inbox, look in Spam."
   email_confirmations:
@@ -95,7 +95,7 @@ en:
       taken: "This email is already in use by another account."
       confirmed: "Your email is confirmed. Welcome!"
     new:
-      title: "Resend the confirmation email"
+      title: "Resend The Confirmation Email"
       submit: "Send"
     create:
       sent: "If that address is waiting for confirmation, we've sent a new link."
@@ -104,11 +104,11 @@ en:
     new:
       title: "Forgot your password?"
       hint: "Enter your email and we'll send you a link to set a new password. If you signed up with Google, this also lets you add a password."
-      submit: "Send the link"
+      submit: "Send The Link"
     create:
       sent: "If an account uses that address, we've sent a reset link."
     edit:
-      title: "Set a new password"
+      title: "Set A New Password"
       submit: "Save password"
     update:
       updated: "Your password has been saved. Please sign in."
@@ -150,7 +150,7 @@ en:
       households_coming: "Households and bills are coming next."
       sign_out: "Sign out"
       sign_in: "Sign in"
-      sign_up: "Create an account"
+      sign_up: "Create An Account"
   roles:
     owner: "Owner"
     co_owner: "Co-owner"
@@ -181,9 +181,9 @@ en:
   onboardings:
     show:
       title: "Welcome"
-      new_title: "Create a new household"
+      new_title: "Create A New Household"
       new_hint: "A new household starts empty, with its own records, members and reminders. You become its owner."
-      create_heading: "Create your household"
+      create_heading: "Create Your Household"
       create: "Create household"
       waiting_heading: "Waiting for an invite?"
       waiting: "Ask the owner to invite %{email}. The invitation will appear here when you sign in."
@@ -197,7 +197,7 @@ en:
       payment_methods: "Payment Methods"
       categories: "Categories"
       templates: "Recurring Bills"
-      import: "Import from the Sheet"
+      import: "Import From The Sheet"
   members:
     index:
       title: "Members"
@@ -205,15 +205,15 @@ en:
       no_pending: "No pending invitations."
       expires: "expires %{date}"
       never_expires: "never expires"
-      resend: "Resend (7 days)"
+      resend: "Resend (7 Days)"
       revoke: "Revoke"
       invite: "Invite someone"
       expiry: "Invitation expires"
-      expiry_7: "In 7 days"
-      expiry_30: "In 30 days"
-      expiry_custom: "On a date (below)"
+      expiry_7: "In 7 Days"
+      expiry_30: "In 30 Days"
+      expiry_custom: "On A Date (Below)"
       expiry_never: "Never"
-      custom_date: "Date (for “On a date”)"
+      custom_date: "Date (For “On A Date”)"
       send: "Send invitation"
       remove: "Remove"
       remove_confirm: "Remove this member from the household?"
@@ -233,7 +233,7 @@ en:
       from: "From %{name}"
       accept: "Accept"
       decline: "Decline"
-      create_instead: "Create your own household instead"
+      create_instead: "Create Your Own Household Instead"
     accept:
       accepted: "You joined %{household}."
     decline:
@@ -243,10 +243,10 @@ en:
       title: "You're invited"
       body: "You're invited to %{household}. Sign in or create an account with %{email} to accept."
     wrong_account:
-      title: "This invitation is for another address"
+      title: "This Invitation Is For Another Address"
       body: "This invite was sent to %{masked}. Sign out and use that address."
     invalid:
-      title: "Invitation not available"
+      title: "Invitation Not Available"
       body: "This invitation link is invalid, expired, already used or revoked. Ask the owner to send a new one."
   invitation_mailer:
     invite:
@@ -265,10 +265,10 @@ en:
     delete_records: "delete all records"
   reauthentications:
     show:
-      title: "Confirm it's you"
+      title: "Confirm It's You"
       why: "To %{action}, confirm it's you first."
       confirm: "Confirm"
-      send_code: "Email a code to %{email}"
+      send_code: "Email A Code To %{email}"
       code: "6-digit code"
     create:
       invalid: "That didn't match. Try again."
@@ -279,10 +279,10 @@ en:
       title: "My Account"
       profile: "Profile"
       theme: "Theme"
-      theme_label: "Theme on this device"
+      theme_label: "Theme On This Device"
       theme_hint: "Saved on this device only. Device setting follows the phone or computer's own light or dark mode."
       locale: "Language"
-      locale_auto: "Same as the browser"
+      locale_auto: "Same As The Browser"
       time_zone: "Time zone"
       reminder_hour: "Reminder time"
       save: "Save"
@@ -297,7 +297,7 @@ en:
       new_password: "New password"
       change_password: "Change password"
       no_password: "You sign in with Google and have no password."
-      set_password: "Email me a link to set a password"
+      set_password: "Email Me A Link To Set A Password"
       sign_in_methods: "Sign-in methods"
       google_connected: "Google connected (%{email})"
       disconnect_google: "Disconnect Google"
@@ -305,13 +305,13 @@ en:
       sessions: "Signed-in devices"
       last_seen: "Last seen %{time}"
       this_device: "this device"
-      sign_out_others: "Sign out all other devices"
+      sign_out_others: "Sign Out All Other Devices"
       households: "Households"
-      new_household: "＋ Create a new household"
+      new_household: "＋ Create A New Household"
       leave: "Leave"
       leave_confirm: "Leave %{household}? You'll need a new invitation to come back."
       danger_zone: "Danger zone"
-      delete_account: "Delete my account"
+      delete_account: "Delete My Account"
     update:
       saved: "Saved."
   account:
@@ -337,7 +337,7 @@ en:
         disconnected: "Google disconnected."
     deletions:
       show:
-        title: "Delete your account"
+        title: "Delete Your Account"
         explain: "Deleting your account is permanent."
         removes: "Your profile, sign-in methods and devices are removed, and you leave every household. Bills you added stay in the household, shown as added by a former member."
         owner_rule: "If you own a household with other members, transfer ownership or delete the household first. A household where you're the only member is deleted with your account."
@@ -346,9 +346,9 @@ en:
         transfer: "Transfer ownership"
         delete_household: "Delete household"
         type_name: "Type the household name to confirm: %{name}"
-        delete: "Delete my account"
+        delete: "Delete My Account"
         final_confirm: "Delete your account permanently?"
-        sign_in_first: "Sign in to delete your account"
+        sign_in_first: "Sign In To Delete Your Account"
       create:
         blocked: "Your account can't be deleted yet; see below."
         deleted: "Your account was deleted."
@@ -358,7 +358,7 @@ en:
       lead_days_hint: "How many days before the due date the due-soon reminder is sent (0–30)."
       save: "Save"
       transfer: "Transfer ownership"
-      delete_records: "Delete all records"
+      delete_records: "Delete All Records"
       delete: "Delete household"
       activity: "Activity"
       former_member: "Former member"
@@ -391,14 +391,14 @@ en:
       done: "%{name} is now the owner."
   record_purges:
     new:
-      title: "Delete all records"
+      title: "Delete All Records"
       explain: "This permanently deletes all %{count} records in %{name}."
       removes: "Gone with them: their photos, activity history, reminders and the import history (undo is no longer possible)."
       keeps: "Kept: the household, members, categories, payment methods and settings."
       reimport: "Afterwards you can import the sheet again from scratch: every row comes back as new."
-      delete_templates: "Also delete the recurring bills (%{count})"
+      delete_templates: "Also Delete The Recurring Bills (%{count})"
       keep_templates_hint: "If you keep them, they start again from this month, so past bills aren't recreated."
-      submit: "Delete all records"
+      submit: "Delete All Records"
       final_confirm: "Permanently delete all %{count} records?"
     create:
       deleted: "Deleted %{count} records."
@@ -460,9 +460,9 @@ en:
     reminder_frequencies:
       none: "No reminder"
       daily: "Every day"
-      every_3_days: "Every 3 days"
+      every_3_days: "Every 3 Days"
       weekly: "Every week"
-      biweekly: "Every 2 weeks"
+      biweekly: "Every 2 Weeks"
       monthly: "Every month"
     events:
       created: "Created"
@@ -490,21 +490,21 @@ en:
       all_types: "All types"
       all_categories: "All categories"
       all_statuses: "All statuses"
-      all_payment_methods: "All payment methods"
+      all_payment_methods: "All Payment Methods"
       search: "Search"
       filter: "Filter"
       clear: "Clear"
       export: "Export CSV"
       summary: "Summary"
-      by_period: "By billing period"
+      by_period: "By Billing Period"
       required: "Required"
       paid: "Paid"
       outstanding: "Outstanding"
       show_required: "Show the records with a required amount"
       show_paid: "Show the records with a payment"
       amount_filter:
-        required: "Records with a required amount"
-        paid: "Records with a payment"
+        required: "Records With A Required Amount"
+        paid: "Records With A Payment"
         remove: "Show all"
       total: "Total"
       empty: "No records yet. The sheet import will fill this list; you can also add one by hand."
@@ -517,12 +517,12 @@ en:
       details: "Details"
       paid_on: "Paid date"
       due_on: "Due %{date}"
-      no_due_date: "No due date"
+      no_due_date: "No Due Date"
       mark_paid: "Mark paid"
     form:
       title_hint: "Defaults to the category name"
       recurring_tip: "Does this bill repeat (e.g. water every 2 months)? Set it up once and each bill is created for you."
-      recurring_link: "Set up a recurring bill →"
+      recurring_link: "Set Up A Recurring Bill →"
       save_recurring: "Save and Make Recurring"
       details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
       period: "Billing period"
@@ -530,8 +530,8 @@ en:
       amounts_hint: "Paid in full copies the amount due; Partly paid takes what has been paid so far, up to the amount due."
       paid_over_due: "Amount paid can't be more than the amount due."
       paid_choice:
-        none: "Not paid yet"
-        full: "Paid in full"
+        none: "Not Paid Yet"
+        full: "Paid In Full"
         partial: "Partly paid"
       reminder_hint: "Only for records without a due date: repeats until the record is paid."
       next_due_hint: "For maintenance: when it's due again."
@@ -551,13 +551,13 @@ en:
       deleted: "Record deleted. Its details stay in the household's activity log."
     mark_paid:
       title: "Mark paid"
-      amount: "Bill amount (%{currency})"
+      amount: "Bill Amount (%{currency})"
       hint: "Sets Required and Paid to this amount and the paid date to today."
       submit: "Mark paid"
       done: "%{title} marked paid."
     show:
       make_recurring: "Make This Recurring"
-      no_due_date: "No due date"
+      no_due_date: "No Due Date"
       edit: "Edit"
       delete: "Delete"
       delete_confirm: "Delete this record? It can't be undone."
@@ -572,19 +572,19 @@ en:
       other: "Other"
     index:
       title: "Payment methods"
-      new: "New payment method"
+      new: "New Payment Method"
       empty: "No payment methods yet."
       edit: "Edit"
       archive: "Archive"
       unarchive: "Restore"
       archived: "archived"
-      from_notes: "Set payment methods from notes"
+      from_notes: "Set Payment Methods From Notes"
       from_notes_hint: "Fill in many records at once from keywords in their payment notes, such as ubear or 中信轉帳."
     from_notes:
-      title: "Set payment methods from notes"
+      title: "Set Payment Methods From Notes"
       intro: "These payment keywords appear in the payment notes of %{count} records that have no payment method. Choose a payment method for each keyword (or add one here) and tap Apply to set it on the matching records. Notes don't change, and records that already have a payment method are never overwritten."
       none_found: "Nothing to set: no payment keywords appear in the notes of records without a payment method."
-      back: "Back to payment methods"
+      back: "Back To Payment Methods"
       count:
         one: "1 record"
         other: "%{count} records"
@@ -593,7 +593,7 @@ en:
       down: "Move down"
       examples: "e.g. %{list}"
       new_method: "+ New: %{name} (%{kind})"
-      skip: "Skip (don't set)"
+      skip: "Skip (Don't Set)"
       overlap: "\"%{note}\" matches %{keywords}; the keyword higher in the list is used."
       and: " and "
       overlap_hint: "Use ↑ ↓ to change the order."
@@ -603,21 +603,21 @@ en:
     assign_from_notes:
       done: "Payment method set on %{records} records; %{methods} payment methods added."
     new:
-      title: "New payment method"
+      title: "New Payment Method"
     edit:
-      title: "Edit payment method"
+      title: "Edit Payment Method"
     create:
       created: "Payment method added."
     update:
       saved: "Saved."
   imports:
     new:
-      title: "Import from the sheet"
+      title: "Import From The Sheet"
       step_export: "In Google Sheets, open the 記錄 tab → File → Download → Comma-separated values (.csv)."
       step_upload: "Upload the file here. Nothing is saved yet."
       step_preview: "Check the preview (new, updated, unchanged rows, categories, maintenance chains), then press Continue."
       file: "CSV file"
-      upload: "Upload and preview"
+      upload: "Upload And Preview"
       photos_note: "Photos in the sheet's other tabs are not imported; you can attach them to records later."
       history: "Past imports"
       counts: "%{created} new · %{updated} updated · %{unchanged} unchanged · %{skipped} skipped"
@@ -645,11 +645,11 @@ en:
         new: "New"
         update: "Update"
         unchanged: "Unchanged"
-        deleted: "Deleted in the app"
+        deleted: "Deleted In The App"
       new_ids: "New IDs"
       warnings: "Warnings"
       categories: "Category mapping"
-      payment_keywords: "Payment methods (from note keywords)"
+      payment_keywords: "Payment Methods (From Note Keywords)"
       payment_keywords_hint: "Records without a payment method get one from the keywords in their payment note (the choices saved in Set payment methods from notes). Changes here are remembered too."
       keyword: "Keyword"
       categories_hint: "Each item name from the sheet goes to a category. Variants like 台電電費 and 電費 can share one. The mapping is remembered for the next import."
@@ -659,8 +659,8 @@ en:
       category: "Category"
       update_hint: "Fields the sheet changed since the last import. ⚠ means the app changed the same field too: choose which value to keep."
       conflict: "Changed in the app to %{app}"
-      take_sheet: "Use the sheet's value"
-      keep_app: "Keep the app's value"
+      take_sheet: "Use The Sheet's Value"
+      keep_app: "Keep The App's Value"
       deleted_hint: "These sheet IDs belonged to records deleted in the app."
       skip: "Skip"
       recreate: "Re-create"
@@ -700,7 +700,7 @@ en:
         category_type: "A category doesn't match the row's type."
         category_missing: "A row has no category mapping."
       row: "Line %{line}, ID %{key}"
-      back: "Back to the preview"
+      back: "Back To The Preview"
       again: "Upload again"
   categories:
     index:
@@ -719,7 +719,7 @@ en:
       archive: "Archive"
       unarchive: "Restore"
       aliases: "Aliases:"
-      remove_alias: "Remove alias %{alias}"
+      remove_alias: "Remove Alias %{alias}"
     new:
       title: "New category"
     edit:
@@ -738,7 +738,7 @@ en:
     every_year: "Every year"
     every_n_months:
       one: "Every month"
-      other: "Every %{count} months"
+      other: "Every %{count} Months"
     variable: "amount varies"
     hint: "last time ≈ %{amount}"
     form:
@@ -750,7 +750,7 @@ en:
       reminder_hint: "Without a due day, bills can still repeat a reminder until paid."
     index:
       title: "Recurring bills"
-      new: "New recurring bill"
+      new: "New Recurring Bill"
       intro: "Each template creates its next unpaid bill a few days ahead. Deleting a template keeps every bill it made."
       empty: "No recurring bills yet."
       next: "next: %{period}, created %{date}"
@@ -765,12 +765,12 @@ en:
         one: "1 bill matches %{period}"
         other: "%{count} bills match %{period}: pick one"
       link_this: "Use %{title} · %{details} · %{amount}"
-      create_new: "Create a new bill"
+      create_new: "Create A New Bill"
     new:
-      title: "New recurring bill"
+      title: "New Recurring Bill"
       from_record: "Filled in from the record %{title} (%{period}). Check how often it repeats and when it's due, then save: this record becomes the first bill, and the next ones are created for you."
     edit:
-      title: "Edit recurring bill"
+      title: "Edit Recurring Bill"
     create:
       created:
         zero: "Template saved. Its first bill will be created when it's due."
@@ -791,4 +791,4 @@ en:
         one: "This change also updates 1 unpaid bill that nobody has paid or touched yet:"
         other: "This change also updates %{count} unpaid bills that nobody has paid or touched yet:"
       regenerated: "Not started yet: deleted and created again under the new schedule"
-      apply: "Save and update these bills"
+      apply: "Save And Update These Bills"

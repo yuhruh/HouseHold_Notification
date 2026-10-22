@@ -45,7 +45,7 @@ en:
       snooze_days:
         one: "1 day"
         other: "%{count} days"
-      snooze_until: "Until a date"
+      snooze_until: "Until A Date"
       snoozed_until: "You snoozed until %{date}"
       cancel_snooze: "Cancel snooze"
       stopped: "Reminders stopped"
@@ -64,9 +64,9 @@ en:
       title: "Upcoming"
       empty: "Nothing is due. 🎉"
       overdue: "Overdue"
-      soon: "Due in the next 30 days"
+      soon: "Due In The Next 30 Days"
       maintenance: "Maintenance due"
-      no_due: "No due date"
+      no_due: "No Due Date"
   notifications:
     index:
       title: "Inbox"
@@ -75,7 +75,7 @@ en:
     show:
       this_browser: "This browser"
       enable_push: "Enable notifications"
-      disable_push: "Turn off on this browser"
+      disable_push: "Turn Off On This Browser"
       push_enabled: "notifications on ✓"
       push_disabled: "notifications off"
       push_denied: "blocked in browser settings (tap the icon left of the address bar → Permissions → Notifications → Allow)"
@@ -83,7 +83,7 @@ en:
       push_failed: "couldn't turn on; try again"
       push_show_amounts: "Show bill names and amounts in notifications (lock screen)"
       push_tip: "Tip: on Android, install the app (menu → Install app) and allow Chrome to run in the background. Battery settings are in the guide. Keep email on too as a fallback."
-      guide: "Getting started guide"
+      guide: "Getting Started Guide"
       devices: "Devices"
       no_devices: "No device has notifications enabled yet."
       last_receipt: "last confirmed %{time}"
@@ -114,7 +114,7 @@ en:
       line: "%{member} (%{channel}: %{error})"
       link: "Details and Resend:"
     index:
-      send_by_email: "Send by email instead"
+      send_by_email: "Send By Email Instead"
       resend_disabled:
         email: "Resend unavailable: this member has no email address"
         web_push: "Resend unavailable: no device has notifications enabled"
@@ -128,7 +128,7 @@ en:
       none: "Every reminder was delivered."
       streak: "%{member} hasn't received %{channel} reminders 3 times in a row. Ask them to check their email address, or to open the app and tap Enable notifications on their phone."
       resend: "Resend"
-      resend_all: "Resend all failed"
+      resend_all: "Resend All Failed"
       attempts:
         one: "1 attempt"
         other: "%{count} attempts"

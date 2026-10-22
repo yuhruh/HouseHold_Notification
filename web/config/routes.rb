@@ -103,6 +103,7 @@ Rails.application.routes.draw do
 
   # PWA
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "version" => "app_versions#show", as: :app_version
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # M0 spike (basic auth; removed after M5)

@@ -1,0 +1,45 @@
+# What's new: shown under Settings → App version and after the app updates itself. Newest first; the
+# first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
+# with each release people will notice, in both languages.
+- version: "2026.10.22"
+  date: 2026-10-22
+  en:
+    - "Settings → App version: check for updates; the app updates itself and shows what's new."
+    - "Buttons, pills and summary cards press in like real buttons."
+    - "Icons in front of Members and Reminder delivery in Settings."
+  zh-TW:
+    - "設定 → 應用程式版本：可檢查更新；應用程式會自動更新並顯示更新內容。"
+    - "按鈕、切換鈕和摘要卡片按下去會像真的按鈕一樣凹下。"
+    - "設定中的「成員」和「提醒寄送」前面加上圖示。"
+- version: "2026.10.21"
+  date: 2026-10-21
+  en:
+    - "Expense Analysis: Bills by billing cycle for water, electricity and gas, as a timeline or against the same period last year."
+    - "Records: unpaid bills first, earliest due date first, and each shows its due date (red once overdue)."
+    - "Record form: Amount due and Amount paid, with Not paid yet / Paid in full / Partly paid; a partial amount over the amount due is flagged."
+    - "New app icon."
+  zh-TW:
+    - "支出分析：水費、電費、瓦斯費的帳單期間比較，可看時間軸或與去年同期比較。"
+    - "記錄：未繳的排最前面，依到期日由近到遠，並顯示到期日（逾期變紅色）。"
+    - "記錄表單：應繳金額與已繳金額，可選尚未繳費／全額繳清／部分繳費；部分金額超過應繳金額時會提示。"
+    - "新的應用程式圖示。"
+- version: "2026.10.20"
+  date: 2026-10-20
+  en:
+    - "Dark mode, with a Light / Dark toggle in the header."
+    - "Records: paged list (10 / 20 / 50 per page), unpaid rows highlighted, overdue in red."
+    - "Save and Make Recurring on New Record; Make This Recurring on a saved record."
+    - "Phone menu: the header links move into a full-screen menu on smaller screens."
+    - "Payment methods suggested from the notes in your records."
+  zh-TW:
+    - "深色模式，頁首可切換淺色／深色。"
+    - "記錄：分頁顯示（每頁 10／20／50 筆），未繳的列會標示，逾期為紅色。"
+    - "新增記錄可「儲存並設為定期」；已存的記錄可「設為定期帳單」。"
+    - "手機選單：較小的螢幕上，頁首連結收進全螢幕選單。"
+    - "依記錄的備註建議付款方式。"
+- version: "2026.10.19"
+  date: 2026-10-19
+  en:
+    - "First release: records, import from the sheet, recurring bills, reminders by email, in the app and by push, Expense Analysis, photos and households."
+  zh-TW:
+    - "第一版：記錄、從試算表匯入、定期帳單、電子郵件／應用程式內／推播提醒、支出分析、照片與家庭。"

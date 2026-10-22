@@ -8,6 +8,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# A new deploy changes the build, and Turbo then reloads the whole page on the next click %>
+    <meta name="app-build" content="<%= AppVersion.build %>" data-turbo-track="reload">
 
     <%= yield :head %>
 
@@ -22,7 +24,8 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-controller="app-update" data-app-update-url-value="<%= app_version_path %>" data-app-update-version-value="<%= AppVersion.current %>"
+        data-app-update-build-value="<%= AppVersion.build %>" data-app-update-strings-value="<%= t("app_update").slice(:updated, :ready, :checking, :latest, :updating, :failed).to_json %>">
     <% if authenticated? %>
       <%= render "layouts/header" %>
       <%= render "layouts/back_link" %>
@@ -47,5 +50,13 @@
     <main class="container mx-auto mt-10 px-4 flex">
       <%= yield %>
     </main>
+    <div hidden data-app-update-target="toast" role="status" class="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-xl border-2 border-gray-800 bg-white p-4 shadow-[4px_4px_0_var(--color-gray-800)]">
+      <p class="font-semibold" data-app-update-target="title"></p>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm" data-app-update-target="notes"></ul>
+      <div class="mt-3 flex justify-end gap-2">
+        <button type="button" hidden data-app-update-target="reload" data-action="app-update#reload" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium"><%= t("app_update.update_now") %></button>
+        <button type="button" data-action="app-update#dismiss" class="btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1.5 font-medium"><%= t("app_update.close") %></button>
+      </div>
+    </div>
   </body>
 </html>

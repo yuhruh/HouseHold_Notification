@@ -34,6 +34,23 @@
     </section>
   <% end %>
 
+  <section class="space-y-3 rounded-lg border p-4" id="app-version">
+    <h2 class="text-lg font-semibold"><%= t(".app_version") %></h2>
+    <p><%= t(".version_now", version: AppVersion.current) %></p>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" data-action="app-update#checkNow" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><%= t(".check_updates") %></button>
+      <span class="text-sm text-gray-600" data-app-update-target="status" aria-live="polite"></span>
+    </div>
+    <p class="text-sm text-gray-500"><%= t(".auto_update_hint") %></p>
+    <h3 class="font-medium"><%= t(".whats_new") %></h3>
+    <% AppVersion.entries.first(5).each do |entry| %>
+      <div>
+        <p class="text-sm font-semibold"><%= entry.version %> · <%= l(entry.date, format: :long) %></p>
+        <ul class="list-disc space-y-0.5 pl-5 text-sm"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
+      </div>
+    <% end %>
+  </section>
+
   <section class="space-y-2">
     <h2 class="text-lg font-semibold"><%= t(".activity") %></h2>
     <ul class="divide-y rounded-lg border text-sm">

@@ -5,15 +5,15 @@ on:
   push:
     branches: [ main, master ]
 
-# The Rails app lives in web/. Runners are pinned to ubuntu-24.04: newer images only have the latest
-# Ruby patch release, not the 3.4.1 in .ruby-version (and the Docker image)
+# The Rails app lives in web/. Newer runner images only have the latest Ruby patch release of each
+# series, so .ruby-version (and the Docker image) should stay on the latest 3.4.x
 defaults:
   run:
     working-directory: web
 
 jobs:
   scan_ruby:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         run: bin/bundler-audit
       
   scan_js:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -48,7 +48,7 @@ jobs:
         run: bin/importmap audit
 
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     env:
       RUBOCOP_CACHE_ROOT: web/tmp/rubocop
     steps:
@@ -75,7 +75,7 @@ jobs:
         run: bin/rubocop -f github
 
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     services:
       postgres:
@@ -116,7 +116,7 @@ jobs:
         run: bin/rails db:test:prepare test
 
   system-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     services:
       postgres:

@@ -126,7 +126,7 @@ Errors from requests and jobs go to Sentry.
 
 ## Getting started
 
-Requirements: Ruby 3.4.1, PostgreSQL, and libvips (for photo processing). The app lives in `web/`.
+Requirements: Ruby 3.4.11, PostgreSQL, and libvips (for photo processing). The app lives in `web/`.
 
 ```sh
 cd web

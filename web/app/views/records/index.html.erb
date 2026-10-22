@@ -93,9 +93,9 @@
                 <td class="px-2 py-1.5">
                   <% unless record.settled %>
                     <% if record.amount_required.nil? && !record.maintenance? %>
-                      <%= link_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "whitespace-nowrap rounded border border-green-700 px-2 py-0.5 text-green-800" %>
+                      <%= link_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "btn-pill cursor-pointer whitespace-nowrap bg-green-100 px-2.5 py-0.5 text-green-900 hover:bg-green-200" %>
                     <% else %>
-                      <%= button_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "cursor-pointer whitespace-nowrap rounded border border-green-700 px-2 py-0.5 text-green-800" %>
+                      <%= button_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "btn-pill cursor-pointer whitespace-nowrap bg-green-100 px-2.5 py-0.5 text-green-900 hover:bg-green-200" %>
                     <% end %>
                   <% end %>
                 </td>

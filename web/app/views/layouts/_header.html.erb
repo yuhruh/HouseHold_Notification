@@ -23,16 +23,16 @@
       <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= link_to nav_label("upcoming.png", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= link_to nav_label("records.png", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-        <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
+        <%= link_to nav_label("upcoming.png", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= link_to nav_label("records.png", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
       <% end %>
-      <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-      <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 px-2 py-1 underline" %>
-      <%= button_to nav_label("logout.png", t("layouts.header.sign_out")), session_path, method: :delete, class: "inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-gray-700 underline" %>
+      <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+      <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
       <%= render "layouts/theme_switch" %>
       <%= render "layouts/language_switch" %>
+      <%= button_to nav_label("logout.png", t("layouts.header.sign_out")), session_path, method: :delete, class: "inline-flex items-center gap-1 btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-2 py-1" %>
     </nav>
 
     <div class="flex items-center gap-2 min-[1550px]:hidden" data-controller="menu">

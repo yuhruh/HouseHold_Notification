@@ -35,6 +35,6 @@
 
 /* Raised card: the btn-press outline and hard shadow, without the press motion (Upcoming lists) */
 @utility card-raised {
-  border: 2px solid var(--color-gray-800);
-  box-shadow: 4px 4px 0 var(--color-gray-800);
+  border: 2px solid var(--color-mauve-800);
+  box-shadow: 4px 4px 0 var(--color-mauve-800);
 }

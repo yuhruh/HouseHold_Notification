@@ -7,7 +7,7 @@
     <%= button_to t("records.reminders.cancel_snooze"), snooze_household_record_path(Current.household, record), method: :delete, class: "cursor-pointer underline" %>
   <% else %>
     <details class="relative">
-      <summary class="btn-pill cursor-pointer list-none bg-white px-2.5 py-0.5 hover:bg-gray-100"><%= t("records.reminders.snooze") %></summary>
+      <summary class="cursor-pointer rounded border px-2 py-0.5"><%= t("records.reminders.snooze") %></summary>
       <div class="absolute z-10 mt-1 flex w-56 flex-col gap-1 rounded-md border bg-white p-2 shadow">
         <% [ 3, 7, 14 ].each do |days| %>
           <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-gray-50" %>
@@ -21,9 +21,9 @@
   <% end %>
   <% if writer && Reminders::Schedule.reminders_stopped?(record, Date.current) %>
     <span class="rounded bg-gray-100 px-2 py-0.5 text-gray-700"><%= t("records.reminders.stopped") %></span>
-    <%= button_to t("records.reminders.restart"), restart_reminders_household_record_path(Current.household, record), class: "btn-pill cursor-pointer bg-white px-2.5 py-0.5 hover:bg-gray-100" %>
+    <%= button_to t("records.reminders.restart"), restart_reminders_household_record_path(Current.household, record), class: "cursor-pointer rounded border px-2 py-0.5" %>
   <% end %>
   <% if writer && record.next_due_on %>
-    <%= link_to t("records.reminders.done"), done_household_record_path(Current.household, record), class: "btn-pill cursor-pointer bg-green-100 px-2.5 py-0.5 text-green-900 hover:bg-green-200" %>
+    <%= link_to t("records.reminders.done"), done_household_record_path(Current.household, record), class: "rounded border border-green-700 px-2 py-0.5 text-green-800" %>
   <% end %>
 </div>

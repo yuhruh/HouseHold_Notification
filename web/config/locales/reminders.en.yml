@@ -13,8 +13,8 @@ en:
       no_receipt: "no confirmation in 24h"
     digest:
       title:
-        one: "%{household}: 1 bill needs attention"
-        other: "%{household}: %{count} bills need attention"
+        one: "%{household}: 1 Bill Needs Attention"
+        other: "%{household}: %{count} Bills Need Attention"
       upcoming: "Everything due and overdue:"
       footer: "Open a bill to mark it paid or snooze its reminders. Change channels and the reminder hour in My account → Notifications."
     wording:
@@ -109,8 +109,8 @@ en:
       web_push: "Web Push"
     summary:
       title:
-        one: "%{household}: 1 reminder wasn't delivered"
-        other: "%{household}: %{count} reminders weren't delivered"
+        one: "%{household}: 1 Reminder Wasn't Delivered"
+        other: "%{household}: %{count} Reminders Weren't Delivered"
       line: "%{member} (%{channel}: %{error})"
       link: "Details and Resend:"
     index:

@@ -42,13 +42,17 @@
       <span class="text-sm text-gray-600" data-app-update-target="status" aria-live="polite"></span>
     </div>
     <p class="text-sm text-gray-500"><%= t(".auto_update_hint") %></p>
-    <h3 class="font-medium"><%= t(".whats_new") %></h3>
-    <% AppVersion.entries.first(5).each do |entry| %>
-      <div>
-        <p class="text-sm font-semibold"><%= entry.version %> · <%= l(entry.date, format: :long) %></p>
-        <ul class="list-disc space-y-0.5 pl-5 text-sm"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
+    <details id="whats_new" class="text-sm">
+      <summary class="cursor-pointer font-semibold text-blue-800"><%= t(".whats_new") %></summary>
+      <div class="mt-3 space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+        <% AppVersion.entries.first(5).each do |entry| %>
+          <div>
+            <p class="font-semibold"><%= entry.version %> · <%= l(entry.date, format: :long) %></p>
+            <ul class="list-disc space-y-0.5 pl-5"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
+          </div>
+        <% end %>
       </div>
-    <% end %>
+    </details>
   </section>
 
   <section class="space-y-2">

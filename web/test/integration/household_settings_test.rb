@@ -22,9 +22,9 @@ class HouseholdSettingsTest < ActionDispatch::IntegrationTest
         .accept!(users(:newbie))
       users(:alex).update!(locale: "en")
       get household_settings_path(@home)
-      assert_select "li", text: /Alex changed Sam's role to Co-owner/
-      assert_select "li", text: /Alex changed household settings: #{Household.human_attribute_name(:reminder_lead_days)}/
-      assert_select "li", text: /joined as Viewer/
+      assert_select "li", text: /Alex Changed Sam's Role To Co-owner/
+      assert_select "li", text: /Alex Changed Household Settings: #{Household.human_attribute_name(:reminder_lead_days)}/
+      assert_select "li", text: /Joined As Viewer/
     end
   end
 

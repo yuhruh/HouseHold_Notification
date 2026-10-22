@@ -11,7 +11,7 @@
     <% next if list.empty? %>
     <section class="space-y-2">
       <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
-      <ul class="divide-y rounded-lg border">
+      <ul class="card-raised divide-y rounded-xl bg-white">
         <% list.each do |record| %>
           <li class="space-y-1 px-4 py-2">
             <div class="flex flex-wrap items-center justify-between gap-2">

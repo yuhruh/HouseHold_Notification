@@ -47,9 +47,9 @@ en:
         other: "%{count} days"
       snooze_until: "Until A Date"
       snoozed_until: "You snoozed until %{date}"
-      cancel_snooze: "Cancel snooze"
-      stopped: "Reminders stopped"
-      restart: "Restart reminders"
+      cancel_snooze: "Cancel Snooze"
+      stopped: "Reminders Stopped"
+      restart: "Restart Reminders"
       done: "Done"
     restart_reminders:
       restarted: "Reminders restarted."
@@ -65,7 +65,7 @@ en:
       empty: "Nothing is due. 🎉"
       overdue: "Overdue"
       soon: "Due In The Next 30 Days"
-      maintenance: "Maintenance due"
+      maintenance: "Maintenance Due"
       no_due: "No Due Date"
   notifications:
     index:
@@ -73,8 +73,8 @@ en:
       empty: "No notifications yet."
   accounts:
     show:
-      this_browser: "This browser"
-      enable_push: "Enable notifications"
+      this_browser: "This Browser"
+      enable_push: "Enable Notifications"
       disable_push: "Turn Off On This Browser"
       push_enabled: "notifications on ✓"
       push_disabled: "notifications off"
@@ -123,7 +123,7 @@ en:
         rejected: "rejected"
         received: "received by the device"
         error: "error"
-      title: "Reminder delivery"
+      title: "Reminder Delivery"
       intro: "Reminders that couldn't be delivered, newest first. Resend rebuilds the message from the items still unpaid."
       none: "Every reminder was delivered."
       streak: "%{member} hasn't received %{channel} reminders 3 times in a row. Ask them to check their email address, or to open the app and tap Enable notifications on their phone."
@@ -146,5 +146,5 @@ en:
       removed: "Device removed; it won't get reminders anymore."
   members:
     index:
-      remove_device: "Remove device"
+      remove_device: "Remove Device"
       remove_device_confirm: "Remove this device? It stops getting reminders until they enable notifications on it again."

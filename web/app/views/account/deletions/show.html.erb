@@ -16,7 +16,7 @@
         <% @blocking.each do |h| %>
           <p><%= h.name %>:
             <%= link_to t(".transfer"), new_household_ownership_transfer_path(h), class: "underline" %> ·
-            <%= link_to t(".delete_household"), new_household_deletion_path(h), class: "underline" %></p>
+            <%= link_to new_household_deletion_path(h), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete_household") %></span><% end %></p>
         <% end %>
       </div>
     <% else %>
@@ -25,7 +25,7 @@
           <%= label_tag "confirm_#{h.id}", t(".type_name", name: h.name), class: "block text-sm font-medium" %>
           <%= text_field_tag "confirm[#{h.id}]", nil, id: "confirm_#{h.id}", required: true, autocomplete: "off", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
         <% end %>
-        <%= form.submit t(".delete"), class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium", data: { turbo_confirm: t(".final_confirm") } %>
+        <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium", data: { turbo_confirm: t(".final_confirm") } do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete") %></span><% end %>
       <% end %>
     <% end %>
   <% else %>

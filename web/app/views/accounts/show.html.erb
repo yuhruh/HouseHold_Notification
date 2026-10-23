@@ -171,6 +171,6 @@
 
   <section class="space-y-3 rounded-lg shadow-md shadow-red-100 border-2 border-red-200 p-4">
     <h2 class="text-lg font-semibold text-red-700"><%= t(".danger_zone") %></h2>
-    <%= link_to t(".delete_account"), account_deletion_path, class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium inline-block" %>
+    <%= link_to account_deletion_path, class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium inline-flex items-center gap-1.5" do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete_account") %></span><% end %>
   </section>
 </div>

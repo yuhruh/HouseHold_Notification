@@ -21,7 +21,7 @@
                 <span class="flex gap-3 text-sm">
                   <%= link_to t(".edit"), edit_household_category_path(Current.household, category), class: "underline" %>
                   <% if count.zero? %>
-                    <%= button_to t(".delete"), household_category_path(Current.household, category), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "cursor-pointer text-red-700 underline" %>
+                    <%= button_to household_category_path(Current.household, category), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "inline-flex items-center gap-1 cursor-pointer text-red-700 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete") %></span><% end %>
                   <% else %>
                     <%= button_to (category.archived_at ? t(".unarchive") : t(".archive")), archive_household_category_path(Current.household, category), class: "cursor-pointer underline" %>
                   <% end %>

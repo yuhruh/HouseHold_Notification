@@ -18,6 +18,6 @@
     <% end %>
     <%= form.label :confirm_name, t("account.deletions.show.type_name", name: Current.household.name), class: "block text-sm font-medium" %>
     <%= form.text_field :confirm_name, required: true, autocomplete: "off", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-    <%= form.submit t(".submit"), class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium", data: { turbo_confirm: t(".final_confirm", count: @count) } %>
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium", data: { turbo_confirm: t(".final_confirm", count: @count) } do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".submit") %></span><% end %>
   <% end %>
 </div>

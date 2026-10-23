@@ -35,7 +35,7 @@
     <li><%= link_to guide_path, class: row do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>
     <% if signed_in %><li><%= link_to account_path, class: row do %><%= icon.("account.png") %><span><%= t("layouts.header.account") %></span><% end %></li><% end %>
     <li class="py-2">
-      <p class="<%= row %> hover:bg-transparent"><span aria-hidden="true">🌐</span><span><%= t("layouts.header.languages") %></span></p>
+      <p class="<%= row %> hover:bg-transparent"><%= icon.("language.png") %><span><%= t("layouts.header.languages") %></span></p>
       <% [ [ "en", "🇺🇸", "English" ], [ "zh-TW", "🇹🇼", "繁體中文" ] ].each do |code, flag, name| %>
         <%= button_to locale_path, method: :patch, params: { locale: code }, lang: code, class: "#{sub} cursor-pointer #{'font-semibold' if I18n.locale.to_s == code}",
               "aria-current": (I18n.locale.to_s == code ? "true" : nil) do %>

@@ -47,7 +47,7 @@ module RecordsHelper
     shown.each_with_object([]) { |n, list| list << nil if list.any? && n > list.last + 1; list << n }
   end
 
-  def month_options = (1..12).map { |m| [ t("records.month", month: m), m ] }
+  def month_options = (1..12).map { |m| [ t("date.abbr_month_names")[m], m ] }
 
   # A summary Required / Paid amount that lists the records it adds up (current filters kept)
   def amount_link(row, params, column)

@@ -474,7 +474,6 @@ zh-TW:
       import_undone: "復原匯入"
       template_updated: "由定期帳單範本更新"
       reminders_restarted: "重新提醒"
-    month: "%{month}月"
     index:
       title: "記錄"
       new: "新增記錄"

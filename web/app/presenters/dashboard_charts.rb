@@ -9,7 +9,7 @@ class DashboardCharts
   end
 
   # X-axis labels: months, or years when all years are shown
-  def labels(query = @q) = query.all_years? ? query.buckets.map(&:to_s) : (1..12).map { |m| I18n.t("records.month", month: m) }
+  def labels(query = @q) = query.all_years? ? query.buckets.map(&:to_s) : (1..12).map { |m| I18n.t("date.abbr_month_names")[m] }
 
   def monthly
     series = @q.monthly_by_type.map do |type, values|

@@ -50,7 +50,7 @@ en:
         reminder_frequency: "Reminder (No Due Date)"
         reminder_starts_on: "Start Reminding On"
       category:
-        name_zh: "Name (中文)"
+        name_zh: "Name (Chinese)"
         name_en: "Name (English)"
       payment_method:
         name: "Name"
@@ -170,7 +170,7 @@ en:
         light: "Light"
         dark: "Dark"
         system: "Device Setting"
-      new_household: "＋ New Household"
+      new_household: "+ New Household"
       apartment: "Apartment"
       menu: "Menu"
       close_menu: "Close Menu"
@@ -307,7 +307,7 @@ en:
       this_device: "this device"
       sign_out_others: "Sign Out All Other Devices"
       households: "Households"
-      new_household: "＋ Create A New Household"
+      new_household: "+ Create A New Household"
       leave: "Leave"
       leave_confirm: "Leave %{household}? You'll need a new invitation to come back."
       danger_zone: "Danger Zone"
@@ -474,7 +474,6 @@ en:
       import_undone: "Import Undone"
       template_updated: "Updated By Its Recurring Template"
       reminders_restarted: "Reminders Restarted"
-    month: "%{month}月"
     index:
       title: "Records"
       new: "New Record"
@@ -524,7 +523,7 @@ en:
       recurring_tip: "Does this bill repeat (e.g. water every 2 months)? Set it up once and each bill is created for you."
       recurring_link: "Set Up A Recurring Bill →"
       save_recurring: "Save and Make Recurring"
-      details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
+      details_hint: "Plate number for vehicle license tax, policy no. or insured item for insurance, room or area for maintenance."
       period: "Billing Period"
       period_hint: "Year, first month, last month. A period like Dec. - Jan. ends in the next year."
       amounts_hint: "Paid in full copies the amount due; Partly paid takes what has been paid so far, up to the amount due."
@@ -579,7 +578,7 @@ en:
       unarchive: "Restore"
       archived: "archived"
       from_notes: "Set Payment Methods From Notes"
-      from_notes_hint: "Fill in many records at once from keywords in their payment notes, such as ubear or 中信轉帳."
+      from_notes_hint: "Fill in many records at once from keywords in their payment notes, such as ubear or CTBC transfer."
     from_notes:
       title: "Set Payment Methods From Notes"
       intro: "These payment keywords appear in the payment notes of %{count} records that have no payment method. Choose a payment method for each keyword (or add one here) and tap Apply to set it on the matching records. Notes don't change, and records that already have a payment method are never overwritten."
@@ -613,7 +612,7 @@ en:
   imports:
     new:
       title: "Import From The Sheet"
-      step_export: "In Google Sheets, open the 記錄 tab → File → Download → Comma-separated values (.csv)."
+      step_export: "In Google Sheets, open the Records tab → File → Download → Comma-separated values (.csv)."
       step_upload: "Upload the file here. Nothing is saved yet."
       step_preview: "Check the preview (new, updated, unchanged rows, categories, maintenance chains), then press Continue."
       file: "CSV File"
@@ -627,7 +626,7 @@ en:
       undo_confirm: "Undo this import? Records it created are deleted and records it updated get their old values back."
     create:
       no_file: "Choose a CSV file first."
-      too_large: "The file is larger than 2 MB. Export only the 記錄 tab."
+      too_large: "The file is larger than 2 MB. Export only the Records tab."
       not_utf8: "The file isn't UTF-8 text. Download it from Google Sheets as .csv."
     failed:
       title: "Import Failed"
@@ -652,7 +651,7 @@ en:
       payment_keywords: "Payment Methods (From Note Keywords)"
       payment_keywords_hint: "Records without a payment method get one from the keywords in their payment note (the choices saved in Set payment methods from notes). Changes here are remembered too."
       keyword: "Keyword"
-      categories_hint: "Each item name from the sheet goes to a category. Variants like 台電電費 and 電費 can share one. The mapping is remembered for the next import."
+      categories_hint: "Each item name from the sheet goes to a category. Variants like Taipower Electricity and Electricity can share one. The mapping is remembered for the next import."
       new_category: "New category: %{name}"
       item: "Item"
       rows: "Rows"

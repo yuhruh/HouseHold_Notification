@@ -526,7 +526,7 @@ en:
       save_recurring: "Save and Make Recurring"
       details_hint: "Plate number for 牌照稅, policy no. or insured item for 保險, room or area for maintenance."
       period: "Billing Period"
-      period_hint: "Year, first month, last month. A period like 12月–1月 ends in the next year."
+      period_hint: "Year, first month, last month. A period like Dec. - Jan. ends in the next year."
       amounts_hint: "Paid in full copies the amount due; Partly paid takes what has been paid so far, up to the amount due."
       paid_over_due: "Amount paid can't be more than the amount due."
       paid_choice:
@@ -743,10 +743,10 @@ en:
     hint: "last time ≈ %{amount}"
     form:
       schedule: "Schedule"
-      schedule_hint: "E.g. water every 2 months from January: bills for 1月–2月, 3月–4月 … First month defaults to the start date's month; months per bill defaults to the interval."
+      schedule_hint: "E.g. water every 2 months from January: bills for Jan. - Feb., Mar. - Apr. … First month defaults to the start date's month; months per bill defaults to the interval."
       due: "Due Date"
-      due_hint: "Leave the due day blank if the bill has no fixed due date. Due months after start: 0 = the period's first month, 2 = two months later (a 1月–2月 water bill due in March). Bills are created this many days before the due date (or the period start)."
-      amount_hint: "Fixed amount (管理費, 房屋稅): every bill gets it. Otherwise it's only shown as a hint and bills start without an amount."
+      due_hint: "Leave the due day blank if the bill has no fixed due date. Due months after start: 0 = the period's first month, 2 = two months later (a Jan. - Feb. water bill due in March). Bills are created this many days before the due date (or the period start)."
+      amount_hint: "Fixed amount (maintenance fee, house tax): every bill gets it. Otherwise it's only shown as a hint and bills start without an amount."
       reminder_hint: "Without a due day, bills can still repeat a reminder until paid."
     index:
       title: "Recurring Bills"

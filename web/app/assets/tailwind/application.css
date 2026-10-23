@@ -3,17 +3,23 @@
 
 /* Press button: a thick outline and a hard shadow below-right; pressing slides the button into its
    shadow, so it feels like pushing a real key. Colors come from the palettes, so dark mode mirrors them.
-   --press sets the depth (small pills use 3px). A selected pill (aria-current) stays pressed in. */
+   --press sets the depth (small pills use 3px). A selected pill (aria-current) stays pressed in.
+   In dark mode the outline and shadow are a soft mid gray (gray-400), not the mirrored near-white
+   gray-800; card-raised gets the same treatment (mauve-500 instead of mauve-800). */
+:root { --press-line: var(--color-gray-800); --card-line: var(--color-mauve-800); }
+:root[data-theme="dark"] { --press-line: var(--color-gray-400); --card-line: var(--color-mauve-500); }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --press-line: var(--color-gray-400); --card-line: var(--color-mauve-500); } }
+
 @utility btn-press {
   --press: 4px;
-  border: 2px solid var(--color-gray-800);
-  box-shadow: var(--press) var(--press) 0 var(--color-gray-800);
+  border: 2px solid var(--press-line);
+  box-shadow: var(--press) var(--press) 0 var(--press-line);
   transition: transform 80ms ease-out, box-shadow 80ms ease-out;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  &:hover { transform: translate(-1px, -1px); box-shadow: calc(var(--press) + 1px) calc(var(--press) + 1px) 0 var(--color-gray-800); }
-  &:active, &[aria-current="true"], &[aria-current="page"] { transform: translate(var(--press), var(--press)); box-shadow: 0 0 0 var(--color-gray-800); }
-  &:disabled, &[aria-disabled="true"] { transform: none; box-shadow: 2px 2px 0 var(--color-gray-800); }
+  &:hover { transform: translate(-1px, -1px); box-shadow: calc(var(--press) + 1px) calc(var(--press) + 1px) 0 var(--press-line); }
+  &:active, &[aria-current="true"], &[aria-current="page"] { transform: translate(var(--press), var(--press)); box-shadow: 0 0 0 var(--press-line); }
+  &:disabled, &[aria-disabled="true"] { transform: none; box-shadow: 2px 2px 0 var(--press-line); }
   &:focus-visible { outline: 2px solid var(--color-blue-600); outline-offset: 3px; }
   @media (prefers-reduced-motion: reduce) { transition: none; }
 }
@@ -35,6 +41,6 @@
 
 /* Raised card: the btn-press outline and hard shadow, without the press motion (Upcoming lists) */
 @utility card-raised {
-  border: 2px solid var(--color-mauve-800);
-  box-shadow: 4px 4px 0 var(--color-mauve-800);
+  border: 2px solid var(--card-line);
+  box-shadow: 4px 4px 0 var(--card-line);
 }

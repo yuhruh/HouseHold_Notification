@@ -5,6 +5,14 @@
    stay bg-white. dark.css mirrors mauve-100 to its dark shade; [data-theme] beats its :root rules. */
 :root, :root[data-theme] { background-color: var(--color-mauve-100); }
 
+/* Form fields are white on the mauve page (Tailwind's reset makes them transparent); a bg-* class still wins */
+@layer base {
+  select, textarea,
+  input:where(:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="submit"], [type="button"], [type="reset"], [type="image"])) {
+    background-color: var(--color-white);
+  }
+}
+
 /* Press button: a thick outline and a hard shadow below-right; pressing slides the button into its
    shadow, so it feels like pushing a real key. Colors come from the palettes, so dark mode mirrors them.
    --press sets the depth (small pills use 3px). A selected pill (aria-current) stays pressed in.

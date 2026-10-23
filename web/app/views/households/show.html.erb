@@ -13,7 +13,7 @@
          *([ [ "import.png", t(".import"), new_household_import_path(Current.household) ] ] if policy(Current.household).write?),
          [ "members.png", t(".members"), household_members_path(Current.household) ],
          [ "settings.png", t("layouts.header.settings"), household_settings_path(Current.household) ] ].each do |icon, label, path| %>
-      <li><%= link_to nav_label(icon, label), path, class: "flex items-center gap-2 rounded-lg border px-4 py-3 font-medium transition-colors hover:bg-olive-800 hover:text-white" %></li>
+      <li><%= link_to nav_label(icon, label), path, class: "btn-press flex items-center gap-2 rounded-lg border px-4 py-3 font-medium transition-colors hover:bg-olive-800 hover:text-olive-200" %></li>
     <% end %>
   </ul>
 </div>

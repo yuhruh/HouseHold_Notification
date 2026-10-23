@@ -151,6 +151,95 @@ en:
       sign_out: "Sign Out"
       sign_in: "Sign In"
       sign_up: "Create An Account"
+    features:
+      page_title: "Features · Household Tracker"
+      title: "Features"
+      intro: "Household Tracker replaces the family's Google Sheet for bills, maintenance and taxes, and reminds everyone before things are due. It works on computers and Android phones, and installs as an app."
+      sections:
+        records:
+          title: "Records"
+          items:
+            - "Expense, Maintenance and Tax: category, period (e.g. Jan. - Feb., Full Year), required and paid amounts, due date, paid date, payment method, notes and photos."
+            - "Status is worked out for you (unpaid, partial, paid ✅, overdue), using each person's own date."
+            - "One-tap Mark paid; filter by year, month, type, category, status, payment method and search, with Paid totals."
+            - "Every record keeps a history of changes, and the list exports to CSV."
+        recurring:
+          title: "Recurring bills"
+          items:
+            - "Set a bill up once (water every 2 months, management fee yearly) and the next one is created ahead of time."
+            - "Fixed amounts are filled in; variable bills show the last amount as a hint."
+        reminders:
+          title: "Reminders"
+          items:
+            - "At most one combined reminder a day per person, at their chosen time (09:00 by default): due soon, due today and overdue."
+            - "By push notification (phone and computer), email and the in-app inbox."
+            - "If a reminder doesn't arrive, the owner gets a daily summary and can resend it."
+        household:
+          title: "Household and members"
+          items:
+            - "Owner, co-owner (edits records) and viewer (read-only). Invite family by email."
+            - "Sign in with email and password or Google; one account can belong to several households."
+            - "The activity log shows who did what."
+        photos:
+          title: "Photos"
+          items:
+            - "Attach receipt photos to a bill; they're downsized and location data is removed."
+            - "Only household members can see them."
+        analysis:
+          title: "Expense Analysis"
+          items:
+            - "Spending by type per month (or per year), the water, electricity and gas trend, spending by category and payment method, and a spread of bill amounts."
+            - "Click a chart to see the records behind it; choose one year or all years."
+        import:
+          title: "Sheet import"
+          items:
+            - "Upload the sheet's CSV, review the preview (new, changed, unchanged), then commit."
+            - "Re-importing the same sheet never duplicates records; keywords in payment notes can set payment methods in one go."
+      new_here_html: "New here? See %{link} to install the app and turn on notifications."
+      guide_link: "Getting Started"
+    guide:
+      page_title: "Getting Started · Household Tracker"
+      title: "Getting Started"
+      intro: "Set it up once in Chrome on your Android phone, and the daily bill reminders arrive on your phone."
+      accept:
+        title: "1. Accept the invitation"
+        items_html:
+          - "Open the invitation email (sent from Household Tracker's Gmail address; the first time, check spam too)."
+          - "Tap the link and choose \"Create an account\" with <strong>the email the invitation was sent to</strong>, or \"Sign in\" if you already have an account. Google sign-in works too, with a Google account on that same email."
+          - "Tap \"Accept\" and you'll see the household's bills."
+      install:
+        title: "2. Install it on your home screen"
+        items_html:
+          - "Open <code>%{host}</code> in <strong>Chrome</strong> on the phone and sign in."
+          - "Tap \"Install App\" at the top, or Chrome's <strong>⋮ → Install app</strong> (on some phones \"Add to Home screen\")."
+          - "From now on, open it from the <strong>home-screen icon</strong>."
+      notifications:
+        title: "3. Turn on notifications"
+        items_html:
+          - "Open the app from the icon and go to %{link}."
+          - "Make sure \"Push\" is ticked for the household and tap \"Save\"."
+          - "Tap \"Enable notifications\" and choose <strong>Allow</strong> when Chrome asks. \"This browser\" then shows it's on."
+          - "To keep amounts off the lock screen, untick \"Show bill names and amounts in notifications (lock screen)\"."
+        link: "My Account → Notifications"
+        note: "On a new phone, repeat steps 2 and 3 there. Remove the old phone under My Account → Devices."
+      on_time:
+        title: "4. Keep notifications on time (recommended)"
+        body_html: "Android's battery saving can delay notifications. In the phone's <strong>Settings → Apps → Chrome → Battery</strong>, choose <strong>Unrestricted</strong> (names vary by brand). Don't clear Chrome's site data, or you'll need to enable notifications again."
+      daily:
+        title: "5. What you'll get each day"
+        items_html:
+          - "At most one combined reminder a day: bills due soon, due today or overdue. It comes at 09:00 by default; change \"Reminder time\" in My Account."
+          - "The same reminder also arrives by email and in the in-app inbox (the reminder picture at the top)."
+          - "After paying, tap \"Mark paid\" on the bill and nobody gets reminded about it again."
+          - "\"Snooze\" quiets one bill for a while, for you only."
+          - "\"Add photos\" on a bill keeps a receipt. Location data is removed from photos."
+      trouble:
+        title: "6. If something goes wrong"
+        items_html:
+          - "<strong>No notifications:</strong> open the app from the home screen and tap \"Enable notifications\" again in My Account. Email and the in-app inbox still have your reminders."
+          - "<strong>Lost phone:</strong> sign in on a computer and remove it under My Account → Devices, or ask the household owner to."
+          - "<strong>Anything else:</strong> ask the family member who invited you."
+      privacy: "Privacy policy"
   roles:
     owner: "Owner"
     co_owner: "Co-owner"

@@ -1,0 +1,17 @@
+<% content_for :title, t(".page_title") %>
+<article class="mx-auto w-full max-w-2xl space-y-8 pb-8 leading-relaxed">
+  <div class="sticky top-0 z-10 -mx-4 border-b px-4 py-2 text-sm backdrop-blur">
+    <%= link_to "← Household Tracker", root_path, class: "font-medium text-blue-700 hover:underline" %>
+  </div>
+  <header class="space-y-2">
+    <h1 class="flex items-center gap-3 text-3xl font-bold"><%= image_tag "logo-sticker.png", alt: "", class: "h-10 w-auto" %><span><%= t(".title") %></span></h1>
+    <p class="text-gray-700"><%= t(".intro") %></p>
+  </header>
+
+  <% { records: "records.png", recurring: "recurring.png", reminders: "reminder.png", household: "apartment.png",
+       photos: "records.png", analysis: "dashboard.png", import: "import.png" }.each do |section, icon| %>
+    <%= render "pages/feature", icon:, title: t(".sections.#{section}.title"), items: t(".sections.#{section}.items") %>
+  <% end %>
+
+  <p class="rounded-lg bg-blue-50 px-4 py-3 text-blue-900"><%= t(".new_here_html", link: link_to(t(".guide_link"), guide_path, class: "font-medium underline")) %></p>
+</article>

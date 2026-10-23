@@ -29,7 +29,7 @@
       <datalist id="time-zones"><% tz_options.each do |tz| %><option value="<%= tz %>"></option><% end %></datalist>
       <%= form.label :reminder_hour, t(".reminder_hour"), class: "block text-sm font-medium" %>
       <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-      <%= form.submit t(".save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
     <% end %>
   </section>
 
@@ -41,7 +41,7 @@
       <%= form.select :theme, ThemesController::THEMES.map { |theme| [ t("layouts.header.themes.#{theme}"), theme ] }, { selected: current_theme },
             class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <p class="text-sm text-gray-500"><%= t(".theme_hint") %></p>
-      <%= form.submit t(".save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
     <% end %>
   </section>
 
@@ -134,7 +134,7 @@
           <span class="block text-xs font-normal text-gray-500"><%= t(".lead_days", count: membership.household.reminder_lead_days) %></span></span>
         <label class="flex items-center gap-1"><%= f.check_box :email %> <%= t(".channel_email") %></label>
         <label class="flex items-center gap-1"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
-        <%= f.submit t(".save"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
+        <%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
       <% end %>
     <% end %>
     <div class="space-y-2 rounded-lg border px-4 py-3 text-sm" data-controller="push" data-push-vapid-public-key-value="<%= Vapid.public_key %>"
@@ -145,7 +145,7 @@
     </div>
     <%= form_with model: Current.user, url: account_path, method: :patch, class: "flex items-center gap-3 text-sm" do |f| %>
       <label class="flex items-center gap-2"><%= f.check_box :push_show_amounts %> <%= t(".push_show_amounts") %></label>
-      <%= f.submit t(".save"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
+      <%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
     <% end %>
     <p class="text-xs text-gray-500"><%= t(".push_tip") %> <%= link_to t(".guide"), guide_path, class: "underline" %></p>
   </section>

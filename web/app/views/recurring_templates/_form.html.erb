@@ -49,7 +49,7 @@
   </div>
 
   <div class="flex gap-3">
-    <%= form.submit t("records.form.save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
     <%= link_to t("records.form.cancel"), household_recurring_templates_path(Current.household), class: "px-3.5 py-2 underline" %>
   </div>
 <% end %>

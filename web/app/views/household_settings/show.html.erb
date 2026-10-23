@@ -16,7 +16,7 @@
       <%= form.label :reminder_lead_days, class: "block text-sm font-medium" %>
       <%= form.number_field :reminder_lead_days, min: 0, max: 30, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <p class="text-sm text-gray-500"><%= t(".lead_days_hint") %></p>
-      <% if owner %><%= form.submit t(".save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %><% end %>
+      <% if owner %><%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %><% end %>
     </fieldset>
   <% end %>
 

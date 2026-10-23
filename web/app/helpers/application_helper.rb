@@ -6,7 +6,7 @@ module ApplicationHelper
     safe_join([ mark, tag.span(label) ])
   end
 
-  # A page title with its picture in front (Upcoming, Records, Dashboard, My Account, the guide,
+  # A page title with its picture in front (Pending, Records, Dashboard, My Account, the guide,
   # the inbox, Sign in)
   def page_title(icon, title)
     tag.h1(class: "flex items-center gap-3 text-3xl font-bold") do

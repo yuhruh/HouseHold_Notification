@@ -12,9 +12,18 @@ export default class extends Controller {
     const dark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
     this.chart = echarts.init(this.element, dark ? "dark" : null, { renderer: "canvas" })
     this.chart.setOption(dark ? { backgroundColor: "transparent", ...this.optionValue } : this.optionValue)
+    this.fitLabels()
     this.chart.on("click", (params) => this.drill(params))
-    this.resize = () => this.chart.resize()
+    this.resize = () => { this.fitLabels(); this.chart.resize() }
     window.addEventListener("resize", this.resize)
+  }
+
+  // Rotated x-axis labels (billing cycles, categories) get smaller and steeper on screens under 500px
+  fitLabels() {
+    const label = this.optionValue.xAxis?.axisLabel
+    if (!label?.rotate) return
+    const narrow = window.innerWidth < 500
+    this.chart.setOption({ xAxis: { axisLabel: narrow ? { fontSize: 9, rotate: 50 } : { fontSize: 12, rotate: label.rotate } } })
   }
 
   disconnect() {

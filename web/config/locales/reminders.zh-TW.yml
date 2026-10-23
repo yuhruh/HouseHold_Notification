@@ -2,7 +2,7 @@ zh-TW:
   layouts:
     header:
       install: "安裝 App"
-      upcoming: "待處理"
+      pending: "待處理"
       inbox:
         one: "通知，1 則未讀"
         other: "通知，%{count} 則未讀"
@@ -15,7 +15,7 @@ zh-TW:
       title:
         one: "%{household}：1 筆帳單需要處理"
         other: "%{household}：%{count} 筆帳單需要處理"
-      upcoming: "所有即將到期與逾期的帳單："
+      pending: "所有即將到期與逾期的帳單："
       footer: "打開帳單可以標記已繳或延後提醒。可在「我的帳戶 → 通知」變更通知方式與提醒時間。"
     wording:
       bill:
@@ -59,7 +59,7 @@ zh-TW:
       invalid: "請選擇 %{max} 天內的日期。"
     destroy:
       cancelled: "已取消延後。"
-  upcoming:
+  pending:
     show:
       title: "待處理"
       empty: "目前沒有需要處理的帳單。🎉"

@@ -27,7 +27,7 @@
         <% end %>
         <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{sub} text-blue-700" %>
       </li>
-      <li><%= link_to household_upcoming_path(current), class: row do %><%= icon.("upcoming.png") %><span><%= t("layouts.header.upcoming") %></span><% end %></li>
+      <li><%= link_to household_pending_path(current), class: row do %><%= icon.("upcoming.png") %><span><%= t("layouts.header.pending") %></span><% end %></li>
       <li><%= link_to household_records_path(current), class: row do %><%= icon.("records.png") %><span><%= t("layouts.header.records") %></span><% end %></li>
       <li><%= link_to household_dashboard_path(current), class: row do %><%= icon.("dashboard.png") %><span><%= t("layouts.header.dashboard") %></span><% end %></li>
       <li><%= link_to household_settings_path(current), class: row do %><%= icon.("settings.png") %><span><%= t("layouts.header.settings") %></span><% end %></li>

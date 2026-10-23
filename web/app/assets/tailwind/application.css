@@ -43,6 +43,9 @@
 
 @utility press-sm { --press: 3px; }
 
+/* Button text that shrinks with the screen: 16px from about 420px wide, down to 13px on small phones */
+@utility text-fit { font-size: clamp(0.8125rem, 3.8vw, 1rem); line-height: 1.25; }
+
 /* Raised card: the btn-press outline and hard shadow, without the press motion (Upcoming lists) */
 @utility card-raised {
   border: 2px solid var(--card-line);

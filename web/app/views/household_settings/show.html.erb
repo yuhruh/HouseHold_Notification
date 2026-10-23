@@ -20,16 +20,16 @@
     </fieldset>
   <% end %>
 
-  <p class="flex gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "btn-press rounded-xl inline-flex items-center gap-1 bg-amber-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
-    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "btn-press rounded-xl inline-flex items-center gap-1 bg-teal-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %><% end %></p>
+  <p class="grid grid-cols-2 gap-3 pr-1 sm:flex sm:flex-wrap sm:gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "btn-press rounded-xl flex min-w-0 items-center justify-center gap-1 bg-amber-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium sm:px-3.5 [&>img]:shrink-0" %>
+    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "btn-press rounded-xl flex min-w-0 items-center justify-center gap-1 bg-teal-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium sm:px-3.5 [&>img]:shrink-0" %><% end %></p>
 
   <% if owner %>
     <section class="space-y-3 rounded-lg shadow-md shadow-red-100 border-2 border-red-200 p-4">
       <h2 class="text-lg font-semibold text-red-700"><%= t("accounts.show.danger_zone") %></h2>
-      <div class="grid grid-cols-1 gap-3 pr-1 sm:grid-cols-3">
-        <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "btn-press block rounded-xl bg-slate-200 text-center text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
-        <%= link_to t(".delete_records"), new_household_record_purge_path(Current.household), class: "btn-press block rounded-xl bg-white text-center cursor-pointer px-3.5 py-2 font-medium text-red-700" %>
-        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "btn-press block rounded-xl bg-red-200 text-center text-red-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <div class="grid grid-cols-1 gap-3 pr-1 md:grid-cols-3">
+        <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-slate-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium break-words" %>
+        <%= link_to t(".delete_records"), new_household_record_purge_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-white text-center text-fit cursor-pointer px-2 py-2 font-medium text-red-700 break-words" %>
+        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-red-200 text-center text-fit text-red-900 cursor-pointer px-2 py-2 font-medium break-words" %>
       </div>
     </section>
   <% end %>
@@ -38,7 +38,7 @@
     <h2 class="text-lg font-semibold"><%= t(".app_version") %></h2>
     <p><%= t(".version_now", version: AppVersion.current) %></p>
     <div class="flex flex-wrap items-center gap-3">
-      <button type="button" data-action="app-update#checkNow" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><%= t(".check_updates") %></button>
+      <button type="button" data-action="app-update#checkNow" class="btn-press rounded-xl bg-blue-200 text-fit text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><%= t(".check_updates") %></button>
       <span class="text-sm text-gray-600" data-app-update-target="status" aria-live="polite"></span>
     </div>
     <p class="text-sm text-gray-500"><%= t(".auto_update_hint") %></p>

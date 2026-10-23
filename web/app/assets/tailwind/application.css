@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "./dark.css";
 
+/* Page background: a soft pinkish gray that matches the card-raised outline. Cards, inputs and menus
+   stay bg-white. dark.css mirrors mauve-100 to its dark shade; [data-theme] beats its :root rules. */
+:root, :root[data-theme] { background-color: var(--color-mauve-100); }
+
 /* Press button: a thick outline and a hard shadow below-right; pressing slides the button into its
    shadow, so it feels like pushing a real key. Colors come from the palettes, so dark mode mirrors them.
    --press sets the depth (small pills use 3px). A selected pill (aria-current) stays pressed in.

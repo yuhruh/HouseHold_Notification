@@ -2,7 +2,7 @@ en:
   layouts:
     header:
       install: "Install App"
-      upcoming: "Upcoming"
+      upcoming: "Pending"
       inbox:
         one: "Inbox, 1 unread"
         other: "Inbox, %{count} unread"
@@ -61,7 +61,7 @@ en:
       cancelled: "Snooze cancelled."
   upcoming:
     show:
-      title: "Upcoming"
+      title: "Pending"
       empty: "Nothing is due. 🎉"
       overdue: "Overdue"
       soon: "Due In The Next 30 Days"

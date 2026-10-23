@@ -1,5 +1,5 @@
 module Reminders
-  # Push text (PRD §6, §13): "我的家：3 筆帳單需要處理", opening the Upcoming page (or the record
+  # Push text (PRD §6, §13): "我的家：3 筆帳單需要處理", opening the Pending page (or the record
   # when there's one item). With "show amounts" off the body stays generic.
   module PushPayload
     module_function

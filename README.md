@@ -49,7 +49,7 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
   Gmail API, and the in-app inbox.
 - The owner gets a daily summary of failed deliveries and can resend them from
   **Settings → Reminder delivery**.
-- **Upcoming** page with Overdue, Due soon and No due date sections.
+- **Pending** page with Overdue, Due soon and No due date sections.
 
 **Household and accounts**
 - Roles: owner, co-owner (edits records) and viewer (read-only). Members join by email invitation.
@@ -173,7 +173,7 @@ In short:
 5. **Turn on notifications:** in **My Account**, tick **Push** and tap **Enable notifications**.
    Choose your reminder time there too. On Android, set Chrome's battery use to Unrestricted so
    pushes arrive on time.
-6. **Every day:** check **Upcoming**, tap **Mark paid** after paying, and **Add photos** for
+6. **Every day:** check **Pending**, tap **Mark paid** after paying, and **Add photos** for
    receipts. The **Dashboard** shows where the money goes.
 7. **If a reminder fails**, the owner sees it in the daily summary and can resend it from
    **Settings → Reminder delivery**.

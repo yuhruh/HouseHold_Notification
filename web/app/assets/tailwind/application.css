@@ -65,7 +65,7 @@
 /* Button text that shrinks with the screen: 16px from about 420px wide, down to 13px on small phones */
 @utility text-fit { font-size: clamp(0.8125rem, 3.8vw, 1rem); line-height: 1.25; }
 
-/* Raised card: the btn-press outline and hard shadow, without the press motion (Upcoming lists) */
+/* Raised card: the btn-press outline and hard shadow, without the press motion (Pending lists) */
 @utility card-raised {
   border: 2px solid var(--card-line);
   box-shadow: 4px 4px 0 var(--card-line);

@@ -1,4 +1,4 @@
-# Upcoming / Overdue (PRD §6), in the viewer's local today
+# Pending / Overdue (PRD §6), in the viewer's local today
 class UpcomingController < ApplicationController
   include HouseholdScoped
   HORIZON = 30

@@ -4,7 +4,7 @@
     lives on <html> %>
 <% [ [ "dark", "dark_mode.png", "dark:hidden" ], [ "light", "light_mode.png", "hidden dark:block" ] ].each do |theme, icon, visibility| %>
   <%= button_to theme_path, method: :patch, params: { theme: }, form: { class: visibility, data: { turbo: false } },
-        class: "inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 hover:bg-gray-50",
+        class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold",
         title: t("layouts.header.theme") do %>
     <%= nav_label(icon, t("layouts.header.themes.#{theme}")) %>
   <% end %>

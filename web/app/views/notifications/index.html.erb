@@ -4,7 +4,7 @@
   <% if @notifications.empty? %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% else %>
-    <ul class="divide-y rounded-lg border">
+    <ul class="card-raised divide-y rounded-lg border">
       <% @notifications.each do |n| %>
         <li class="px-4 py-3 <%= 'bg-blue-50' if @unread_ids.include?(n.id) %>">
           <p class="font-medium"><%= n.url ? link_to(n.title, n.url, class: "text-blue-700 underline") : n.title %></p>

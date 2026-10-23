@@ -106,7 +106,7 @@
   </div>
 
   <div class="flex flex-wrap gap-3">
-    <%= form.submit t("records.form.save"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" %>
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
     <% if record.new_record? && policy(RecurringTemplate).new? %>
       <%# Saves, then opens New recurring bill filled in from this record %>
       <%= form.submit t("records.form.save_recurring"), name: "make_recurring", class: "btn-press rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-blue-700 disabled:cursor-not-allowed disabled:opacity-50" %>

@@ -28,8 +28,8 @@
       <h2 class="text-lg font-semibold text-red-700"><%= t("accounts.show.danger_zone") %></h2>
       <div class="grid grid-cols-1 gap-3 pr-1 md:grid-cols-3">
         <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-slate-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium break-words" %>
-        <%= link_to t(".delete_records"), new_household_record_purge_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-white text-center text-fit cursor-pointer px-2 py-2 font-medium text-red-700 break-words" %>
-        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "btn-press block min-w-0 rounded-xl bg-red-200 text-center text-fit text-red-900 cursor-pointer px-2 py-2 font-medium break-words" %>
+        <%= link_to new_household_record_purge_path(Current.household), class: "btn-press flex items-center justify-center gap-1.5 min-w-0 rounded-xl bg-white text-center text-fit cursor-pointer px-2 py-2 font-medium text-red-700 break-words" do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete_records") %></span><% end %>
+        <%= link_to new_household_deletion_path(Current.household), class: "btn-press flex items-center justify-center gap-1.5 min-w-0 rounded-xl bg-red-200 text-center text-fit text-red-900 cursor-pointer px-2 py-2 font-medium break-words" do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete") %></span><% end %>
       </div>
     </section>
   <% end %>

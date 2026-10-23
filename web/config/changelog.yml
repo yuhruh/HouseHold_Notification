@@ -6,9 +6,11 @@
   en:
     - "Dark mode: softer outlines and shadows on buttons and cards."
     - "A soft pinkish-gray page background, in light and dark mode."
+    - "Dark mode: buttons keep their light-mode colors, slightly dimmed."
   zh-TW:
     - "深色模式：按鈕和卡片的外框與陰影變得比較柔和。"
     - "頁面背景改為柔和的淡粉灰色（淺色與深色模式皆是）。"
+    - "深色模式：按鈕維持淺色模式的顏色，並稍微調暗。"
 - version: "2026.10.22"
   date: 2026-10-22
   en:

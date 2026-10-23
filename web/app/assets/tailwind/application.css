@@ -49,6 +49,17 @@
   @media (prefers-reduced-motion: reduce) { transition: none; }
 }
 
+/* In dark mode press buttons keep their light-mode fills and text (dark.css gives .btn-press the
+   light palette back), dimmed to 85% so they don't glare on the dark page. A button without a bg-*
+   class gets the light page color it shows in light mode. In the base layer, so bg-* and text-*
+   classes still win. */
+@layer base {
+  :root[data-theme="dark"] .btn-press { background-color: var(--color-mauve-100); color: var(--color-gray-950); filter: brightness(0.85); }
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="system"] .btn-press { background-color: var(--color-mauve-100); color: var(--color-gray-950); filter: brightness(0.85); }
+  }
+}
+
 @utility press-sm { --press: 3px; }
 
 /* Button text that shrinks with the screen: 16px from about 420px wide, down to 13px on small phones */

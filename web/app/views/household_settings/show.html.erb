@@ -26,10 +26,10 @@
   <% if owner %>
     <section class="space-y-3 rounded-lg shadow-md shadow-red-100 border-2 border-red-200 p-4">
       <h2 class="text-lg font-semibold text-red-700"><%= t("accounts.show.danger_zone") %></h2>
-      <div class="flex flex-wrap gap-2">
-        <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "btn-press rounded-xl bg-slate-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
-        <%= link_to t(".delete_records"), new_household_record_purge_path(Current.household), class: "btn-press rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-red-700" %>
-        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <div class="grid grid-cols-1 gap-3 pr-1 sm:grid-cols-3">
+        <%= link_to t(".transfer"), new_household_ownership_transfer_path(Current.household), class: "btn-press block rounded-xl bg-slate-200 text-center text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+        <%= link_to t(".delete_records"), new_household_record_purge_path(Current.household), class: "btn-press block rounded-xl bg-white text-center cursor-pointer px-3.5 py-2 font-medium text-red-700" %>
+        <%= link_to t(".delete"), new_household_deletion_path(Current.household), class: "btn-press block rounded-xl bg-red-200 text-center text-red-900 cursor-pointer px-3.5 py-2 font-medium" %>
       </div>
     </section>
   <% end %>

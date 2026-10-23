@@ -1,8 +1,8 @@
-# Household Tracker (家庭支出)
+# Household Tracker
 
 A shared, installable web app (PWA) for one household's bills: expenses, maintenance and taxes. It
-replaces the family Google Sheet (家庭支出) on desktop and Android, and reminds everyone before
-things are due.
+replaces the family Google Sheet of household expenses on desktop and Android, and reminds
+everyone before things are due.
 
 **Live:** https://household-tracker.up.railway.app
 
@@ -24,8 +24,8 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 
 **Records**
 - Expense, Maintenance and Tax records: category, title, details, period (year + start/end month,
-  e.g. 1月-2月, 全年), TWD or USD, required/paid amounts, due date, paid date, payment method, notes
-  and photos.
+  e.g. Jan. - Feb., Full Year), TWD or USD, required/paid amounts, due date, paid date, payment
+  method, notes and photos.
 - Derived status (unpaid, partial, paid ✅, overdue) using each viewer's local date.
 - One-tap **Mark paid**, per-user **Snooze**, and a history of every change.
 - List filters for year, month, type, category, status (including Outstanding), payment method and
@@ -35,8 +35,9 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - CSV export (every matching record, not just the page shown).
 
 **Recurring bills**
-- Templates (e.g. 水/電/瓦斯 every 2 months, 管理費 yearly) generate the next unpaid bill ahead of
-  time. Generation catches up after a missed run and never duplicates.
+- Templates (e.g. water / electricity / gas every 2 months, the management fee yearly) generate
+  the next unpaid bill ahead of time. Generation catches up after a missed run and never
+  duplicates.
 - Fixed amounts are filled in. For variable bills the last amount is shown as a hint.
 - Changing a template previews every affected unpaid bill (before → after) and applies the changes
   in one transaction.
@@ -57,7 +58,7 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - Account deletion in the app or from a public page, with ownership transfer.
 - The owner can **delete all records** (re-authentication and the typed household name required),
   optionally keeping the recurring templates.
-- A language switch (🇺🇸 English / 🇹🇼 繁體中文) for signed-in and signed-out visitors.
+- A language switch (🇺🇸 English / 🇹🇼 Traditional Chinese) for signed-in and signed-out visitors.
 - A Light / Dark toggle in the header, plus Device setting in My Account; remembered on each device.
 
 **Photos**
@@ -66,8 +67,8 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
 - Served only to household members ([ADR 0004](docs/adr/0004-storage-volume.md)).
 
 **Dashboard**
-- Apache ECharts charts: monthly spend by type, the 水/電/瓦斯 utility trend, spend by category and
-  by payment method, and a box plot of bill amounts.
+- Apache ECharts charts: monthly spend by type, the water / electricity / gas trend, spend by
+  category and by payment method, and a box plot of bill amounts.
 - Clicking a chart element shows the records behind it.
 
 **Sheet import**

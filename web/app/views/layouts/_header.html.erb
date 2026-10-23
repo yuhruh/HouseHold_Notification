@@ -7,7 +7,7 @@
 <%# Pages outside a household (inbox, My account) still link to the last one used %>
 <% nav_household = Current.household || households.find { |h| h.id == Current.user.last_household_id } || households.first %>
 <% inbox = capture do %>
-  <%= link_to notifications_path, class: "relative px-2 py-1 hover:scale-110", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+  <%= link_to notifications_path, class: "relative px-2 py-1 hover:scale-125", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
 <header class="border-b">
   <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
@@ -38,7 +38,7 @@
     <div class="flex items-center gap-2 min-[1550px]:hidden" data-controller="menu">
       <%= render "layouts/theme_switch" %>
       <%= inbox %>
-      <button type="button" class="cursor-pointer rounded-md p-2 hover:bg-gray-50" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
+      <button type="button" class="cursor-pointer rounded-md p-2 hover:scale-110" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
         <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
       <%= render "layouts/menu", households:, current: nav_household, pending:, unread: %>

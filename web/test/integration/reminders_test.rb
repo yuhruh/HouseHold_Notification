@@ -16,15 +16,20 @@ class RemindersTest < ActionDispatch::IntegrationTest
     @home.records.create!({ record_type: "expense", category: @water, period: Period.parse(2026, "9月-10月"), amount_required: 580 }.merge(attrs))
   end
 
-  test "upcoming groups overdue, due soon, maintenance and no-due-date bills" do
+  test "pending groups overdue, due soon, maintenance and no-due-date bills" do
     bill(due_on: today - 2)
     bill(due_on: today + 5, details: "B")
     bill(details: "C")
-    get household_upcoming_path(@home)
+    get household_pending_path(@home)
     assert_response :success
     assert_select "h2", /逾期 \(1\)/
     assert_select "h2", /30 天內到期 \(1\)/
     assert_select "h2", /未設定到期日 \(1\)/
+  end
+
+  test "the old /upcoming address redirects to /pending" do
+    get "/h/#{@home.id}/upcoming"
+    assert_redirected_to household_pending_path(@home)
   end
 
   test "snooze is personal and can be cancelled; past or far dates are refused" do
@@ -71,8 +76,8 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "header a[href='#{notifications_path}'] span", "1"
     get notifications_path
     assert_select "li", /水費/
-    assert_select "header nav a[href='#{household_upcoming_path(@home)}']", 1, "the header keeps household links outside a household"
-    assert_select "header dialog a[href='#{household_upcoming_path(@home)}']", 1, "so does the hamburger menu"
+    assert_select "header nav a[href='#{household_pending_path(@home)}']", 1, "the header keeps household links outside a household"
+    assert_select "header dialog a[href='#{household_pending_path(@home)}']", 1, "so does the hamburger menu"
     assert_empty users(:alex).notifications.unread
 
     patch account_notification_preference_path(@home.id), params: { notification_preference: { email: "0", web_push: "1" } }

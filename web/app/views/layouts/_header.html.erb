@@ -23,7 +23,7 @@
       <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= link_to nav_label("upcoming.png", t("layouts.header.upcoming")), household_upcoming_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= link_to nav_label("upcoming.png", t("layouts.header.pending")), household_pending_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
         <%= link_to nav_label("records.png", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
         <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
         <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>

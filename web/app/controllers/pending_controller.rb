@@ -1,5 +1,5 @@
 # Pending / Overdue (PRD §6), in the viewer's local today
-class UpcomingController < ApplicationController
+class PendingController < ApplicationController
   include HouseholdScoped
   HORIZON = 30
 

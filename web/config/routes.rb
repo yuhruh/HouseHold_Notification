@@ -37,7 +37,8 @@ Rails.application.routes.draw do
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection
     end
-    get "upcoming" => "upcoming#show", as: :upcoming
+    get "pending" => "pending#show", as: :pending
+    get "upcoming", to: redirect("/h/%{household_id}/pending") # the old address, in reminders already sent
     resource :dashboard, only: :show do
       get :drilldown, to: "dashboards/drilldowns#show"
     end

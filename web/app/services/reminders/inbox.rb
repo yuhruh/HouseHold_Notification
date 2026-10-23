@@ -26,7 +26,7 @@ module Reminders
         url = if logs.one?
           Rails.application.routes.url_helpers.household_record_path(household, logs.first.record)
         else
-          Rails.application.routes.url_helpers.household_upcoming_path(household)
+          Rails.application.routes.url_helpers.household_pending_path(household)
         end
         { title: I18n.t("reminders.digest.title", household: household.name, count: logs.size),
           body: logs.map { |log| Wording.line(log.record, log.kind, today) }.join("\n"),

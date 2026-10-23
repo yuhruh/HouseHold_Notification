@@ -16,7 +16,7 @@ module Reminders
           I18n.t("reminders.push.generic")
         end
         { title: I18n.t("reminders.digest.title", household: household.name, count: logs.size), body:,
-          url: logs.one? ? routes.household_record_path(household, logs.first.record) : routes.household_upcoming_path(household) }
+          url: logs.one? ? routes.household_record_path(household, logs.first.record) : routes.household_pending_path(household) }
       end
     end
   end

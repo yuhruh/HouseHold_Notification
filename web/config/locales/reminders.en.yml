@@ -2,7 +2,7 @@ en:
   layouts:
     header:
       install: "Install App"
-      upcoming: "Pending"
+      pending: "Pending"
       inbox:
         one: "Inbox, 1 unread"
         other: "Inbox, %{count} unread"
@@ -15,7 +15,7 @@ en:
       title:
         one: "%{household}: 1 Bill Needs Attention"
         other: "%{household}: %{count} Bills Need Attention"
-      upcoming: "Everything due and overdue:"
+      pending: "Everything due and overdue:"
       footer: "Open a bill to mark it paid or snooze its reminders. Change channels and the reminder hour in My account → Notifications."
     wording:
       bill:
@@ -59,7 +59,7 @@ en:
       invalid: "Pick a date within the next %{max} days."
     destroy:
       cancelled: "Snooze cancelled."
-  upcoming:
+  pending:
     show:
       title: "Pending"
       empty: "Nothing is due. 🎉"

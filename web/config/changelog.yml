@@ -1,6 +1,12 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
 # first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
 # with each release people will notice, in both languages.
+- version: "2026.10.23"
+  date: 2026-10-23
+  en:
+    - "Dark mode: softer outlines and shadows on buttons and cards."
+  zh-TW:
+    - "深色模式：按鈕和卡片的外框與陰影變得比較柔和。"
 - version: "2026.10.22"
   date: 2026-10-22
   en:

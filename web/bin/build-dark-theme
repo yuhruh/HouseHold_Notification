@@ -22,6 +22,10 @@ palettes.each do |palette, shades|
 end
 lines << "--color-black: #{white};"
 vars = ->(indent) { lines.map { |l| (" " * indent) + l }.join("\n") }
+# Press buttons keep the light palette in dark mode (application.css dims them a little)
+light = palettes.flat_map { |palette, shades| shades.map { |shade, value| "--color-#{palette}-#{shade}: #{value};" } }
+light += [ "--color-white: #{white};", "--color-black: #{css[/--color-black:\s*([^;]+);/, 1].strip};" ]
+light_vars = ->(indent) { light.map { |l| (" " * indent) + l }.join("\n") }
 
 File.write("#{root}/app/assets/tailwind/dark.css", <<~CSS)
   /* Dark mode (header theme menu): the cookie puts data-theme="light|dark|system" on <html>.
@@ -48,6 +52,19 @@ File.write("#{root}/app/assets/tailwind/dark.css", <<~CSS)
       background-color: var(--color-white);
       color: var(--color-gray-950);
   #{vars.(4)}
+    }
+  }
+
+  /* Press buttons (btn-press) keep their light-mode colors in dark mode */
+  :root[data-theme="dark"] .btn-press {
+    color-scheme: light;
+  #{light_vars.(2)}
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme="system"] .btn-press {
+      color-scheme: light;
+  #{light_vars.(4)}
     }
   }
 CSS

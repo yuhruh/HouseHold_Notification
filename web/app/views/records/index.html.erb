@@ -7,7 +7,7 @@
   <div class="flex flex-wrap items-center justify-between gap-2">
     <%= page_title("records.png", t(".title")) %>
     <span class="flex gap-2">
-      <%= link_to nav_label("export.png", t(".export")), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "btn-press inline-flex items-center gap-2 rounded-xl bg-stone-200 px-3.5 py-2 font-medium text-gray-900" %>
+      <%= link_to nav_label("export.png", t(".export")), household_records_path(Current.household, @filter.params.merge(format: :csv)), class: "btn-press inline-flex items-center gap-2 rounded-xl bg-amber-200 px-3.5 py-2 font-medium text-gray-900" %>
       <% if writer %>
         <%= link_to nav_label("import.png", t(".import")), new_household_import_path(Current.household), class: "btn-press inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
         <%= link_to nav_label("new_entry.png", t(".new")), new_household_record_path(Current.household), class: "btn-press inline-flex items-center gap-2 rounded-xl bg-indigo-200 px-3.5 py-2 font-medium text-gray-900" %>

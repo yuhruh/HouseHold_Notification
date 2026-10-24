@@ -8,11 +8,12 @@ class RecordEvent < ApplicationRecord
 
   enum :action, %w[created updated deleted marked_paid import_created import_updated import_undone template_updated reminders_restarted].index_by(&:itself), validate: true
 
-  # created/deleted keep a full snapshot; updates keep [before, after] per changed field
+  # created/deleted keep a full snapshot; updates keep [before, after] per changed field, leaving out
+  # blank-to-blank changes (nil ↔ "") that nobody made on purpose
   def self.log!(record, action, user:)
     diff = case action.to_s
     when "created", "deleted", "import_undone" then record.attributes.except(*IGNORED)
-    else record.saved_changes.except(*IGNORED)
+    else record.saved_changes.except(*IGNORED).reject { |_, (before, after)| before.blank? && after.blank? }
     end
     create!(household_id: record.household_id, record_id: record.id, user:, action:, diff:)
   end

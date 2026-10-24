@@ -55,13 +55,14 @@
     </details>
   </section>
 
-  <section class="space-y-2">
-    <h2 class="text-lg font-semibold"><%= t(".activity") %></h2>
-    <ul class="divide-y rounded-lg border text-sm">
+  <%# Folded like What's New: the log can get long %>
+  <details id="activity" class="space-y-2">
+    <summary class="cursor-pointer text-lg font-semibold text-blue-800"><h2 class="inline"><%= t(".activity") %> (<%= @events.size %>)</h2></summary>
+    <ul class="mt-2 divide-y rounded-lg border text-sm">
       <% @events.each do |event| %>
         <li class="px-4 py-2"><%= activity_line(event, @event_users) %>
           <span class="block text-gray-500"><%= l(event.created_at, format: :short) %></span></li>
       <% end %>
     </ul>
-  </section>
+  </details>
 </div>

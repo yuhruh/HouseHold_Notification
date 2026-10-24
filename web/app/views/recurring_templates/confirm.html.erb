@@ -23,7 +23,7 @@
     <%= hidden_field_tag :confirmed, "1" %>
     <div class="flex gap-3">
       <%= form.submit t(".apply"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
-      <%= link_to t("records.form.cancel"), edit_household_recurring_template_path(Current.household, @template), class: "px-3.5 py-2 underline" %>
+      <%= cancel_link(edit_household_recurring_template_path(Current.household, @template)) %>
     </div>
   <% end %>
 </div>

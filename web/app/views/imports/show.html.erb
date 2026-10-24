@@ -152,7 +152,7 @@
 
     <div class="flex flex-wrap items-center gap-3">
       <%= f.submit t(".continue"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-4 py-2 font-medium", data: { turbo_submits_with: t(".importing") } %>
-      <%= link_to t(".cancel"), new_household_import_path(Current.household), class: "underline" %>
+      <%= cancel_link(new_household_import_path(Current.household), t(".cancel")) %>
       <span class="text-sm text-gray-500"><%= t(".expires", time: l(p.expires_at, format: :short)) %></span>
     </div>
   <% end %>

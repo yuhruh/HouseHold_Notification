@@ -46,7 +46,7 @@
       </p>
       <div class="flex items-center gap-3">
         <%= submit_tag t(".apply"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-4 py-2 font-medium" %>
-        <%= link_to t("records.form.cancel"), household_payment_methods_path(Current.household), class: "underline" %>
+        <%= cancel_link(household_payment_methods_path(Current.household)) %>
       </div>
     <% end %>
   <% end %>

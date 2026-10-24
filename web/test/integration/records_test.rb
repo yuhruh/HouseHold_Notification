@@ -146,6 +146,48 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "details[open] #billing_heading"
   end
 
+  def filter(**attrs) = add(record_type: "maintenance", category: @ac, title: "濾網/濾芯更換", amount_required: 925, **attrs)
+
+  test "maintenance reads as a task: Not done yet with its expected cost, and Mark Done" do
+    record = filter
+    get household_record_path(@home, record)
+    assert_select "[role=status] p.text-amber-900", "尚未完成"
+    assert_select "[role=status] p.text-gray-700", "未設定到期日 · 預計花費 NT$925"
+    assert_select "dt", "預計花費"
+    assert_select "a[href=?]", edit_household_record_path(@home, record, pay: 1), text: /標記完成/
+    get household_records_path(@home)
+    assert_select "li#record_#{record.id}", text: /待完成.*預計花費 NT\$925/m
+  end
+
+  test "Mark Done fills in today and the expected cost; the cost saved becomes the task's cost" do
+    record = filter
+    get edit_household_record_path(@home, record, pay: 1)
+    assert_select "h1", /標記完成/
+    assert_select "input[name='record[amount_paid]'][value=?]", "925"
+    assert_select "input[name='record[paid_on]'][value=?]", taipei_today.iso8601
+    assert_select "input[name='record[next_due_on]']"
+    assert_select "input[name=paid_choice]", 0
+    patch household_record_path(@home, record), params: { pay: 1, record: form_params(category_id: @ac.id, title: "濾網/濾芯更換", amount_required: "925", amount_paid: "880", paid_on: taipei_today.iso8601, lock_version: record.lock_version) }
+    record.reload
+    assert record.settled
+    assert_equal [ 880, 880 ], [ record.amount_required.to_i, record.amount_paid.to_i ]
+    assert_equal "已將「濾網/濾芯更換」標記為完成。", flash[:notice]
+    get household_record_path(@home, record)
+    assert_select "[role=status] p.text-green-800", "#{I18n.l(taipei_today, locale: :"zh-TW")} 完成"
+    assert_select "[role=status] p.text-gray-700", "花費 NT$880"
+    get household_records_path(@home)
+    assert_select "li#record_#{record.id}", text: /已完成.*花費 NT\$880/m
+  end
+
+  test "Mark Done with the cost emptied is done with no cost" do
+    record = filter
+    patch household_record_path(@home, record), params: { pay: 1, record: form_params(category_id: @ac.id, amount_required: "925", amount_paid: "", paid_on: taipei_today.iso8601, lock_version: record.lock_version) }
+    record.reload
+    assert record.settled
+    assert_nil record.amount_paid
+    assert_nil record.amount_required
+  end
+
   test "maintenance with no amounts is paid with just the date" do
     record = add(record_type: "maintenance", category: @ac)
     patch household_record_path(@home, record), params: { pay: 1, record: form_params(category_id: @ac.id, amount_required: "", amount_paid: "", paid_on: taipei_today.iso8601, lock_version: record.lock_version) }

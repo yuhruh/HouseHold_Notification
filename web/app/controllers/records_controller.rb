@@ -77,8 +77,13 @@ class RecordsController < ApplicationController
     authorize @record
     paying = paying? # before saving: once the bill is paid it no longer counts as paying
     assign(@record)
+    # Marking maintenance done: the cost entered is what it cost (blank = nothing), not a part payment
+    @record.amount_required = @record.amount_paid if paying && @record.maintenance?
     if save_with_event(@record, paying ? :marked_paid : :updated)
-      redirect_to household_record_path(Current.household, @record), notice: paying ? t(".paid", title: @record.title) : t(".saved")
+      notice = if !paying then t(".saved")
+               elsif @record.maintenance? then t(".done", title: @record.title)
+               else t(".paid", title: @record.title) end
+      redirect_to household_record_path(Current.household, @record), notice:
     else
       render :edit, status: :unprocessable_content
     end
@@ -124,7 +129,8 @@ class RecordsController < ApplicationController
   # Record Payment: the edit form opened with `pay` on a bill that isn't paid yet
   def paying? = params[:pay].present? && !@record.settled
 
-  # Paid in full, today, with the payment method last used for this category; nothing is saved until Save
+  # Paid in full (maintenance: done, at its expected cost), today, with the payment method last used for
+  # this category; nothing is saved until Save
   def prefill_payment
     @record.amount_paid = @record.amount_required if @record.amount_required
     @record.paid_on = Date.current

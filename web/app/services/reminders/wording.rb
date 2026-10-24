@@ -13,7 +13,7 @@ module Reminders
 
     def status(record, kind, today)
       case kind
-      when "no_due_repeat" then I18n.t("reminders.wording.no_due_date")
+      when "no_due_repeat" then I18n.t(record.maintenance? ? "reminders.wording.no_due_date_maintenance" : "reminders.wording.no_due_date")
       when "snooze_ended" then I18n.t("reminders.wording.snooze_ended")
       when /\Anext_/ then relative("maintenance", record.next_due_on, today)
       else

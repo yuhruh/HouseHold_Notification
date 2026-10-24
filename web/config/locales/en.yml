@@ -548,6 +548,11 @@ en:
       overdue: "Overdue"
       paid: "Paid"
       outstanding: "Outstanding"
+    maintenance_status:
+      unpaid: "To Do"
+      partial: "To Do"
+      overdue: "Overdue"
+      paid: "Done"
     reminder_frequencies:
       none: "No Reminder"
       daily: "Every Day"
@@ -608,6 +613,7 @@ en:
       paid_on: "Paid Date"
       due_on: "Due %{date}"
       paid_on_date: "Paid %{date}"
+      done_on_date: "Done %{date}"
       open: "Details"
       no_due_date: "No Due Date"
     form:
@@ -620,6 +626,15 @@ en:
       hide: "Hide"
       save_payment: "Save Payment"
       prefilled: "Filled in for you: paid in full, today, with the payment method used last time. Change anything that's different."
+      task: "Task Details"
+      done: "Done Details"
+      expected_amount: "expected %{amount}"
+      cost: "Cost"
+      cost_hint: "Parts and supplies count, even if you did the work yourself. The cost you save becomes this task's cost."
+      done_on: "Done On"
+      note: "Note"
+      prefilled_done: "Filled in for you: done today. Add a cost only if you spent money (parts or supplies)."
+      prefilled_done_cost: "Filled in for you: done today, cost %{amount} as expected. Change the cost if you spent a different amount, or empty it if you spent nothing."
       details_hint: "Plate number for vehicle license tax, policy no. or insured item for insurance, room or area for maintenance."
       period: "Billing Period"
       period_hint: "Year, first month, last month. A period like Dec. - Jan. ends in the next year."
@@ -642,18 +657,30 @@ en:
     edit:
       title: "Edit Record"
       pay_title: "Record Payment"
+      done_title: "Mark Done"
     create:
       created: "Record created."
     update:
       saved: "Saved."
       paid: "Payment saved for %{title}."
+      done: "%{title} marked done."
       stale: "Someone else changed this record while you were editing. Reload it and try again."
     destroy:
       deleted: "Record deleted. Its details stay in the household's activity log."
     show:
       make_recurring: "Make This Recurring"
       record_payment: "Record Payment"
+      mark_done: "Mark Done"
+      labels:
+        expected_cost: "Expected Cost"
+        cost: "Cost"
+        done_on: "Done On"
+        note: "Note"
       status_line:
+        done_on: "Done on %{date}"
+        not_done: "Not done yet"
+        spent: "%{amount} spent"
+        expected_cost: "expected cost %{amount}"
         paid_on: "Paid on %{date}"
         not_paid: "Not paid yet"
         partly_paid: "Partly paid"

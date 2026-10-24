@@ -16,6 +16,7 @@
     - "Record page: a status line under the title (e.g. Not paid yet · due in 24 days) replaces the ✅ / ❌."
     - "Record page: Mark Paid is now Record Payment. It opens the form already filled in (paid in full, today, your usual payment method) so you can check it before saving; Edit is still there for changing the bill."
     - "Activity lists fold open like What's New; Cancel is a light amber button."
+    - "Maintenance reads as a task: Not done yet / Done on …, To Do / Done tags, and Mark Done instead of Record Payment. The cost you enter when marking it done (parts count, even if you did it yourself) is what it cost."
   zh-TW:
     - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
     - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
@@ -29,6 +30,7 @@
     - "紀錄頁：標題下方改用一行狀態說明（例如：尚未繳費 · 24 天後到期），取代 ✅ / ❌。"
     - "紀錄頁：「標記已繳」改成「記錄繳費」，會打開已填好的表單（全額繳清、今天、常用的付款方式），確認後再儲存；要修改帳單內容仍用「編輯」。"
     - "「活動紀錄」改成像「更新內容」一樣可展開；「取消」改成淺琥珀色按鈕。"
+    - "保養改成工作的說法：尚未完成／某日完成、待完成／已完成標籤，以及「標記完成」取代「記錄繳費」。標記完成時填的花費（零件也算，就算是自己動手）就是這次的花費。"
 - version: "2026.10.23"
   date: 2026-10-23
   en:

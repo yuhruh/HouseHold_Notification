@@ -12,7 +12,8 @@ module RecordsHelper
 
   def record_status_badge(record)
     status = record.status
-    tag.span(t("records.status.#{status}"), class: "whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium #{STATUS_CLASSES[status]}")
+    label = record.maintenance? ? t("records.maintenance_status.#{status}") : t("records.status.#{status}")
+    tag.span(label, class: "whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium #{STATUS_CLASSES[status]}")
   end
 
   # The record page's status line: what state the bill is in and how urgent it is, worked out from
@@ -27,6 +28,8 @@ module RecordsHelper
   def record_status_line(record, today = Date.current)
     scope = "records.show.status_line"
     status = record.status(today:)
+    return maintenance_status_line(record, status, today, scope) if record.maintenance?
+
     left = Reminders::Wording.outstanding(record)
     left_text = left && t("#{scope}.left_to_pay", amount: left)
     due_text = record.due_on ? t("#{scope}.due", date: l(record.due_on)) : t("#{scope}.no_due")
@@ -45,6 +48,32 @@ module RecordsHelper
           [ due_text, left_text ].compact.join(" · ") ]
       end
     { headline:, detail: detail.presence, **STATUS_LINE_LOOKS[status] }
+  end
+
+  # Maintenance is a task, not a bill: done (with what it cost) or not done yet, with its expected cost
+  def maintenance_status_line(record, status, today, scope)
+    expected = t("#{scope}.expected_cost", amount: money(record.amount_required, record.currency)) if record.amount_required
+    due_text = record.due_on ? t("#{scope}.due", date: l(record.due_on)) : t("#{scope}.no_due")
+    headline, detail =
+      case status
+      when :paid
+        [ t("#{scope}.done_on", date: l(record.paid_on)),
+          [ (t("#{scope}.spent", amount: money(record.amount_paid, record.currency)) if record.amount_paid), record.payment_method&.name ].compact.join(" · ") ]
+      when :overdue
+        [ Reminders::Wording.relative("bill", record.due_on, today).upcase_first, [ t("#{scope}.was_due", date: l(record.due_on)), expected ].compact.join(" · ") ]
+      else
+        [ [ t("#{scope}.not_done"), (Reminders::Wording.relative("bill", record.due_on, today) if record.due_on) ].compact.join(" · "),
+          [ due_text, expected ].compact.join(" · ") ]
+      end
+    { headline:, detail: detail.presence, **STATUS_LINE_LOOKS[status] }
+  end
+
+  # Maintenance names its amounts, date and note as a task: Expected Cost, Cost, Done On, Note
+  MAINTENANCE_LABELS = { "amount_required" => "expected_cost", "amount_paid" => "cost", "paid_on" => "done_on", "payment_note" => "note" }.freeze
+
+  def record_attr_label(record, attr)
+    key = MAINTENANCE_LABELS[attr.to_s] if record.maintenance?
+    key ? t("records.show.labels.#{key}") : Record.human_attribute_name(attr)
   end
 
   def category_options(record)

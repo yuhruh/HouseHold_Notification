@@ -1,5 +1,7 @@
 class Household < ApplicationRecord
   CURRENCIES = %w[TWD USD].freeze
+  # Currencies without cents: amounts are typed as whole numbers
+  WHOLE_CURRENCIES = %w[TWD].freeze
 
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships

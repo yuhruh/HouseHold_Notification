@@ -1,6 +1,20 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
 # first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
 # with each release people will notice, in both languages.
+- version: "2026.10.24"
+  date: 2026-10-24
+  en:
+    - "Record form: split into Billing Details and Payment Details."
+    - "Records can have a payment window: Payable From through the Due Date."
+    - "TWD amounts are whole numbers (1536, not 1536.0)."
+    - "Make This Recurring on a record that already repeats takes you to your recurring bills instead of making a second one."
+    - "Icons on Languages, Save, Filter and Delete; smaller chart labels on narrow screens."
+  zh-TW:
+    - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
+    - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
+    - "新台幣金額只用整數（1536，而不是 1536.0）。"
+    - "已經是定期帳單的紀錄再按「設為定期帳單」，會帶你到定期帳單頁，不會重複建立。"
+    - "語言、儲存、篩選和刪除加上圖示；窄螢幕上的圖表標籤變小。"
 - version: "2026.10.23"
   date: 2026-10-23
   en:

@@ -28,6 +28,7 @@ class Record < ApplicationRecord
   validate :belongs_to_same_household
   validate :details_for_identifier_category
   validate :amounts_consistent
+  validate :payable_from_not_after_due
   validates :import_key, presence: true, on: :import
   validate :paid_on_not_in_future, on: :import
 
@@ -107,6 +108,11 @@ class Record < ApplicationRecord
 
     errors.add(:amount_required, :required_with_paid_on) if !maintenance? && amount_required.nil?
     errors.add(:amount_paid, :required_with_paid_on) if amount_paid.nil? && (amount_required || !maintenance?)
+  end
+
+  # The payment window (Payable From → Due Date) can't end before it starts
+  def payable_from_not_after_due
+    errors.add(:payable_from, :after_due) if payable_from && due_on && payable_from > due_on
   end
 
   def paid_on_not_in_future

@@ -134,5 +134,16 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
     get household_record_path(@home, record)
     assert_select "a[href=?]", edit_household_recurring_template_path(@home, template)
     assert_select "a[href*='from_record']", count: 0
+
+    # A second Make This Recurring (an old tab, a double click) doesn't make another template
+    get new_household_recurring_template_path(@home, from_record: record.id)
+    assert_redirected_to household_recurring_templates_path(@home)
+    follow_redirect!
+    assert_select "#alert", I18n.t("recurring_templates.new.already_recurring")
+    assert_no_difference -> { @home.recurring_templates.count } do
+      post household_recurring_templates_path(@home), params: { from_record: record.id, recurring_template: params(category_id: water.id,
+        anchor_month: 1, due_month_offset: 2, default_amount: 600, amount_fixed: "0") }
+    end
+    assert_redirected_to household_recurring_templates_path(@home)
   end
 end

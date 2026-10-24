@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_230000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_24_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -345,6 +345,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_230000) do
     t.bigint "import_batch_id"
     t.bigint "recurring_template_id"
     t.date "reminders_restarted_on"
+    t.date "payable_from"
     t.index ["category_id"], name: "index_records_on_category_id"
     t.index ["created_by_id"], name: "index_records_on_created_by_id"
     t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"

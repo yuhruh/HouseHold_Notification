@@ -1,4 +1,6 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% section = "card-raised space-y-4 rounded-xl bg-white p-4" %>
+<% heading = "text-lg font-semibold" %>
 <%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4",
       data: (record.new_record? ? { controller: "default-payment", default_payment_map_value: last_payment_methods.to_json } : {}) do |form| %>
   <% if record.errors.any? %>
@@ -9,100 +11,119 @@
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.continues", title: @continues.title, details: @continues.details.presence || "–") %></p>
   <% end %>
 
-  <div>
-    <%= form.label :category_id, class: "block text-sm font-medium" %>
-    <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field,
-          data: { default_payment_target: "category", action: "default-payment#apply" } %>
-  </div>
-  <div>
-    <%= form.label :title, class: "block text-sm font-medium" %>
-    <%= form.text_field :title, maxlength: 100, placeholder: t("records.form.title_hint"), class: field %>
-  </div>
-  <div>
-    <%= form.label :details, class: "block text-sm font-medium" %>
-    <%= form.text_field :details, maxlength: 200, class: field %>
-    <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
-  </div>
-
-  <fieldset class="grid grid-cols-3 gap-2">
-    <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
-    <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
-    <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>
-    <%= form.select :period_end_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_end_month) %>
-    <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
-  </fieldset>
-
   <%# Amount paid: Not paid yet / Paid in full (copies the amount due) / Partly paid (up to the amount due);
       choosing a payment fills an empty paid date with today. Without JavaScript the plain fields show %>
   <% choice = if record.paid_on.blank? && record.amount_paid.to_d.zero? then "none"
               elsif record.amount_paid.blank? || record.amount_paid == record.amount_required then "full"
               else "partial" end %>
-  <div class="space-y-4" data-controller="paid-amount">
-    <div class="grid grid-cols-2 gap-2">
+  <div class="space-y-4" data-controller="paid-amount" data-paid-amount-whole-value="<%= Household::WHOLE_CURRENCIES.to_json %>">
+    <%# Billing details: what the bill is, how much, and when it can be paid %>
+    <section class="<%= section %>" aria-labelledby="billing_heading">
+      <h2 id="billing_heading" class="<%= heading %>"><%= t("records.form.billing") %></h2>
       <div>
-        <%= form.label :currency, class: "block text-sm font-medium" %>
-        <%= form.select :currency, Household::CURRENCIES, {}, class: field %>
+        <%= form.label :category_id, class: "block text-sm font-medium" %>
+        <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field,
+              data: { default_payment_target: "category", action: "default-payment#apply" } %>
       </div>
       <div>
-        <%= form.label :amount_required, class: "block text-sm font-medium" %>
-        <%= form.number_field :amount_required, min: 0, step: "0.01", class: field, data: { paid_amount_target: "due", action: "input->paid-amount#sync" } %>
+        <%= form.label :title, class: "block text-sm font-medium" %>
+        <%= form.text_field :title, maxlength: 100, placeholder: t("records.form.title_hint"), class: field %>
       </div>
-    </div>
-    <fieldset class="space-y-2">
-      <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
-      <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-        <% %w[none full partial].each do |option| %>
-          <label class="inline-flex cursor-pointer items-center gap-1.5">
-            <%= radio_button_tag :paid_choice, option, choice == option, id: "paid_choice_#{option}", data: { paid_amount_target: "choice", action: "paid-amount#choose" } %>
-            <%= t("records.form.paid_choice.#{option}") %>
-          </label>
-        <% end %>
+      <div>
+        <%= form.label :details, class: "block text-sm font-medium" %>
+        <%= form.text_field :details, maxlength: 200, class: field %>
+        <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
       </div>
-      <div data-paid-amount-target="paidField">
-        <%= form.number_field :amount_paid, min: 0, step: "0.01", class: field, "aria-label": Record.human_attribute_name(:amount_paid),
-              "aria-describedby": "amount_paid_warning", data: { paid_amount_target: "paid", action: "input->paid-amount#check" } %>
-        <p id="amount_paid_warning" class="mt-1 text-sm font-medium text-red-700" role="alert" hidden data-paid-amount-target="warning"><%= t("records.form.paid_over_due") %></p>
-      </div>
-    </fieldset>
-    <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
 
-    <div class="grid grid-cols-2 gap-2">
+      <fieldset class="grid grid-cols-3 gap-2">
+        <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
+        <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
+        <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>
+        <%= form.select :period_end_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_end_month) %>
+        <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
+      </fieldset>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <%= form.label :currency, class: "block text-sm font-medium" %>
+          <%= form.select :currency, Household::CURRENCIES, {}, class: field, data: { paid_amount_target: "currency", action: "paid-amount#currency" } %>
+        </div>
+        <div>
+          <%= form.label :amount_required, class: "block text-sm font-medium" %>
+          <%= form.number_field :amount_required, value: amount_value(record.amount_required, record.currency), min: 0, step: amount_step(record.currency), class: field,
+                data: { paid_amount_target: "due", action: "input->paid-amount#sync" } %>
+        </div>
+      </div>
+
+      <%# Payment window: many bills can be paid from one date until the due date %>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <%= form.label :payable_from, class: "block text-sm font-medium" %>
+          <%= form.date_field :payable_from, class: field %>
+        </div>
+        <div>
+          <%= form.label :due_on, class: "block text-sm font-medium" %>
+          <%= form.date_field :due_on, class: field %>
+        </div>
+        <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.window_hint") %></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <%= form.label :reminder_frequency, class: "block text-sm font-medium" %>
+          <%= form.select :reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %>
+        </div>
+        <div>
+          <%= form.label :reminder_starts_on, class: "block text-sm font-medium" %>
+          <%= form.date_field :reminder_starts_on, class: field %>
+        </div>
+        <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
+      </div>
+
       <div>
-        <%= form.label :due_on, class: "block text-sm font-medium" %>
-        <%= form.date_field :due_on, class: field %>
+        <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+        <%= form.date_field :next_due_on, class: field %>
+        <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+      </div>
+    </section>
+
+    <%# Payment details: what was paid, when and how %>
+    <section class="<%= section %>" aria-labelledby="payment_heading">
+      <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
+      <fieldset class="space-y-2">
+        <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
+        <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+          <% %w[none full partial].each do |option| %>
+            <label class="inline-flex cursor-pointer items-center gap-1.5">
+              <%= radio_button_tag :paid_choice, option, choice == option, id: "paid_choice_#{option}", data: { paid_amount_target: "choice", action: "paid-amount#choose" } %>
+              <%= t("records.form.paid_choice.#{option}") %>
+            </label>
+          <% end %>
+        </div>
+        <div data-paid-amount-target="paidField">
+          <%= form.number_field :amount_paid, value: amount_value(record.amount_paid, record.currency), min: 0, step: amount_step(record.currency), class: field,
+                "aria-label": Record.human_attribute_name(:amount_paid), "aria-describedby": "amount_paid_warning", data: { paid_amount_target: "paid", action: "input->paid-amount#check" } %>
+          <p id="amount_paid_warning" class="mt-1 text-sm font-medium text-red-700" role="alert" hidden data-paid-amount-target="warning"><%= t("records.form.paid_over_due") %></p>
+        </div>
+      </fieldset>
+      <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <%= form.label :paid_on, class: "block text-sm font-medium" %>
+          <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+        </div>
+        <div>
+          <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+          <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
+                data: { default_payment_target: "payment" } %>
+        </div>
       </div>
       <div>
-        <%= form.label :paid_on, class: "block text-sm font-medium" %>
-        <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+        <%= form.label :payment_note, class: "block text-sm font-medium" %>
+        <%= form.text_area :payment_note, rows: 3, maxlength: 2000, class: field %>
       </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-2 gap-2">
-    <div>
-      <%= form.label :reminder_frequency, class: "block text-sm font-medium" %>
-      <%= form.select :reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %>
-    </div>
-    <div>
-      <%= form.label :reminder_starts_on, class: "block text-sm font-medium" %>
-      <%= form.date_field :reminder_starts_on, class: field %>
-    </div>
-    <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
-  </div>
-
-  <div>
-    <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-    <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
-          data: { default_payment_target: "payment" } %>
-  </div>
-  <div>
-    <%= form.label :payment_note, class: "block text-sm font-medium" %>
-    <%= form.text_area :payment_note, rows: 3, maxlength: 2000, class: field %>
-  </div>
-  <div>
-    <%= form.label :next_due_on, class: "block text-sm font-medium" %>
-    <%= form.date_field :next_due_on, class: field %>
-    <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+    </section>
   </div>
 
   <div class="flex flex-wrap gap-3">

@@ -250,6 +250,28 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "input[type=radio][name=paid_choice][value=full][checked]"
     get edit_household_record_path(@home, partial)
     assert_select "input[type=radio][name=paid_choice][value=partial][checked]"
-    assert_select "input[name='record[amount_paid]'][value='100.0']"
+    assert_select "input[name='record[amount_paid]'][value='100'][step='1']", 1, "TWD amounts are whole numbers"
+    assert_select "input[name='record[amount_required]'][value='600'][step='1']"
+    usd = add(amount_required: 12.5, currency: "USD")
+    get edit_household_record_path(@home, usd)
+    assert_select "input[name='record[amount_required]'][value='12.5'][step='0.01']"
+  end
+
+  test "the form has Billing Details and Payment Details; the payment window can't end before it starts" do
+    get new_household_record_path(@home)
+    assert_select "section h2", /Billing Details|帳單資訊/
+    assert_select "section h2", /Payment Details|繳費資訊/
+    assert_select "input[name='record[payable_from]']"
+
+    post household_records_path(@home), params: { record: form_params(payable_from: "2026-11-01", due_on: "2026-11-30") }
+    record = @home.records.order(:id).last
+    assert_equal Date.new(2026, 11, 1), record.payable_from
+    get household_record_path(@home, record)
+    assert_select "dd", I18n.l(Date.new(2026, 11, 1))
+
+    assert_no_difference -> { @home.records.count } do
+      post household_records_path(@home), params: { record: form_params(payable_from: "2026-12-01", due_on: "2026-11-30") }
+    end
+    assert_response :unprocessable_content
   end
 end

@@ -652,6 +652,14 @@ zh-TW:
       done: "已將%{title}標記為已繳。"
     show:
       make_recurring: "設為定期帳單"
+      status_line:
+        paid_on: "%{date} 已繳"
+        not_paid: "尚未繳費"
+        partly_paid: "部分已繳"
+        left_to_pay: "還要繳 %{amount}"
+        due: "%{date} 到期"
+        was_due: "原本 %{date} 到期"
+        no_due: "未設定到期日"
       no_due_date: "未設定到期日"
       edit: "編輯"
       delete: "刪除"

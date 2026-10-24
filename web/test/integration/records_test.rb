@@ -135,6 +135,28 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "form[action*=mark_paid], a[href*=mark_paid]", 0
   end
 
+  test "the record page shows a status line worked out from the record, with no ✅ / ❌" do
+    unpaid = add(amount_required: 580, due_on: Date.current + 10)
+    get household_record_path(@home, unpaid)
+    assert_select "h1", text: /[✅❌]/, count: 0
+    assert_select "[role=status] p.text-amber-900", "尚未繳費 · 10 天後到期"
+    assert_select "[role=status] p.text-gray-700", "#{I18n.l(unpaid.due_on, locale: :"zh-TW")} 到期 · 還要繳 NT$580"
+
+    overdue = add(amount_required: 580, amount_paid: 80, paid_on: Date.current - 5, due_on: Date.current - 3)
+    get household_record_path(@home, overdue)
+    assert_select "[role=status] p.text-red-700", "已逾期 3 天 · 還要繳 NT$500"
+
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.current - 2)
+    get household_record_path(@home, partial)
+    assert_select "[role=status] p.text-amber-900", "部分已繳 · 還要繳 NT$500"
+    assert_select "[role=status] p.text-gray-700", "未設定到期日"
+
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
+    get household_record_path(@home, paid)
+    assert_select "[role=status] p.text-green-800", "#{I18n.l(paid.paid_on, locale: :"zh-TW")} 已繳"
+    assert_select "[role=status] p.text-gray-700", "NT$580"
+  end
+
   test "a viewer sees records but can't change them" do
     record = add(amount_required: 580)
     sign_out

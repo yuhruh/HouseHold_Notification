@@ -2,11 +2,11 @@
 <% writer = policy(@record).write? %>
 <div class="w-full mx-auto max-w-2xl space-y-6 py-4">
   <%= render "shared/flash" %>
-  <div class="flex flex-wrap items-center justify-center gap-3">
-    <h1 class="text-3xl font-bold"><%= record_check(@record) %> <%= @record.title %></h1>
-    <%= record_status_badge(@record) %>
+  <div class="space-y-1">
+    <h1 class="text-center text-3xl font-bold"><%= @record.title %></h1>
+    <p class="text-center text-sm text-gray-600"><%= t("records.types.#{@record.record_type}") %> · <%= @record.category.name %></p>
   </div>
-  <p class="text-center text-sm text-gray-600"><%= t("records.types.#{@record.record_type}") %> · <%= @record.category.name %></p>
+  <%= render "status_line", record: @record %>
 
   <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
     <dt class="text-gray-500"><%= t("records.form.period") %></dt><dd><%= @record.period %></dd>

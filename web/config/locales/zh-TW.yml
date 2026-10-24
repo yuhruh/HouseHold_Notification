@@ -798,7 +798,7 @@ zh-TW:
   categories:
     index:
       title: "類別"
-      intro: "可以重新命名、新增或封存類別。封存的類別不會出現在記錄表單中，但會保留在既有記錄上。別名是試算表中的項目名稱，匯入時會對應到這裡。"
+      intro: "可以重新命名、新增或封存類別。封存的類別不會出現在記錄表單中，但會保留在既有記錄上。"
       new: "新增"
       records:
         zero: "沒有記錄"
@@ -811,8 +811,11 @@ zh-TW:
       delete_confirm: "要刪除這個類別嗎？"
       archive: "封存"
       unarchive: "還原"
-      aliases: "別名："
-      remove_alias: "移除別名 %{alias}"
+      aliases: "歸到這裡的試算表名稱："
+      aliases_hint: "匯入時，這些名稱的列會放進這個類別。移除後，下次匯入會再問你一次。"
+      remove: "移除"
+      remove_alias: "移除 %{alias}"
+      remove_alias_confirm: "不再把「%{alias}」歸到這個類別？下次匯入會再問你一次。"
     new:
       title: "新增類別"
     edit:
@@ -825,7 +828,7 @@ zh-TW:
       deleted: "已刪除類別。"
       in_use: "這個類別有記錄，請改為封存。"
     destroy_alias:
-      alias_removed: "已移除別名。下次匯入時會重新為這個項目建議類別。"
+      alias_removed: "已移除。下次匯入時會重新為這個項目建議類別。"
   recurring_templates:
     every_month: "每月"
     every_year: "每年"

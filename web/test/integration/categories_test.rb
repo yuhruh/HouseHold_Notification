@@ -35,6 +35,7 @@ class CategoriesTest < ActionDispatch::IntegrationTest
     item = @home.category_aliases.create!(alias: "台水", category: @water)
     get household_categories_path(@home)
     assert_select "span", /台水/
+    assert_select "form[data-turbo-confirm*='台水'] button[title*='台水']", 1, "remove asks first and says which name"
     delete destroy_alias_household_categories_path(@home, alias_id: item.id)
     assert_not CategoryAlias.exists?(item.id)
   end

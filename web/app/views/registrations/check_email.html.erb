@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-sm space-y-4 py-8">
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold"><%= t(".title") %></h1>
   <p><%= t(".body") %></p>
   <p class="text-sm text-gray-600"><%= t(".spam_hint") %></p>
   <p class="text-sm"><%= link_to t("sessions.new.resend_confirmation"), new_email_confirmation_path, class: "text-gray-700 underline" %></p>

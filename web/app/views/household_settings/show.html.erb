@@ -2,7 +2,7 @@
 <% owner = policy(Current.household).manage? %>
 <div class="w-full mx-auto max-w-2xl space-y-8 py-4">
   <%= render "shared/flash" %>
-  <h1 class="flex items-center gap-3 text-3xl font-bold"><%= image_tag "/household.png", alt: "", class: "h-10 w-10 object-contain" %><span><%= t(".title") %></span></h1>
+  <h1 class="flex justify-center items-center gap-3 text-3xl font-bold"><%= image_tag "/household.png", alt: "", class: "h-10 w-10 object-contain" %><span><%= t(".title") %></span></h1>
 
   <%= form_with model: Current.household, url: household_settings_path(Current.household), method: :patch, class: "space-y-4" do |form| %>
     <% if Current.household.errors.any? %>

@@ -1,5 +1,5 @@
 <% content_for :title, t(".title") %>
-<div class="w-full max-w-2xl space-y-6 py-4">
+<div class="w-full mx-auto max-w-2xl space-y-6 py-4">
   <%= page_title("reminder.png", t(".title")) %>
   <% if @notifications.empty? %>
     <p class="text-gray-600"><%= t(".empty") %></p>

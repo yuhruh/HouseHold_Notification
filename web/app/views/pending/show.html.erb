@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <% writer = policy(Record).write? %>
-<div class="w-full max-w-3xl space-y-6 py-4">
+<div class="w-full mx-auto max-w-3xl space-y-6 py-4">
   <%= render "shared/flash" %>
   <%= page_title("upcoming.png", t(".title")) %>
   <% sections = [ [ :overdue, @overdue ], [ :soon, @soon ], [ :maintenance, @maintenance ], [ :no_due, @no_due ] ] %>

@@ -24,7 +24,7 @@
     <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
   </div>
 
-  <fieldset class="grid grid-cols-2 gap-2">
+  <fieldset class="grid grid-cols-3 gap-2">
     <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
     <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
     <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>

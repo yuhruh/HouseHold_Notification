@@ -97,7 +97,7 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
   test "Save and Make Recurring saves the record, then opens the template filled in from it" do
     water = @home.categories.find_by!(name_zh: "水費")
     get new_household_record_path(@home)
-    assert_select "input[type=submit][name=make_recurring]"
+    assert_select "button[type=submit][name=make_recurring]"
 
     post household_records_path(@home), params: { make_recurring: "Save and Make Recurring", record: { category_id: water.id,
       period_year: 2026, period_start_month: 9, period_end_month: 10, currency: "TWD", amount_required: 600 } }

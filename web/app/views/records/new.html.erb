@@ -3,7 +3,7 @@
   <h1 class="text-3xl text-center font-bold"><%= t(".title") %></h1>
   <% if policy(RecurringTemplate).new? %>
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.recurring_tip") %>
-      <%= link_to t("records.form.recurring_link"), new_household_recurring_template_path(Current.household), class: "font-medium underline" %></p>
+      <%= link_to new_household_recurring_template_path(Current.household), class: "inline-flex items-center gap-1 font-medium underline" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t("records.form.recurring_link") %></span><% end %></p>
   <% end %>
   <%= render "form", record: @record %>
 </div>

@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="w-full mx-auto max-w-md space-y-6 py-4">
-  <h1 class="text-center text-2xl font-bold"><%= t(".title") %></h1>
+  <%= page_title("paid.png", t(".title")) %>
   <p><%= @record.title %> · <%= @record.period %></p>
   <% if @record.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
@@ -9,6 +9,6 @@
     <%= f.label :amount, t(".amount", currency: @record.currency), class: "block text-sm font-medium" %>
     <%= f.number_field :amount, min: 0.01, step: "0.01", required: true, autofocus: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
     <p class="text-sm text-gray-500"><%= t(".hint") %></p>
-    <%= f.submit t(".submit"), class: "btn-press rounded-xl bg-green-200 text-green-900 cursor-pointer px-3.5 py-2 font-medium" %>
+    <%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".submit") %></span><% end %>
   <% end %>
 </div>

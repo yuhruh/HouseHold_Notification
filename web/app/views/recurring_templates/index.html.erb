@@ -23,7 +23,7 @@
             </div>
             <% if writer %>
               <span class="flex gap-3 text-sm">
-                <%= link_to t(".edit"), edit_household_recurring_template_path(Current.household, template), class: "underline" %>
+                <%= link_to edit_household_recurring_template_path(Current.household, template), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".edit") %></span><% end %>
                 <%= button_to household_recurring_template_path(Current.household, template), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "inline-flex items-center gap-1 cursor-pointer text-red-700 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete") %></span><% end %>
               </span>
             <% end %>

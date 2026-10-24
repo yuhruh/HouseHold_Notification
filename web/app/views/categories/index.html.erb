@@ -8,7 +8,7 @@
     <section class="space-y-2">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold"><%= t("records.types.#{type}") %></h2>
-        <% if writer %><%= link_to t(".new"), new_household_category_path(Current.household, record_type: type), class: "text-sm underline" %><% end %>
+        <% if writer %><%= link_to new_household_category_path(Current.household, record_type: type), class: "inline-flex items-center gap-1 text-sm underline" do %><%= image_tag "icons/add.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".new") %></span><% end %><% end %>
       </div>
       <ul class="divide-y rounded-lg border">
         <% categories.each do |category| %>
@@ -19,11 +19,11 @@
                 <span class="text-sm text-gray-500"><%= t(".records", count:) %><%= " · #{t('.detail', label: category.detail_label)}" if category.detail_required %><%= " · #{t('.archived')}" if category.archived_at %></span></span>
               <% if writer %>
                 <span class="flex gap-3 text-sm">
-                  <%= link_to t(".edit"), edit_household_category_path(Current.household, category), class: "underline" %>
+                  <%= link_to edit_household_category_path(Current.household, category), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".edit") %></span><% end %>
                   <% if count.zero? %>
                     <%= button_to household_category_path(Current.household, category), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "inline-flex items-center gap-1 cursor-pointer text-red-700 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete") %></span><% end %>
                   <% else %>
-                    <%= button_to (category.archived_at ? t(".unarchive") : t(".archive")), archive_household_category_path(Current.household, category), class: "cursor-pointer underline" %>
+                    <%= button_to archive_household_category_path(Current.household, category), class: "inline-flex items-center gap-1 cursor-pointer underline" do %><% if category.archived_at %><%= t(".unarchive") %><% else %><%= image_tag "icons/archive.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".archive") %></span><% end %><% end %>
                   <% end %>
                 </span>
               <% end %>

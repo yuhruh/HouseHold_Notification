@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <% keywords = @plan.keywords %>
-<div class="w-full max-w-2xl space-y-5 py-4">
+<div class="w-full mx-auto max-w-2xl space-y-5 py-4">
   <%= page_title("payment.png", t(".title")) %>
   <p class="text-gray-700"><%= t(".intro", count: @plan.records.size) %></p>
 

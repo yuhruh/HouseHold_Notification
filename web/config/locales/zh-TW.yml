@@ -42,6 +42,7 @@ zh-TW:
         amount_required: "應繳金額"
         amount_paid: "已繳金額"
         due_on: "到期日"
+        payable_from: "開始繳費日"
         paid_on: "繳費日期"
         payment_method: "付款方式"
         payment_note: "付款備註"
@@ -65,6 +66,7 @@ zh-TW:
         exceeds_required: "不能大於應繳金額（手續費請併入應繳金額）"
         required_with_paid_on: "填寫繳費日期時必須填寫"
         in_future: "不能是未來的日期"
+        after_due: "不能晚於到期日"
   auth:
     continue_with_google: "使用 Google 繼續"
     or: "或"
@@ -623,6 +625,9 @@ zh-TW:
         partial: "部分繳費"
       reminder_hint: "只適用於沒有到期日的記錄：會重複提醒直到繳清。"
       next_due_hint: "保養用：下次到期的日期。"
+      billing: "帳單資訊"
+      payment: "繳費資訊"
+      window_hint: "很多帳單只能在繳費期間內繳（地價稅：11月1日 - 11月30日）。沒有開始日期就留空「開始繳費日」。"
       none: "無"
       save: "儲存"
       cancel: "取消"
@@ -857,6 +862,7 @@ zh-TW:
     new:
       title: "新增定期帳單"
       from_record: "已依紀錄「%{title}」（%{period}）填好。確認多久一次和繳費日後儲存：這筆紀錄會成為第一筆帳單，之後的帳單會自動建立。"
+      already_recurring: "這筆紀錄已經設為定期帳單。這裡是你的定期帳單。"
     edit:
       title: "編輯定期帳單"
     create:

@@ -42,6 +42,7 @@ en:
         amount_required: "Amount Due"
         amount_paid: "Amount Paid"
         due_on: "Due Date"
+        payable_from: "Payable From"
         paid_on: "Paid Date"
         payment_method: "Payment Method"
         payment_note: "Payment Note"
@@ -65,6 +66,7 @@ en:
         exceeds_required: "can't be more than Required (put fees into Required)"
         required_with_paid_on: "is required when the paid date is set"
         in_future: "can't be in the future"
+        after_due: "can't be after the due date"
   auth:
     continue_with_google: "Continue With Google"
     or: "or"
@@ -623,6 +625,9 @@ en:
         partial: "Partly Paid"
       reminder_hint: "Only for records without a due date: repeats until the record is paid."
       next_due_hint: "For maintenance: when it's due again."
+      billing: "Billing Details"
+      payment: "Payment Details"
+      window_hint: "Many bills can be paid only within a window (land value tax: Nov. 1 - Nov. 30). Leave Payable From blank if there's no start date."
       none: "None"
       save: "Save"
       cancel: "Cancel"
@@ -857,6 +862,7 @@ en:
     new:
       title: "New Recurring Bill"
       from_record: "Filled in from the record %{title} (%{period}). Check how often it repeats and when it's due, then save: this record becomes the first bill, and the next ones are created for you."
+      already_recurring: "This record is already a recurring bill. Here are your recurring bills."
     edit:
       title: "Edit Recurring Bill"
     create:

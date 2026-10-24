@@ -49,6 +49,10 @@ module RecordsHelper
 
   def month_options = (1..12).map { |m| [ t("date.abbr_month_names")[m], m ] }
 
+  # Amount field value and step: whole numbers for TWD (1536, not 1536.0), cents otherwise
+  def amount_value(amount, currency) = Household::WHOLE_CURRENCIES.include?(currency) && amount ? amount.round.to_i : amount
+  def amount_step(currency) = Household::WHOLE_CURRENCIES.include?(currency) ? "1" : "0.01"
+
   # A summary Required / Paid amount that lists the records it adds up (current filters kept)
   def amount_link(row, params, column)
     value = row.public_send(column)

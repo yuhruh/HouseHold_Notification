@@ -13,6 +13,9 @@
     <dt class="text-gray-500"><%= Record.human_attribute_name(:details) %></dt><dd class="whitespace-pre-line"><%= @record.details.presence || "–" %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:amount_required) %></dt><dd><%= money(@record.amount_required, @record.currency) %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
+    <% if @record.payable_from %>
+      <dt class="text-gray-500"><%= Record.human_attribute_name(:payable_from) %></dt><dd><%= l(@record.payable_from) %></dd>
+    <% end %>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:due_on) %></dt><dd><%= @record.due_on ? l(@record.due_on) : t(".no_due_date") %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
     <% if @record.due_on.nil? && !@record.settled %>

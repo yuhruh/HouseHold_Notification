@@ -1,5 +1,6 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <%= form_with model: [ Current.household, template ], url: (template.persisted? ? household_recurring_template_path(Current.household, template) : household_recurring_templates_path(Current.household)), class: "space-y-4" do |form| %>
+  <% if @from_record && template.new_record? %><%= hidden_field_tag :from_record, @from_record.id %><% end %>
   <% if template.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% template.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
   <% end %>

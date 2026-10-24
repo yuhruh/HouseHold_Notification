@@ -14,12 +14,14 @@ class RecurringTemplatesController < ApplicationController
     authorize RecurringTemplate
     @template = Current.household.recurring_templates.new(currency: Current.household.default_currency,
       interval_months: 2, starts_on: Date.current, lead_days: 7)
-    @from_record = Current.household.records.find_by(id: params[:from_record], recurring_template_id: nil) if params[:from_record]
+    return redirect_to_already_recurring if already_recurring?
     @template.assign_attributes(RecurringTemplate.attributes_from(@from_record)) if @from_record
   end
 
   def create
     authorize RecurringTemplate
+    # A second click on Make This Recurring (or Save) for a record that already repeats
+    return redirect_to_already_recurring if already_recurring?
     @template = Current.household.recurring_templates.new(template_params)
     RecurringTemplate.transaction do
       @template.save!
@@ -64,6 +66,20 @@ class RecurringTemplatesController < ApplicationController
   end
 
   private
+
+  # "Make this recurring" (?from_record=) for a record that is already a recurring bill: linked to a
+  # template, or one with the same category, title and details exists
+  def already_recurring?
+    @from_record = Current.household.records.find_by(id: params[:from_record]) if params[:from_record]
+    return false unless @from_record
+
+    @from_record.recurring_template_id.present? || Current.household.recurring_templates.exists?(
+      category_id: @from_record.category_id, title: @from_record.title, details: @from_record.details)
+  end
+
+  def redirect_to_already_recurring
+    redirect_to household_recurring_templates_path(Current.household), alert: t("recurring_templates.new.already_recurring")
+  end
 
   def set_template
     @template = Current.household.recurring_templates.find(params[:id])

@@ -3,12 +3,23 @@ import { Controller } from "@hotwired/stimulus"
 // Record form "Amount paid": Not paid yet clears the payment, Paid in full copies the amount due
 // (and follows it), Partly paid takes an amount up to the amount due. Choosing a payment fills an
 // empty paid date with today. A partial amount over the amount due is marked red with a warning,
-// and the form's save buttons are disabled until it's fixed
+// and the form's save buttons are disabled until it's fixed. Whole-number currencies (TWD) take
+// amounts without cents: switching to one rounds the amounts and steps the fields by 1
 export default class extends Controller {
-  static targets = ["due", "paid", "paidField", "paidOn", "choice", "warning"]
+  static targets = ["due", "paid", "paidField", "paidOn", "choice", "warning", "currency"]
+  static values = { whole: Array }
 
   connect() {
     this.show(false)
+  }
+
+  currency() {
+    const whole = this.wholeValue.includes(this.currencyTarget.value)
+    for (const field of [this.dueTarget, this.paidTarget]) {
+      field.step = whole ? "1" : "0.01"
+      if (whole && field.value !== "") field.value = Math.round(parseFloat(field.value))
+    }
+    this.sync()
   }
 
   choose() {

@@ -19,8 +19,8 @@
           <span><%= pm.name %><%= " ··#{pm.last4}" if pm.last4.present? %> <span class="text-sm text-gray-500"><%= t("payment_methods.kinds.#{pm.kind}") %><%= " · #{t('.archived')}" if pm.archived_at %></span></span>
           <% if writer %>
             <span class="flex gap-3 text-sm">
-              <%= link_to t(".edit"), edit_household_payment_method_path(Current.household, pm), class: "underline" %>
-              <%= button_to (pm.archived_at ? t(".unarchive") : t(".archive")), archive_household_payment_method_path(Current.household, pm), class: "cursor-pointer underline" %>
+              <%= link_to edit_household_payment_method_path(Current.household, pm), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".edit") %></span><% end %>
+              <%= button_to archive_household_payment_method_path(Current.household, pm), class: "inline-flex items-center gap-1 cursor-pointer underline" do %><% if pm.archived_at %><%= t(".unarchive") %><% else %><%= image_tag "icons/archive.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".archive") %></span><% end %><% end %>
             </span>
           <% end %>
         </li>

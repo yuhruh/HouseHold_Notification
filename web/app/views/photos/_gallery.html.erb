@@ -21,7 +21,7 @@
           data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing") } do |f| %>
       <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true,
             data: { photo_upload_target: "input", action: "change->photo-upload#resize" }, class: "max-w-full text-sm" %>
-      <%= f.submit t("photos.gallery.upload"), data: { photo_upload_target: "submit", turbo_submits_with: t("photos.gallery.uploading") }, class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" %>
+      <%= f.button type: "submit", name: nil, data: { photo_upload_target: "submit", turbo_submits_with: t("photos.gallery.uploading") }, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" do %><%= image_tag "icons/add.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("photos.gallery.upload") %></span><% end %>
       <span class="text-gray-500" data-photo-upload-target="status"></span>
     <% end %>
     <p class="text-xs text-gray-500"><%= t("photos.gallery.hint", max: Photos::Upload::MAX_PHOTOS) %></p>

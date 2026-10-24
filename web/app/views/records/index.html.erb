@@ -67,7 +67,7 @@
       <%= render "per_page", filter: @filter %>
     </div>
     <%# Each record is one card that opens the record; its status and dates come from the record itself %>
-    <ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <ul class="flex flex-col space-y-3">
       <% records.each do |record| %>
         <li id="<%= dom_id(record) %>">
           <%= link_to household_record_path(Current.household, record), class: "card-raised flex h-full items-center gap-3 rounded-xl px-4 py-3 text-gray-900 transition-transform hover:-translate-y-0.5 #{record_card_class(record)}" do %>

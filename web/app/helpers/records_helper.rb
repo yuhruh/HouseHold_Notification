@@ -15,8 +15,37 @@ module RecordsHelper
     tag.span(t("records.status.#{status}"), class: "whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium #{STATUS_CLASSES[status]}")
   end
 
-  # ✅ only when the status is paid (PRD §1 ✅ / ❌ column)
-  def record_check(record) = record.status == :paid ? "✅" : "❌"
+  # The record page's status line: what state the bill is in and how urgent it is, worked out from
+  # the record (amounts, due and paid dates). Returns the headline, the line under it and its look.
+  STATUS_LINE_LOOKS = {
+    paid: { box: "bg-white", text: "text-green-800", icon: "check" },
+    overdue: { box: "bg-red-50 dark:bg-red-50/60", text: "text-red-700", icon: "alert" },
+    partial: { box: "bg-amber-50 dark:bg-amber-50/60", text: "text-amber-900", icon: "clock" },
+    unpaid: { box: "bg-amber-50 dark:bg-amber-50/60", text: "text-amber-900", icon: "clock" }
+  }.freeze
+
+  def record_status_line(record, today = Date.current)
+    scope = "records.show.status_line"
+    status = record.status(today:)
+    left = Reminders::Wording.outstanding(record)
+    left_text = left && t("#{scope}.left_to_pay", amount: left)
+    due_text = record.due_on ? t("#{scope}.due", date: l(record.due_on)) : t("#{scope}.no_due")
+    headline, detail =
+      case status
+      when :paid
+        [ t("#{scope}.paid_on", date: l(record.paid_on)),
+          [ (money(record.amount_paid, record.currency) if record.amount_paid), record.payment_method&.name ].compact.join(" · ") ]
+      when :overdue
+        [ [ Reminders::Wording.relative("bill", record.due_on, today).upcase_first, left_text ].compact.join(" · "),
+          t("#{scope}.was_due", date: l(record.due_on)) ]
+      when :partial
+        [ [ t("#{scope}.partly_paid"), left_text ].compact.join(" · "), due_text ]
+      else
+        [ [ t("#{scope}.not_paid"), (Reminders::Wording.relative("bill", record.due_on, today) if record.due_on) ].compact.join(" · "),
+          [ due_text, left_text ].compact.join(" · ") ]
+      end
+    { headline:, detail: detail.presence, **STATUS_LINE_LOOKS[status] }
+  end
 
   def category_options(record)
     categories = Current.household.categories.ordered.where(archived_at: nil).or(Current.household.categories.where(id: record.category_id))

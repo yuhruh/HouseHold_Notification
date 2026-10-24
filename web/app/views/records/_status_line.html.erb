@@ -1,0 +1,14 @@
+<%# Record page status line (no ✅ / ❌): the state in words, coloured like the records cards %>
+<% line = record_status_line(record) %>
+<div class="card-raised flex items-center gap-3 rounded-xl px-4 py-3 <%= line[:box] %>" role="status">
+  <svg class="h-6 w-6 shrink-0 <%= line[:text] %>" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <% if line[:icon] == "check" %><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>
+    <% elsif line[:icon] == "alert" %><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5h.01"/>
+    <% else %><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+    <% end %>
+  </svg>
+  <div>
+    <p class="font-bold <%= line[:text] %>"><%= line[:headline] %></p>
+    <% if line[:detail] %><p class="text-sm text-gray-700"><%= line[:detail] %></p><% end %>
+  </div>
+</div>

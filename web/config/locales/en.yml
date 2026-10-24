@@ -652,6 +652,14 @@ en:
       done: "%{title} marked paid."
     show:
       make_recurring: "Make This Recurring"
+      status_line:
+        paid_on: "Paid on %{date}"
+        not_paid: "Not paid yet"
+        partly_paid: "Partly paid"
+        left_to_pay: "%{amount} left to pay"
+        due: "Due %{date}"
+        was_due: "Was due %{date}"
+        no_due: "No due date"
       no_due_date: "No Due Date"
       edit: "Edit"
       delete: "Delete"

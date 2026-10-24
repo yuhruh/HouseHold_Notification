@@ -548,6 +548,11 @@ zh-TW:
       overdue: "逾期"
       paid: "已繳"
       outstanding: "尚欠金額"
+    maintenance_status:
+      unpaid: "待完成"
+      partial: "待完成"
+      overdue: "逾期"
+      paid: "已完成"
     reminder_frequencies:
       none: "不提醒"
       daily: "每天"
@@ -608,6 +613,7 @@ zh-TW:
       paid_on: "繳費日期"
       due_on: "到期 %{date}"
       paid_on_date: "%{date} 已繳"
+      done_on_date: "%{date} 完成"
       open: "查看明細"
       no_due_date: "未設定到期日"
     form:
@@ -620,6 +626,15 @@ zh-TW:
       hide: "收起"
       save_payment: "儲存繳費"
       prefilled: "已幫你填好：全額繳清、今天、上次用的付款方式。有不同的地方再修改。"
+      task: "工作內容"
+      done: "完成資訊"
+      expected_amount: "預計 %{amount}"
+      cost: "花費"
+      cost_hint: "零件和耗材都算，就算是自己動手做的也一樣。儲存的花費會成為這項工作的花費。"
+      done_on: "完成日期"
+      note: "備註"
+      prefilled_done: "已幫你填好：今天完成。有花錢（零件或耗材）再填花費。"
+      prefilled_done_cost: "已幫你填好：今天完成，花費和預計一樣是 %{amount}。實際花費不同就修改；沒有花錢就清空。"
       details_hint: "牌照稅填車牌號碼，保險填保單號碼或標的，保養填房間或位置。"
       period: "帳單期間"
       period_hint: "年份、起始月份、結束月份。12月–1月這類期間會在隔年結束。"
@@ -642,18 +657,30 @@ zh-TW:
     edit:
       title: "編輯記錄"
       pay_title: "記錄繳費"
+      done_title: "標記完成"
     create:
       created: "已新增記錄。"
     update:
       saved: "已儲存。"
       paid: "已儲存「%{title}」的繳費。"
+      done: "已將「%{title}」標記為完成。"
       stale: "你編輯時有其他人修改了這筆記錄。請重新載入後再試一次。"
     destroy:
       deleted: "已刪除記錄。內容仍保留在家庭的活動記錄中。"
     show:
       make_recurring: "設為定期帳單"
       record_payment: "記錄繳費"
+      mark_done: "標記完成"
+      labels:
+        expected_cost: "預計花費"
+        cost: "花費"
+        done_on: "完成日期"
+        note: "備註"
       status_line:
+        done_on: "%{date} 完成"
+        not_done: "尚未完成"
+        spent: "花費 %{amount}"
+        expected_cost: "預計花費 %{amount}"
         paid_on: "%{date} 已繳"
         not_paid: "尚未繳費"
         partly_paid: "部分已繳"

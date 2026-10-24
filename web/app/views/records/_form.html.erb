@@ -1,6 +1,7 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% section = "card-raised space-y-4 rounded-xl bg-white p-4" %>
 <% paying = local_assigns[:paying] %>
+<% doing = paying && record.maintenance? %><%# Mark Done: maintenance is done (with what it cost), not paid %>
 <% heading = "text-lg font-semibold" %>
 <%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4",
       data: (record.new_record? ? { controller: "default-payment", default_payment_map_value: last_payment_methods.to_json } : {}) do |form| %>
@@ -18,7 +19,7 @@
   <% choice = if record.paid_on.blank? && record.amount_paid.to_d.zero? then "none"
               elsif record.amount_paid.blank? || record.amount_paid == record.amount_required then "full"
               else "partial" end %>
-  <div class="space-y-4" data-controller="paid-amount" data-paid-amount-whole-value="<%= Household::WHOLE_CURRENCIES.to_json %>">
+  <div class="space-y-4" <% unless doing %>data-controller="paid-amount" data-paid-amount-whole-value="<%= Household::WHOLE_CURRENCIES.to_json %>"<% end %>>
     <%# Billing details: what the bill is, how much, and when it can be paid. Record Payment folds them
         away (one tap opens them) unless something there needs fixing %>
     <% billing_fields = capture do %>
@@ -83,11 +84,13 @@
         <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
       </div>
 
-      <div>
-        <%= form.label :next_due_on, class: "block text-sm font-medium" %>
-        <%= form.date_field :next_due_on, class: field %>
-        <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
-      </div>
+      <% unless doing %>
+        <div>
+          <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+          <%= form.date_field :next_due_on, class: field %>
+          <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+        </div>
+      <% end %>
     <% end %>
     <% if paying %>
       <% billing_open = record.errors.any? || (record.amount_required.nil? && !record.maintenance?) %>
@@ -95,8 +98,8 @@
         <summary class="flex cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
           <svg class="h-5 w-5 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
           <span class="flex-1">
-            <span id="billing_heading" class="block <%= heading %>"><%= t("records.form.billing") %></span>
-            <span class="block text-sm text-gray-600"><%= [ (t("records.form.due_amount", amount: money(record.amount_required, record.currency)) if record.amount_required), (t("records.index.due_on", date: l(record.due_on)) if record.due_on) ].compact.join(" · ").presence || record.period %></span>
+            <span id="billing_heading" class="block <%= heading %>"><%= doing ? t("records.form.task") : t("records.form.billing") %></span>
+            <span class="block text-sm text-gray-600"><%= [ (t(doing ? "records.form.expected_amount" : "records.form.due_amount", amount: money(record.amount_required, record.currency)) if record.amount_required), (t("records.index.due_on", date: l(record.due_on)) if record.due_on) ].compact.join(" · ").presence || record.period %></span>
           </span>
           <span class="text-sm font-semibold text-blue-800 group-open:hidden"><%= t("records.form.show") %></span>
           <span class="hidden text-sm font-semibold text-blue-800 group-open:inline"><%= t("records.form.hide") %></span>
@@ -115,46 +118,77 @@
     <%# Payment details: what was paid, when and how. Record Payment draws its outline and shadow in emerald
         (dark mode: the softer emerald-400, as card-raised softens its mauve) %>
     <section class="<%= section %> <%= "[--card-line:var(--color-emerald-700)] dark:[--card-line:var(--color-emerald-400)]" if paying %>" aria-labelledby="payment_heading">
-      <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
-      <% if paying %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
-      <fieldset class="space-y-2">
-        <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
-        <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-          <% %w[none full partial].each do |option| %>
-            <label class="inline-flex cursor-pointer items-center gap-1.5">
-              <%= radio_button_tag :paid_choice, option, choice == option, id: "paid_choice_#{option}", data: { paid_amount_target: "choice", action: "paid-amount#choose" } %>
-              <%= t("records.form.paid_choice.#{option}") %>
-            </label>
-          <% end %>
+      <% if doing %>
+        <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.done") %></h2>
+        <p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= record.amount_required ? t("records.form.prefilled_done_cost", amount: money(record.amount_required, record.currency)) : t("records.form.prefilled_done") %></p>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <%= form.label :paid_on, t("records.form.done_on"), class: "block text-sm font-medium" %>
+            <%= form.date_field :paid_on, class: field %>
+          </div>
+          <div>
+            <%= form.label :amount_paid, "#{t("records.form.cost")} (#{record.currency})", class: "block text-sm font-medium" %>
+            <%= form.number_field :amount_paid, value: amount_value(record.amount_paid, record.currency), min: 0, step: amount_step(record.currency), class: field %>
+          </div>
+          <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.cost_hint") %></p>
         </div>
-        <div data-paid-amount-target="paidField">
-          <%= form.number_field :amount_paid, value: amount_value(record.amount_paid, record.currency), min: 0, step: amount_step(record.currency), class: field,
-                "aria-label": Record.human_attribute_name(:amount_paid), "aria-describedby": "amount_paid_warning", data: { paid_amount_target: "paid", action: "input->paid-amount#check" } %>
-          <p id="amount_paid_warning" class="mt-1 text-sm font-medium text-red-700" role="alert" hidden data-paid-amount-target="warning"><%= t("records.form.paid_over_due") %></p>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+            <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field %>
+          </div>
+          <div>
+            <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+            <%= form.date_field :next_due_on, class: field %>
+          </div>
+          <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
         </div>
-      </fieldset>
-      <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
+        <div>
+          <%= form.label :payment_note, t("records.form.note"), class: "block text-sm font-medium" %>
+          <%= form.text_area :payment_note, rows: 2, maxlength: 2000, class: field %>
+        </div>
+      <% else %>
+        <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
+        <% if paying %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
+        <fieldset class="space-y-2">
+          <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
+          <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+            <% %w[none full partial].each do |option| %>
+              <label class="inline-flex cursor-pointer items-center gap-1.5">
+                <%= radio_button_tag :paid_choice, option, choice == option, id: "paid_choice_#{option}", data: { paid_amount_target: "choice", action: "paid-amount#choose" } %>
+                <%= t("records.form.paid_choice.#{option}") %>
+              </label>
+            <% end %>
+          </div>
+          <div data-paid-amount-target="paidField">
+            <%= form.number_field :amount_paid, value: amount_value(record.amount_paid, record.currency), min: 0, step: amount_step(record.currency), class: field,
+                  "aria-label": Record.human_attribute_name(:amount_paid), "aria-describedby": "amount_paid_warning", data: { paid_amount_target: "paid", action: "input->paid-amount#check" } %>
+            <p id="amount_paid_warning" class="mt-1 text-sm font-medium text-red-700" role="alert" hidden data-paid-amount-target="warning"><%= t("records.form.paid_over_due") %></p>
+          </div>
+        </fieldset>
+        <p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p>
 
-      <div class="grid grid-cols-2 gap-2">
-        <div>
-          <%= form.label :paid_on, class: "block text-sm font-medium" %>
-          <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <%= form.label :paid_on, class: "block text-sm font-medium" %>
+            <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+          </div>
+          <div>
+            <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+            <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
+                  data: { default_payment_target: "payment" } %>
+          </div>
         </div>
         <div>
-          <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-          <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
-                data: { default_payment_target: "payment" } %>
+          <%= form.label :payment_note, class: "block text-sm font-medium" %>
+          <%= form.text_area :payment_note, rows: 3, maxlength: 2000, class: field %>
         </div>
-      </div>
-      <div>
-        <%= form.label :payment_note, class: "block text-sm font-medium" %>
-        <%= form.text_area :payment_note, rows: 3, maxlength: 2000, class: field %>
-      </div>
+      <% end %>
     </section>
   </div>
 
   <div class="flex flex-wrap gap-3">
-    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= paying ? t("records.form.save_payment") : t("records.form.save") %></span><% end %>
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= paying && !doing ? t("records.form.save_payment") : t("records.form.save") %></span><% end %>
     <% if record.new_record? && policy(RecurringTemplate).new? %>
       <%# Saves, then opens New recurring bill filled in from this record %>
       <%= form.button type: "submit", name: "make_recurring", value: "1", class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-blue-700 disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save_recurring") %></span><% end %>

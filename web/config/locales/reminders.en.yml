@@ -36,6 +36,7 @@ en:
           other: "maintenance %{count} days overdue"
       final: "; reminders stop now"
       no_due_date: "unpaid (no due date)"
+      no_due_date_maintenance: "not done yet (no due date)"
       snooze_ended: "your snooze has ended; still unpaid"
   records:
     form:

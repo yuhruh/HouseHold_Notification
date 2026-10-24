@@ -11,18 +11,20 @@
   <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
     <dt class="text-gray-500"><%= t("records.form.period") %></dt><dd><%= @record.period %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:details) %></dt><dd class="whitespace-pre-line"><%= @record.details.presence || "–" %></dd>
-    <dt class="text-gray-500"><%= Record.human_attribute_name(:amount_required) %></dt><dd><%= money(@record.amount_required, @record.currency) %></dd>
-    <dt class="text-gray-500"><%= Record.human_attribute_name(:amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
+    <% unless @record.maintenance? && @record.settled %><%# done maintenance: its Cost is what counts %>
+      <dt class="text-gray-500"><%= record_attr_label(@record, :amount_required) %></dt><dd><%= money(@record.amount_required, @record.currency) %></dd>
+    <% end %>
+    <dt class="text-gray-500"><%= record_attr_label(@record, :amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
     <% if @record.payable_from %>
       <dt class="text-gray-500"><%= Record.human_attribute_name(:payable_from) %></dt><dd><%= l(@record.payable_from) %></dd>
     <% end %>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:due_on) %></dt><dd><%= @record.due_on ? l(@record.due_on) : t(".no_due_date") %></dd>
-    <dt class="text-gray-500"><%= Record.human_attribute_name(:paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
+    <dt class="text-gray-500"><%= record_attr_label(@record, :paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
     <% if @record.due_on.nil? && !@record.settled %>
       <dt class="text-gray-500"><%= Record.human_attribute_name(:reminder_frequency) %></dt><dd><%= t("records.reminder_frequencies.#{@record.reminder_frequency}") %></dd>
     <% end %>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.name || "–" %></dd>
-    <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
+    <dt class="text-gray-500"><%= record_attr_label(@record, :payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
     <dt class="text-gray-500"><%= Record.human_attribute_name(:next_due_on) %></dt><dd><%= @record.next_due_on ? l(@record.next_due_on) : "–" %></dd>
     <% if @record.recurring_template %>
       <dt class="text-gray-500"><%= t("households.show.templates") %></dt>
@@ -35,8 +37,9 @@
   <% if writer %>
     <div class="flex flex-wrap gap-2">
       <% unless @record.settled %>
-        <%# Opens the edit form with the payment filled in (paid in full, today); Edit leaves it as saved %>
-        <%= link_to edit_household_record_path(Current.household, @record, pay: 1), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".record_payment") %></span><% end %>
+        <%# Opens the edit form with the payment filled in (paid in full, today), or for maintenance done
+            today with its expected cost; Edit leaves it as saved %>
+        <%= link_to edit_household_record_path(Current.household, @record, pay: 1), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 px-3.5 py-2 font-medium" do %><%= image_tag(@record.maintenance? ? "icons/maintenance.png" : "icons/paid.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= @record.maintenance? ? t(".mark_done") : t(".record_payment") %></span><% end %>
       <% end %>
       <% if @record.recurring_template_id.nil? %>
         <%= link_to new_household_recurring_template_path(Current.household, from_record: @record.id), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".make_recurring") %></span><% end %>

@@ -1,7 +1,7 @@
 <% paying = paying? %>
-<% title = paying ? t(".pay_title") : t(".title") %>
+<% title = if !paying then t(".title") elsif @record.maintenance? then t(".done_title") else t(".pay_title") end %>
 <% content_for :title, title %>
 <div class="mx-auto w-full max-w-2xl space-y-6 py-4">
-  <%= page_title(paying ? "paid.png" : "edit.png", title) %>
+  <%= page_title(!paying ? "edit.png" : (@record.maintenance? ? "maintenance.png" : "paid.png"), title) %>
   <%= render "form", record: @record, paying: %>
 </div>

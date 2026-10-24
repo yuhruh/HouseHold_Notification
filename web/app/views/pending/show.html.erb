@@ -19,12 +19,16 @@
       <%# Each card says what the bill needs, worked out from the record; paying happens on the record page %>
       <ul class="flex flex-col space-y-3">
         <% list.each do |record| %>
-          <% status = if key == :no_due then (record.status == :partial ? t("records.status.partial") : t(".not_paid"))
+          <% status = if key == :no_due && record.maintenance? then t("records.show.status_line.not_done")
+                      elsif key == :no_due then (record.status == :partial ? t("records.status.partial") : t(".not_paid"))
                       else Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : "due_today", @today).upcase_first end %>
-          <% left = Reminders::Wording.outstanding(record) if key != :maintenance %>
+          <%# Bills say what's left to pay; maintenance (a task) says what it's expected to cost %>
+          <% left = if key == :maintenance then nil
+                    elsif record.maintenance? then (t("records.show.status_line.expected_cost", amount: money(record.amount_required, record.currency)) if record.amount_required)
+                    else (t(".left_to_pay", amount: Reminders::Wording.outstanding(record)) if record.amount_required) end %>
           <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 <%= key == :maintenance ? "bg-white" : record_card_class(record) %>">
             <div class="space-y-0.5">
-              <p class="font-bold <%= key == :overdue ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{t('.left_to_pay', amount: left)}" if left %></p>
+              <p class="font-bold <%= key == :overdue ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
               <p><span class="text-lg font-bold"><%= record.title %></span>
                 <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
             </div>

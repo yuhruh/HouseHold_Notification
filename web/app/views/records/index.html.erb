@@ -78,12 +78,19 @@
               <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                 <%= record_status_badge(record) %>
                 <% if record.settled %>
-                  <span class="text-gray-600"><%= t(".paid_on_date", date: l(record.paid_on)) %></span>
+                  <span class="text-gray-600"><%= t(record.maintenance? ? ".done_on_date" : ".paid_on_date", date: l(record.paid_on)) %></span>
                 <% else %>
                   <span class="<%= record.status == :overdue ? "font-medium text-red-700" : "text-gray-600" %>"><%= record.due_on ? t(".due_on", date: l(record.due_on)) : t(".no_due_date") %></span>
                 <% end %>
               </span>
-              <% if record.amount_paid || owing %>
+              <% if record.maintenance? %>
+                <%# Maintenance: what it cost once done, its expected cost until then %>
+                <% if record.settled && record.amount_paid %>
+                  <span class="text-sm font-semibold"><%= t("records.show.status_line.spent", amount: money(record.amount_paid, record.currency)) %></span>
+                <% elsif !record.settled && record.amount_required %>
+                  <span class="text-sm text-gray-600"><%= t("records.show.status_line.expected_cost", amount: money(record.amount_required, record.currency)).upcase_first %></span>
+                <% end %>
+              <% elsif record.amount_paid || owing %>
                 <span class="flex flex-wrap gap-x-3 text-sm">
                   <% if record.amount_paid %><span><%= t(".paid") %> <%= money(record.amount_paid, record.currency) %></span><% end %>
                   <% if owing %><span class="font-medium text-red-700" data-outstanding><%= t(".outstanding") %> <%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></span><% end %>

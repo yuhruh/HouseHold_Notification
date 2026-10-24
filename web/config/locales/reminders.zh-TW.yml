@@ -36,6 +36,7 @@ zh-TW:
           other: "保養已逾期 %{count} 天"
       final: "，之後不再提醒"
       no_due_date: "尚未繳費（未設定到期日）"
+      no_due_date_maintenance: "尚未完成（未設定到期日）"
       snooze_ended: "延後提醒已結束，仍未繳費"
   records:
     form:

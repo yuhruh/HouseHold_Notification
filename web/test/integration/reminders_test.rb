@@ -38,6 +38,13 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "form[action*=mark_paid], a[href*=mark_paid]", 0
   end
 
+  test "pending maintenance cards say Not done yet with the expected cost, not what's left to pay" do
+    ac = @home.categories.find_by!(record_type: "maintenance", name_zh: "冷氣清洗")
+    record = @home.records.create!(record_type: "maintenance", category: ac, period: Period.parse(2026, "11月"), amount_required: 925)
+    get household_pending_path(@home)
+    assert_select "li#record_#{record.id} p.text-amber-900", "尚未完成 · 預計花費 NT$925"
+  end
+
   test "the old /upcoming address redirects to /pending" do
     get "/h/#{@home.id}/upcoming"
     assert_redirected_to household_pending_path(@home)

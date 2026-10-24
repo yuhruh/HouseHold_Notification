@@ -1,5 +1,6 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% section = "card-raised space-y-4 rounded-xl bg-white p-4" %>
+<% paying = local_assigns[:paying] %>
 <% heading = "text-lg font-semibold" %>
 <%= form_with model: [ Current.household, record ], url: (record.persisted? ? household_record_path(Current.household, record) : household_records_path(Current.household)), class: "space-y-4",
       data: (record.new_record? ? { controller: "default-payment", default_payment_map_value: last_payment_methods.to_json } : {}) do |form| %>
@@ -7,6 +8,7 @@
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
   <% end %>
   <%= form.hidden_field :lock_version %>
+  <% if paying %><%= hidden_field_tag :pay, 1 %><% end %>
   <% if @continues %><%= hidden_field_tag :continues_id, @continues.id %>
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.continues", title: @continues.title, details: @continues.details.presence || "–") %></p>
   <% end %>
@@ -17,9 +19,9 @@
               elsif record.amount_paid.blank? || record.amount_paid == record.amount_required then "full"
               else "partial" end %>
   <div class="space-y-4" data-controller="paid-amount" data-paid-amount-whole-value="<%= Household::WHOLE_CURRENCIES.to_json %>">
-    <%# Billing details: what the bill is, how much, and when it can be paid %>
-    <section class="<%= section %>" aria-labelledby="billing_heading" data-controller="due-reminder">
-      <h2 id="billing_heading" class="<%= heading %>"><%= t("records.form.billing") %></h2>
+    <%# Billing details: what the bill is, how much, and when it can be paid. Record Payment folds them
+        away (one tap opens them) unless something there needs fixing %>
+    <% billing_fields = capture do %>
       <div>
         <%= form.label :category_id, class: "block text-sm font-medium" %>
         <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field,
@@ -86,11 +88,34 @@
         <%= form.date_field :next_due_on, class: field %>
         <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
       </div>
+    <% end %>
+    <% if paying %>
+      <% billing_open = record.errors.any? || (record.amount_required.nil? && !record.maintenance?) %>
+      <details class="<%= section %> group" data-controller="due-reminder" <%= "open" if billing_open %>>
+        <summary class="flex cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
+          <svg class="h-5 w-5 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="flex-1">
+            <span id="billing_heading" class="block <%= heading %>"><%= t("records.form.billing") %></span>
+            <span class="block text-sm text-gray-600"><%= [ (t("records.form.due_amount", amount: money(record.amount_required, record.currency)) if record.amount_required), (t("records.index.due_on", date: l(record.due_on)) if record.due_on) ].compact.join(" · ").presence || record.period %></span>
+          </span>
+          <span class="text-sm font-semibold text-blue-800 group-open:hidden"><%= t("records.form.show") %></span>
+          <span class="hidden text-sm font-semibold text-blue-800 group-open:inline"><%= t("records.form.hide") %></span>
+        </summary>
+        <div class="mt-4 space-y-4">
+          <%= billing_fields %>
+        </div>
+      </details>
+    <% else %>
+    <section class="<%= section %>" aria-labelledby="billing_heading" data-controller="due-reminder">
+      <h2 id="billing_heading" class="<%= heading %>"><%= t("records.form.billing") %></h2>
+      <%= billing_fields %>
     </section>
+    <% end %>
 
     <%# Payment details: what was paid, when and how %>
-    <section class="<%= section %>" aria-labelledby="payment_heading">
+    <section class="<%= section %> <%= "outline-4 outline-offset-4 outline-green-500" if paying %>" aria-labelledby="payment_heading">
       <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
+      <% if paying %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
       <fieldset class="space-y-2">
         <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>
         <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm">
@@ -128,7 +153,7 @@
   </div>
 
   <div class="flex flex-wrap gap-3">
-    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= paying ? t("records.form.save_payment") : t("records.form.save") %></span><% end %>
     <% if record.new_record? && policy(RecurringTemplate).new? %>
       <%# Saves, then opens New recurring bill filled in from this record %>
       <%= form.button type: "submit", name: "make_recurring", value: "1", class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white cursor-pointer px-3.5 py-2 font-medium text-blue-700 disabled:cursor-not-allowed disabled:opacity-50" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save_recurring") %></span><% end %>

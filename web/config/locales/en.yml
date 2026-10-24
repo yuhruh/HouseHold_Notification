@@ -610,12 +610,16 @@ en:
       paid_on_date: "Paid %{date}"
       open: "Details"
       no_due_date: "No Due Date"
-      mark_paid: "Mark Paid"
     form:
       title_hint: "Defaults to the category name"
       recurring_tip: "Does this bill repeat (e.g. water every 2 months)? Set it up once and each bill is created for you."
       recurring_link: "Set Up A Recurring Bill →"
       save_recurring: "Save and Make Recurring"
+      due_amount: "%{amount} due"
+      show: "Show"
+      hide: "Hide"
+      save_payment: "Save Payment"
+      prefilled: "Filled in for you: paid in full, today, with the payment method used last time. Change anything that's different."
       details_hint: "Plate number for vehicle license tax, policy no. or insured item for insurance, room or area for maintenance."
       period: "Billing Period"
       period_hint: "Year, first month, last month. A period like Dec. - Jan. ends in the next year."
@@ -637,21 +641,18 @@ en:
       title: "New Record"
     edit:
       title: "Edit Record"
+      pay_title: "Record Payment"
     create:
       created: "Record created."
     update:
       saved: "Saved."
+      paid: "Payment saved for %{title}."
       stale: "Someone else changed this record while you were editing. Reload it and try again."
     destroy:
       deleted: "Record deleted. Its details stay in the household's activity log."
-    mark_paid:
-      title: "Mark Paid"
-      amount: "Bill Amount (%{currency})"
-      hint: "Sets Required and Paid to this amount and the paid date to today."
-      submit: "Mark Paid"
-      done: "%{title} marked paid."
     show:
       make_recurring: "Make This Recurring"
+      record_payment: "Record Payment"
       status_line:
         paid_on: "Paid on %{date}"
         not_paid: "Not paid yet"

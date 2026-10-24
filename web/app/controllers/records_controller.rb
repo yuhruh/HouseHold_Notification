@@ -1,8 +1,9 @@
-# Records CRUD and one-tap mark-paid (PRD §1, §2). Every write goes through save! and logs a
+# Records CRUD; Record Payment is the edit form with the payment filled in (PRD §1, §2). Every write goes through save! and logs a
 # record_events row in the same transaction.
 class RecordsController < ApplicationController
   include HouseholdScoped
   before_action :set_record, except: %i[index new create]
+  helper_method :paying?
 
   def index
     authorize Record
@@ -69,13 +70,15 @@ class RecordsController < ApplicationController
 
   def edit
     authorize @record
+    prefill_payment if paying?
   end
 
   def update
     authorize @record
+    paying = paying? # before saving: once the bill is paid it no longer counts as paying
     assign(@record)
-    if save_with_event(@record, :updated)
-      redirect_to household_record_path(Current.household, @record), notice: t(".saved")
+    if save_with_event(@record, paying ? :marked_paid : :updated)
+      redirect_to household_record_path(Current.household, @record), notice: paying ? t(".paid", title: @record.title) : t(".saved")
     else
       render :edit, status: :unprocessable_content
     end
@@ -97,25 +100,6 @@ class RecordsController < ApplicationController
   end
 
   # GET asks for the bill amount when Required is blank (not needed for Maintenance)
-  def mark_paid
-    authorize @record
-    return render :mark_paid unless request.post?
-
-    if @record.amount_required.nil? && !@record.maintenance?
-      amount = params[:amount].presence or return render(:mark_paid, status: :unprocessable_content)
-      @record.amount_required = @record.amount_paid = amount
-    elsif @record.amount_required && (@record.amount_paid.nil? || @record.amount_paid < @record.amount_required)
-      @record.amount_paid = @record.amount_required
-    end
-    @record.paid_on = Date.current
-
-    if save_with_event(@record, :marked_paid)
-      redirect_back_or_to household_records_path(Current.household), notice: t(".done", title: @record.title)
-    else
-      render :mark_paid, status: :unprocessable_content
-    end
-  end
-
   private
 
   # Rows per page: 10 / 20 / 50 or a custom number, remembered on this device
@@ -135,6 +119,16 @@ class RecordsController < ApplicationController
       currency amount_required amount_paid payable_from due_on paid_on payment_method_id payment_note next_due_on reminder_frequency
       reminder_starts_on lock_version]))
     record.record_type = record.category&.record_type
+  end
+
+  # Record Payment: the edit form opened with `pay` on a bill that isn't paid yet
+  def paying? = params[:pay].present? && !@record.settled
+
+  # Paid in full, today, with the payment method last used for this category; nothing is saved until Save
+  def prefill_payment
+    @record.amount_paid = @record.amount_required if @record.amount_required
+    @record.paid_on = Date.current
+    @record.payment_method_id ||= helpers.last_payment_methods[@record.category_id.to_s]
   end
 
   def save_with_event(record, action)

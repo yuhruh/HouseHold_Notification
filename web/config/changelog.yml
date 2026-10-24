@@ -14,6 +14,7 @@
     - "Records list: each record is a card you tap to open, showing its status and due date (Mark Paid is on the record page)."
     - "Pending: the same cards, each saying what the bill needs (e.g. 3 days overdue · NT$580 left to pay), with Details and Remind Me Later buttons."
     - "Record page: a status line under the title (e.g. Not paid yet · due in 24 days) replaces the ✅ / ❌."
+    - "Record page: Mark Paid is now Record Payment. It opens the form already filled in (paid in full, today, your usual payment method) so you can check it before saving; Edit is still there for changing the bill."
   zh-TW:
     - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
     - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
@@ -25,6 +26,7 @@
     - "紀錄列表：每筆紀錄是一張卡片，點一下就能開啟，並顯示狀態和到期日（「標記已繳」在紀錄頁上）。"
     - "待處理：改用同樣的卡片，每張寫出帳單該怎麼處理（例如：逾期 3 天 · 還要繳 NT$580），並有「查看明細」和「稍後提醒」按鈕。"
     - "紀錄頁：標題下方改用一行狀態說明（例如：尚未繳費 · 24 天後到期），取代 ✅ / ❌。"
+    - "紀錄頁：「標記已繳」改成「記錄繳費」，會打開已填好的表單（全額繳清、今天、常用的付款方式），確認後再儲存；要修改帳單內容仍用「編輯」。"
 - version: "2026.10.23"
   date: 2026-10-23
   en:

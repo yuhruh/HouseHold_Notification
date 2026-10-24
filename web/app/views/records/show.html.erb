@@ -35,11 +35,8 @@
   <% if writer %>
     <div class="flex flex-wrap gap-2">
       <% unless @record.settled %>
-        <% if @record.amount_required.nil? && !@record.maintenance? %>
-          <%= link_to mark_paid_household_record_path(Current.household, @record), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.index.mark_paid") %></span><% end %>
-        <% else %>
-          <%= button_to mark_paid_household_record_path(Current.household, @record), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.index.mark_paid") %></span><% end %>
-        <% end %>
+        <%# Opens the edit form with the payment filled in (paid in full, today); Edit leaves it as saved %>
+        <%= link_to edit_household_record_path(Current.household, @record, pay: 1), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-200 text-green-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".record_payment") %></span><% end %>
       <% end %>
       <% if @record.recurring_template_id.nil? %>
         <%= link_to new_household_recurring_template_path(Current.household, from_record: @record.id), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".make_recurring") %></span><% end %>

@@ -118,6 +118,15 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_equal "已儲存「水費」的繳費。", flash[:notice]
   end
 
+  test "an empty Payment Note or Details isn't logged as a change" do
+    record = add(amount_required: 580)
+    patch household_record_path(@home, record), params: { pay: 1, record: form_params(amount_paid: "580", paid_on: taipei_today.iso8601, details: "", payment_note: "", lock_version: record.lock_version) }
+    assert_nil record.reload.payment_note
+    diff = RecordEvent.where(record_id: record.id).sole.diff
+    assert_includes diff.keys, "paid_on"
+    assert_empty diff.keys & %w[details payment_note]
+  end
+
   test "Edit leaves the payment as saved; a paid record has no Record Payment" do
     record = add(amount_required: 580)
     get edit_household_record_path(@home, record)

@@ -16,6 +16,8 @@ class Record < ApplicationRecord
 
   enum :record_type, Category::RECORD_TYPES, validate: true
   enum :reminder_frequency, REMINDER_FREQUENCIES.index_by(&:itself), prefix: :reminder, validate: true
+  # A field left empty in the form is stored as nil, as the sheet import does
+  normalizes :details, :payment_note, with: ->(text) { text.presence }
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :details, length: { maximum: 200 }

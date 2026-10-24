@@ -3,15 +3,12 @@ module RecordsHelper
   STATUS_CLASSES = { paid: "bg-green-100 text-green-800", overdue: "bg-red-600 text-white",
                      partial: "bg-amber-100 text-amber-900", unpaid: "bg-red-100 text-red-700" }.freeze
 
-  # Records list rows that still need paying: a light tint plus a bar on the left edge (drawn as an
-  # inset shadow on the first cell, since table rows ignore borders here); paid rows stay plain.
-  # Dark mode: a softer tint, and the bar names the mirrored shade so it shows bright (amber-600 → 400)
-  # (classes are written out in full so Tailwind finds them)
-  ROW_CLASSES = { unpaid: "bg-amber-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-400)] dark:bg-amber-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-600)]",
-                  partial: "bg-amber-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-300)] dark:bg-amber-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-amber-700)]",
-                  overdue: "bg-red-50 [&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-500)] dark:bg-red-50/60 dark:[&>td:first-child]:shadow-[inset_4px_0_0_var(--color-red-600)]" }.freeze
+  # Records list cards that still need paying get a light tint (red when overdue); paid cards stay white.
+  # Dark mode: a softer tint (classes are written out in full so Tailwind finds them)
+  CARD_CLASSES = { paid: "bg-white", unpaid: "bg-amber-50 dark:bg-amber-50/60",
+                   partial: "bg-amber-50 dark:bg-amber-50/60", overdue: "bg-red-50 dark:bg-red-50/60" }.freeze
 
-  def record_row_class(record) = ROW_CLASSES[record.status]
+  def record_card_class(record) = CARD_CLASSES[record.status]
 
   def record_status_badge(record)
     status = record.status

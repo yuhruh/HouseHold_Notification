@@ -66,45 +66,36 @@
       <p class="text-sm text-gray-600"><%= t(".count", count: @filter.total) %></p>
       <%= render "per_page", filter: @filter %>
     </div>
-    <div class="card-raised overflow-x-auto rounded-xl bg-white">
-      <table class="w-full text-sm border-separate border-spacing-0">
-        <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
-          <tr>
-            <th class="px-2 py-2">✅</th><th class="px-2 py-2"><%= t(".period") %></th><th class="px-2 py-2"><%= t(".item") %></th>
-            <th class="px-2 py-2"><%= t(".details") %></th>
-            <th class="px-2 py-2 text-right"><%= t(".paid") %></th><% if owing %><th class="px-2 py-2 text-right"><%= t(".outstanding") %></th><% end %><th class="px-2 py-2"><%= t(".paid_on") %></th>
-            <th class="px-2 py-2"><%= t(".status") %></th><% if writer %><th class="px-2 py-2"></th><% end %>
-          </tr>
-        </thead>
-        <tbody>
-          <% records.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="align-top <%= record_row_class(record) %>">
-              <td class="px-2 py-1.5"><%= record_check(record) %></td>
-              <td class="whitespace-nowrap px-2 py-1.5"><%= record.period %></td>
-              <td class="px-2 py-1.5"><%= link_to record.title, household_record_path(Current.household, record), class: "text-blue-700 underline" %>
-                <span class="block text-xs text-gray-500"><%= t("records.types.#{record.record_type}") %></span></td>
-              <td class="min-w-40 max-w-xs whitespace-pre-line break-words px-2 py-1.5"><%= record.details %></td>
-              <td class="whitespace-nowrap px-2 py-1.5 text-right"><%= money(record.amount_paid, record.currency) %></td>
-              <% if owing %><td class="whitespace-nowrap px-2 py-1.5 text-right font-medium text-red-700"><%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></td><% end %>
-              <td class="whitespace-nowrap px-2 py-1.5"><%= record.paid_on && l(record.paid_on) %></td>
-              <td class="px-2 py-1.5"><%= record_status_badge(record) %>
-                <% unless record.settled %><span class="block whitespace-nowrap text-xs <%= record.status == :overdue ? "text-red-700" : "text-gray-500" %>"><%= record.due_on ? t(".due_on", date: l(record.due_on)) : t(".no_due_date") %></span><% end %></td>
-              <% if writer %>
-                <td class="px-2 py-1.5">
-                  <% unless record.settled %>
-                    <% if record.amount_required.nil? && !record.maintenance? %>
-                      <%= link_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "whitespace-nowrap rounded border border-green-700 px-2 py-0.5 text-green-800" %>
-                    <% else %>
-                      <%= button_to t(".mark_paid"), mark_paid_household_record_path(Current.household, record), class: "cursor-pointer whitespace-nowrap rounded border border-green-700 px-2 py-0.5 text-green-800" %>
-                    <% end %>
-                  <% end %>
-                </td>
+    <%# Each record is one card that opens the record; its status and dates come from the record itself %>
+    <ul class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <% records.each do |record| %>
+        <li id="<%= dom_id(record) %>">
+          <%= link_to household_record_path(Current.household, record), class: "card-raised flex h-full items-center gap-3 rounded-xl px-4 py-3 text-gray-900 transition-transform hover:-translate-y-0.5 #{record_card_class(record)}" do %>
+            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="text-xs text-gray-600"><%= record.period %> · <%= t("records.types.#{record.record_type}") %></span>
+              <span class="text-lg font-bold break-words"><%= record.title %></span>
+              <% if record.details.present? %><span class="whitespace-pre-line break-words text-sm text-gray-700"><%= record.details %></span><% end %>
+              <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                <%= record_status_badge(record) %>
+                <% if record.settled %>
+                  <span class="text-gray-600"><%= t(".paid_on_date", date: l(record.paid_on)) %></span>
+                <% else %>
+                  <span class="<%= record.status == :overdue ? "font-medium text-red-700" : "text-gray-600" %>"><%= record.due_on ? t(".due_on", date: l(record.due_on)) : t(".no_due_date") %></span>
+                <% end %>
+              </span>
+              <% if record.amount_paid || owing %>
+                <span class="flex flex-wrap gap-x-3 text-sm">
+                  <% if record.amount_paid %><span><%= t(".paid") %> <%= money(record.amount_paid, record.currency) %></span><% end %>
+                  <% if owing %><span class="font-medium text-red-700" data-outstanding><%= t(".outstanding") %> <%= money(record.amount_required - (record.amount_paid || 0), record.currency) %></span><% end %>
+                </span>
               <% end %>
-            </tr>
+            </span>
+            <span class="inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold text-blue-800"><%= t(".open") %>
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
           <% end %>
-        </tbody>
-      </table>
-    </div>
+        </li>
+      <% end %>
+    </ul>
     <%= render "pagination", filter: @filter %>
   <% end %>
 </div>

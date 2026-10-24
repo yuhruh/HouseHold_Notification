@@ -607,6 +607,8 @@ zh-TW:
       details: "明細"
       paid_on: "繳費日期"
       due_on: "到期 %{date}"
+      paid_on_date: "%{date} 已繳"
+      open: "查看明細"
       no_due_date: "未設定到期日"
       mark_paid: "標記已繳"
     form:

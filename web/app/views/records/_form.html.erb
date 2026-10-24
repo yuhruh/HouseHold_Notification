@@ -112,8 +112,9 @@
     </section>
     <% end %>
 
-    <%# Payment details: what was paid, when and how %>
-    <section class="<%= section %> <%= "outline-4 outline-offset-4 outline-green-500" if paying %>" aria-labelledby="payment_heading">
+    <%# Payment details: what was paid, when and how. Record Payment draws its outline and shadow in emerald
+        (dark mode: the softer emerald-400, as card-raised softens its mauve) %>
+    <section class="<%= section %> <%= "[--card-line:var(--color-emerald-700)] dark:[--card-line:var(--color-emerald-400)]" if paying %>" aria-labelledby="payment_heading">
       <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
       <% if paying %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
       <fieldset class="space-y-2">

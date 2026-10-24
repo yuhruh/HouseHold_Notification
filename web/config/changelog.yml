@@ -11,6 +11,7 @@
     - "Make This Recurring on a record that already repeats takes you to your recurring bills instead of making a second one."
     - "Icons on Languages, Save, Filter and Delete; smaller chart labels on narrow screens."
     - "Categories: sheet names the import sorts into each category are clearer, with a Remove button that asks first."
+    - "Records list: each record is a card you tap to open, showing its status and due date (Mark Paid is on the record page)."
   zh-TW:
     - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
     - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
@@ -19,6 +20,7 @@
     - "已經是定期帳單的紀錄再按「設為定期帳單」，會帶你到定期帳單頁，不會重複建立。"
     - "語言、儲存、篩選和刪除加上圖示；窄螢幕上的圖表標籤變小。"
     - "類別：匯入時歸到各類別的試算表名稱更清楚，「移除」按鈕會先確認。"
+    - "紀錄列表：每筆紀錄是一張卡片，點一下就能開啟，並顯示狀態和到期日（「標記已繳」在紀錄頁上）。"
 - version: "2026.10.23"
   date: 2026-10-23
   en:

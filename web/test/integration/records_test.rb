@@ -25,9 +25,9 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "section[aria-label] th", count: 2
     assert_select "section[aria-label] a[href*='status=outstanding']", 0
     get household_records_path(@home, status: "outstanding")
-    assert_select "tbody tr[id=?]", "record_#{owed.id}"
-    assert_select "table tbody tr", count: 1 + 2 # the one owed record + the summary's type and total rows
-    assert_select "td.text-red-700", /500/
+    assert_select "li[id=?]", "record_#{owed.id}"
+    assert_select "li[id^=record_]", 1
+    assert_select "li span[data-outstanding]", /500/
   end
 
   test "the summary Paid amount links to the records it adds up, keeping the filters (Required is no longer shown)" do
@@ -42,12 +42,12 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", paid_link, "NT$680"
 
     get required
-    assert_equal [ paid, partial, unpaid ].map { |r| "record_#{r.id}" }.sort, css_select("tbody tr[id^=record_]").map { _1["id"] }.sort
+    assert_equal [ paid, partial, unpaid ].map { |r| "record_#{r.id}" }.sort, css_select("li[id^=record_]").map { _1["id"] }.sort
     assert_select "span", "有應繳金額的記錄 · TWD"
     assert_select "a[href=?]", household_records_path(@home, type: "expense"), "顯示全部"
     get paid_link
-    assert_equal [ paid, partial ].map { |r| "record_#{r.id}" }.sort, css_select("tbody tr[id^=record_]").map { _1["id"] }.sort
-    assert_select "tbody tr[id=?]", "record_#{no_amount.id}", 0
+    assert_equal [ paid, partial ].map { |r| "record_#{r.id}" }.sort, css_select("li[id^=record_]").map { _1["id"] }.sort
+    assert_select "li[id=?]", "record_#{no_amount.id}", 0
 
     get household_records_path(@home, status: "partial")
     assert_select "a[href=?]", household_records_path(@home, status: "partial", amount: "paid", type: "expense", currency: "TWD"), "NT$100"
@@ -58,10 +58,10 @@ class RecordsTest < ActionDispatch::IntegrationTest
     add(amount_required: 600)
     get household_records_path(@home)
     assert_response :success
-    assert_select "tbody tr[id^=record_]", 2
+    assert_select "li[id^=record_]", 2
     assert_select "section[aria-label] td", text: "NT$580"
     get household_records_path(@home, status: "paid")
-    assert_select "tbody tr[id^=record_]", 1
+    assert_select "li[id^=record_]", 1
   end
 
   test "create takes the type from the category, defaults the title and logs the event" do
@@ -128,6 +128,13 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_equal "大樓", event.diff["details"]
   end
 
+  test "each record is a card that opens it, with no Mark Paid button in the list" do
+    record = add(amount_required: 580)
+    get household_records_path(@home)
+    assert_select "li#record_#{record.id} a[href=?]", household_record_path(@home, record)
+    assert_select "form[action*=mark_paid], a[href*=mark_paid]", 0
+  end
+
   test "a viewer sees records but can't change them" do
     record = add(amount_required: 580)
     sign_out
@@ -175,62 +182,62 @@ class RecordsTest < ActionDispatch::IntegrationTest
   test "the list is paged: 20 per page by default, 10 / 20 / 50 or a custom number, remembered on this device" do
     25.times { |i| add(amount_required: 100 + i) }
     get household_records_path(@home)
-    assert_select "tbody tr[id^=record_]", 20
+    assert_select "li[id^=record_]", 20
     assert_select "p", "第 1–20 筆，共 25 筆"
     assert_select "nav a[href=?]", household_records_path(@home, page: 2), "2"
 
     get household_records_path(@home, page: 2)
-    assert_select "tbody tr[id^=record_]", 5
+    assert_select "li[id^=record_]", 5
     assert_select "nav [aria-current=page]", "2"
     get household_records_path(@home, page: 99)
-    assert_select "tbody tr[id^=record_]", 5, "past the end shows the last page"
+    assert_select "li[id^=record_]", 5, "past the end shows the last page"
 
     get household_records_path(@home, per: 10)
-    assert_select "tbody tr[id^=record_]", 10
+    assert_select "li[id^=record_]", 10
     get household_records_path(@home)
-    assert_select "tbody tr[id^=record_]", 10, "the choice is remembered"
+    assert_select "li[id^=record_]", 10, "the choice is remembered"
     assert_select "select[name=per] option[selected][value='10']"
 
     get household_records_path(@home, per: "custom", per_custom: 7)
-    assert_select "tbody tr[id^=record_]", 7
+    assert_select "li[id^=record_]", 7
     assert_select "select[name=per] option[selected][value=custom]"
     assert_select "input[name=per_custom][value='7']"
     get household_records_path(@home, per: "custom", per_custom: 9999)
-    assert_select "tbody tr[id^=record_]", 7, "out of range keeps the last choice"
+    assert_select "li[id^=record_]", 7, "out of range keeps the last choice"
   end
 
   test "paging keeps the filters, and the summary still counts every matching record" do
     25.times { add(amount_required: 100, amount_paid: 100, paid_on: Date.new(2026, 3, 1)) }
     add(amount_required: 50)
     get household_records_path(@home, status: "paid")
-    assert_select "tbody tr[id^=record_]", 20
+    assert_select "li[id^=record_]", 20
     assert_select "nav a[href=?]", household_records_path(@home, status: "paid", page: 2)
     assert_select "section[aria-label] td", text: "NT$2,500"
     assert_select "form[data-controller=per-page] input[type=hidden][name=status][value=paid]"
   end
 
-  test "rows still to pay are highlighted: unpaid and partly paid in amber, overdue in red, paid plain" do
+  test "cards still to pay are highlighted: unpaid and partly paid in amber, overdue in red, paid plain" do
     unpaid = add(amount_required: 700)
     partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
     overdue = add(amount_required: 500, due_on: 3.days.ago.to_date)
     paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
     get household_records_path(@home)
-    assert_select "tr#record_#{unpaid.id}.bg-amber-50"
-    assert_select "tr#record_#{partial.id}.bg-amber-50"
-    assert_select "tr#record_#{overdue.id}.bg-red-50"
-    assert_select "tr#record_#{paid.id}.bg-amber-50, tr#record_#{paid.id}.bg-red-50", 0
+    assert_select "li#record_#{unpaid.id} a.bg-amber-50"
+    assert_select "li#record_#{partial.id} a.bg-amber-50"
+    assert_select "li#record_#{overdue.id} a.bg-red-50"
+    assert_select "li#record_#{paid.id} a.bg-amber-50, li#record_#{paid.id} a.bg-red-50", 0
   end
 
-  test "unpaid rows show the due date (red once overdue) or No due date; paid rows show neither" do
+  test "unpaid cards show the due date (red once overdue) or No due date; paid cards show neither" do
     due = add(amount_required: 700, due_on: Date.current + 10)
     overdue = add(amount_required: 500, due_on: 3.days.ago.to_date)
     undated = add(amount_required: 600)
     paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14), due_on: Date.current + 10)
     get household_records_path(@home)
-    assert_select "tr#record_#{due.id} span.text-gray-500", "到期 #{I18n.l(due.due_on, locale: :"zh-TW")}"
-    assert_select "tr#record_#{overdue.id} span.text-red-700", "到期 #{I18n.l(overdue.due_on, locale: :"zh-TW")}"
-    assert_select "tr#record_#{undated.id} span.text-gray-500", "未設定到期日"
-    assert_select "tr#record_#{paid.id}", text: /到期|未設定到期日/, count: 0
+    assert_select "li#record_#{due.id} span.text-gray-600", "到期 #{I18n.l(due.due_on, locale: :"zh-TW")}"
+    assert_select "li#record_#{overdue.id} span.text-red-700", "到期 #{I18n.l(overdue.due_on, locale: :"zh-TW")}"
+    assert_select "li#record_#{undated.id} span.text-gray-600", "未設定到期日"
+    assert_select "li#record_#{paid.id}", text: /到期|未設定到期日/, count: 0
   end
 
   test "the record page doesn't show the sheet ID" do

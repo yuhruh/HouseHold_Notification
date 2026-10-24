@@ -607,6 +607,8 @@ en:
       details: "Details"
       paid_on: "Paid Date"
       due_on: "Due %{date}"
+      paid_on_date: "Paid %{date}"
+      open: "Details"
       no_due_date: "No Due Date"
       mark_paid: "Mark Paid"
     form:

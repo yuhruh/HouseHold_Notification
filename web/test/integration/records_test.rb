@@ -91,30 +91,55 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_equal "changed elsewhere", record.reload.details
   end
 
-  test "mark paid fills Paid from Required and sets today's date" do
-    record = add(amount_required: 580, amount_paid: 300, paid_on: Date.new(2026, 3, 1))
-    post mark_paid_household_record_path(@home, record)
-    record.reload
-    assert record.settled
-    assert_equal [ 580, Time.current.in_time_zone("Asia/Taipei").to_date ], [ record.amount_paid.to_i, record.paid_on ]
+  def taipei_today = Time.current.in_time_zone("Asia/Taipei").to_date
+
+  test "Record Payment opens the edit form filled in (paid in full, today, last payment method) with Billing Details folded" do
+    card = @home.payment_methods.create!(name: "Card", kind: "card")
+    add(amount_required: 100, amount_paid: 100, paid_on: Date.new(2026, 3, 1), payment_method: card)
+    record = add(amount_required: 580, due_on: taipei_today + 5)
+    get household_record_path(@home, record)
+    assert_select "a[href=?]", edit_household_record_path(@home, record, pay: 1)
+    get edit_household_record_path(@home, record, pay: 1)
+    assert_select "h1", /記錄繳費/
+    assert_select "details:not([open]) #billing_heading"
+    assert_select "input#paid_choice_full[checked]"
+    assert_select "input[name='record[amount_paid]'][value=?]", "580"
+    assert_select "input[name='record[paid_on]'][value=?]", taipei_today.iso8601
+    assert_select "select[name='record[payment_method_id]'] option[selected][value=?]", card.id.to_s
+    assert_select "input[name=pay]"
+    assert_nil record.reload.paid_on, "nothing is saved until Save"
+  end
+
+  test "saving the payment logs Marked Paid and says the payment was saved" do
+    record = add(amount_required: 580)
+    patch household_record_path(@home, record), params: { pay: 1, record: form_params(amount_paid: "580", paid_on: taipei_today.iso8601, lock_version: record.lock_version) }
+    assert record.reload.settled
     assert_equal [ "marked_paid" ], RecordEvent.where(record_id: record.id).pluck(:action)
+    assert_equal "已儲存「水費」的繳費。", flash[:notice]
   end
 
-  test "mark paid with a blank Required asks for the amount and sets both" do
+  test "Edit leaves the payment as saved; a paid record has no Record Payment" do
+    record = add(amount_required: 580)
+    get edit_household_record_path(@home, record)
+    assert_select "h1", /編輯/
+    assert_select "input#paid_choice_none[checked]"
+    assert_select "details #billing_heading", 0
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 3, 1))
+    get household_record_path(@home, paid)
+    assert_select "a[href*='pay=1']", 0
+    get edit_household_record_path(@home, paid, pay: 1)
+    assert_select "details #billing_heading", 0, "a paid record opens as a plain Edit"
+  end
+
+  test "a bill with no amount due opens with Billing Details unfolded, so the amount can be filled in" do
     record = add
-    get mark_paid_household_record_path(@home, record)
-    assert_select "input[name=amount]"
-    post mark_paid_household_record_path(@home, record)
-    assert_response :unprocessable_content
-    post mark_paid_household_record_path(@home, record), params: { amount: "612" }
-    record.reload
-    assert record.settled
-    assert_equal [ 612, 612 ], [ record.amount_required.to_i, record.amount_paid.to_i ]
+    get edit_household_record_path(@home, record, pay: 1)
+    assert_select "details[open] #billing_heading"
   end
 
-  test "maintenance with no amounts is marked done with just the date" do
+  test "maintenance with no amounts is paid with just the date" do
     record = add(record_type: "maintenance", category: @ac)
-    post mark_paid_household_record_path(@home, record)
+    patch household_record_path(@home, record), params: { pay: 1, record: form_params(category_id: @ac.id, amount_required: "", amount_paid: "", paid_on: taipei_today.iso8601, lock_version: record.lock_version) }
     assert record.reload.settled
     assert_nil record.amount_paid
   end
@@ -166,7 +191,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "a", text: I18n.t("records.index.new", locale: "zh-TW"), count: 0
     post household_records_path(@home), params: { record: form_params }
     assert_response :forbidden
-    post mark_paid_household_record_path(@home, record)
+    get edit_household_record_path(@home, record, pay: 1)
     assert_response :forbidden
     delete household_record_path(@home, record)
     assert_response :forbidden

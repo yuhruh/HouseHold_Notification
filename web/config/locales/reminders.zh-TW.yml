@@ -16,7 +16,7 @@ zh-TW:
         one: "%{household}：1 筆帳單需要處理"
         other: "%{household}：%{count} 筆帳單需要處理"
       pending: "所有即將到期與逾期的帳單："
-      footer: "打開帳單可以標記已繳或延後提醒。可在「我的帳戶 → 通知」變更通知方式與提醒時間。"
+      footer: "打開帳單可以記錄繳費或延後提醒。可在「我的帳戶 → 通知」變更通知方式與提醒時間。"
     wording:
       bill:
         due_in:

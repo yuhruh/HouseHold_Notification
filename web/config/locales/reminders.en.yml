@@ -16,7 +16,7 @@ en:
         one: "%{household}: 1 Bill Needs Attention"
         other: "%{household}: %{count} Bills Need Attention"
       pending: "Everything due and overdue:"
-      footer: "Open a bill to mark it paid or snooze its reminders. Change channels and the reminder hour in My account → Notifications."
+      footer: "Open a bill to record a payment or snooze its reminders. Change channels and the reminder hour in My account → Notifications."
     wording:
       bill:
         due_in:

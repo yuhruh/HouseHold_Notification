@@ -610,12 +610,16 @@ zh-TW:
       paid_on_date: "%{date} 已繳"
       open: "查看明細"
       no_due_date: "未設定到期日"
-      mark_paid: "標記已繳"
     form:
       title_hint: "預設為類別名稱"
       recurring_tip: "這筆帳單會定期出現嗎（例如每 2 個月的水費）？設定一次，之後每筆帳單都會自動建立。"
       recurring_link: "設定定期帳單 →"
       save_recurring: "儲存並設為定期帳單"
+      due_amount: "應繳 %{amount}"
+      show: "展開"
+      hide: "收起"
+      save_payment: "儲存繳費"
+      prefilled: "已幫你填好：全額繳清、今天、上次用的付款方式。有不同的地方再修改。"
       details_hint: "牌照稅填車牌號碼，保險填保單號碼或標的，保養填房間或位置。"
       period: "帳單期間"
       period_hint: "年份、起始月份、結束月份。12月–1月這類期間會在隔年結束。"
@@ -637,21 +641,18 @@ zh-TW:
       title: "新增記錄"
     edit:
       title: "編輯記錄"
+      pay_title: "記錄繳費"
     create:
       created: "已新增記錄。"
     update:
       saved: "已儲存。"
+      paid: "已儲存「%{title}」的繳費。"
       stale: "你編輯時有其他人修改了這筆記錄。請重新載入後再試一次。"
     destroy:
       deleted: "已刪除記錄。內容仍保留在家庭的活動記錄中。"
-    mark_paid:
-      title: "標記已繳"
-      amount: "帳單金額（%{currency}）"
-      hint: "應繳與已繳金額都會設為這個金額，繳費日期設為今天。"
-      submit: "標記已繳"
-      done: "已將%{title}標記為已繳。"
     show:
       make_recurring: "設為定期帳單"
+      record_payment: "記錄繳費"
       status_line:
         paid_on: "%{date} 已繳"
         not_paid: "尚未繳費"

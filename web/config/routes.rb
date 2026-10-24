@@ -51,8 +51,6 @@ Rails.application.routes.draw do
       resources :photos, only: %i[create destroy]
       get "photos/:id(/:variant)" => "photos#show", as: :photo_file
       member do
-        get :mark_paid
-        post :mark_paid
         post :snooze, to: "snoozes#create"
         delete :snooze, to: "snoozes#destroy"
         post :restart_reminders

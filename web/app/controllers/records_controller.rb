@@ -80,9 +80,11 @@ class RecordsController < ApplicationController
     # Marking maintenance done: the cost entered is what it cost (blank = nothing), not a part payment
     @record.amount_required = @record.amount_paid if paying && @record.maintenance?
     if save_with_event(@record, paying ? :marked_paid : :updated)
-      notice = if !paying then t(".saved")
-               elsif @record.maintenance? then t(".done", title: @record.title)
-               else t(".paid", title: @record.title) end
+      notice =
+        if !paying then t(".saved")
+        elsif @record.maintenance? then t(".done", title: @record.title)
+        else t(".paid", title: @record.title)
+        end
       redirect_to household_record_path(Current.household, @record), notice:
     else
       render :edit, status: :unprocessable_content

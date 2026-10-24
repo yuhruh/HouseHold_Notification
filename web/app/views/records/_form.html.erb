@@ -18,7 +18,7 @@
               else "partial" end %>
   <div class="space-y-4" data-controller="paid-amount" data-paid-amount-whole-value="<%= Household::WHOLE_CURRENCIES.to_json %>">
     <%# Billing details: what the bill is, how much, and when it can be paid %>
-    <section class="<%= section %>" aria-labelledby="billing_heading">
+    <section class="<%= section %>" aria-labelledby="billing_heading" data-controller="due-reminder">
       <h2 id="billing_heading" class="<%= heading %>"><%= t("records.form.billing") %></h2>
       <div>
         <%= form.label :category_id, class: "block text-sm font-medium" %>
@@ -63,12 +63,13 @@
         </div>
         <div>
           <%= form.label :due_on, class: "block text-sm font-medium" %>
-          <%= form.date_field :due_on, class: field %>
+          <%= form.date_field :due_on, class: field, data: { due_reminder_target: "due", action: "input->due-reminder#toggle change->due-reminder#toggle" } %>
         </div>
         <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.window_hint") %></p>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
+      <%# Hidden while a due date is set (due-reminder); due-date bills follow the fixed reminder schedule %>
+      <div class="grid grid-cols-2 gap-2" data-due-reminder-target="reminder" <%= "hidden" if record.due_on %>>
         <div>
           <%= form.label :reminder_frequency, class: "block text-sm font-medium" %>
           <%= form.select :reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %>

@@ -6,12 +6,14 @@
   en:
     - "Record form: split into Billing Details and Payment Details."
     - "Records can have a payment window: Payable From through the Due Date."
+    - "The no-due-date reminder fields hide when a due date is set (due-date bills have their own reminder schedule)."
     - "TWD amounts are whole numbers (1536, not 1536.0)."
     - "Make This Recurring on a record that already repeats takes you to your recurring bills instead of making a second one."
     - "Icons on Languages, Save, Filter and Delete; smaller chart labels on narrow screens."
   zh-TW:
     - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
     - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
+    - "填了到期日時，隱藏「提醒（無到期日）」欄位（有到期日的帳單有自己的提醒時程）。"
     - "新台幣金額只用整數（1536，而不是 1536.0）。"
     - "已經是定期帳單的紀錄再按「設為定期帳單」，會帶你到定期帳單頁，不會重複建立。"
     - "語言、儲存、篩選和刪除加上圖示；窄螢幕上的圖表標籤變小。"

@@ -1,33 +1,37 @@
 <% content_for :title, t(".title") %>
-<% writer = policy(Record).write? %>
 <div class="w-full mx-auto max-w-3xl space-y-6 py-4">
   <%= render "shared/flash" %>
-  <%= page_title("upcoming.png", t(".title")) %>
+  <div class="space-y-1">
+    <%= page_title("upcoming.png", t(".title")) %>
+    <p class="text-center text-sm text-gray-700"><%= t(".intro") %></p>
+  </div>
   <% sections = [ [ :overdue, @overdue ], [ :soon, @soon ], [ :maintenance, @maintenance ], [ :no_due, @no_due ] ] %>
   <% if sections.all? { |_, list| list.empty? } %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% end %>
   <% sections.each do |key, list| %>
     <% next if list.empty? %>
-    <section class="space-y-2">
-      <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
-      <ul class="card-raised divide-y rounded-xl bg-white">
+    <section class="space-y-3">
+      <div>
+        <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
+        <p class="text-sm text-gray-600"><%= t(".hints.#{key}") %></p>
+      </div>
+      <%# Each card says what the bill needs, worked out from the record; paying happens on the record page %>
+      <ul class="flex flex-col space-y-3">
         <% list.each do |record| %>
-          <li class="space-y-1 px-4 py-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span><%= link_to record.title, household_record_path(Current.household, record), class: "font-medium text-blue-700 underline" %>
-                <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span>
-                <span class="block text-sm <%= key == :overdue ? 'text-red-700' : 'text-gray-700' %>"><%= Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : (key == :no_due ? "no_due_repeat" : "due_today"), @today) %>
-                  <%= " · #{Reminders::Wording.outstanding(record)}" if key != :maintenance && record.amount_required %></span></span>
-              <% if writer && key != :maintenance %>
-                <% if record.amount_required.nil? && !record.maintenance? %>
-                  <%= link_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, record), class: "rounded border border-green-700 px-2 py-0.5 text-sm text-green-800" %>
-                <% else %>
-                  <%= button_to t("records.index.mark_paid"), mark_paid_household_record_path(Current.household, record), class: "cursor-pointer rounded border border-green-700 px-2 py-0.5 text-sm text-green-800" %>
-                <% end %>
-              <% end %>
+          <% status = if key == :no_due then (record.status == :partial ? t("records.status.partial") : t(".not_paid"))
+                      else Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : "due_today", @today).upcase_first end %>
+          <% left = Reminders::Wording.outstanding(record) if key != :maintenance %>
+          <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 <%= key == :maintenance ? "bg-white" : record_card_class(record) %>">
+            <div class="space-y-0.5">
+              <p class="font-bold <%= key == :overdue ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{t('.left_to_pay', amount: left)}" if left %></p>
+              <p><span class="text-lg font-bold"><%= record.title %></span>
+                <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
             </div>
-            <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id] %>
+            <div class="flex flex-wrap items-start gap-3">
+              <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+              <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id], big: true %>
+            </div>
           </li>
         <% end %>
       </ul>

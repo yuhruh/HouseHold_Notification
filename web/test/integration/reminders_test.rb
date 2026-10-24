@@ -27,6 +27,17 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "h2", /未設定到期日 \(1\)/
   end
 
+  test "pending cards say what each bill needs, link to it, and have no Mark Paid button" do
+    overdue = bill(due_on: today - 2)
+    get household_pending_path(@home)
+    assert_select "li#record_#{overdue.id}" do
+      assert_select "p.text-red-700", "已逾期 2 天 · 還要繳 NT$580"
+      assert_select "a[href=?]", household_record_path(@home, overdue)
+      assert_select "summary", /稍後提醒/
+    end
+    assert_select "form[action*=mark_paid], a[href*=mark_paid]", 0
+  end
+
   test "the old /upcoming address redirects to /pending" do
     get "/h/#{@home.id}/upcoming"
     assert_redirected_to household_pending_path(@home)

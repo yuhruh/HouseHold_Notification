@@ -12,6 +12,7 @@
     - "Icons on Languages, Save, Filter, Delete, Add, Archive and Edit; smaller chart labels on narrow screens."
     - "Categories: sheet names the import sorts into each category are clearer, with a Remove button that asks first."
     - "Records list: each record is a card you tap to open, showing its status and due date (Mark Paid is on the record page)."
+    - "Pending: the same cards, each saying what the bill needs (e.g. 3 days overdue · NT$580 left to pay), with Details and Remind Me Later buttons."
   zh-TW:
     - "紀錄表單：分成「帳單資訊」和「繳費資訊」兩區。"
     - "紀錄可以設定繳費期間：從「開始繳費日」到「到期日」。"
@@ -21,6 +22,7 @@
     - "語言、儲存、篩選、刪除、新增、封存和編輯加上圖示；窄螢幕上的圖表標籤變小。"
     - "類別：匯入時歸到各類別的試算表名稱更清楚，「移除」按鈕會先確認。"
     - "紀錄列表：每筆紀錄是一張卡片，點一下就能開啟，並顯示狀態和到期日（「標記已繳」在紀錄頁上）。"
+    - "待處理：改用同樣的卡片，每張寫出帳單該怎麼處理（例如：逾期 3 天 · 還要繳 NT$580），並有「查看明細」和「稍後提醒」按鈕。"
 - version: "2026.10.23"
   date: 2026-10-23
   en:

@@ -48,6 +48,7 @@ en:
       snooze_until: "Until A Date"
       snoozed_until: "You snoozed until %{date}"
       cancel_snooze: "Cancel Snooze"
+      remind_later: "Remind Me Later"
       stopped: "Reminders Stopped"
       restart: "Restart Reminders"
       done: "Done"
@@ -67,6 +68,14 @@ en:
       soon: "Due In The Next 30 Days"
       maintenance: "Maintenance Due"
       no_due: "No Due Date"
+      intro: "Open a bill's Details to see it and record what you paid."
+      hints:
+        overdue: "Past the due date. Pay these first."
+        soon: "Pay these before their due date."
+        maintenance: "Time for upkeep. Press Done when it's finished."
+        no_due: "No deadline set. Pay when you can."
+      not_paid: "Not paid yet"
+      left_to_pay: "%{amount} left to pay"
   notifications:
     index:
       title: "Inbox"

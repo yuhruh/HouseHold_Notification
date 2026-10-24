@@ -798,7 +798,7 @@ en:
   categories:
     index:
       title: "Categories"
-      intro: "Rename, add or archive categories. Archived ones leave the record form but stay on existing records. Aliases are item names from the sheet that imports map here."
+      intro: "Rename, add or archive categories. Archived ones leave the record form but stay on existing records."
       new: "Add"
       records:
         zero: "no records"
@@ -811,8 +811,11 @@ en:
       delete_confirm: "Delete this category?"
       archive: "Archive"
       unarchive: "Restore"
-      aliases: "Aliases:"
-      remove_alias: "Remove Alias %{alias}"
+      aliases: "Sheet names that go here:"
+      aliases_hint: "On import, rows with these names are put in this category. Remove one to be asked again next time."
+      remove: "Remove"
+      remove_alias: "Remove %{alias}"
+      remove_alias_confirm: "Stop sorting %{alias} into this category? The next import will ask you again."
     new:
       title: "New Category"
     edit:
@@ -825,7 +828,7 @@ en:
       deleted: "Category deleted."
       in_use: "This category has records; archive it instead."
     destroy_alias:
-      alias_removed: "Alias removed. The next import will suggest a category for that item again."
+      alias_removed: "Removed. The next import will suggest a category for that item again."
   recurring_templates:
     every_month: "Every Month"
     every_year: "Every Year"

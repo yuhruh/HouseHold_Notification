@@ -29,12 +29,24 @@
               <% end %>
             </div>
             <% if category.category_aliases.any? %>
-              <p class="flex flex-wrap items-center gap-1 text-xs text-gray-600"><%= t(".aliases") %>
-                <% category.category_aliases.sort_by(&:alias).each do |item| %>
-                  <span class="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5"><%= item.alias %>
-                    <% if writer %><%= button_to "×", destroy_alias_household_categories_path(Current.household, alias_id: item.id), method: :delete, "aria-label": t(".remove_alias", alias: item.alias), class: "cursor-pointer text-gray-500" %><% end %></span>
-                <% end %>
-              </p>
+              <%# Names from the sheet the import sorts into this category; removing one only forgets the link %>
+              <div class="space-y-1 text-xs text-gray-600">
+                <p class="font-medium"><%= t(".aliases") %></p>
+                <ul class="flex flex-wrap gap-1.5">
+                  <% category.category_aliases.sort_by(&:alias).each do |item| %>
+                    <li class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-gray-300 bg-white py-0.5 pl-2.5 <%= writer ? 'pr-1' : 'pr-2.5' %>">
+                      <span><%= item.alias %></span>
+                      <% if writer %>
+                        <%= button_to destroy_alias_household_categories_path(Current.household, alias_id: item.id), method: :delete,
+                              form: { data: { turbo_confirm: t(".remove_alias_confirm", alias: item.alias) } },
+                              title: t(".remove_alias", alias: item.alias), "aria-label": t(".remove_alias", alias: item.alias),
+                              class: "inline-flex cursor-pointer items-center gap-0.5 rounded-full px-1.5 py-0.5 text-red-700 hover:bg-red-50" do %><%= image_tag "icons/delete.png", alt: "", class: "h-3.5 w-3.5 object-contain" %><span><%= t(".remove") %></span><% end %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+                <p class="text-gray-500"><%= t(".aliases_hint") %></p>
+              </div>
             <% end %>
           </li>
         <% end %>

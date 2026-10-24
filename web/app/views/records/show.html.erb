@@ -1,6 +1,6 @@
 <% content_for :title, @record.title %>
 <% writer = policy(@record).write? %>
-<div class="w-full max-w-2xl space-y-6 py-4">
+<div class="w-full mx-auto max-w-2xl space-y-6 py-4">
   <%= render "shared/flash" %>
   <div class="flex flex-wrap items-center gap-3">
     <h1 class="text-3xl font-bold"><%= record_check(@record) %> <%= @record.title %></h1>

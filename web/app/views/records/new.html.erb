@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-2xl space-y-6 py-4">
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-3xl text-center font-bold"><%= t(".title") %></h1>
   <% if policy(RecurringTemplate).new? %>
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.recurring_tip") %>
       <%= link_to t("records.form.recurring_link"), new_household_recurring_template_path(Current.household), class: "font-medium underline" %></p>

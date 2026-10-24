@@ -262,12 +262,15 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "section h2", /Billing Details|帳單資訊/
     assert_select "section h2", /Payment Details|繳費資訊/
     assert_select "input[name='record[payable_from]']"
+    assert_select "[data-due-reminder-target=reminder]:not([hidden])"
 
     post household_records_path(@home), params: { record: form_params(payable_from: "2026-11-01", due_on: "2026-11-30") }
     record = @home.records.order(:id).last
     assert_equal Date.new(2026, 11, 1), record.payable_from
     get household_record_path(@home, record)
     assert_select "dd", I18n.l(Date.new(2026, 11, 1))
+    get edit_household_record_path(@home, record)
+    assert_select "[data-due-reminder-target=reminder][hidden]", 1, "the no-due-date reminder is hidden while a due date is set"
 
     assert_no_difference -> { @home.records.count } do
       post household_records_path(@home), params: { record: form_params(payable_from: "2026-12-01", due_on: "2026-11-30") }

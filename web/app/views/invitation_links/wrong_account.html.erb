@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-sm space-y-4 py-8">
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold"><%= t(".title") %></h1>
   <p><%= t(".body", masked: @invitation.masked_email) %></p>
   <%= button_to t("pages.home.sign_out"), session_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
 </div>

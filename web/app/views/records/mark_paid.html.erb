@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="w-full mx-auto max-w-md space-y-6 py-4">
-  <h1 class="text-2xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-2xl font-bold"><%= t(".title") %></h1>
   <p><%= @record.title %> · <%= @record.period %></p>
   <% if @record.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>

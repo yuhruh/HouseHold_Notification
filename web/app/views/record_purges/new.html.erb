@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-md space-y-6 py-8">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold"><%= t(".title") %></h1>
   <p class="text-gray-700"><%= t(".explain", count: @count, name: Current.household.name) %></p>
   <ul class="list-disc space-y-1 pl-6 text-sm text-gray-700">
     <li><%= t(".removes") %></li>

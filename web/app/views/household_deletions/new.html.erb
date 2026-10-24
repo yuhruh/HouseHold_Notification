@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-md space-y-6 py-8">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold"><%= t(".title") %></h1>
   <p class="text-gray-700"><%= t(".explain", name: Current.household.name) %></p>
   <%= form_with url: household_deletion_path(Current.household), class: "space-y-4" do |form| %>
     <%= form.label :confirm_name, t("account.deletions.show.type_name", name: Current.household.name), class: "block text-sm font-medium" %>

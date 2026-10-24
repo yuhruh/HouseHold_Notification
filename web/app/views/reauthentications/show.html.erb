@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-sm space-y-6 py-8">
   <%= render "shared/flash" %>
-  <h1 class="text-3xl font-bold"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold"><%= t(".title") %></h1>
   <p class="text-gray-700"><%= t(".why", action: t("reauth_purposes.#{@purpose}")) %></p>
 
   <% if Current.user.password_set? %>

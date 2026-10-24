@@ -1,6 +1,6 @@
 <% content_for :title, t(".title") %>
 <div class="w-full mx-auto max-w-3xl space-y-6 py-4">
-  <h1 class="text-3xl font-bold text-red-700"><%= t(".title") %></h1>
+  <h1 class="text-center text-3xl font-bold text-red-700"><%= t(".title") %></h1>
   <p><%= t(".intro") %></p>
   <% if @result.file_errors.any? %>
     <ul class="list-disc rounded-lg bg-red-50 py-2 pl-8 pr-3 text-red-800"><% @result.file_errors.each do |e| %><li><%= e %></li><% end %></ul>

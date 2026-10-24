@@ -6,6 +6,15 @@ module ApplicationHelper
     safe_join([ mark, tag.span(label) ])
   end
 
+  # Cancel next to a form's Save: a light amber press button with a ✕ (dark mode dims it like every
+  # press button)
+  def cancel_link(path, label = t("records.form.cancel"))
+    link_to path, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-amber-100 text-amber-900 px-3.5 py-2 font-medium" do
+      safe_join([ tag.svg(tag.path(d: "M6 6l12 12M18 6L6 18"), class: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+                          "stroke-width": "2.6", "stroke-linecap": "round", "aria-hidden": "true"), tag.span(label) ])
+    end
+  end
+
   # A page title with its picture in front (Pending, Records, Dashboard, My Account, the guide, the Edit, New Recurring Bill and Mark Paid pages,
   # the inbox, Sign in)
   def page_title(icon, title)

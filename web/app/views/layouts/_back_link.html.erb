@@ -1,9 +1,16 @@
 <%# ‹ Back to Dashboard on every signed-in page except the household home it leads to, and the guide and
     features pages, which have their own sticky "← Household Tracker". Always the household home, not
-    browser history, so it never lands on a form already sent %>
+    browser history, so it never lands on a form already sent; after Past Records → See All it is
+    ‹ Back to Previous Page, to that record %>
 <% unless (controller_name == "households" && action_name == "show") || (controller_name == "pages" && action_name.in?(%w[home guide features])) %>
   <% home = Current.household || Current.user.home_household %>
+  <%# Records opened from a record page (Past Records → See All) lead back to that record instead %>
+  <% from = Current.household.records.find_by(id: params[:from]) if controller_name == "records" && action_name == "index" && params[:from].present? %>
   <div class="container mx-auto px-4 pt-4 text-sm">
-    <%= link_to t("layouts.back"), home ? household_path(home) : root_path, class: "text-blue-700 hover:underline" %>
+    <% if from %>
+      <%= link_to t("layouts.back_previous"), household_record_path(Current.household, from), class: "text-blue-700 hover:underline" %>
+    <% else %>
+      <%= link_to t("layouts.back"), home ? household_path(home) : root_path, class: "text-blue-700 hover:underline" %>
+    <% end %>
   </div>
 <% end %>

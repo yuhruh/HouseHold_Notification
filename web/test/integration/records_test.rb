@@ -30,7 +30,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
       assert_equal [ "past_record_#{old.id}", "past_record_#{older.id}" ], items.map { it["id"] }
     end
     assert_select "li#past_record_#{older.id} a[href=?]", household_record_path(@home, older), text: /2026-01-10 已繳/
-    assert_select "details#past_records a[href=?]", household_records_path(@home, category_id: @water.id, q: "A")
+    assert_select "details#past_records a[href=?]", household_records_path(@home, category_id: @water.id, q: "A", from: current.id)
     get household_record_path(@home, older)
     assert_select "details#past_records", 0, "the earliest record has no past records"
   end

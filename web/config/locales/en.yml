@@ -255,6 +255,7 @@ en:
     viewer: "Viewer"
   layouts:
     back: "‹ Back to Dashboard"
+    back_previous: "‹ Back to Previous Page"
     header:
       records: "Records"
       settings: "Settings"

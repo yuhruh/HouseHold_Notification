@@ -8,7 +8,9 @@ module Records
     CURRENCIES = %w[TWD USD].freeze
     # "required" / "paid" = the rows behind the summary's Required / Paid columns (an amount is set)
     AMOUNTS = %w[required paid].freeze
-    KEYS = %i[year month type category_id status payment_method_id currency amount q].freeze
+    # `from` (a record id) isn't a filter: it remembers the record page that opened the list (Past Records →
+    # See All), so ‹ Back to Previous Page leads there, and travels with paging and filtering
+    KEYS = %i[year month type category_id status payment_method_id currency amount q from].freeze
     # Rows per page: the presets, or a custom number up to MAX_PER_PAGE
     PER_PAGE = [ 10, 20, 50 ].freeze
     DEFAULT_PER_PAGE = 20
@@ -67,7 +69,7 @@ module Records
       ([ @today.year ] + @household.records.distinct.pluck(:period_year, :period_end_year).flatten).uniq.sort.reverse
     end
 
-    def active? = params.any?
+    def active? = params.except(:from).any?
 
     private
 

@@ -255,6 +255,7 @@ zh-TW:
     viewer: "檢視者"
   layouts:
     back: "‹ 回到首頁"
+    back_previous: "‹ 回到上一頁"
     header:
       records: "記錄"
       settings: "設定"

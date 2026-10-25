@@ -26,6 +26,6 @@
         </li>
       <% end %>
     </ul>
-    <%= link_to t("records.show.past_see_all"), household_records_path(Current.household, category_id: record.category_id, q: record.details.presence), class: "inline-block text-sm text-blue-700 underline" %>
+    <%= link_to t("records.show.past_see_all"), household_records_path(Current.household, category_id: record.category_id, q: record.details.presence, from: record.id), class: "inline-block text-sm text-blue-700 underline" %>
   </div>
 </details>

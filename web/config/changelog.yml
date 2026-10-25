@@ -6,12 +6,12 @@
   en:
     - "Pending: a Due Later section lists unpaid bills due more than 30 days from now, so every unpaid bill shows on the page."
     - "‹ Back is now ‹ Back to Dashboard and always takes you to the household home (it used to step back through pages, sometimes into a form you had already saved)."
-    - "Record page: a Past Records button opens the earlier times of the same item (same category and details), newest first, with a link to see them all in Records."
+    - "Record page: a Past Records button opens the earlier times of the same item (same category and details), newest first, with a link to see them all in Records (‹ Back to Previous Page there returns to the record)."
     - "Adding photos is two numbered steps: ① Choose Photos shows how many you picked with small previews, then ② Upload sends them (it waits until photos are chosen)."
   zh-TW:
     - "待處理：新增「之後到期」區塊，列出 30 天後才到期的未繳帳單，所有未繳帳單都會出現在這一頁。"
     - "「‹ 返回」改為「‹ 回到首頁」，一律回到家庭首頁（以前會退回上一頁，有時會回到已經儲存過的表單）。"
-    - "記錄頁：新增「過去的記錄」按鈕，打開後由新到舊列出同類別、同明細的較早記錄，也可以到記錄頁看全部。"
+    - "記錄頁：新增「過去的記錄」按鈕，打開後由新到舊列出同類別、同明細的較早記錄，也可以到記錄頁看全部（那裡的「‹ 回到上一頁」會回到這筆記錄）。"
     - "新增照片改成兩個步驟：①「選擇照片」後會顯示選了幾張和縮圖，再按 ②「上傳」送出（選好照片前無法按）。"
 - version: "2026.10.24"
   date: 2026-10-24

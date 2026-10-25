@@ -5,8 +5,10 @@
   date: 2026-10-25
   en:
     - "Pending: a Due Later section lists unpaid bills due more than 30 days from now, so every unpaid bill shows on the page."
+    - "‹ Back is now ‹ Back to Dashboard and always takes you to the household home (it used to step back through pages, sometimes into a form you had already saved)."
   zh-TW:
     - "待處理：新增「之後到期」區塊，列出 30 天後才到期的未繳帳單，所有未繳帳單都會出現在這一頁。"
+    - "「‹ 返回」改為「‹ 回到首頁」，一律回到家庭首頁（以前會退回上一頁，有時會回到已經儲存過的表單）。"
 - version: "2026.10.24"
   date: 2026-10-24
   en:

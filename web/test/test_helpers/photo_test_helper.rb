@@ -1,10 +1,12 @@
 require "vips"
 
-# Builds test JPEGs on the fly: a size, an EXIF orientation and metadata (GPS-like XMP) to strip
+# Builds test JPEGs on the fly: a size, an EXIF orientation and metadata (GPS-like XMP) to strip.
+# Each one is a different random block pattern, so two fixtures never look like the same photo
 module PhotoTestHelper
   def jpeg_fixture(width: 300, height: 200, orientation: nil, with_metadata: true)
     path = Rails.root.join("tmp", "photo-#{SecureRandom.hex(4)}.jpg").to_s
-    image = Vips::Image.black(width, height, bands: 3).add([ 200, 120, 40 ]).cast(:uchar)
+    blocks = Vips::Image.gaussnoise(16, 12, mean: 128, sigma: 70).resize(width / 16.0, vscale: height / 12.0, kernel: :nearest)
+    image = blocks.bandjoin([ blocks, blocks ]).cast(:uchar)
     image = image.mutate do |m|
       m.set_type!(GObject::GINT_TYPE, "orientation", orientation) if orientation
       m.set_type!(GObject::GSTR_TYPE, "exif-ifd0-ImageDescription", "secret place") if with_metadata

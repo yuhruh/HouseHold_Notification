@@ -14,6 +14,10 @@ en:
         one: "1 photo chosen"
         other: "%{count} photos chosen"
       change: "Change"
+      already_added: "Already added"
+      duplicates:
+        one: "1 of these is already on this record and won't be uploaded again."
+        other: "%{count} of these are already on this record and won't be uploaded again."
       upload: "Upload"
       upload_count:
         one: "Upload 1 Photo"
@@ -28,7 +32,12 @@ en:
       upload: "Upload Photo"
       remove: "Remove Photo"
     create:
-      added: "Photos added."
+      added:
+        one: "1 photo added."
+        other: "%{count} photos added."
+      skipped:
+        one: "1 photo was already attached to this record, so it was skipped."
+        other: "%{count} photos were already attached to this record, so they were skipped."
     destroy:
       removed: "Photo removed."
   avatars:

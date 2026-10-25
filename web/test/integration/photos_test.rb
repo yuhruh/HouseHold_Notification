@@ -47,6 +47,31 @@ class PhotosTest < ActionDispatch::IntegrationTest
     assert_equal lock, @record.lock_version
   end
 
+  test "a photo already on the record is skipped, not attached twice, and the page says so" do
+    sign_in_as users(:alex)
+    receipt = jpeg_fixture
+    upload(photo_upload(receipt), photo_upload(jpeg_fixture))
+    assert_equal "已新增 2 張照片。", flash[:notice]
+    assert @record.reload.photos.all? { it.blob.metadata["fingerprint"].present? }
+
+    upload(photo_upload(receipt), photo_upload(jpeg_fixture), photo_upload(receipt))
+    assert_equal "已新增 1 張照片。 有 2 張照片已經在這筆記錄裡，已略過。", flash[:notice]
+    assert_equal 3, @record.reload.photos.count
+
+    get household_record_path(@home, @record)
+    existing = JSON.parse(css_select("form[data-controller=photo-upload]").first["data-photo-upload-existing-value"])
+    assert_equal Photos::Fingerprint.of(@record).sort, existing.sort
+    assert_equal 3, existing.size
+  end
+
+  test "fingerprints match a re-encoded copy and tell different photos apart" do
+    path = jpeg_fixture(width: 1200, height: 900)
+    smaller = Rails.root.join("tmp", "photo-small-#{SecureRandom.hex(4)}.jpg").to_s
+    Vips::Image.new_from_file(path).resize(0.4).jpegsave(smaller, Q: 60)
+    assert Photos::Fingerprint.same?(Photos::Fingerprint.call(path), Photos::Fingerprint.call(smaller))
+    assert_not Photos::Fingerprint.same?(Photos::Fingerprint.call(path), Photos::Fingerprint.call(jpeg_fixture(width: 1200, height: 900)))
+  end
+
   test "the photo form is two numbered steps: Choose Photos, then Upload, which waits until photos are chosen" do
     sign_in_as users(:alex)
     get household_record_path(@home, @record)

@@ -9,18 +9,19 @@
     <%= link_to nav_label("login.png", t(".sign_in")), new_session_path, class: "btn-press rounded-xl bg-blue-200 text-gray-900 inline-flex items-center gap-2 px-3.5 py-2.5 font-medium" %>
     <%= link_to t(".sign_up"), new_registration_path, class: "btn-press rounded-xl bg-white text-gray-900 px-3.5 py-2.5 font-medium" %>
   </div>
-  <%# Install the App: one card for every phone. The button shows only where the browser offers a one-tap
-      install (install controller); iPhone/iPad follow their line. Hidden inside the installed app %>
+  <%# Install the App: one card for every phone. The Android line carries the Install App button, shown only
+      where the browser offers a one-tap install; iPhone/iPad follow their line. Hidden inside the installed app %>
   <section aria-labelledby="install_heading" class="card-raised space-y-3 rounded-xl bg-white p-4 text-left standalone:hidden">
     <h2 id="install_heading" class="flex items-center justify-center gap-2 text-lg font-bold"><%= image_tag "icons/install.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".install.title") %></h2>
     <p class="text-center text-sm text-gray-700"><%= t(".install.intro") %></p>
-    <div data-controller="install" class="flex justify-center">
-      <button type="button" hidden data-install-target="button" data-action="install#install" class="btn-press inline-flex items-center gap-2 rounded-xl bg-blue-200 px-5 py-2.5 font-bold text-gray-900 cursor-pointer"><%= image_tag "icons/install.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".install.button") %></span></button>
-    </div>
     <ul class="space-y-2 text-sm">
       <li class="flex items-start gap-2.5 rounded-lg bg-amber-50 px-3 py-2.5 text-amber-950 dark:bg-amber-50/60">
         <svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
-        <span><%= t(".install.android_html") %></span>
+        <span class="min-w-0 flex-1 space-y-2" data-controller="install">
+          <span class="block"><%= t(".install.android_html") %></span>
+          <%# Shown only where the browser offers a one-tap install %>
+          <button type="button" hidden data-install-target="button" data-action="install#install" class="btn-press press-sm inline-flex items-center gap-1.5 rounded-xl bg-blue-200 px-3 py-1.5 text-sm font-bold text-gray-900 cursor-pointer"><%= image_tag "icons/install.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".install.button") %></span></button>
+        </span>
       </li>
       <li class="flex items-start gap-2.5 rounded-lg bg-sky-50 px-3 py-2.5 text-slate-800 dark:bg-sky-50/60">
         <svg class="mt-0.5 h-5 w-5 shrink-0 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4"/></svg>

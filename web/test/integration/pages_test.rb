@@ -13,8 +13,9 @@ class PagesTest < ActionDispatch::IntegrationTest
     get root_path
     assert_select "section.standalone\\:hidden[aria-labelledby=install_heading]" do
       assert_select "h2", /安裝 App/
-      assert_select "[data-controller=install] button[hidden][data-install-target=button]"
-      assert_select "li.bg-amber-50", /Android/
+      assert_select "li.bg-amber-50", /Android/ do
+        assert_select "[data-controller=install] button[hidden][data-install-target=button]"
+      end
       assert_select "li.bg-sky-50", /iPhone \/ iPad/
     end
   end

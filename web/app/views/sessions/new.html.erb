@@ -16,7 +16,7 @@
 
   <div class="flex flex-col gap-2 text-sm">
     <%= link_to t(".forgot_password"), new_password_path, class: "text-gray-700 underline" %>
-    <%= link_to t(".sign_up"), new_registration_path, class: "text-gray-700 underline" %>
+    <%= link_to nav_label("signup.png", t(".sign_up")), new_registration_path, class: "inline-flex items-center gap-1.5 text-gray-700 underline" %>
     <%= link_to t(".resend_confirmation"), new_email_confirmation_path, class: "text-gray-700 underline" %>
   </div>
 </div>

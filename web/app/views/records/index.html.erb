@@ -26,9 +26,10 @@
     <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "h-9 rounded-md border border-gray-400 px-2" %>
     <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
     <% if p[:amount] %><%= hidden_field_tag :amount, p[:amount] %><% end %>
+    <% if p[:from] %><%= hidden_field_tag :from, p[:from] %><% end %>
     <div class="col-span-full flex flex-wrap items-center justify-end gap-2">
       <%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-gray-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" do %><%= image_tag "icons/filter.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".filter") %></span><% end %>
-      <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household), class: "px-2 py-1.5 underline" %><% end %>
+      <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household, from: p[:from]), class: "px-2 py-1.5 underline" %><% end %>
     </div>
   <% end %>
 

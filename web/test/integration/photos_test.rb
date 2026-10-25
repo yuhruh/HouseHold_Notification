@@ -37,6 +37,16 @@ class PhotosTest < ActionDispatch::IntegrationTest
     assert_response :not_found, "non-member → 404"
   end
 
+  test "uploading and analysing photos doesn't touch the record, so its lock version (and an open edit form) stay valid" do
+    sign_in_as users(:alex)
+    lock = @record.reload.lock_version
+    upload(photo_upload(jpeg_fixture), photo_upload(jpeg_fixture))
+    perform_enqueued_jobs
+    assert_equal 2, @record.reload.photos.count
+    assert @record.photos.all? { _1.blob.analyzed? }
+    assert_equal lock, @record.lock_version
+  end
+
   test "no public Active Storage route exists" do
     assert_empty Rails.application.routes.routes.map { |r| r.path.spec.to_s }.grep(%r{/rails/active_storage})
     get "/rails/active_storage/blobs/redirect/abc/x.jpg"

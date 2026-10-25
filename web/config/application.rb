@@ -31,6 +31,10 @@ module Web
     # and AvatarsController serve files after the household check.
     config.active_storage.draw_routes = false
     config.active_storage.variant_processor = :vips
+    # Records use optimistic locking: a photo's upload and its background analysis must not touch the
+    # record, or each touch bumps lock_version (concurrent analyze jobs then hit StaleObjectError,
+    # and an open edit form reads as changed elsewhere)
+    config.active_storage.touch_attachment_records = false
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

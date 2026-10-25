@@ -254,7 +254,7 @@ en:
     co_owner: "Co-owner"
     viewer: "Viewer"
   layouts:
-    back: "‹ Back"
+    back: "‹ Back to Dashboard"
     header:
       records: "Records"
       settings: "Settings"

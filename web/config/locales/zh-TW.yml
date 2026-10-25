@@ -254,7 +254,7 @@ zh-TW:
     co_owner: "共同管理者"
     viewer: "檢視者"
   layouts:
-    back: "‹ 返回"
+    back: "‹ 回到首頁"
     header:
       records: "記錄"
       settings: "設定"

@@ -69,12 +69,14 @@ en:
       soon: "Due In The Next 30 Days"
       maintenance: "Maintenance Due"
       no_due: "No Due Date"
+      later: "Due Later"
       intro: "Open a bill's Details to see it and record what you paid."
       hints:
         overdue: "Past the due date. Pay these first."
         soon: "Pay these before their due date."
         maintenance: "Time for upkeep. Press Done when it's finished."
         no_due: "No deadline set. Pay when you can."
+        later: "Due more than 30 days from now. Nothing to do yet."
       not_paid: "Not paid yet"
       left_to_pay: "%{amount} left to pay"
   notifications:

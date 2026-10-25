@@ -8,7 +8,7 @@
     <span class="rounded bg-blue-50 px-2 py-0.5 text-blue-900"><%= t("records.reminders.snoozed_until", date: l(snooze)) %></span>
     <%= button_to t("records.reminders.cancel_snooze"), snooze_household_record_path(Current.household, record), method: :delete, class: "cursor-pointer underline" %>
   <% else %>
-    <details class="relative">
+    <details class="relative" data-controller="dropdown">
       <% if big %>
         <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 [&::-webkit-details-marker]:hidden">
           <%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.remind_later") %></summary>

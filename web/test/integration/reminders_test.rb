@@ -36,7 +36,7 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "li#record_#{overdue.id}" do
       assert_select "p.text-red-700", "已逾期 2 天 · 還要繳 NT$580"
       assert_select "a[href=?]", household_record_path(@home, overdue)
-      assert_select "summary", /稍後提醒/
+      assert_select "details[data-controller=dropdown] summary", /稍後提醒/, "the menu closes on a click outside it, like the header menus"
     end
     assert_select "form[action*=mark_paid], a[href*=mark_paid]", 0
   end

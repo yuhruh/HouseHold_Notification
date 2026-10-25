@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Closes a <details> menu (languages, household switcher) on a click outside it or on Escape
+// Closes a <details> menu (languages, household switcher, Snooze / Remind Me Later) on a click outside it or on Escape
 export default class extends Controller {
   connect() {
     this.close = (event) => {

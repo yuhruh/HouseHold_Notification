@@ -21,8 +21,9 @@ class PhotosController < ApplicationController
 
   def create
     authorize @record, :update?
-    Photos::Upload.attach(@record, params[:photos])
-    redirect_to household_record_path(Current.household, @record), notice: t(".added")
+    result = Photos::Upload.attach(@record, params[:photos])
+    notice = [ (t(".added", count: result.added) if result.added.positive?), (t(".skipped", count: result.skipped) if result.skipped.positive?) ]
+    redirect_to household_record_path(Current.household, @record), notice: notice.compact.join(" ")
   rescue Photos::Upload::Error => e
     redirect_to household_record_path(Current.household, @record), alert: e.message
   end

@@ -19,13 +19,17 @@
   <% if writer && record.photos.size < Photos::Upload::MAX_PHOTOS %>
     <%# Two numbered steps: ① Choose Photos (a button-styled label for the hidden file field), then
         ② Upload, which stays disabled until photos are chosen; photo_upload_controller.js shows how many
-        were chosen with small previews and shrinks them before upload. The "other" texts keep %{count} for the
+        were chosen with small previews, tags photos already on the record (left out of the upload) and shrinks
+        the rest before upload. The "other" texts keep %{count} for the
         script to fill in %>
     <%= form_with url: household_record_photos_path(Current.household, record), multipart: true,
           class: "space-y-2.5 rounded-xl border-2 border-dashed border-gray-400 bg-white p-3.5 data-[chosen]:border-solid data-[chosen]:border-blue-400",
           data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing"),
                   photo_upload_chosen_one_value: t("photos.gallery.chosen", count: 1), photo_upload_chosen_other_value: t("photos.gallery.chosen", count: "%{count}"),
-                  photo_upload_upload_one_value: t("photos.gallery.upload_count", count: 1), photo_upload_upload_other_value: t("photos.gallery.upload_count", count: "%{count}") } do |f| %>
+                  photo_upload_upload_one_value: t("photos.gallery.upload_count", count: 1), photo_upload_upload_other_value: t("photos.gallery.upload_count", count: "%{count}"),
+                  photo_upload_duplicate_one_value: t("photos.gallery.duplicates", count: 1), photo_upload_duplicate_other_value: t("photos.gallery.duplicates", count: "%{count}"),
+                  photo_upload_tag_value: t("photos.gallery.already_added"), photo_upload_existing_value: Photos::Fingerprint.of(record).to_json,
+                  photo_upload_threshold_value: Photos::Fingerprint::THRESHOLD, photo_upload_margin_value: Photos::Fingerprint::MARGIN } do |f| %>
       <% badge = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-bold" %>
       <div class="flex items-center gap-2.5">
         <span class="<%= badge %> bg-blue-700 text-white" data-photo-upload-target="stepOne">1</span>
@@ -42,6 +46,7 @@
           <label for="record_photos_input" class="cursor-pointer text-blue-700 underline"><%= t("photos.gallery.change") %></label>
         </p>
         <div hidden class="flex flex-wrap gap-2" data-photo-upload-target="previews"></div>
+        <p hidden class="text-amber-800" data-photo-upload-target="duplicates"></p>
       </div>
       <div class="flex items-center gap-2.5">
         <span class="<%= badge %> bg-gray-300 text-gray-700" data-photo-upload-target="stepTwo">2</span>

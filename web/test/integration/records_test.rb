@@ -18,6 +18,23 @@ class RecordsTest < ActionDispatch::IntegrationTest
       amount_required: "580", amount_paid: "", reminder_frequency: "none" }.merge(overrides)
   end
 
+  test "Past Records lists earlier periods of the same category and details, newest first, in a closing menu" do
+    older = add(period: Period.parse(2025, "11月-12月"), details: "A", amount_required: 500, amount_paid: 500, paid_on: Date.new(2026, 1, 10))
+    old = add(period: Period.parse(2026, "1月-2月"), details: "A", amount_required: 520)
+    current = add(period: Period.parse(2026, "3月-4月"), details: "A")
+    add(period: Period.parse(2025, "9月-10月"), details: "B")
+    add(period: Period.parse(2026, "5月-6月"), details: "A")
+    get household_record_path(@home, current)
+    assert_select "details#past_records[data-controller=dropdown] summary", /過去的記錄（2）/
+    assert_select "details#past_records li" do |items|
+      assert_equal [ "past_record_#{old.id}", "past_record_#{older.id}" ], items.map { it["id"] }
+    end
+    assert_select "li#past_record_#{older.id} a[href=?]", household_record_path(@home, older), text: /2026-01-10 已繳/
+    assert_select "details#past_records a[href=?]", household_records_path(@home, category_id: @water.id, q: "A")
+    get household_record_path(@home, older)
+    assert_select "details#past_records", 0, "the earliest record has no past records"
+  end
+
   test "the summary shows only Paid; the Outstanding status filter lists the records still owed" do
     add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
     owed = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))

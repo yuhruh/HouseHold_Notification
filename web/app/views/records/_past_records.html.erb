@@ -1,0 +1,31 @@
+<%# Past Records: a cyan press button that opens the latest earlier records of the same item as raised
+    cards; closes on a click outside it or Escape, like the header menus %>
+<details id="past_records" class="group" data-controller="dropdown">
+  <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl bg-cyan-100 px-3.5 py-2 font-medium text-cyan-900 dark:bg-cyan-100/70 [&::-webkit-details-marker]:hidden">
+    <%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.show.past_records", count:) %></span>
+    <svg class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+  </summary>
+  <div class="mt-3 space-y-3 rounded-xl border border-gray-300 bg-white p-3 shadow-lg">
+    <p class="text-sm text-gray-600"><%= t("records.show.past_hint") %></p>
+    <ul class="flex flex-col space-y-3">
+      <% past.each do |old| %>
+        <li id="past_<%= dom_id(old) %>">
+          <%= link_to household_record_path(Current.household, old), class: "card-raised flex items-center gap-3 rounded-xl px-4 py-2.5 text-gray-900 #{record_card_class(old)}" do %>
+            <span class="flex min-w-0 flex-1 flex-col">
+              <span class="text-xs text-gray-600"><%= old.period %></span>
+              <span class="font-bold">
+                <% if old.settled && old.paid_on %><%= t(old.maintenance? ? "records.index.done_on_date" : "records.index.paid_on_date", date: l(old.paid_on)) %>
+                <% else %><%= old.due_on ? t("records.index.due_on", date: l(old.due_on)) : t("records.index.no_due_date") %><% end %>
+              </span>
+              <% amount = old.amount_paid || old.amount_required %>
+              <% if amount %><span class="text-sm text-gray-700"><%= money(amount, old.currency) %></span><% end %>
+            </span>
+            <%= record_status_badge(old) %>
+            <svg class="h-5 w-5 shrink-0 text-blue-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+    <%= link_to t("records.show.past_see_all"), household_records_path(Current.household, category_id: record.category_id, q: record.details.presence), class: "inline-block text-sm text-blue-700 underline" %>
+  </div>
+</details>

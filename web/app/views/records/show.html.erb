@@ -51,6 +51,8 @@
 
   <%= render "photos/gallery", record: @record %>
 
+  <%= render "past_records", record: @record, past: @past, count: @past_count if @past_count.positive? %>
+
   <%# Folded like What's New: the log can get long %>
   <details id="activity" class="space-y-2">
     <summary class="cursor-pointer text-lg font-semibold text-blue-800"><h2 class="inline"><%= t(".activity") %> (<%= @events.size %>)</h2></summary>

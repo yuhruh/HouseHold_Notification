@@ -701,6 +701,9 @@ zh-TW:
       delete_confirm: "要刪除這筆記錄嗎？刪除後無法復原。"
       activity: "活動記錄"
       former_member: "已離開的成員"
+      past_records: "過去的記錄（%{count}）"
+      past_hint: "同類別、同明細的較早記錄，由新到舊。"
+      past_see_all: "在記錄頁看全部 ›"
   payment_methods:
     kinds:
       card: "信用卡"

@@ -701,6 +701,9 @@ en:
       delete_confirm: "Delete this record? It can't be undone."
       activity: "Activity"
       former_member: "former member"
+      past_records: "Past Records (%{count})"
+      past_hint: "Earlier records with the same category and details, newest first."
+      past_see_all: "See All In Records ›"
   payment_methods:
     kinds:
       card: "Card"

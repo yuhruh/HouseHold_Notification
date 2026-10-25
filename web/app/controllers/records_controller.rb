@@ -4,6 +4,7 @@ class RecordsController < ApplicationController
   include HouseholdScoped
   before_action :set_record, except: %i[index new create]
   helper_method :paying?
+  PAST_SHOWN = 5
 
   def index
     authorize Record
@@ -22,6 +23,11 @@ class RecordsController < ApplicationController
     authorize @record
     @events = Current.household.record_events.where(record_id: @record.id).includes(:user).order(created_at: :desc)
     @snooze = ReminderSnooze.find_by(record: @record, user: Current.user)
+    # Past Records: earlier billing periods of the same item (same category and details), newest first
+    past = Current.household.records.where(category_id: @record.category_id, details: @record.details).where.not(id: @record.id)
+      .where("period_year * 12 + period_start_month < ?", @record.period_year * 12 + @record.period_start_month)
+    @past_count = past.count
+    @past = past.order(period_year: :desc, period_start_month: :desc, id: :desc).limit(PAST_SHOWN)
   end
 
   def new

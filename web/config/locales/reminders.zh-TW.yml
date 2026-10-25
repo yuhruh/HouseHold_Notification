@@ -69,12 +69,14 @@ zh-TW:
       soon: "30 天內到期"
       maintenance: "該保養了"
       no_due: "未設定到期日"
+      later: "之後到期"
       intro: "按「查看明細」查看帳單並記錄繳費。"
       hints:
         overdue: "已過到期日，請優先繳。"
         soon: "請在到期日前繳。"
         maintenance: "該保養了，完成後按「完成」。"
         no_due: "沒有設定期限，方便時再繳。"
+        later: "30 天後才到期，現在還不用處理。"
       not_paid: "尚未繳費"
       left_to_pay: "還要繳 %{amount}"
   notifications:

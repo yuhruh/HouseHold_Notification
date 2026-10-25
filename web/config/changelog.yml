@@ -1,6 +1,12 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
 # first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
 # with each release people will notice, in both languages.
+- version: "2026.10.25"
+  date: 2026-10-25
+  en:
+    - "Pending: a Due Later section lists unpaid bills due more than 30 days from now, so every unpaid bill shows on the page."
+  zh-TW:
+    - "待處理：新增「之後到期」區塊，列出 30 天後才到期的未繳帳單，所有未繳帳單都會出現在這一頁。"
 - version: "2026.10.24"
   date: 2026-10-24
   en:

@@ -20,11 +20,14 @@ class RemindersTest < ActionDispatch::IntegrationTest
     bill(due_on: today - 2)
     bill(due_on: today + 5, details: "B")
     bill(details: "C")
+    later = bill(due_on: today + 36, details: "D")
     get household_pending_path(@home)
     assert_response :success
     assert_select "h2", /逾期 \(1\)/
     assert_select "h2", /30 天內到期 \(1\)/
     assert_select "h2", /未設定到期日 \(1\)/
+    assert_select "h2", /之後到期 \(1\)/
+    assert_select "li#record_#{later.id} p.text-amber-900", /36 天後到期/
   end
 
   test "pending cards say what each bill needs, link to it, and have no Mark Paid button" do

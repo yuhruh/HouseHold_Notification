@@ -17,7 +17,7 @@
       <% end %>
       <div class="absolute z-10 mt-1 flex w-56 text-sm flex-col gap-1 rounded-md border bg-white p-2 shadow">
         <% [ 3, 7, 14 ].each do |days| %>
-          <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-gray-50" %>
+          <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-gray-50 hover:underline hover:text-blue-600 hover:font-bold" %>
         <% end %>
         <%= form_with url: snooze_household_record_path(Current.household, record), method: :post, class: "flex gap-1" do |f| %>
           <%= f.date_field :until_on, min: Date.current + 1, max: Date.current + ReminderSnooze::MAX_DAYS, required: true, class: "w-full rounded border px-1", "aria-label": t("records.reminders.snooze_until") %>

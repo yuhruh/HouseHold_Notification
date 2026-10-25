@@ -130,7 +130,7 @@ class RecordsController < ApplicationController
   def assign(record)
     record.assign_attributes(params.expect(record: %i[category_id title details period_year period_start_month period_end_month
       currency amount_required amount_paid payable_from due_on paid_on payment_method_id payment_note next_due_on reminder_frequency
-      reminder_starts_on lock_version]))
+      reminder_starts_on bill_number lock_version]))
     record.record_type = record.category&.record_type
   end
 

@@ -57,6 +57,8 @@ Rails.application.routes.draw do
         get :done
       end
     end
+    resource :bill_scan, only: :show
+    resources :biller_codes, only: :create
     resources :imports, only: %i[new create show] do
       post :commit, on: :member
       post :undo, on: :member

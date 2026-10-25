@@ -9,6 +9,7 @@
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% record.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
   <% end %>
   <%= form.hidden_field :lock_version %>
+  <% if record.new_record? %><%= form.hidden_field :bill_number %><% end %><%# from a bill scan: warns when the same bill is scanned again %>
   <% if paying %><%= hidden_field_tag :pay, 1 %><% end %>
   <% if @continues %><%= hidden_field_tag :continues_id, @continues.id %>
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.continues", title: @continues.title, details: @continues.details.presence || "–") %></p>

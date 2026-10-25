@@ -12,6 +12,7 @@ class Household < ApplicationRecord
   has_many :payment_methods
   has_many :payment_keywords
   has_many :records
+  has_many :biller_codes
   has_many :record_events
   has_many :import_batches
   has_many :import_keys

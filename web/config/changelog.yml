@@ -1,6 +1,12 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
 # first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
 # with each release people will notice, in both languages.
+- version: "2026.10.26"
+  date: 2026-10-26
+  en:
+    - "New Record: Scan the Bill's Barcodes. Point the camera (or use a photo) at the 3 barcodes in the 條碼區 on the bottom part of a bill, and the amount, due date, year and category are filled in. The first bill from each biller asks once which category it is. Scanning a bill that's already recorded warns you."
+  zh-TW:
+    - "新增記錄：掃描帳單條碼。用相機（或照片）對準帳單下方「條碼區」的 3 條條碼，就會自動填入金額、到期日、年份和類別。每個代收單位第一次會問一次是哪個類別；掃到已經記錄過的帳單會提醒你。"
 - version: "2026.10.25"
   date: 2026-10-25
   en:

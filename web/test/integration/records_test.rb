@@ -9,6 +9,9 @@ class RecordsTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
   end
 
+  # The app's "today" is the signed-in user's local date (Asia/Taipei), not the server's UTC one
+  def today = Time.find_zone!(users(:alex).time_zone).today
+
   def add(**attrs)
     @home.records.create!({ record_type: "expense", category: @water, period: Period.parse(2026, "1月-2月") }.merge(attrs))
   end
@@ -229,17 +232,17 @@ class RecordsTest < ActionDispatch::IntegrationTest
   end
 
   test "the record page shows a status line worked out from the record, with no ✅ / ❌" do
-    unpaid = add(amount_required: 580, due_on: Date.current + 10)
+    unpaid = add(amount_required: 580, due_on: today + 10)
     get household_record_path(@home, unpaid)
     assert_select "h1", text: /[✅❌]/, count: 0
     assert_select "[role=status] p.text-amber-900", "尚未繳費 · 10 天後到期"
     assert_select "[role=status] p.text-gray-700", "#{I18n.l(unpaid.due_on, locale: :"zh-TW")} 到期 · 還要繳 NT$580"
 
-    overdue = add(amount_required: 580, amount_paid: 80, paid_on: Date.current - 5, due_on: Date.current - 3)
+    overdue = add(amount_required: 580, amount_paid: 80, paid_on: today - 5, due_on: today - 3)
     get household_record_path(@home, overdue)
     assert_select "[role=status] p.text-red-700", "已逾期 3 天 · 還要繳 NT$500"
 
-    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.current - 2)
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: today - 2)
     get household_record_path(@home, partial)
     assert_select "[role=status] p.text-amber-900", "部分已繳 · 還要繳 NT$500"
     assert_select "[role=status] p.text-gray-700", "未設定到期日"

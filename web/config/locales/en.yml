@@ -153,6 +153,13 @@ en:
       sign_out: "Sign Out"
       sign_in: "Sign In"
       sign_up: "Create An Account"
+      install:
+        title: "Install the App"
+        intro: "Put it on your home screen. It opens full screen, and bill reminders arrive as notifications. Free, no app store needed."
+        button: "Install App"
+        android_html: "<strong>Android:</strong> tap <strong>Install App</strong>, or open the browser menu <strong>⋮ → Install app</strong> (on some phones \"Add to Home screen\")."
+        ios_html: "<strong>iPhone / iPad:</strong> in Safari, tap <strong>Share</strong> <svg class=\"inline h-4 w-4 align-[-3px]\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" role=\"img\" aria-label=\"Share\"><path d=\"M12 3v12M8 7l4-4 4 4\"/><path d=\"M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8\"/></svg> → <strong>Add to Home Screen</strong>. Reminders arrive when you open it from the Home Screen icon."
+        after: "You can sign up or sign in inside the app afterwards."
     features:
       page_title: "Features · Household Tracker"
       title: "Features"

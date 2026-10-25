@@ -47,6 +47,16 @@ class PhotosTest < ActionDispatch::IntegrationTest
     assert_equal lock, @record.lock_version
   end
 
+  test "the photo form is two numbered steps: Choose Photos, then Upload, which waits until photos are chosen" do
+    sign_in_as users(:alex)
+    get household_record_path(@home, @record)
+    assert_select "form[data-controller=photo-upload]" do
+      assert_select "input[type=file][id=record_photos_input].sr-only"
+      assert_select "label[for=record_photos_input]", /選擇照片/
+      assert_select "button[type=submit][disabled]", /上傳/
+    end
+  end
+
   test "no public Active Storage route exists" do
     assert_empty Rails.application.routes.routes.map { |r| r.path.spec.to_s }.grep(%r{/rails/active_storage})
     get "/rails/active_storage/blobs/redirect/abc/x.jpg"

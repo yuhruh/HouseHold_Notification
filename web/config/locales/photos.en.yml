@@ -8,7 +8,16 @@ en:
       unreadable: "%{name} couldn't be read as a photo."
     gallery:
       title: "Photos"
-      upload: "Add Photos"
+      choose: "Choose Photos"
+      none_chosen: "No photos chosen yet"
+      chosen:
+        one: "1 photo chosen"
+        other: "%{count} photos chosen"
+      change: "Change"
+      upload: "Upload"
+      upload_count:
+        one: "Upload 1 Photo"
+        other: "Upload %{count} Photos"
       uploading: "Uploading…"
       preparing: "Preparing photos…"
       remove: "Remove"

@@ -7,7 +7,7 @@
   <% @categories.group_by(&:record_type).each do |type, categories| %>
     <section class="space-y-2">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold"><%= t("records.types.#{type}") %></h2>
+        <h2 class="text-lg font-semibold"><%= record_type_label(type) %></h2>
         <% if writer %><%= link_to new_household_category_path(Current.household, record_type: type), class: "inline-flex items-center gap-1 text-sm underline" do %><%= image_tag "icons/add.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".new") %></span><% end %><% end %>
       </div>
       <ul class="divide-y rounded-lg border">

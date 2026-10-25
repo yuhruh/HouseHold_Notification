@@ -17,7 +17,7 @@
           <div class="flex flex-wrap items-start justify-between gap-2">
             <div>
               <p class="font-medium"><%= template.title %><%= " · #{template.details}" if template.details.present? %></p>
-              <p class="text-sm text-gray-600"><%= t("records.types.#{template.record_type}") %> · <%= interval_label(template.interval_months) %> · <%= template_amount(template) %>
+              <p class="text-sm text-gray-600"><%= record_type_label(template.record_type) %> · <%= interval_label(template.interval_months) %> · <%= template_amount(template) %>
                 · <%= t(".next", period: next_period.to_s, date: l(template.generation_date(next_period))) %></p>
               <p class="text-xs text-gray-500"><%= t(".bills", count: template.records.size) %></p>
             </div>

@@ -5,7 +5,7 @@
     <%= page_title("upcoming.png", t(".title")) %>
     <p class="text-center text-sm text-gray-700"><%= t(".intro") %></p>
   </div>
-  <% sections = [ [ :overdue, @overdue ], [ :soon, @soon ], [ :maintenance, @maintenance ], [ :no_due, @no_due ], [ :later, @later ] ] %>
+  <% sections = [ [ :overdue, @overdue ], [ :soon, @soon ], [ :maintenance, @maintenance ], [ :later, @later ], [ :no_due, @no_due ] ] %>
   <% if sections.all? { |_, list| list.empty? } %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% end %>

@@ -17,12 +17,37 @@
     </ul>
   <% end %>
   <% if writer && record.photos.size < Photos::Upload::MAX_PHOTOS %>
-    <%= form_with url: household_record_photos_path(Current.household, record), multipart: true, class: "flex flex-wrap items-center gap-2 text-sm",
-          data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing") } do |f| %>
-      <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true,
-            data: { photo_upload_target: "input", action: "change->photo-upload#resize" }, class: "max-w-full text-sm" %>
-      <%= f.button type: "submit", name: nil, data: { photo_upload_target: "submit", turbo_submits_with: t("photos.gallery.uploading") }, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" do %><%= image_tag "icons/add.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("photos.gallery.upload") %></span><% end %>
-      <span class="text-gray-500" data-photo-upload-target="status"></span>
+    <%# Two numbered steps: ① Choose Photos (a button-styled label for the hidden file field), then
+        ② Upload, which stays disabled until photos are chosen; photo_upload_controller.js shows how many
+        were chosen with small previews and shrinks them before upload. The "other" texts keep %{count} for the
+        script to fill in %>
+    <%= form_with url: household_record_photos_path(Current.household, record), multipart: true,
+          class: "space-y-2.5 rounded-xl border-2 border-dashed border-gray-400 bg-white p-3.5 data-[chosen]:border-solid data-[chosen]:border-blue-400",
+          data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing"),
+                  photo_upload_chosen_one_value: t("photos.gallery.chosen", count: 1), photo_upload_chosen_other_value: t("photos.gallery.chosen", count: "%{count}"),
+                  photo_upload_upload_one_value: t("photos.gallery.upload_count", count: 1), photo_upload_upload_other_value: t("photos.gallery.upload_count", count: "%{count}") } do |f| %>
+      <% badge = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-bold" %>
+      <div class="flex items-center gap-2.5">
+        <span class="<%= badge %> bg-blue-700 text-white" data-photo-upload-target="stepOne">1</span>
+        <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "record_photos_input",
+              data: { photo_upload_target: "input", action: "change->photo-upload#resize" }, class: "peer sr-only" %>
+        <label for="record_photos_input" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><%= t("photos.gallery.choose") %></span>
+        </label>
+      </div>
+      <div class="ml-9.5 space-y-2 text-sm">
+        <p class="text-gray-600" data-photo-upload-target="status"><%= t("photos.gallery.none_chosen") %></p>
+        <p hidden class="flex items-center gap-2" data-photo-upload-target="summary">
+          <span class="font-medium" data-photo-upload-target="count"></span>
+          <label for="record_photos_input" class="cursor-pointer text-blue-700 underline"><%= t("photos.gallery.change") %></label>
+        </p>
+        <div hidden class="flex flex-wrap gap-2" data-photo-upload-target="previews"></div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span class="<%= badge %> bg-gray-300 text-gray-700" data-photo-upload-target="stepTwo">2</span>
+        <%= f.button type: "submit", name: nil, disabled: true, data: { photo_upload_target: "submit", turbo_submits_with: t("photos.gallery.uploading") },
+              class: "btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-green-200 px-3.5 py-2 font-medium text-green-900 disabled:cursor-not-allowed disabled:border-gray-400 disabled:bg-gray-100 disabled:text-gray-500 disabled:shadow-none" do %><%= image_tag "icons/add.png", alt: "", class: "h-5 w-5 object-contain" %><span data-photo-upload-target="label"><%= t("photos.gallery.upload") %></span><% end %>
+      </div>
     <% end %>
     <p class="text-xs text-gray-500"><%= t("photos.gallery.hint", max: Photos::Upload::MAX_PHOTOS) %></p>
   <% end %>

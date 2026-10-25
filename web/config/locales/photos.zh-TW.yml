@@ -8,7 +8,16 @@ zh-TW:
       unreadable: "無法讀取 %{name}。"
     gallery:
       title: "照片"
-      upload: "新增照片"
+      choose: "選擇照片"
+      none_chosen: "尚未選擇照片"
+      chosen:
+        one: "已選擇 1 張照片"
+        other: "已選擇 %{count} 張照片"
+      change: "重新選擇"
+      upload: "上傳"
+      upload_count:
+        one: "上傳 1 張照片"
+        other: "上傳 %{count} 張照片"
       uploading: "上傳中…"
       preparing: "正在處理照片…"
       remove: "移除"

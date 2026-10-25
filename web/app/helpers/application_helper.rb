@@ -16,7 +16,7 @@ module ApplicationHelper
   end
 
   # A page title with its picture in front (Pending, Records, Dashboard, My Account, the guide, the Edit, New Recurring Bill and Mark Paid pages,
-  # the inbox, Sign in)
+  # the inbox, Sign in, Create An Account)
   def page_title(icon, title)
     tag.h1(class: "flex justify-center items-center gap-3 text-3xl font-bold") do
       safe_join([ image_tag("icons/#{icon}", alt: "", class: "h-10 w-10 object-contain"), tag.span(title) ])

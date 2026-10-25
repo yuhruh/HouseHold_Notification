@@ -11,7 +11,7 @@
     <details class="relative">
       <% if big %>
         <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 [&::-webkit-details-marker]:hidden">
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"/></svg><%= t("records.reminders.remind_later") %></summary>
+          <%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.remind_later") %></summary>
       <% else %>
         <summary class="cursor-pointer rounded border px-2 py-0.5"><%= t("records.reminders.snooze") %></summary>
       <% end %>

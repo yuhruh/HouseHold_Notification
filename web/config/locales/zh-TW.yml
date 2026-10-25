@@ -153,6 +153,13 @@ zh-TW:
       sign_out: "登出"
       sign_in: "登入"
       sign_up: "建立帳號"
+      install:
+        title: "安裝 App"
+        intro: "把它放到主畫面：開啟時是全螢幕，帳單提醒會以通知送達。免費，不需要應用程式商店。"
+        button: "安裝 App"
+        android_html: "<strong>Android：</strong>點「<strong>安裝 App</strong>」，或打開瀏覽器選單 <strong>⋮ → 安裝應用程式</strong>（有些手機是「加到主畫面」）。"
+        ios_html: "<strong>iPhone / iPad：</strong>在 Safari 點<strong>分享</strong> <svg class=\"inline h-4 w-4 align-[-3px]\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" role=\"img\" aria-label=\"Share\"><path d=\"M12 3v12M8 7l4-4 4 4\"/><path d=\"M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8\"/></svg> → <strong>加入主畫面</strong>。從主畫面圖示開啟時才會收到提醒。"
+        after: "安裝後可以在 App 裡註冊或登入。"
     features:
       page_title: "功能介紹 · Household Tracker"
       title: "功能介紹"

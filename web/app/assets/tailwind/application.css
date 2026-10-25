@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "./dark.css";
 
+/* Opened from the home-screen icon (installed app): standalone:hidden hides the home page's install card */
+@custom-variant standalone (@media (display-mode: standalone));
+
 /* Page background: a soft pinkish gray that matches the card-raised outline. Cards, inputs and menus
    stay bg-white. dark.css mirrors mauve-100 to its dark shade; [data-theme] beats its :root rules. */
 :root, :root[data-theme] { background-color: var(--color-mauve-100); }

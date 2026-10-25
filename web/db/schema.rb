@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_150000) do
     t.datetime "updated_at", null: false
     t.index ["expires_at"], name: "index_auth_handoffs_on_expires_at"
     t.index ["user_id"], name: "index_auth_handoffs_on_user_id"
+  end
+
+  create_table "biller_codes", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "category_id", null: false
+    t.string "code", null: false
+    t.integer "deadline_offset_days", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_biller_codes_on_category_id"
+    t.index ["household_id", "code"], name: "index_biller_codes_on_household_id_and_code", unique: true
+    t.index ["household_id"], name: "index_biller_codes_on_household_id"
+    t.check_constraint "deadline_offset_days >= 0 AND deadline_offset_days <= 10", name: "biller_codes_offset_range"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -346,8 +359,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_150000) do
     t.bigint "recurring_template_id"
     t.date "reminders_restarted_on"
     t.date "payable_from"
+    t.string "bill_number"
     t.index ["category_id"], name: "index_records_on_category_id"
     t.index ["created_by_id"], name: "index_records_on_created_by_id"
+    t.index ["household_id", "bill_number"], name: "index_records_on_household_id_and_bill_number", where: "(bill_number IS NOT NULL)"
     t.index ["household_id", "due_on"], name: "index_records_on_household_id_and_due_on", where: "(settled = false)"
     t.index ["household_id", "import_key"], name: "index_records_on_household_id_and_import_key", unique: true
     t.index ["household_id", "next_due_on"], name: "index_records_on_household_id_and_next_due_on", where: "(next_due_on IS NOT NULL)"
@@ -684,6 +699,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_150000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "auth_handoffs", "users", on_delete: :cascade
+  add_foreign_key "biller_codes", "categories"
+  add_foreign_key "biller_codes", "households"
   add_foreign_key "categories", "households"
   add_foreign_key "category_aliases", "categories"
   add_foreign_key "category_aliases", "households"

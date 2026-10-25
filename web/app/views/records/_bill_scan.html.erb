@@ -1,0 +1,78 @@
+<%# New Record → Scan the Bill's Barcodes (三段式條碼): the phone reads the 3 barcodes (the browser's own
+    reader where it has one, Android Chrome; otherwise ZXing, loaded only then: iPhone, Safari, Firefox),
+    bill_scans#show says what they mean, and bill_scan_controller.js fills the form below. A biller code
+    seen for the first time asks once which category it is. Nothing is uploaded until Save %>
+<% texts = %w[not_found error reading no_camera filled check again from_barcode please_check due_offset duplicate].index_with { t("records.scan.#{it}") } %>
+<section class="card-raised space-y-3 rounded-xl bg-cyan-50 p-4 dark:bg-cyan-50/60" data-bill-scan-target="card">
+  <div>
+    <h2 class="text-lg font-semibold"><%= t("records.scan.title") %></h2>
+    <p class="text-sm text-gray-700"><%= t("records.scan.intro") %></p>
+  </div>
+  <div class="flex items-center gap-3">
+    <%# A bill with its 條碼區 (the 3 barcodes on the bottom part) outlined %>
+    <div aria-hidden="true" class="flex h-32 w-24 shrink-0 flex-col overflow-hidden rounded-md border border-slate-300 bg-white">
+      <div class="flex-1 space-y-1 border-b border-dashed border-pink-300 bg-pink-50 p-2"><div class="h-1.5 w-3/4 rounded bg-pink-200"></div><div class="h-1 w-full rounded bg-pink-100"></div><div class="h-1 w-2/3 rounded bg-pink-100"></div></div>
+      <div class="flex h-14 gap-1 bg-green-50 p-1.5"><div class="flex flex-1 flex-col justify-center gap-1 rounded border-2 border-cyan-600 bg-cyan-50 p-1">
+        <% %w[w-3/4 w-full w-5/6].each do |w| %><div class="h-1.5 <%= w %> bg-[repeating-linear-gradient(90deg,#111_0_2px,#fff_2px_3px)]"></div><% end %>
+      </div></div>
+    </div>
+    <p class="text-sm text-cyan-950"><%= t("records.scan.aim_html") %></p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <button type="button" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-cyan-200 px-3.5 py-2 font-medium text-cyan-950" data-action="bill-scan#open">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M13 8v8M16 8v8"/></svg><span><%= t("records.scan.scan") %></span>
+    </button>
+    <label class="btn-press inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900">
+      <input type="file" accept="image/*" class="sr-only" data-bill-scan-target="photo" data-action="change->bill-scan#readPhoto"><span><%= t("records.scan.photo") %></span>
+    </label>
+  </div>
+  <p hidden class="rounded-lg px-3 py-2 text-sm" role="status" data-bill-scan-target="message"></p>
+
+  <%# First time for a biller code: which category, and what its deadline means (asked once) %>
+  <div hidden class="space-y-3 rounded-lg bg-white p-3" data-bill-scan-target="ask">
+    <p class="font-bold text-green-800"><%= t("records.scan.all_read") %></p>
+    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+      <dt class="text-gray-600"><%= t("records.scan.amount") %></dt><dd class="font-bold" data-bill-scan-target="askAmount"></dd>
+      <dt class="text-gray-600"><%= t("records.scan.deadline") %></dt><dd data-bill-scan-target="askDeadline"></dd>
+      <dt class="text-gray-600"><%= t("records.scan.biller") %></dt><dd><span data-bill-scan-target="askBiller"></span> <span class="text-gray-600">· <%= t("records.scan.new_biller") %></span></dd>
+    </dl>
+    <label class="block space-y-1">
+      <span class="block font-semibold"><%= t("records.scan.which_category") %></span>
+      <span class="block text-sm text-gray-600" data-bill-scan-target="askOnce" data-template="<%= t("records.scan.asked_once", code: "%{code}") %>"></span>
+      <%= select_tag :scan_category_id, grouped_options_for_select(category_options(Record.new)), include_blank: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2", data: { bill_scan_target: "askCategory" } %>
+    </label>
+    <fieldset class="space-y-1 text-sm">
+      <legend class="mb-1 font-semibold"><%= t("records.scan.deadline_meaning") %></legend>
+      <label class="flex items-start gap-2"><input type="radio" name="scan_offset" value="3" checked data-bill-scan-target="askOffset"> <span><%= t("records.scan.offset_3") %></span></label>
+      <label class="flex items-start gap-2"><input type="radio" name="scan_offset" value="0" data-bill-scan-target="askOffset"> <span><%= t("records.scan.offset_0") %></span></label>
+    </fieldset>
+    <button type="button" class="btn-press inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-cyan-200 px-3.5 py-2 font-medium text-cyan-950" data-action="bill-scan#remember"><%= t("records.scan.fill") %></button>
+  </div>
+
+  <%# The live camera, full screen. The checklist ticks each barcode as it's read %>
+  <dialog class="m-0 h-dvh max-h-none w-screen max-w-none bg-slate-950 p-4 text-slate-50 backdrop:bg-black" data-bill-scan-target="dialog" data-action="close->bill-scan#stop">
+    <div class="mx-auto flex h-full max-w-md flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <button type="button" class="h-11 w-11 cursor-pointer rounded-full bg-white/15 text-xl" aria-label="<%= t("records.scan.close") %>" data-action="bill-scan#close">✕</button>
+        <span class="font-bold"><%= t("records.scan.camera_title") %></span>
+        <button type="button" hidden class="h-11 w-11 cursor-pointer rounded-full bg-white/15" aria-label="<%= t("records.scan.light") %>" data-bill-scan-target="light" data-action="bill-scan#toggleLight">
+          <svg class="mx-auto h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+        </button>
+        <span class="h-11 w-11" data-bill-scan-target="lightSpacer"></span>
+      </div>
+      <div class="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-slate-800">
+        <video class="h-full w-full object-cover" playsinline muted data-bill-scan-target="video"></video>
+        <div class="pointer-events-none absolute inset-x-5 top-1/2 h-56 -translate-y-1/2 rounded-xl border-[3px] border-cyan-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.55)]"></div>
+        <p class="absolute inset-x-0 bottom-4 text-center text-sm text-slate-200"><%= t("records.scan.fit") %><br><%= t("records.scan.hold") %></p>
+      </div>
+      <ol class="space-y-2 text-sm" aria-live="polite">
+        <% 3.times do |i| %>
+          <li class="flex items-center gap-2.5"><span class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400" data-bill-scan-target="tick"></span><%= t("records.scan.step#{i + 1}") %></li>
+        <% end %>
+      </ol>
+      <button type="button" class="min-h-11 cursor-pointer rounded-xl border border-white/30 font-medium" data-action="bill-scan#photoInstead"><%= t("records.scan.take_photo") %></button>
+    </div>
+  </dialog>
+  <script type="application/json" data-bill-scan-target="texts"><%= raw texts.to_json %></script>
+</section>
+<div class="flex items-center gap-2.5 text-sm text-gray-600"><span class="h-px flex-1 bg-gray-300"></span><%= t("records.scan.or_manual") %><span class="h-px flex-1 bg-gray-300"></span></div>

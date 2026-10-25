@@ -5,5 +5,9 @@
     <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= t("records.form.recurring_tip") %>
       <%= link_to new_household_recurring_template_path(Current.household), class: "inline-flex items-center gap-1 font-medium underline" do %><%= image_tag "icons/recurring.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t("records.form.recurring_link") %></span><% end %></p>
   <% end %>
-  <%= render "form", record: @record %>
+  <div class="space-y-6" data-controller="bill-scan" data-bill-scan-scan-url-value="<%= household_bill_scan_path(Current.household) %>"
+       data-bill-scan-remember-url-value="<%= household_biller_codes_path(Current.household) %>">
+    <%= render "bill_scan" %>
+    <%= render "form", record: @record %>
+  </div>
 </div>

@@ -33,7 +33,7 @@
                 <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
             </div>
             <div class="flex flex-wrap items-start gap-3">
-              <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+              <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
               <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id], big: true %>
             </div>
           </li>

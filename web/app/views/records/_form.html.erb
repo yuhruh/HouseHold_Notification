@@ -98,7 +98,7 @@
         <summary class="flex cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
           <svg class="h-5 w-5 shrink-0 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
           <span class="flex-1">
-            <span id="billing_heading" class="block <%= heading %>"><%= doing ? t("records.form.task") : t("records.form.billing") %></span>
+            <span id="billing_heading" class="flex items-center gap-2 <%= heading %>"><%= nav_label("details.png", doing ? t("records.form.task") : t("records.form.billing")) %></span>
             <span class="block text-sm text-gray-600"><%= [ (t(doing ? "records.form.expected_amount" : "records.form.due_amount", amount: money(record.amount_required, record.currency)) if record.amount_required), (t("records.index.due_on", date: l(record.due_on)) if record.due_on) ].compact.join(" · ").presence || record.period %></span>
           </span>
           <span class="text-sm font-semibold text-blue-800 group-open:hidden"><%= t("records.form.show") %></span>
@@ -110,7 +110,7 @@
       </details>
     <% else %>
     <section class="<%= section %>" aria-labelledby="billing_heading" data-controller="due-reminder">
-      <h2 id="billing_heading" class="<%= heading %>"><%= t("records.form.billing") %></h2>
+      <h2 id="billing_heading" class="flex items-center gap-2 <%= heading %>"><%= nav_label("details.png", t("records.form.billing")) %></h2>
       <%= billing_fields %>
     </section>
     <% end %>
@@ -119,7 +119,7 @@
         (dark mode: the softer emerald-400, as card-raised softens its mauve) %>
     <section class="<%= section %> <%= "[--card-line:var(--color-emerald-700)] dark:[--card-line:var(--color-emerald-400)]" if paying %>" aria-labelledby="payment_heading">
       <% if doing %>
-        <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.done") %></h2>
+        <h2 id="payment_heading" class="flex items-center gap-2 <%= heading %>"><%= nav_label("details.png", t("records.form.done")) %></h2>
         <p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= record.amount_required ? t("records.form.prefilled_done_cost", amount: money(record.amount_required, record.currency)) : t("records.form.prefilled_done") %></p>
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -148,7 +148,7 @@
           <%= form.text_area :payment_note, rows: 2, maxlength: 2000, class: field %>
         </div>
       <% else %>
-        <h2 id="payment_heading" class="<%= heading %>"><%= t("records.form.payment") %></h2>
+        <h2 id="payment_heading" class="flex items-center gap-2 <%= heading %>"><%= nav_label("details.png", t("records.form.payment")) %></h2>
         <% if paying %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
         <fieldset class="space-y-2">
           <legend class="block text-sm font-medium"><%= Record.human_attribute_name(:amount_paid) %></legend>

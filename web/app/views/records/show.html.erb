@@ -4,7 +4,7 @@
   <%= render "shared/flash" %>
   <div class="space-y-1">
     <h1 class="text-center text-3xl font-bold"><%= @record.title %></h1>
-    <p class="text-center text-sm text-gray-600"><%= t("records.types.#{@record.record_type}") %> · <%= @record.category.name %></p>
+    <p class="text-center text-sm text-gray-600"><%= record_type_label(@record.record_type) %> · <%= @record.category.name %></p>
   </div>
   <%= render "status_line", record: @record %>
 

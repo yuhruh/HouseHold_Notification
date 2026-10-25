@@ -7,7 +7,7 @@
     <%= form.label :record_type, class: "block text-sm font-medium" %>
     <%= form.select :record_type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, {}, class: field %>
   <% else %>
-    <p class="text-sm text-gray-600"><%= t("records.types.#{category.record_type}") %></p>
+    <p class="text-sm text-gray-600"><%= record_type_label(category.record_type) %></p>
   <% end %>
   <%= form.label :name_zh, class: "block text-sm font-medium" %>
   <%= form.text_field :name_zh, required: true, maxlength: 40, class: field %>

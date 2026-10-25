@@ -10,6 +10,13 @@ module RecordsHelper
 
   def record_card_class(record) = CARD_CLASSES[record.status]
 
+  # A record type's name; Tax has its picture in front, sized to the surrounding text
+  def record_type_label(type)
+    label = t("records.types.#{type}")
+    return label unless type.to_s == "tax"
+    safe_join([ image_tag("icons/tax.png", alt: "", class: "inline h-[1.2em] w-[1.2em] object-contain align-[-0.25em]"), " ", label ])
+  end
+
   def record_status_badge(record)
     status = record.status
     label = record.maintenance? ? t("records.maintenance_status.#{status}") : t("records.status.#{status}")

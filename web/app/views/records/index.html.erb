@@ -41,7 +41,7 @@
       </thead>
       <tbody>
         <% @filter.summary.each do |row| %>
-          <tr><td class="px-3 py-1.5"><%= t("records.types.#{row.record_type}") %> <span class="text-gray-500"><%= row.currency %></span></td>
+          <tr><td class="px-3 py-1.5"><%= record_type_label(row.record_type) %> <span class="text-gray-500"><%= row.currency %></span></td>
             <td class="px-3 py-1.5 text-right"><%= amount_link(row, @filter.params, :paid) %></td></tr>
         <% end %>
         <% @filter.totals.each do |row| %>
@@ -72,7 +72,7 @@
         <li id="<%= dom_id(record) %>">
           <%= link_to household_record_path(Current.household, record), class: "card-raised flex h-full items-center gap-3 rounded-xl px-4 py-3 text-gray-900 transition-transform hover:-translate-y-0.5 #{record_card_class(record)}" do %>
             <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span class="text-xs text-gray-600"><%= record.period %> · <%= t("records.types.#{record.record_type}") %></span>
+              <span class="text-xs text-gray-600"><%= record.period %> · <%= record_type_label(record.record_type) %></span>
               <span class="text-lg font-bold break-words"><%= record.title %></span>
               <% if record.details.present? %><span class="whitespace-pre-line break-words text-sm text-gray-700"><%= record.details %></span><% end %>
               <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">

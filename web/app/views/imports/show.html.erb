@@ -33,7 +33,7 @@
             <tbody>
               <% p.choices["categories"].each do |mapping, choice| %>
                 <% type, item = mapping.split("|", 2) %>
-                <tr><td class="py-1.5 pr-3"><%= item %> <span class="text-xs text-gray-500"><%= t("records.types.#{type}") %></span></td>
+                <tr><td class="py-1.5 pr-3"><%= item %> <span class="text-xs text-gray-500"><%= record_type_label(type) %></span></td>
                   <td class="py-1.5 pr-3"><%= p.rows.count { |r| r["record_type"] == type && r["values"]["item"] == item } %></td>
                   <td class="py-1.5"><%= select_tag "choices[categories][#{mapping}]", import_category_options(type, choice), class: "w-full rounded-md border border-gray-400 px-2 py-1" %></td></tr>
               <% end %>

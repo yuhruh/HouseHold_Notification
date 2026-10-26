@@ -5,32 +5,32 @@
   <%= page_title("account.png", t(".title")) %>
 
   <section class="space-y-4">
-    <h2 class="text-lg font-semibold"><%= t(".profile") %></h2>
+    <h2 class="text-center text-lg font-semibold"><%= t(".profile") %></h2>
     <% has_photo = Current.user.avatar.attached? %>
-    <div class="flex flex-wrap items-center gap-4">
+    <div class="flex flex-wrap items-center justify-center gap-4">
       <% if has_photo %>
         <%= image_tag avatar_path_for(Current.user), alt: t("photos.avatar.label"), class: "h-16 w-16 rounded-full border object-cover" %>
       <% else %>
         <span class="flex h-16 w-16 items-center justify-center rounded-full bg-amber-200 text-2xl font-extrabold text-gray-900" aria-hidden="true"><%= (Current.user.display_name.presence || Current.user.email_address).first.upcase %></span>
       <% end %>
-      <%# Phone: the buttons stack at one width beside the photo; computer: side by side %>
-      <div class="grid gap-3 sm:flex sm:items-center">
+      <%# The buttons sit side by side, each as wide as its words; on a phone they wrap under the photo %>
+      <div class="flex items-center gap-3">
         <%# One step: picking a photo uploads it straight away %>
         <%= form_with url: avatar_path, method: :patch, multipart: true do |f| %>
           <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "avatar_input", class: "peer sr-only",
                 onchange: "if (this.files.length) { this.labels[0].querySelector('span').textContent = '#{j t('photos.gallery.uploading')}'; this.form.requestSubmit() }" %>
-          <label for="avatar_input" class="btn-press inline-flex w-full sm:w-auto min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
+          <label for="avatar_input" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
             <%= image_tag "icons/#{has_photo ? 'update_photo' : 'add_photo'}.png", alt: "", class: "h-6 w-6 object-contain" %><span><%= t(has_photo ? "photos.avatar.change" : "photos.avatar.choose") %></span>
           </label>
         <% end %>
         <% if has_photo %>
-          <%= button_to avatar_path, method: :delete, class: "btn-press inline-flex w-full sm:w-auto min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-red-200 px-3.5 py-2 font-medium text-red-900" do %>
+          <%= button_to avatar_path, method: :delete, class: "btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-red-200 px-3.5 py-2 font-medium text-red-900" do %>
             <%= image_tag "icons/remove_photo.png", alt: "", class: "h-6 w-6 object-contain" %><span><%= t("photos.avatar.remove") %></span>
           <% end %>
         <% end %>
       </div>
     </div>
-    <p class="text-sm text-gray-600"><%= t("photos.avatar.hint") %></p>
+    <p class="text-center text-sm text-gray-600"><%= t("photos.avatar.hint") %></p>
     <%= form_with model: @user, url: account_path, method: :patch, class: "space-y-4" do |form| %>
       <% if @user.errors.any? %>
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>

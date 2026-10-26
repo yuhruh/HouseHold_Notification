@@ -29,7 +29,9 @@ en:
       hint: "Take a photo or pick from the gallery, up to %{max} per record. Location and other hidden details are removed."
     avatar:
       label: "Profile Photo"
-      upload: "Upload Photo"
+      choose: "Choose Photo"
+      change: "Change Photo"
+      hint: "Picking a photo saves it right away. Location and other hidden details are removed."
       remove: "Remove Photo"
     create:
       added:

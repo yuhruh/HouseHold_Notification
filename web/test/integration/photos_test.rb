@@ -141,4 +141,23 @@ class PhotosTest < ActionDispatch::IntegrationTest
     get user_avatar_path(users(:alex))
     assert_response :not_found
   end
+
+  test "My Account: one Choose Photo button that uploads when a photo is picked; a new photo gets a new address" do
+    sign_in_as users(:alex)
+    get account_path
+    assert_select "form[action=?] input[type=file][onchange*=requestSubmit]", avatar_path
+    assert_select "form[action=?] input[type=submit]", avatar_path, 0
+    assert_select "label[for=avatar_input]", /選擇照片/
+
+    patch avatar_path, params: { avatar: photo_upload }
+    first = users(:alex).reload.avatar.blob.id
+    get account_path
+    assert_select "label[for=avatar_input]", /更換照片/
+    assert_select "img[src=?]", user_avatar_path(users(:alex), v: first)
+
+    patch avatar_path, params: { avatar: photo_upload }
+    get account_path
+    assert_select "img[src=?]", user_avatar_path(users(:alex), v: users(:alex).reload.avatar.blob.id)
+    assert_not_equal first, users(:alex).avatar.blob.id
+  end
 end

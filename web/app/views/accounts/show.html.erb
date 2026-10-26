@@ -6,16 +6,24 @@
 
   <section class="space-y-4">
     <h2 class="text-lg font-semibold"><%= t(".profile") %></h2>
-    <div class="flex flex-wrap items-center gap-3">
-      <% if Current.user.avatar.attached? %>
-        <%= image_tag user_avatar_path(Current.user), alt: "", class: "h-14 w-14 rounded-full border object-cover" %>
+    <% has_photo = Current.user.avatar.attached? %>
+    <div class="flex flex-wrap items-center gap-4">
+      <% if has_photo %>
+        <%= image_tag avatar_path_for(Current.user), alt: t("photos.avatar.label"), class: "h-16 w-16 rounded-full border object-cover" %>
+      <% else %>
+        <span class="flex h-16 w-16 items-center justify-center rounded-full bg-amber-200 text-2xl font-extrabold text-gray-900" aria-hidden="true"><%= (Current.user.display_name.presence || Current.user.email_address).first.upcase %></span>
       <% end %>
-      <%= form_with url: avatar_path, method: :patch, multipart: true, class: "flex flex-wrap items-center gap-2 text-sm" do |f| %>
-        <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, class: "max-w-full text-sm", "aria-label": t("photos.avatar.label") %>
-        <%= f.submit t("photos.avatar.upload"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" %>
+      <%# One step: picking a photo uploads it straight away %>
+      <%= form_with url: avatar_path, method: :patch, multipart: true do |f| %>
+        <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "avatar_input", class: "peer sr-only",
+              onchange: "if (this.files.length) { this.labels[0].querySelector('span').textContent = '#{j t('photos.gallery.uploading')}'; this.form.requestSubmit() }" %>
+        <label for="avatar_input" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><%= t(has_photo ? "photos.avatar.change" : "photos.avatar.choose") %></span>
+        </label>
       <% end %>
-      <% if Current.user.avatar.attached? %><%= button_to t("photos.avatar.remove"), avatar_path, method: :delete, class: "cursor-pointer text-sm text-red-700 underline" %><% end %>
+      <% if has_photo %><%= button_to t("photos.avatar.remove"), avatar_path, method: :delete, class: "cursor-pointer text-sm text-red-700 underline" %><% end %>
     </div>
+    <p class="text-sm text-gray-600"><%= t("photos.avatar.hint") %></p>
     <%= form_with model: @user, url: account_path, method: :patch, class: "space-y-4" do |form| %>
       <% if @user.errors.any? %>
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>

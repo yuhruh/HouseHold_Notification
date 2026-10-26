@@ -29,7 +29,9 @@ zh-TW:
       hint: "可拍照或從相簿選取，每筆記錄最多 %{max} 張。位置等隱藏資訊會被移除。"
     avatar:
       label: "個人照片"
-      upload: "上傳照片"
+      choose: "選擇照片"
+      change: "更換照片"
+      hint: "選好照片就會直接儲存，位置等隱藏資訊會被移除。"
       remove: "移除照片"
     create:
       added:

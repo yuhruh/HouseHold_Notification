@@ -5,6 +5,8 @@ class HouseholdsController < ApplicationController
 
   def show
     authorize Current.household
+    @to_pay = Records::ToPay.new(Current.household)
+    @paid = Current.household.records.where(settled: true).where.not(paid_on: nil).order(paid_on: :desc, id: :desc).limit(3).includes(:category)
   end
 
   def create

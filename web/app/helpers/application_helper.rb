@@ -23,6 +23,10 @@ module ApplicationHelper
     end
   end
 
+  # A user's photo, its address carrying the photo's id so a new photo shows at once instead of the
+  # browser's cached old one (avatars are cached for 5 minutes)
+  def avatar_path_for(user) = user_avatar_path(user, v: user.avatar.blob.id)
+
   # The theme picked in the header menu (cookie), light by default
   def current_theme = ThemesController::THEMES.include?(cookies[:theme]) ? cookies[:theme] : "light"
 end

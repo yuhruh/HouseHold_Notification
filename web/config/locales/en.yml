@@ -163,46 +163,60 @@ en:
     features:
       page_title: "Features · Household Tracker"
       title: "Features"
-      intro: "Household Tracker replaces the family's Google Sheet for bills, maintenance and taxes, and reminds everyone before things are due. It works on computers and Android phones, and installs as an app."
+      intro: "Household Tracker replaces the family's Google Sheet for bills, maintenance and taxes, and reminds everyone before things are due. It works on computers and phones, and installs as an app."
       sections:
         records:
-          title: "Records"
+          title: "Bills"
           items:
-            - "Expense, Maintenance and Tax: category, period (e.g. Jan. - Feb., Full Year), required and paid amounts, due date, paid date, payment method, notes and photos."
-            - "Status is worked out for you (unpaid, partial, paid ✅, overdue), using each person's own date."
-            - "One-tap Mark paid; filter by year, month, type, category, status, payment method and search, with Paid totals."
-            - "Every record keeps a history of changes, and the list exports to CSV."
+            - "Expense, Maintenance and Tax: category, details, billing period (e.g. Jan. - Feb., Full Year), amount due and paid, Payable From and due dates, paid date, payment method, notes and photos."
+            - "One Bills page with two views: To Pay lists what's overdue, due in the next 30 days, maintenance coming up and due later, most urgent first; All lists every record as a compact row."
+            - "Status is worked out for you (unpaid, partly paid, paid, overdue), using each person's own date. Remind Me Later pauses a bill's reminders for you only."
+            - "Record Payment opens the form already filled in (paid in full, today, your usual payment method); maintenance is a task you Mark Done, with what it cost."
+            - "Search and filters (year, month, type, category, status, payment method) stay folded behind a Filters button; the filters in use show as tags, the summary shows Paid totals, and Export CSV saves what the filters show."
+            - "Every record keeps a history of changes, and Past Records opens the earlier times of the same item."
+        scan:
+          title: "Scan a bill"
+          items:
+            - "New Record → Scan the Bill's Barcodes: point the camera, or use a photo, at the 3 barcodes on a Taiwan bill (三段式條碼), and the amount, due date, year and category are filled in."
+            - "The first bill from each biller asks once which category it is. Reading happens on your phone; nothing is uploaded until you save."
+            - "Before the form is filled your records are checked: a bill already recorded (same bill number) shows that record instead, and a record you typed in yourself for the same category and period asks whether it's the same bill."
         recurring:
           title: "Recurring bills"
           items:
             - "Set a bill up once (water every 2 months, management fee yearly) and the next one is created ahead of time."
             - "Fixed amounts are filled in; variable bills show the last amount as a hint."
+            - "Changing a template shows every unpaid bill it affects before anything changes."
         reminders:
           title: "Reminders"
           items:
             - "At most one combined reminder a day per person, at their chosen time (09:00 by default): due soon, due today and overdue."
             - "By push notification (phone and computer), email and the in-app inbox."
+            - "A red count on Bills shows the unpaid bills due today or earlier."
             - "If a reminder doesn't arrive, the owner gets a daily summary and can resend it."
         household:
           title: "Household and members"
           items:
             - "Owner, co-owner (edits records) and viewer (read-only). Invite family by email."
             - "Sign in with email and password or Google; one account can belong to several households."
+            - "The household menu at the top switches households and opens Household Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or 繁體中文) and Sign Out."
+            - "On a phone, the tab bar at the bottom has Bills, Analysis and New Record. Put it on your home screen like an app (Android: one tap; iPhone and iPad: Safari → Add to Home Screen)."
             - "The activity log shows who did what."
         photos:
           title: "Photos"
           items:
-            - "Attach receipt photos to a bill; they're downsized and location data is removed."
+            - "Add receipt photos to a bill in two steps, choose then upload; they're downsized and location data is removed."
+            - "A photo that's already on the record is recognised and not added twice."
             - "Only household members can see them."
         analysis:
           title: "Expense Analysis"
           items:
             - "Spending by type per month (or per year), the water, electricity and gas trend, spending by category and payment method, and a spread of bill amounts."
+            - "Water, electricity and gas by billing cycle, as a timeline or against the same period last year."
             - "Click a chart to see the records behind it; choose one year or all years."
         import:
           title: "Sheet import"
           items:
-            - "Upload the sheet's CSV, review the preview (new, changed, unchanged), then commit."
+            - "Import CSV (on Bills › All): upload the sheet's CSV, review the preview (new, changed, unchanged), then commit."
             - "Re-importing the same sheet never duplicates records; keywords in payment notes can set payment methods in one go."
       new_here_html: "New here? See %{link} to install the app and turn on notifications."
       guide_link: "Getting Started"

@@ -8,7 +8,7 @@
     <p class="text-gray-700"><%= t(".intro") %></p>
   </header>
 
-  <% { records: "records.png", recurring: "recurring.png", reminders: "reminder.png", household: "apartment.png",
+  <% { records: "records.png", scan: "new_entry.png", recurring: "recurring.png", reminders: "reminder.png", household: "apartment.png",
        photos: "records.png", analysis: "dashboard.png", import: "import.png" }.each do |section, icon| %>
     <%= render "pages/feature", icon:, title: t(".sections.#{section}.title"), items: t(".sections.#{section}.items") %>
   <% end %>

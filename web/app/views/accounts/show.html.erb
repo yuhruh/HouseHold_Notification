@@ -36,11 +36,11 @@
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
       <% end %>
       <%= form.label :display_name, class: "block text-sm font-medium" %>
-      <%= form.text_field :display_name, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.text_field :display_name, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <%= form.label :locale, t(".locale"), class: "block text-sm font-medium" %>
       <%= form.select :locale, [ [ t(".locale_auto"), "" ], [ "繁體中文", "zh-TW" ], [ "English", "en" ] ], {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <%= form.label :time_zone, t(".time_zone"), class: "block text-sm font-medium" %>
-      <%= form.text_field :time_zone, list: "time-zones", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.text_field :time_zone, list: "time-zones", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <datalist id="time-zones"><% tz_options.each do |tz| %><option value="<%= tz %>"></option><% end %></datalist>
       <%= form.label :reminder_hour, t(".reminder_hour"), class: "block text-sm font-medium" %>
       <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
@@ -72,10 +72,10 @@
     <% end %>
     <%= form_with url: account_email_path, method: :patch, class: "space-y-3" do |form| %>
       <%= form.label :email_address, t(".new_email"), class: "block text-sm font-medium" %>
-      <%= form.email_field :email_address, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.email_field :email_address, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <% if Current.user.password_set? %>
         <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
-        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <% end %>
       <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-neutral-300 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/change_email.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".change_email") %></span><% end %>
     <% end %>
@@ -86,11 +86,11 @@
     <% if Current.user.password_set? %>
       <%= form_with url: account_password_path, method: :patch, class: "space-y-3" do |form| %>
         <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
-        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
         <%= form.label :password, t(".new_password"), class: "block text-sm font-medium" %>
-        <%= form.password_field :password, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.password_field :password, required: true, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
         <%= form.label :password_confirmation, t("activerecord.attributes.user.password_confirmation"), class: "block text-sm font-medium" %>
-        <%= form.password_field :password_confirmation, required: true, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.password_field :password_confirmation, required: true, maxlength: 72, autocomplete: "new-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
         <%= form.submit t(".change_password"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
       <% end %>
     <% else %>

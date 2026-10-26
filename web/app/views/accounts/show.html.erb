@@ -77,7 +77,7 @@
         <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
         <%= form.password_field :current_password, required: true, autocomplete: "current-password", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <% end %>
-      <%= form.submit t(".change_email"), class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-neutral-300 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/change_email.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".change_email") %></span><% end %>
     <% end %>
   </section>
 
@@ -95,7 +95,7 @@
       <% end %>
     <% else %>
       <p class="text-sm text-gray-700"><%= t(".no_password") %></p>
-      <%= button_to t(".set_password"), passwords_path, params: { email_address: Current.user.email_address }, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+      <%= button_to passwords_path, params: { email_address: Current.user.email_address }, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-neutral-300 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/password_reset.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".set_password") %></span><% end %>
     <% end %>
   </section>
 

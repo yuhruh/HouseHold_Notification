@@ -1,7 +1,7 @@
-<%# Signed-in header: Apartment menu (households + new household), pending invitations, sign out (PRD §12a).
-    From 1550px wide every link is in the bar, Bills (To Pay and All) and Expense Analysis among them;
-    narrower screens get the logo, theme toggle, inbox and a hamburger for the rest of the links, and
-    the tab bar at the bottom for Bills, Analysis and New Record %>
+<%# Signed-in header (PRD §12a): the logo and the household menu (switch households, its Settings and
+    Members) on the left, then Bills and Expense Analysis from 1550px; the inbox, New Record (from 1550px)
+    and your menu (My Account, theme, language, Getting Started, Sign Out) on the right. Under 1550px the
+    tab bar at the bottom has Bills, Analysis and New Record, and the two menus open as sheets on a phone %>
 <% households = Current.user.households.order(:name).to_a %>
 <% pending = Invitation.pending_for(Current.user).count %>
 <% unread = Current.user.notifications.unread.count %>
@@ -21,46 +21,34 @@
 <% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
 <% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
 <% inbox = capture do %>
-  <%= link_to notifications_path, class: "relative rounded-lg px-2 py-1 hover:scale-125 #{'bg-blue-50' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+  <%= link_to notifications_path, class: "relative rounded-lg p-1.5 hover:scale-110 #{'bg-blue-50' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
 <header class="border-b">
-  <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
-    <%= link_to features_path, class: "flex items-center gap-2 font-semibold" do %>
-      <%= image_tag "logo-sticker.png", alt: "", class: "h-7 w-auto" %>
-      <span>Household Tracker</span>
-    <% end %>
-    <nav class="hidden flex-wrap items-center gap-3 min-[1550px]:flex">
-      <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-2 py-1"><span class="flex items-center gap-1"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
-      <% if pending.positive? %>
+  <div class="container mx-auto flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+    <div class="flex min-w-0 items-center gap-3">
+      <%= link_to features_path, class: "flex shrink-0 items-center gap-2 font-semibold", "aria-label": "Household Tracker" do %>
+        <%= image_tag "logo-sticker.png", alt: "", class: "h-7 w-auto" %>
+        <span class="hidden sm:inline">Household Tracker</span>
+      <% end %>
+      <% if nav_household %>
+        <%= render "layouts/household_menu", households:, current: nav_household, pending:, here: nav_page == :settings %>
+        <nav class="hidden items-center gap-1 min-[1550px]:flex">
+          <%= link_to household_pending_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :bills}", "aria-current": (bills_page == :bills ? "page" : nil) do %>
+            <%= nav_label("records.png", t("layouts.header.bills")) %>
+            <% if due.positive? %><span class="rounded-full bg-red-600 px-1.5 text-xs text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
+          <% end %>
+          <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :dashboard}", "aria-current": (bills_page == :dashboard ? "page" : nil) %>
+        </nav>
+      <% elsif pending.positive? %>
         <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
       <% end %>
+    </div>
+    <div class="flex shrink-0 items-center gap-2">
       <%= inbox %>
-      <% if nav_household %>
-        <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= link_to household_pending_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :bills}", "aria-current": (bills_page == :bills ? "page" : nil) do %>
-          <%= nav_label("records.png", t("layouts.header.bills")) %>
-          <% if due.positive? %><span class="rounded-full bg-red-600 px-1.5 text-xs text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
-        <% end %>
-        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :dashboard}", "aria-current": (bills_page == :dashboard ? "page" : nil) %>
-        <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :settings}" %>
-      <% end %>
-      <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :account}" %>
-      <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :guide}" %>
-      <%= render "layouts/theme_switch" %>
-      <%= render "layouts/language_switch" %>
       <% if writer %>
-        <%= link_to nav_label("new_entry.png", t("layouts.header.new_record")), new_household_record_path(nav_household), class: "btn-press btn-new press-sm inline-flex items-center gap-1 rounded-xl px-3 py-1 font-bold" %>
+        <%= link_to nav_label("new_entry.png", t("layouts.header.new_record")), new_household_record_path(nav_household), class: "btn-press btn-new press-sm hidden items-center gap-1 rounded-xl px-3 py-1.5 font-bold min-[1550px]:inline-flex" %>
       <% end %>
-      <%= button_to nav_label("logout.png", t("layouts.header.sign_out")), session_path, method: :delete, class: "inline-flex items-center gap-1 btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-2 py-1" %>
-    </nav>
-
-    <div class="flex items-center gap-2 min-[1550px]:hidden" data-controller="menu">
-      <%= render "layouts/theme_switch" %>
-      <%= inbox %>
-      <button type="button" class="cursor-pointer rounded-md p-2 hover:scale-110" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
-        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <%= render "layouts/menu", households:, current: nav_household, pending:, unread:, nav_page: %>
+      <%= render "layouts/you_menu", nav_page:, here: %i[account guide].include?(nav_page) %>
     </div>
   </div>
 </header>

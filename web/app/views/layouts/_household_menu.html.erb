@@ -1,14 +1,31 @@
-<%# Apartment menu (PRD §12a): the user's households, the current one ticked, and ＋ New household %>
+<%# Household menu (PRD §12a), at the left of the header: named after the household you're in. Switch
+    households (your role, the current one ticked), ＋ New Household, and this household's Settings and
+    Members; invitations waiting for you come first %>
+<% row = "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 hover:bg-gray-50" %>
+<% label = "px-3 pb-1 pt-2 text-xs font-bold tracking-wide text-gray-600 uppercase" %>
+<% roles = Current.user.memberships.where(household: households).pluck(:household_id, :role).to_h %>
 <details class="relative" data-controller="dropdown">
-  <summary class="inline-flex cursor-pointer list-none items-center gap-1 px-2 py-1 hover:underline hover:font-bold">
-    <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("layouts.header.apartment") %></span><span aria-hidden="true" class="text-gray-500">▾</span>
+  <summary class="inline-flex min-h-10 max-w-[42vw] cursor-pointer list-none items-center gap-1.5 rounded-xl border-2 border-(--card-line) bg-white px-2.5 font-bold sm:max-w-none [&::-webkit-details-marker]:hidden <%= 'bg-blue-50' if here %>" aria-label="<%= t("layouts.header.household_menu", household: current.name) %>">
+    <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 shrink-0 object-contain" %><span class="truncate"><%= current.name %></span>
+    <% if pending.positive? %><span class="rounded-full bg-amber-500 px-1.5 text-xs text-white"><%= pending %></span><% end %>
+    <span aria-hidden="true" class="text-gray-500">▾</span>
   </summary>
-  <ul class="absolute right-0 z-50 mt-1 min-w-48 rounded-md border bg-white py-1 shadow">
-    <% households.each do |household| %>
-      <li><%= link_to household_path(household), class: "flex items-center gap-2 px-3 py-2 hover:bg-gray-50 #{'font-semibold' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
-        <span><%= household.name %></span><% if household == current %><span aria-hidden="true" class="ml-auto text-blue-600">✓</span><% end %>
-      <% end %></li>
+  <%= render layout: "layouts/header_sheet", locals: { side: :left } do %>
+    <% if pending.positive? %>
+      <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "#{row} bg-amber-100 font-semibold text-amber-900" %>
     <% end %>
-    <li class="border-t"><%= link_to t("layouts.header.new_household"), onboarding_path, class: "block px-3 py-2 text-blue-700 hover:bg-gray-50" %></li>
-  </ul>
+    <p class="<%= label %>"><%= t("layouts.header.households") %></p>
+    <% households.each do |household| %>
+      <%= link_to household_path(household), class: "#{row} #{'bg-blue-50' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
+        <%= image_tag "icons/apartment.png", alt: "", class: "h-6 w-6 object-contain" %>
+        <span class="flex flex-1 flex-col"><span class="<%= household == current ? 'font-bold' : 'font-medium' %>"><%= household.name %></span><span class="text-xs text-gray-600"><%= t("roles.#{roles[household.id]}", default: "") %></span></span>
+        <% if household == current %><span aria-hidden="true" class="text-blue-700">✓</span><% end %>
+      <% end %>
+    <% end %>
+    <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{row} text-blue-700" %>
+    <span aria-hidden="true" class="my-1 h-px bg-gray-200"></span>
+    <p class="<%= label %>"><%= current.name %></p>
+    <%= link_to nav_label("settings.png", t("layouts.header.household_settings")), household_settings_path(current), class: "#{row} #{'bg-blue-50 font-bold' if here}" %>
+    <%= link_to nav_label("members.png", t("households.show.members")), household_members_path(current), class: row %>
+  <% end %>
 </details>

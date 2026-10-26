@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Closes a <details> menu (languages, household switcher, Snooze / Remind Me Later) on a click outside it or on Escape
+// Closes a <details> menu (languages, the household and your menus, Snooze / Remind Me Later) on a click
+// outside it or on Escape; on a phone the header menus' backdrop closes them too (dropdown#hide)
 export default class extends Controller {
   connect() {
     this.close = (event) => {
@@ -10,6 +11,10 @@ export default class extends Controller {
     }
     document.addEventListener("click", this.close)
     document.addEventListener("keydown", this.close)
+  }
+
+  hide() {
+    this.element.open = false
   }
 
   disconnect() {

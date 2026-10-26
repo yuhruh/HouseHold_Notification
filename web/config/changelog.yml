@@ -4,11 +4,13 @@
 - version: "2026.10.26"
   date: 2026-10-26
   en:
+    - "Header: a household menu on the left, named after the household you're in (switch households, Household Settings, Members, + New Household), and your menu on the right (My Account, Theme and Language switches, Getting Started, Sign Out). On a phone they open from the bottom of the screen, and the ☰ menu is gone."
     - "Bills › All: search and the filters are folded behind a Filters button until you need them; the filters in use show as tags you can remove one by one."
     - "Pending and Records are now one Bills page: To Pay (what's still to pay, most urgent first, side by side on a computer) and All (every bill, with the filters at the side on a computer and one compact row per record), switched at the top. Export CSV and Import sit above the All list. The header has Bills and Expense Analysis; the phone tab bar has Bills, Analysis and New Record."
     - "New Record: Scan the Bill's Barcodes. Point the camera (or use a photo) at the 3 barcodes in the 條碼區 on the bottom part of a bill, and the amount, due date, year and category are filled in. The first bill from each biller asks once which category it is. Scanning a bill that's already recorded warns you."
     - "Scanning a bill checks your records before filling in the form: a bill already recorded shows that record instead (open it, or scan another bill), and a record you typed in yourself for the same category and period asks whether it's the same bill; saying yes saves the bill number on it."
   zh-TW:
+    - "頁首：左邊是以目前家庭命名的家庭選單（切換家庭、家庭設定、成員、＋ 新家庭），右邊是你的選單（我的帳戶、外觀和語言切換、使用說明、登出）。手機上會從畫面下方打開，不再有 ☰ 選單。"
     - "帳單 › 全部：搜尋和篩選收在「篩選」按鈕裡，需要時再打開；使用中的篩選會顯示成標籤，可以一個一個移除。"
     - "「待處理」和「記錄」合併成一個「帳單」頁面：上方切換「待繳」（還沒繳的帳單，最急的在前，電腦上並排顯示）和「全部」（所有帳單，電腦上篩選在側邊，每筆一列）。匯出 CSV 和匯入在「全部」清單上方。頁首有「帳單」和「支出分析」；手機下方分頁列有帳單、支出分析和新增記錄。"
     - "新增記錄：掃描帳單條碼。用相機（或照片）對準帳單下方「條碼區」的 3 條條碼，就會自動填入金額、到期日、年份和類別。每個代收單位第一次會問一次是哪個類別；掃到已經記錄過的帳單會提醒你。"

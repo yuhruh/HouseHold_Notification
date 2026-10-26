@@ -80,7 +80,8 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     sign_out
     sign_in_as users(:alex)
     get household_path(households(:home))
-    assert_select "details li a[href^='/h/']", 1, "one household, still in the menu"
+    assert_select "details li a[href=?]", household_path(households(:home)), 1, "one household, still in the menu"
+    assert_select "details li a[href=?]", household_path(households(:parents)), 0
   end
 
   test "the Household Tracker logo goes to the features page, which works signed in and out" do

@@ -1,11 +1,17 @@
 <%# Signed-in header: Apartment menu (households + new household), pending invitations, sign out (PRD §12a).
-    From 1550px wide every link is in the bar; narrower screens get the logo, theme toggle, inbox and a
-    hamburger that opens the same links full screen %>
+    From 1550px wide every link is in the bar, with Pending, Records and Expense Analysis in the Bills menu;
+    narrower screens get the logo, theme toggle, inbox and a hamburger for the rest of the links, and
+    the tab bar at the bottom for Bills and New Record %>
 <% households = Current.user.households.order(:name).to_a %>
 <% pending = Invitation.pending_for(Current.user).count %>
 <% unread = Current.user.notifications.unread.count %>
 <%# Pages outside a household (inbox, My account) still link to the last one used %>
 <% nav_household = Current.household || households.find { |h| h.id == Current.user.last_household_id } || households.first %>
+<%# Bills (Pending, Records, Expense Analysis): the page you're on, the unpaid bills due today or earlier
+    for the red count, and New Record for owners and co-owners %>
+<% bills_page = { "pending" => :pending, "records" => (:records if action_name == "index"), "dashboards" => :dashboard }[controller_name] %>
+<% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
+<% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
 <% inbox = capture do %>
   <%= link_to notifications_path, class: "relative px-2 py-1 hover:scale-125", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
@@ -23,15 +29,16 @@
       <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= link_to nav_label("upcoming.png", t("layouts.header.pending")), household_pending_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
-        <%= link_to nav_label("records.png", t("layouts.header.records")), household_records_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
-        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= render "layouts/bills_menu", household: nav_household, current: bills_page, due: %>
         <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
       <% end %>
       <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
       <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
       <%= render "layouts/theme_switch" %>
       <%= render "layouts/language_switch" %>
+      <% if writer %>
+        <%= link_to nav_label("new_entry.png", t("layouts.header.new_record")), new_household_record_path(nav_household), class: "btn-press btn-new press-sm inline-flex items-center gap-1 rounded-xl px-3 py-1 font-bold" %>
+      <% end %>
       <%= button_to nav_label("logout.png", t("layouts.header.sign_out")), session_path, method: :delete, class: "inline-flex items-center gap-1 btn-press rounded-xl bg-red-200 text-red-900 cursor-pointer px-2 py-1" %>
     </nav>
 
@@ -45,3 +52,6 @@
     </div>
   </div>
 </header>
+<% if nav_household %>
+  <%= render "layouts/tab_bar", household: nav_household, current: bills_page, due:, writer: %>
+<% end %>

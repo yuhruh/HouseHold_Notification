@@ -273,6 +273,15 @@ en:
       apartment: "Apartment"
       menu: "Menu"
       close_menu: "Close Menu"
+      bills: "Bills"
+      pending_hint: "What's due soon and overdue"
+      records_hint: "Every bill, with search and filters"
+      dashboard_hint: "Spending by month and category"
+      analysis: "Analysis"
+      new_record: "New Record"
+      due_count:
+        one: "1 bill due or overdue"
+        other: "%{count} bills due or overdue"
       inbox_label: "Inbox"
       invitations:
         one: "1 invitation"

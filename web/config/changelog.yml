@@ -1,6 +1,12 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
 # first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
 # with each release people will notice, in both languages.
+- version: "2026.10.27"
+  date: 2026-10-27
+  en:
+    - "My Account: Time Zone is shown read-only; tap the pencil to pick a new one from a dropdown grouped by region (Asia, America, Europe…), or Cancel to keep it."
+  zh-TW:
+    - "我的帳戶：時區預設為唯讀；點鉛筆圖示就能從依地區分組（亞洲、美洲、歐洲…）的下拉選單選擇新的時區，或按取消保留原本的。"
 - version: "2026.10.26"
   date: 2026-10-26
   en:

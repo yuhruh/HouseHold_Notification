@@ -110,16 +110,18 @@
     <% end %>
   </section>
 
-  <section class="space-y-3">
-    <h2 class="text-lg font-semibold"><%= t(".sessions") %></h2>
+  <%# Folded like the record activity log: most people never need the list %>
+  <% active_sessions = Current.user.sessions.active.order(last_seen_at: :desc).to_a %>
+  <details id="sessions" class="space-y-3">
+    <summary class="cursor-pointer text-lg font-semibold text-blue-800"><h2 class="inline"><%= t(".sessions") %> (<%= active_sessions.size %>)</h2></summary>
     <ul class="divide-y rounded-lg border text-sm">
-      <% Current.user.sessions.active.order(last_seen_at: :desc).each do |s| %>
+      <% active_sessions.each do |s| %>
         <li class="px-4 py-2"><%= s.user_agent.to_s.truncate(70) %>
           <span class="block text-gray-500"><%= t(".last_seen", time: l(s.last_seen_at, format: :short)) %><%= " · #{t('.this_device')}" if s == Current.session %></span></li>
       <% end %>
     </ul>
     <%= button_to t(".sign_out_others"), account_sessions_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
-  </section>
+  </details>
 
   <section class="space-y-3">
     <h2 class="text-lg font-semibold"><%= t(".households") %></h2>

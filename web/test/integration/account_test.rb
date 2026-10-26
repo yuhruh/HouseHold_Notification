@@ -58,6 +58,11 @@ class AccountTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "signed-in devices are folded until opened" do
+    get account_path
+    assert_select "details#sessions:not([open]) summary", /\(1\)/
+  end
+
   test "Google can't be disconnected when it's the last sign-in method" do
     sign_out
     sign_in_as users(:google_only)

@@ -5,6 +5,7 @@
   date: 2026-10-26
   en:
     - "Ledger home: one Bills card shows what's to pay (overdue, due in 30 days and the most urgent bills) and the last 3 bills paid, side by side on a computer; tap it to open Bills. Recurring Bills, Categories and Payment Methods sit below under Ledger Setup."
+    - "My Account: Signed-in Devices is folded; tap it to see the list and Sign Out All Other Devices."
     - "My Account: one Choose Photo button; picking a photo saves it right away, and the new photo shows at once (it used to keep showing the old one for a few minutes)."
     - "The ledger home lists Bills To Pay, All Bills, Recurring Bills, Categories and Payment Methods. Expense Analysis, Members, Ledger Settings and Import moved off it, since the header, the ledger menu and Bills › All already have them; the ledger menu button in the header is now a press button."
     - "Households are now called ledgers, so one can hold a home's bills and another a company's. Yours keep their names, records and members; the menu reads + New Ledger and Ledger Settings."
@@ -15,6 +16,7 @@
     - "Scanning a bill checks your records before filling in the form: a bill already recorded shows that record instead (open it, or scan another bill), and a record you typed in yourself for the same category and period asks whether it's the same bill; saying yes saves the bill number on it."
   zh-TW:
     - "帳本首頁：一張「帳單」卡片顯示待繳（逾期、30 天內到期和最急的帳單）和最近繳清的 3 筆，電腦上左右並排；點一下就打開帳單。定期帳單、類別和付款方式放在下方「帳本設定項目」。"
+    - "我的帳戶：「已登入的裝置」預設收合，點一下就能看到清單和「登出其他所有裝置」。"
     - "我的帳戶：只剩一個「選擇照片」按鈕，選好照片就直接儲存，新照片也會馬上顯示（以前會繼續顯示舊照片幾分鐘）。"
     - "帳本首頁只列待繳帳單、全部帳單、定期帳單、類別和付款方式。支出分析、成員、帳本設定和匯入已從首頁移除，因為頁首、帳本選單和「帳單 › 全部」都有；頁首的帳本選單按鈕改成按壓式按鈕。"
     - "「家庭」改名為「帳本」，可以一本記家裡的帳單、一本記公司的。原有的帳本名稱、記錄和成員都不變；選單改為「＋ 新帳本」和「帳本設定」。"

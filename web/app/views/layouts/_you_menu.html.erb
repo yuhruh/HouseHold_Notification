@@ -5,7 +5,7 @@
 <% row = "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50" %>
 <% pill = "min-h-9 cursor-pointer rounded-full px-2.5 text-xs" %>
 <% face = ->(size) do %>
-  <% if user.avatar.attached? %><%= image_tag user_avatar_path(user), alt: "", class: "#{size} rounded-full object-cover" %>
+  <% if user.avatar.attached? %><%= image_tag avatar_path_for(user), alt: "", class: "#{size} rounded-full object-cover" %>
   <% else %><span class="<%= size %> flex items-center justify-center rounded-full bg-amber-200 font-extrabold text-gray-900"><%= name.first.upcase %></span><% end %>
 <% end %>
 <details class="relative" data-controller="dropdown">

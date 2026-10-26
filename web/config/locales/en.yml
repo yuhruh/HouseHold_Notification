@@ -324,6 +324,32 @@ en:
       payment_methods: "Payment Methods"
       categories: "Categories"
       templates: "Recurring Bills"
+      bills:
+        title: "Bills"
+        to_pay: "To Pay"
+        recently_paid: "Recently Paid"
+        overdue:
+          one: "1 overdue"
+          other: "%{count} overdue"
+        soon:
+          one: "1 due in 30 days"
+          other: "%{count} due in 30 days"
+        maintenance:
+          one: "1 maintenance coming up"
+          other: "%{count} maintenance coming up"
+        other:
+          one: "1 more unpaid"
+          other: "%{count} more unpaid"
+        days_overdue:
+          one: "1 day overdue"
+          other: "%{count} days overdue"
+        due_today: "Due today"
+        due_in:
+          one: "Due tomorrow"
+          other: "Due in %{count} days"
+        all_paid: "Everything's paid"
+        none_yet: "No bills yet. Add one with New Record."
+      setup: "Ledger Setup"
   members:
     index:
       title: "Members"

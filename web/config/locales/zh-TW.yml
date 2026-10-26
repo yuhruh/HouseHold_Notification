@@ -324,6 +324,32 @@ zh-TW:
       categories: "類別"
       templates: "定期帳單"
       members: "成員"
+      bills:
+        title: "帳單"
+        to_pay: "待繳"
+        recently_paid: "最近繳清"
+        overdue:
+          one: "1 筆逾期"
+          other: "%{count} 筆逾期"
+        soon:
+          one: "1 筆 30 天內到期"
+          other: "%{count} 筆 30 天內到期"
+        maintenance:
+          one: "1 筆保養即將到期"
+          other: "%{count} 筆保養即將到期"
+        other:
+          one: "另有 1 筆未繳"
+          other: "另有 %{count} 筆未繳"
+        days_overdue:
+          one: "逾期 1 天"
+          other: "逾期 %{count} 天"
+        due_today: "今天到期"
+        due_in:
+          one: "明天到期"
+          other: "%{count} 天後到期"
+        all_paid: "全部繳清了"
+        none_yet: "還沒有帳單，可以用「新增記錄」新增。"
+      setup: "帳本設定項目"
   members:
     index:
       title: "成員"

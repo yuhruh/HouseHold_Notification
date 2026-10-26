@@ -1,15 +1,78 @@
 <% content_for :title, Current.household.name %>
-<div class="w-full mx-auto max-w-2xl space-y-6 py-4">
+<%# Ledger home: one Bills card (To Pay counts and the most urgent bills, then the last bills paid; side
+    by side on a computer) opening Bills › To Pay, and the ledger setup pages below %>
+<% household = Current.household %>
+<% today = @to_pay.today %>
+<% urgent = (@to_pay.overdue + @to_pay.soon).map { [ it, it.due_on ] } + @to_pay.maintenance.map { [ it, it.next_due_on ] } %>
+<% urgent = urgent.uniq(&:first).sort_by(&:last).first(2) %>
+<% others = @to_pay.later.size + @to_pay.no_due.size %>
+<% row = "flex justify-between gap-3" %>
+<% heading = "text-xs font-bold tracking-wide uppercase" %>
+<div class="w-full mx-auto max-w-3xl space-y-6 py-4">
   <%= render "shared/flash" %>
-  <%= page_title("apartment.png", Current.household.name) %>
-  <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
-  <ul class="flex flex-col space-y-2 pt-4 text-base text-gray-700">
-    <% [ [ "upcoming.png", t("records.bills_switch.to_pay_title"), household_pending_path(Current.household) ],
-         [ "records.png", t("records.bills_switch.all_title"), household_records_path(Current.household) ],
-         [ "recurring.png", t(".templates"), household_recurring_templates_path(Current.household) ],
-         [ "categories.png", t(".categories"), household_categories_path(Current.household) ],
-         [ "payment.png", t(".payment_methods"), household_payment_methods_path(Current.household) ] ].each do |icon, label, path| %>
-      <li><%= link_to nav_label(icon, label), path, class: "btn-press flex items-center gap-2 rounded-lg border px-4 py-3 font-medium transition-colors hover:bg-mist-300 hover:text-mist-800" %></li>
-    <% end %>
-  </ul>
+  <div class="space-y-1">
+    <%= page_title("apartment.png", household.name) %>
+    <p class="text-center text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
+  </div>
+
+  <%= link_to household_pending_path(household), class: "card-raised block overflow-hidden rounded-2xl bg-white text-gray-900" do %>
+    <span class="flex items-center gap-3 border-b-2 border-(--card-line) px-5 py-3">
+      <%= image_tag "icons/records.png", alt: "", class: "h-9 w-9 object-contain" %>
+      <span class="flex-1 text-2xl font-extrabold"><%= t(".bills.title") %></span>
+      <svg class="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </span>
+    <span class="grid <%= 'md:grid-cols-2' if @paid.any? %>">
+      <span class="flex flex-col gap-2.5 px-5 py-4 <%= @to_pay.count.zero? ? 'bg-green-50' : 'bg-amber-50' %>">
+        <span class="<%= heading %> text-amber-800"><%= t(".bills.to_pay") %></span>
+        <% if @to_pay.count.zero? %>
+          <span class="flex items-center gap-2 text-lg font-bold text-green-800"><%= image_tag "icons/paid.png", alt: "", class: "h-6 w-6 object-contain" %><%= t(".bills.all_paid") %></span>
+          <% if @paid.none? %><span class="text-sm text-gray-700"><%= t(".bills.none_yet") %></span><% end %>
+        <% else %>
+          <span class="flex flex-wrap gap-2 text-sm font-bold">
+            <% if @to_pay.overdue.any? %><span class="rounded-full bg-red-100 px-3 py-0.5 text-red-800"><%= t(".bills.overdue", count: @to_pay.overdue.size) %></span><% end %>
+            <% if @to_pay.soon.any? %><span class="rounded-full bg-amber-100 px-3 py-0.5 text-amber-900"><%= t(".bills.soon", count: @to_pay.soon.size) %></span><% end %>
+            <% if @to_pay.maintenance.any? %><span class="rounded-full bg-amber-100 px-3 py-0.5 text-amber-900"><%= t(".bills.maintenance", count: @to_pay.maintenance.size) %></span><% end %>
+            <% if others.positive? %><span class="rounded-full bg-gray-100 px-3 py-0.5 text-gray-800"><%= t(".bills.other", count: others) %></span><% end %>
+          </span>
+          <span class="flex flex-col gap-1.5">
+            <% urgent.each do |record, due| %>
+              <span class="<%= row %>">
+                <span class="min-w-0 truncate"><b><%= record.title %></b> <span class="text-gray-600"><%= record.details.presence || record.period %></span></span>
+                <% if due < today %><span class="shrink-0 font-semibold text-red-800"><%= t(".bills.days_overdue", count: (today - due).to_i) %></span>
+                <% elsif due == today %><span class="shrink-0 font-semibold text-red-800"><%= t(".bills.due_today") %></span>
+                <% else %><span class="shrink-0 font-semibold text-amber-800"><%= t(".bills.due_in", count: (due - today).to_i) %></span><% end %>
+              </span>
+            <% end %>
+          </span>
+        <% end %>
+      </span>
+      <% if @paid.any? %>
+        <span class="flex flex-col gap-2.5 border-t-2 border-dashed border-gray-300 bg-green-50 px-5 py-4 md:border-t-0 md:border-l-2">
+          <span class="<%= heading %> flex items-center gap-1.5 text-green-800"><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><%= t(".bills.recently_paid") %></span>
+          <span class="flex flex-col gap-1.5">
+            <% @paid.each do |record| %>
+              <% amount = record.amount_paid || record.amount_required %>
+              <span class="<%= row %>">
+                <span class="min-w-0 truncate"><b><%= record.title %></b> <span class="text-gray-600"><%= record.details.presence || record.period %></span></span>
+                <span class="shrink-0 text-gray-700"><%= [ record.paid_on.strftime("%m/%d"), (money(amount, record.currency) if amount) ].compact.join(" · ") %></span>
+              </span>
+            <% end %>
+          </span>
+        </span>
+      <% end %>
+    </span>
+  <% end %>
+
+  <section class="space-y-2.5" aria-labelledby="ledger-setup">
+    <h2 id="ledger-setup" class="<%= heading %> text-gray-600"><%= t(".setup") %></h2>
+    <ul class="grid grid-cols-3 gap-3">
+      <% [ [ "recurring.png", t(".templates"), household_recurring_templates_path(household) ],
+           [ "categories.png", t(".categories"), household_categories_path(household) ],
+           [ "payment.png", t(".payment_methods"), household_payment_methods_path(household) ] ].each do |icon, label, path| %>
+        <li><%= link_to path, class: "btn-press press-sm flex h-full min-h-18 flex-col items-center justify-center gap-1 rounded-xl bg-white px-1 py-2 text-center text-sm font-medium sm:flex-row sm:gap-2 sm:text-base" do %>
+          <%= image_tag "icons/#{icon}", alt: "", class: "h-7 w-7 object-contain" %><span><%= label %></span>
+        <% end %></li>
+      <% end %>
+    </ul>
+  </section>
 </div>

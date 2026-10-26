@@ -1,6 +1,6 @@
 # ADR 0005: M0 external checks (X1–X10)
 
-- Status: In progress (2026-10). X1–X7 and X10 are settled; X8 is running; X9 waits on the family phones.
+- Status: In progress (2026-10). X1–X8 and X10 are settled; X9 waits on the family phones.
 - Context: the PRD relies on behaviour of outside services and packages. Each check is verified for
   real in M0 and recorded here with its result and, when it fails, the fallback chosen (PRD →
   "M0 external checks").
@@ -14,7 +14,7 @@
 | X5 | HEIC decodes in the image | ✅ | see below |
 | X6 | ECharts via importmap as one vendored file | ❌ → fallback, ✅ | see below |
 | X7 | Volume writable without running the app as root | ✅ | `bin/docker-entrypoint` chowns, drops to uid 1000; file survived redeploy (TRACKING) |
-| X8 | Gmail sender durable over 8 days | ◐ started 2026-10-18 | see below |
+| X8 | Gmail sender durable over 8 days | ✅ (2026-10-26) | owner's personal Gmail stays the sender; see below |
 | X9 | Web Push on every family phone | ◐ Pixel 9 ✅ (overnight 2026-10-20); the family member's phone pending | ADR 0003 |
 | X10 | Sign-in GCP project usable by non-test users | ✅ | see below |
 
@@ -51,7 +51,7 @@
 - Consequence: adding a chart type or component means editing `entry.js` and re-running
   `bin/build-echarts` (needs Node locally; the app and CI don't).
 
-## X8: Gmail sender (started 2026-10-18)
+## X8: Gmail sender (2026-10-18 → 2026-10-26, passed)
 - Decision: the sender is **the owner's personal Gmail** (`owner@gmail.com`), not a dedicated
   household account as the PRD planned. Accepted risks: a leaked refresh token can send mail as the owner;
   every reminder shows in her Sent folder; an automated-sending lock would hit her main account.
@@ -65,8 +65,10 @@
   mailed-by and signed-by gmail.com, TLS.
 - Interim check 2026-10-20: the test mails land in the **Inbox** of both recipients (the owner and the
   family member); neither Spam folder has any.
-- Remaining: ~20 test mails to family inboxes over 8 days; on or after 2026-10-26 the refresh token
-  must still work (proves it isn't on the 7-day Testing expiry) and nothing landed in spam.
+- Result 2026-10-26: the 09:00 run sent both test mails with no error, 8 days after the token was
+  issued, so it isn't on the 7-day Testing expiry. It landed in the owner's **Inbox**, none in Spam,
+  and the account had no Google security or "suspicious activity" alert. Sentry recorded no Gmail
+  errors over the 8 days. X8 passes; the test-mail job (`Spike::GmailDurabilityJob`) was removed.
 
 ## X2: Railway URL in both GCP projects (2026-10-18)
 - `household-tracker.up.railway.app` was accepted as an authorized domain in both `household-mailer`

@@ -128,7 +128,6 @@ it alerts even when the app is down.
 | `BackupJob` | Sundays 04:00 | `pg_dump` to the volume (last 4 kept), plus an encrypted copy emailed off Railway | `BACKUP_HEARTBEAT_URL` (grace 8 days) |
 | `PhotoBackupReminderJob` | 1st of the month 09:00 | Reminds the owner to run `bin/download-photos` | — |
 | `clear_solid_queue_finished_jobs` | Hourly at :12 | Clears finished Solid Queue jobs | — |
-| `Spike::GmailDurabilityJob` | 09:00 and 20:00 | Temporary M0 check X8 (Gmail token stays valid); removed after 10-26 | — |
 
 Errors from requests and jobs go to Sentry.
 

@@ -48,8 +48,7 @@ GCP project `household-mailer`. What worked, in order:
    paste the whole `http://localhost:1/?…` address back into the **terminal** (codes expire in
    minutes), then add the printed `refresh_token` to credentials. Never paste the token in chat.
 8. Commit `config/credentials.yml.enc`, deploy, send a test from `/spike/checks`.
-X8 runs `Spike::GmailDurabilityJob` (09:00/20:00 Taipei) to the Railway variable `X8_RECIPIENTS`
-until 2026-10-26.
+X8 passed on 2026-10-26 (ADR 0005); its test-mail job is gone, and the Railway variable `X8_RECIPIENTS` is no longer used.
 
 ## 4. Google sign-in project (done 2026-10-18)
 GCP project `household-signin`: same Branding rules (no logo; home page, privacy link and authorized

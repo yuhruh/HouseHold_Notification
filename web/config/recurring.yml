@@ -34,6 +34,3 @@ production:
   auth_cleanup:
     class: Auth::CleanupJob
     schedule: "30 3 * * * Asia/Taipei"
-  spike_gmail_durability:
-    class: Spike::GmailDurabilityJob
-    schedule: "0 9,20 * * * Asia/Taipei"

@@ -23,7 +23,7 @@ Status legend: ☐ todo · ◐ in progress · ☑ done · ⏸ blocked (needs the
 | X4 `pg_dump` matches Railway Postgres | ☑ | was 15 vs 18; Dockerfile installs `postgresql-client-18` from PGDG (ADR 0005) |
 | X5 HEIC decodes in the image | ☑ | HEIC fixture → stripped JPEG via `ImageProcessing::Vips`; `ruby-vips` re-added to Gemfile (ADR 0005) |
 | X6 ECharts via importmap | ☑ | fallback: custom build, `bin/build-echarts` → one vendored file; `/spike/charts` (ADR 0005) |
-| X8 Gmail sender durable over 8 days | ◐ | started 2026-10-18; ~20 test mails to family inboxes, token must still work on/after 2026-10-26. Interim 2026-10-20: Inbox for both recipients, none in Spam |
+| X8 Gmail sender durable over 8 days | ☑ | 2026-10-18 → 10-26: test mails twice a day; the 2026-10-26 09:00 run sent with no error (token past the 7-day Testing expiry), it landed in the owner's Inbox, none in Spam, no Google security alert; no Gmail errors in Sentry over the 8 days (ADR 0005) |
 | X2 Railway URL as permanent OAuth host | ☑ | both GCP projects accept it; Google sign-in works on `/spike/google` (ADR 0005) |
 | X1 Google forced re-auth | ☑ | failed (no password prompt, no `auth_time`); fallback adopted: emailed 6-digit code, PRD §13/§15 updated (ADR 0005) |
 | X10 non-test user can sign in | ☑ | an account outside the project (not a test user, not in IAM) signed in on `/spike/google` (ADR 0005) |
@@ -101,7 +101,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Volume disk-usage alert | ☑ | 2026-10-19: `DiskUsageJob` daily 03:45 Taipei, `df` on `/rails/storage`, ≥80% → Sentry warning + `DISK_HEARTBEAT_URL` `/fail`. Optional for the owner: a 5th Healthchecks.io check (1 day / 2 h) and the variable |
 | Repeat restore drill, now including photos | ☑ | 2026-10-20: backup `household-2026-10-20.dump.enc` (Run backup now, 11:16) + `bin/download-photos` the same day, restored into a Docker Postgres 18: households 1, users 2, memberships 2, categories 16, records 130, blobs 1; photo files 1 checked, 0 without a blob; "Restore drill OK". Backup heartbeat green |
 | Family onboarding guide (install + enable notifications) | ☑ | 2026-10-19: `/guide` (zh-TW / en by locale): accept invite, install, enable push, Chrome battery Unrestricted, what arrives daily, troubleshooting. Linked from the invitation email and My account → Notifications. Revisit the battery tip after the X9 overnight retest |
-| Remove the M0 spike pages and jobs | ☐ | after X8 (2026-10-26: `Spike::GmailDurabilityJob`) and X9 (`/spike/push` on family phones) |
+| Remove the M0 spike pages and jobs | ◐ | `Spike::GmailDurabilityJob` removed 2026-10-26 after X8 passed; the rest after X9 (`/spike/push` on family phones) |
 | M7 exit: family uses it for one billing cycle | ☐ | starts once M0 and M5 close |
 
 ## Pending decisions

@@ -277,6 +277,8 @@ zh-TW:
       pending_hint: "即將到期與逾期的帳單"
       records_hint: "所有帳單，可搜尋與篩選"
       dashboard_hint: "依月份與類別看支出"
+      export_hint: "把記錄下載成 CSV 檔"
+      import_hint: "從 CSV 檔新增或更新記錄"
       analysis: "支出分析"
       new_record: "新增記錄"
       due_count:

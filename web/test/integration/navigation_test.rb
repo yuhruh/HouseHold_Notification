@@ -25,6 +25,22 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "header nav > a.btn-new[href=?]", new_household_record_path(@home), 1
   end
 
+  test "Export CSV and Import are in the Bills menu and the hamburger menu, not on the Records page" do
+    sign_in_as users(:alex)
+    get household_records_path(@home, type: "expense")
+
+    assert_select "header nav details a[href=?]", household_records_path(@home, type: "expense", format: :csv), /匯出 CSV/
+    assert_select "header nav details a[href=?]", new_household_import_path(@home), /匯入/
+    assert_select "header dialog a[href=?]", household_records_path(@home, type: "expense", format: :csv)
+    assert_select "header dialog a[href=?]", new_household_import_path(@home)
+    assert_select "main a[href=?]", household_records_path(@home, type: "expense", format: :csv), 0
+    assert_select "main a[href=?]", new_household_import_path(@home), 0
+    assert_select "main a[href=?]", new_household_record_path(@home), 0
+
+    get household_pending_path(@home)
+    assert_select "header nav details a[href=?]", household_records_path(@home, format: :csv), 1, "every record outside Records"
+  end
+
   test "phone: the tab bar has the same three pages and New Record; the hamburger menu leaves them out" do
     sign_in_as users(:alex)
     get household_dashboard_path(@home)
@@ -56,5 +72,21 @@ class NavigationTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href=?]", new_household_record_path(@home), 0
     assert_select "nav[aria-label='帳單'] a", 3
+    assert_select "header nav details a[href=?]", household_records_path(@home, format: :csv), 1, "viewers can still export"
+    assert_select "a[href=?]", new_household_import_path(@home), 0
+  end
+
+  test "the other links are tinted on their page too: Settings (and the pages it opens), My Account, Getting Started" do
+    sign_in_as users(:alex)
+    get household_members_path(@home)
+    assert_select "header nav > a.bg-blue-50[href=?]", household_settings_path(@home)
+    assert_select "dialog a.bg-blue-50[href=?]", household_settings_path(@home)
+    assert_select "header nav > a.bg-blue-50[href=?]", account_path, 0
+
+    get account_path
+    assert_select "header nav > a.bg-blue-50[href=?]", account_path
+    get guide_path
+    assert_select "header nav > a.bg-blue-50[href=?]", guide_path
+    assert_select "header nav > a.bg-blue-50[href=?]", household_settings_path(@home), 0
   end
 end

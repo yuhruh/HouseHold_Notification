@@ -1,6 +1,7 @@
 <%# Full-screen menu for screens under 1550px: the header's links with the same icons, one per row.
     Signed out it has only Install App, Getting Started and Languages %>
 <% signed_in = authenticated? %>
+<% here = ->(page) { "bg-blue-50 font-bold" if local_assigns[:nav_page] == page } %>
 <% row = "flex w-full items-center justify-center gap-3 py-4 text-lg font-medium hover:bg-gray-100" %>
 <% sub = "flex w-full items-center justify-center gap-2 py-2 hover:bg-gray-100" %>
 <% icon = ->(name) { image_tag("icons/#{name}", alt: "", class: "h-7 w-7 object-contain") } %>
@@ -16,7 +17,7 @@
     <% if signed_in && pending.positive? %>
       <li><%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "#{row} text-amber-900" %></li>
     <% end %>
-    <% if signed_in %><li><%= link_to notifications_path, class: row do %><%= icon.("reminder.png") %><span><%= t("layouts.header.inbox_label") %></span><% if unread.positive? %><span class="rounded-full bg-red-600 px-2 text-sm text-white"><%= unread %></span><% end %><% end %></li><% end %>
+    <% if signed_in %><li><%= link_to notifications_path, class: "#{row} #{here.(:inbox)}" do %><%= icon.("reminder.png") %><span><%= t("layouts.header.inbox_label") %></span><% if unread.positive? %><span class="rounded-full bg-red-600 px-2 text-sm text-white"><%= unread %></span><% end %><% end %></li><% end %>
     <% if current %>
       <li class="py-2">
         <p class="<%= row %> hover:bg-transparent"><%= icon.("apartment.png") %><span><%= t("layouts.header.apartment") %></span></p>
@@ -27,10 +28,13 @@
         <% end %>
         <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{sub} text-blue-700" %>
       </li>
-      <li><%= link_to household_settings_path(current), class: row do %><%= icon.("settings.png") %><span><%= t("layouts.header.settings") %></span><% end %></li>
+      <%# Export CSV and Import: in the Bills menu on a computer; the phone tab bar has no room for them %>
+      <li><%= link_to export_path, class: row do %><%= icon.("export.png") %><span><%= t("records.index.export") %></span><% end %></li>
+      <% if writer %><li><%= link_to new_household_import_path(current), class: row do %><%= icon.("import.png") %><span><%= t("records.index.import") %></span><% end %></li><% end %>
+      <li><%= link_to household_settings_path(current), class: "#{row} #{here.(:settings)}" do %><%= icon.("settings.png") %><span><%= t("layouts.header.settings") %></span><% end %></li>
     <% end %>
-    <li><%= link_to guide_path, class: row do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>
-    <% if signed_in %><li><%= link_to account_path, class: row do %><%= icon.("account.png") %><span><%= t("layouts.header.account") %></span><% end %></li><% end %>
+    <li><%= link_to guide_path, class: "#{row} #{here.(:guide)}" do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>
+    <% if signed_in %><li><%= link_to account_path, class: "#{row} #{here.(:account)}" do %><%= icon.("account.png") %><span><%= t("layouts.header.account") %></span><% end %></li><% end %>
     <li class="py-2">
       <p class="<%= row %> hover:bg-transparent"><%= icon.("language.png") %><span><%= t("layouts.header.languages") %></span></p>
       <% [ [ "en", "🇺🇸", "English" ], [ "zh-TW", "🇹🇼", "繁體中文" ] ].each do |code, flag, name| %>

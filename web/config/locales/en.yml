@@ -277,6 +277,8 @@ en:
       pending_hint: "What's due soon and overdue"
       records_hint: "Every bill, with search and filters"
       dashboard_hint: "Spending by month and category"
+      export_hint: "Download the records as a CSV file"
+      import_hint: "Add or update records from a CSV file"
       analysis: "Analysis"
       new_record: "New Record"
       due_count:

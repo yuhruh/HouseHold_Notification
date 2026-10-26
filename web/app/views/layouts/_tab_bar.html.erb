@@ -1,17 +1,16 @@
-<%# Phone and tablet tab bar (under 1550px): Pending, Records and Expense Analysis one tap away at the
-    bottom of every page, and New Record for owners and co-owners. The layout leaves room for it %>
+<%# Phone and tablet tab bar (under 1550px): Bills (To Pay and All) and Expense Analysis one tap away at
+    the bottom of every page, and New Record for owners and co-owners. The layout leaves room for it %>
 <% tabs = [
-  [ "upcoming.png", t("layouts.header.pending"), household_pending_path(household), current == :pending ],
-  [ "records.png", t("layouts.header.records"), household_records_path(household), current == :records ],
+  [ "records.png", t("layouts.header.bills"), household_pending_path(household), current == :bills ],
   [ "dashboard.png", t("layouts.header.analysis"), household_dashboard_path(household), current == :dashboard ]
 ] %>
-<nav aria-label="<%= t("layouts.header.bills") %>" class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-(--card-line) bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 min-[1550px]:hidden">
-  <ul class="mx-auto grid max-w-xl items-end px-2 <%= writer ? 'grid-cols-4' : 'grid-cols-3' %>">
+<nav aria-label="<%= t("layouts.header.main_tabs") %>" class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-(--card-line) bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 min-[1550px]:hidden">
+  <ul class="mx-auto grid max-w-md items-end px-2 <%= writer ? 'grid-cols-3' : 'grid-cols-2' %>">
     <% tabs.each_with_index do |(icon, label, path, here), index| %>
       <li><%= link_to path, class: "relative flex flex-col items-center gap-0.5 text-xs #{here ? 'font-extrabold text-blue-900' : 'font-semibold text-gray-700'}", "aria-current": (here ? "page" : nil) do %>
-        <span class="rounded-full px-3.5 py-1 <%= 'bg-blue-50' if here %>"><%= image_tag "icons/#{icon}", alt: "", class: "h-6 w-6 object-contain" %></span>
+        <span class="rounded-full px-4 py-1 <%= 'bg-blue-50' if here %>"><%= image_tag "icons/#{icon}", alt: "", class: "h-6 w-6 object-contain" %></span>
         <span><%= label %></span>
-        <% if index.zero? && due.positive? %><span class="absolute -top-1 right-[18%] rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
+        <% if index.zero? && due.positive? %><span class="absolute -top-1 right-[22%] rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
       <% end %></li>
     <% end %>
     <% if writer %>

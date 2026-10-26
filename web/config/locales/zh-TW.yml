@@ -274,11 +274,7 @@ zh-TW:
       menu: "選單"
       close_menu: "關閉選單"
       bills: "帳單"
-      pending_hint: "即將到期與逾期的帳單"
-      records_hint: "所有帳單，可搜尋與篩選"
-      dashboard_hint: "依月份與類別看支出"
-      export_hint: "把記錄下載成 CSV 檔"
-      import_hint: "從 CSV 檔新增或更新記錄"
+      main_tabs: "主要頁面"
       analysis: "支出分析"
       new_record: "新增記錄"
       due_count:
@@ -548,6 +544,12 @@ zh-TW:
       subject: "Household Tracker 備份 %{filename} 太大，無法寄送"
       body: "本週加密備份（%{filename}，%{size} MB）超過 20 MB 的郵件限制，因此沒有附加。檔案在 Railway volume 的 storage/backups，請從那裡下載。"
   records:
+    bills_switch:
+      label: "顯示"
+      to_pay: "待繳"
+      all: "全部"
+      to_pay_title: "待繳帳單"
+      all_title: "所有帳單"
     pagination:
       showing: "第 %{from}–%{to} 筆，共 %{total} 筆"
       per_page: "每頁"
@@ -590,6 +592,16 @@ zh-TW:
       template_updated: "由定期帳單範本更新"
       reminders_restarted: "重新提醒"
     index:
+      filters: "篩選"
+      export_count:
+        one: "匯出這 1 筆 (CSV)"
+        other: "匯出這 %{count} 筆 (CSV)"
+      import_csv: "匯入 CSV"
+      columns:
+        item: "項目"
+        period: "期間"
+        date: "到期 / 繳費"
+        amount: "金額"
       title: "記錄"
       new: "新增記錄"
       import: "匯入"

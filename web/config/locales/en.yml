@@ -274,11 +274,7 @@ en:
       menu: "Menu"
       close_menu: "Close Menu"
       bills: "Bills"
-      pending_hint: "What's due soon and overdue"
-      records_hint: "Every bill, with search and filters"
-      dashboard_hint: "Spending by month and category"
-      export_hint: "Download the records as a CSV file"
-      import_hint: "Add or update records from a CSV file"
+      main_tabs: "Main pages"
       analysis: "Analysis"
       new_record: "New Record"
       due_count:
@@ -548,6 +544,12 @@ en:
       subject: "Household Tracker Backup %{filename} Is Too Large To Email"
       body: "This week's encrypted backup (%{filename}, %{size} MB) is over the 20 MB email limit, so it wasn't attached. It is on the Railway volume under storage/backups; download it from there."
   records:
+    bills_switch:
+      label: "Show"
+      to_pay: "To Pay"
+      all: "All"
+      to_pay_title: "Bills To Pay"
+      all_title: "All Bills"
     pagination:
       showing: "%{from}–%{to} of %{total}"
       per_page: "Per Page"
@@ -590,6 +592,16 @@ en:
       template_updated: "Updated By Its Recurring Template"
       reminders_restarted: "Reminders Restarted"
     index:
+      filters: "Filters"
+      export_count:
+        one: "Export This 1 (CSV)"
+        other: "Export These %{count} (CSV)"
+      import_csv: "Import CSV"
+      columns:
+        item: "Item"
+        period: "Period"
+        date: "Due / Paid"
+        amount: "Amount"
       title: "Records"
       new: "New Record"
       import: "Import"

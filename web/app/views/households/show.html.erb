@@ -4,8 +4,8 @@
   <%= page_title("apartment.png", Current.household.name) %>
   <p class="text-sm text-gray-600"><%= t(".role", role: t("roles.#{Current.membership.role}")) %></p>
   <ul class="flex flex-col space-y-2 pt-4 text-base text-gray-700">
-    <% [ [ "upcoming.png", t("layouts.header.pending"), household_pending_path(Current.household) ],
-         [ "records.png", t(".records"), household_records_path(Current.household) ],
+    <% [ [ "upcoming.png", t("records.bills_switch.to_pay_title"), household_pending_path(Current.household) ],
+         [ "records.png", t("records.bills_switch.all_title"), household_records_path(Current.household) ],
          [ "dashboard.png", t("layouts.header.dashboard"), household_dashboard_path(Current.household) ],
          [ "recurring.png", t(".templates"), household_recurring_templates_path(Current.household) ],
          [ "categories.png", t(".categories"), household_categories_path(Current.household) ],

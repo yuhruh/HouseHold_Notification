@@ -10,19 +10,7 @@
     <ul class="flex flex-col space-y-3">
       <% past.each do |old| %>
         <li id="past_<%= dom_id(old) %>">
-          <%= link_to household_record_path(Current.household, old), class: "card-raised flex items-center gap-3 rounded-xl px-4 py-2.5 text-gray-900 #{record_card_class(old)}" do %>
-            <span class="flex min-w-0 flex-1 flex-col">
-              <span class="text-xs text-gray-600"><%= old.period %></span>
-              <span class="font-bold">
-                <% if old.settled && old.paid_on %><%= t(old.maintenance? ? "records.index.done_on_date" : "records.index.paid_on_date", date: l(old.paid_on)) %>
-                <% else %><%= old.due_on ? t("records.index.due_on", date: l(old.due_on)) : t("records.index.no_due_date") %><% end %>
-              </span>
-              <% amount = old.amount_paid || old.amount_required %>
-              <% if amount %><span class="text-sm text-gray-700"><%= money(amount, old.currency) %></span><% end %>
-            </span>
-            <%= record_status_badge(old) %>
-            <svg class="h-5 w-5 shrink-0 text-blue-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-          <% end %>
+          <%= render "records/mini_card", record: old %>
         </li>
       <% end %>
     </ul>

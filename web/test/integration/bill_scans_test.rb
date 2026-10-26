@@ -36,11 +36,40 @@ class BillScansTest < ActionDispatch::IntegrationTest
     assert_equal [ 1, 12 ], response.parsed_body["period_months"], "no billing month: the months of the category's latest record"
   end
 
-  test "a bill already recorded (same bill number) is flagged; unreadable scans are refused" do
+  test "a bill already recorded (same bill number) comes back as already, with its card; unreadable scans are refused" do
     record = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2026, "全年"), bill_number: CODES[1])
     scan
-    assert_equal household_record_path(@home, record), response.parsed_body.dig("duplicate", "url")
+    body = response.parsed_body
+    assert_equal "already", body["match"]
+    assert_includes body["matches"], household_record_path(@home, record)
+    assert_includes body["matches"], "data-record-id=\"#{record.id}\""
     scan(%w[1512039ZZ])
+    assert_response :unprocessable_content
+  end
+
+  test "a record typed in by hand with the same category and period is similar; Yes, Open It gives it the bill number" do
+    @home.biller_codes.create!(code: "9ZZ", category: @tax, deadline_offset_days: 3)
+    scan
+    assert_nil response.parsed_body["match"], "nothing recorded yet"
+
+    hand = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2026, "全年"))
+    other_bill = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2026, "全年"), bill_number: "OTHER0001")
+    last_year = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2025, "全年"))
+    scan
+    body = response.parsed_body
+    assert_equal "similar", body["match"]
+    assert_includes body["matches"], household_record_path(@home, hand)
+    [ other_bill, last_year ].each { assert_not_includes body["matches"], household_record_path(@home, it) }
+
+    patch household_bill_scan_path(@home), params: { record_id: hand.id, bill_number: CODES[1] }
+    assert_response :no_content
+    assert_equal CODES[1], hand.reload.bill_number
+    scan
+    assert_equal "already", response.parsed_body["match"]
+
+    patch household_bill_scan_path(@home), params: { record_id: other_bill.id, bill_number: CODES[1] }
+    assert_equal "OTHER0001", other_bill.reload.bill_number, "a record's own bill number is kept"
+    patch household_bill_scan_path(@home), params: { record_id: last_year.id, bill_number: "<x>" }
     assert_response :unprocessable_content
   end
 
@@ -54,6 +83,8 @@ class BillScansTest < ActionDispatch::IntegrationTest
     scan
     assert_response :forbidden
     post household_biller_codes_path(@home), params: { code: "9ZZ", category_id: @tax.id }
+    assert_response :forbidden
+    patch household_bill_scan_path(@home), params: { record_id: @home.records.order(:id).last.id, bill_number: "H999" }
     assert_response :forbidden
   end
 end

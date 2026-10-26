@@ -1,0 +1,16 @@
+<%# A record as a small raised card linking to it: period (with its title when asked), paid or due date,
+    amount and status. Past Records lists them; the bill scan shows the records a bill may already be %>
+<%= link_to household_record_path(Current.household, record), class: "card-raised flex items-center gap-3 rounded-xl px-4 py-2.5 text-gray-900 #{record_card_class(record)}", data: { record_id: record.id } do %>
+  <span class="flex min-w-0 flex-1 flex-col">
+    <% if local_assigns[:with_title] %><span class="font-bold"><%= [ record.title, record.details ].compact_blank.join(" · ") %></span><% end %>
+    <span class="text-xs text-gray-600"><%= record.period %></span>
+    <span class="<%= local_assigns[:with_title] ? "text-sm" : "font-bold" %>">
+      <% if record.settled && record.paid_on %><%= t(record.maintenance? ? "records.index.done_on_date" : "records.index.paid_on_date", date: l(record.paid_on)) %>
+      <% else %><%= record.due_on ? t("records.index.due_on", date: l(record.due_on)) : t("records.index.no_due_date") %><% end %>
+    </span>
+    <% amount = record.amount_paid || record.amount_required %>
+    <% if amount %><span class="text-sm text-gray-700"><%= money(amount, record.currency) %></span><% end %>
+  </span>
+  <%= record_status_badge(record) %>
+  <svg class="h-5 w-5 shrink-0 text-blue-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+<% end %>

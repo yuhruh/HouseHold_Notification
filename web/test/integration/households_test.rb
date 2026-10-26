@@ -69,19 +69,21 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     assert_select "header", /Parents/
   end
 
-  test "the Apartment menu lists every household, ticks the current one and offers a new household" do
+  test "the household menu is named after the household; it lists every household with your role, ticks the current one and offers a new household" do
     sign_in_as users(:google_only)
     get household_path(households(:home))
-    assert_select "details summary", /#{I18n.t("layouts.header.apartment")}/
-    assert_select "details li a[href=?]", household_path(households(:parents)), /Parents/
-    assert_select "details li a[aria-current=true][href=?]", household_path(households(:home)), /我的家/
-    assert_select "details li a[href=?]", onboarding_path
+    assert_select "header details summary", /我的家/
+    assert_select "header details a[href=?]", household_path(households(:parents)), /Parents/
+    assert_select "header details a[aria-current=true][href=?]", household_path(households(:home)), /我的家/
+    assert_select "header details a[href=?]", onboarding_path
+    assert_select "header details a[href=?]", household_settings_path(households(:home)), /家庭設定/
+    assert_select "header details a[href=?]", household_members_path(households(:home)), /成員/
 
     sign_out
     sign_in_as users(:alex)
     get household_path(households(:home))
-    assert_select "details li a[href=?]", household_path(households(:home)), 1, "one household, still in the menu"
-    assert_select "details li a[href=?]", household_path(households(:parents)), 0
+    assert_select "header details a[href=?]", household_path(households(:home)), 1, "one household, still in the menu"
+    assert_select "header details a[href=?]", household_path(households(:parents)), 0
   end
 
   test "the Household Tracker logo goes to the features page, which works signed in and out" do

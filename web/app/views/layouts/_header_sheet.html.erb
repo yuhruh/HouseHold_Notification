@@ -1,0 +1,7 @@
+<%# The panel of a header menu (household, yours): a dropdown under its button from 640px, a sheet from
+    the bottom of the screen on a phone, over a backdrop that closes it %>
+<span aria-hidden="true" class="fixed inset-0 z-40 bg-slate-900/35 sm:hidden" data-action="click->dropdown#hide"></span>
+<div class="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col gap-0.5 overflow-y-auto rounded-t-2xl border-t-2 border-(--card-line) bg-white p-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-base text-gray-900 sm:absolute sm:inset-x-auto sm:bottom-auto sm:top-full sm:mt-2 sm:w-80 sm:rounded-2xl sm:card-raised sm:p-2 sm:text-sm <%= side == :right ? 'sm:right-0' : 'sm:left-0' %>">
+  <span aria-hidden="true" class="mx-auto mb-2 h-1.5 w-11 rounded-full bg-gray-300 sm:hidden"></span>
+  <%= yield %>
+</div>

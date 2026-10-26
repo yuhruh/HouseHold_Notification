@@ -1,0 +1,47 @@
+<%# Your menu, at the right of the header: your photo (or initial), name and email; My Account, Theme and
+    Language as one-tap switches, Getting Started, Install App (when the browser offers it), Sign Out %>
+<% user = Current.user %>
+<% name = user.display_name.presence || user.email_address.presence || t("layouts.header.account") %>
+<% row = "flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50" %>
+<% pill = "min-h-9 cursor-pointer rounded-full px-2.5 text-xs" %>
+<% face = ->(size) do %>
+  <% if user.avatar.attached? %><%= image_tag user_avatar_path(user), alt: "", class: "#{size} rounded-full object-cover" %>
+  <% else %><span class="<%= size %> flex items-center justify-center rounded-full bg-amber-200 font-extrabold text-gray-900"><%= name.first.upcase %></span><% end %>
+<% end %>
+<details class="relative" data-controller="dropdown">
+  <summary class="flex cursor-pointer list-none items-center gap-1 rounded-full border-2 p-0.5 sm:pr-2 [&::-webkit-details-marker]:hidden <%= here ? 'border-blue-700 bg-blue-50' : 'border-(--card-line) bg-white' %>" aria-label="<%= t("layouts.header.your_menu") %>">
+    <% face.("h-9 w-9") %><span aria-hidden="true" class="hidden text-gray-500 sm:inline">▾</span>
+  </summary>
+  <%= render layout: "layouts/header_sheet", locals: { side: :right } do %>
+    <div class="flex items-center gap-3 px-3 pb-2 pt-1">
+      <% face.("h-11 w-11 text-lg") %>
+      <span class="flex min-w-0 flex-col"><span class="truncate font-bold"><%= name %></span><% if user.display_name.present? && user.email_address.present? %><span class="truncate text-xs text-gray-600"><%= user.email_address %></span><% end %></span>
+    </div>
+    <span aria-hidden="true" class="my-1 h-px bg-gray-200"></span>
+    <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "#{row} #{'bg-blue-50 font-bold' if nav_page == :account}" %>
+    <%# Theme and language reload the whole page (no Turbo): data-theme and lang live on <html> %>
+    <div class="flex min-h-11 items-center gap-3 px-3 py-1">
+      <%= image_tag "icons/dark_mode.png", alt: "", class: "h-5 w-5 object-contain" %><span class="flex-1"><%= t("layouts.header.theme") %></span>
+      <span role="group" aria-label="<%= t("layouts.header.theme") %>" class="flex rounded-full border border-gray-300 p-0.5">
+        <% ThemesController::THEMES.each do |theme| %>
+          <%= button_to t("layouts.header.themes_short.#{theme}"), theme_path, method: :patch, params: { theme: }, form: { data: { turbo: false } },
+                class: "#{pill} #{current_theme == theme ? 'bg-blue-100 font-bold text-blue-900' : ''}", "aria-current": (current_theme == theme ? "true" : nil) %>
+        <% end %>
+      </span>
+    </div>
+    <div class="flex min-h-11 items-center gap-3 px-3 py-1">
+      <%= image_tag "icons/language.png", alt: "", class: "h-5 w-5 object-contain" %><span class="flex-1"><%= t("layouts.header.languages") %></span>
+      <span role="group" aria-label="<%= t("layouts.header.language") %>" class="flex rounded-full border border-gray-300 p-0.5">
+        <% [ [ "en", "English" ], [ "zh-TW", "中文" ] ].each do |code, language| %>
+          <%= button_to language, locale_path, method: :patch, params: { locale: code }, lang: code, form: { data: { turbo: false } },
+                class: "#{pill} #{I18n.locale.to_s == code ? 'bg-blue-100 font-bold text-blue-900' : ''}", "aria-current": (I18n.locale.to_s == code ? "true" : nil) %>
+        <% end %>
+      </span>
+    </div>
+    <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "#{row} #{'bg-blue-50 font-bold' if nav_page == :guide}" %>
+    <%# Shown only when the browser offers to install the app; the row's flex sits inside so [hidden] wins %>
+    <span data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="w-full cursor-pointer rounded-xl hover:bg-gray-50"><span class="flex min-h-11 items-center gap-3 px-3 py-2"><%= nav_label("install.png", t("layouts.header.install")) %></span></button></span>
+    <span aria-hidden="true" class="my-1 h-px bg-gray-200"></span>
+    <%= button_to session_path, method: :delete, class: "#{row} cursor-pointer text-red-800" do %><%= nav_label("logout.png", t("layouts.header.sign_out")) %><% end %>
+  <% end %>
+</details>

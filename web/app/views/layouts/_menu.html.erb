@@ -1,7 +1,5 @@
-<%# Full-screen menu for screens under 1550px: the header's links with the same icons, one per row.
-    Signed out it has only Install App, Getting Started and Languages %>
-<% signed_in = authenticated? %>
-<% here = ->(page) { "bg-blue-50 font-bold" if local_assigns[:nav_page] == page } %>
+<%# Signed-out full-screen menu for screens under 1550px: Install App, Getting Started and Languages, one
+    per row (signed in, the household and your menus in the header take its place) %>
 <% row = "flex w-full items-center justify-center gap-3 py-4 text-lg font-medium hover:bg-gray-100" %>
 <% sub = "flex w-full items-center justify-center gap-2 py-2 hover:bg-gray-100" %>
 <% icon = ->(name) { image_tag("icons/#{name}", alt: "", class: "h-7 w-7 object-contain") } %>
@@ -14,24 +12,7 @@
   </div>
   <ul class="mx-auto max-w-xl divide-y divide-gray-300 px-4 pb-10 text-center">
     <li data-controller="install"><button type="button" hidden data-install-target="button" data-action="install#install" class="<%= row %> cursor-pointer"><%= icon.("install.png") %><span><%= t("layouts.header.install") %></span></button></li>
-    <% if signed_in && pending.positive? %>
-      <li><%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "#{row} text-amber-900" %></li>
-    <% end %>
-    <% if signed_in %><li><%= link_to notifications_path, class: "#{row} #{here.(:inbox)}" do %><%= icon.("reminder.png") %><span><%= t("layouts.header.inbox_label") %></span><% if unread.positive? %><span class="rounded-full bg-red-600 px-2 text-sm text-white"><%= unread %></span><% end %><% end %></li><% end %>
-    <% if current %>
-      <li class="py-2">
-        <p class="<%= row %> hover:bg-transparent"><%= icon.("apartment.png") %><span><%= t("layouts.header.apartment") %></span></p>
-        <% households.each do |household| %>
-          <%= link_to household_path(household), class: "#{sub} #{'font-semibold' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
-            <span><%= household.name %></span><% if household == current %><span aria-hidden="true" class="text-blue-600">✓</span><% end %>
-          <% end %>
-        <% end %>
-        <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{sub} text-blue-700" %>
-      </li>
-      <li><%= link_to household_settings_path(current), class: "#{row} #{here.(:settings)}" do %><%= icon.("settings.png") %><span><%= t("layouts.header.settings") %></span><% end %></li>
-    <% end %>
-    <li><%= link_to guide_path, class: "#{row} #{here.(:guide)}" do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>
-    <% if signed_in %><li><%= link_to account_path, class: "#{row} #{here.(:account)}" do %><%= icon.("account.png") %><span><%= t("layouts.header.account") %></span><% end %></li><% end %>
+    <li><%= link_to guide_path, class: row do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>
     <li class="py-2">
       <p class="<%= row %> hover:bg-transparent"><%= icon.("language.png") %><span><%= t("layouts.header.languages") %></span></p>
       <% [ [ "en", "🇺🇸", "English" ], [ "zh-TW", "🇹🇼", "繁體中文" ] ].each do |code, flag, name| %>
@@ -41,6 +22,5 @@
         <% end %>
       <% end %>
     </li>
-    <% if signed_in %><li><%= button_to session_path, method: :delete, class: "#{row} cursor-pointer" do %><%= icon.("logout.png") %><span><%= t("layouts.header.sign_out") %></span><% end %></li><% end %>
   </ul>
 </dialog>

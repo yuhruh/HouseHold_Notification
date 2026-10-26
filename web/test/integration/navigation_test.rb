@@ -18,7 +18,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "header nav details summary", text: /帳單/, count: 0
     assert_select "header nav > a.bg-blue-50[aria-current=page][href=?]", household_pending_path(@home), text: /帳單/
     assert_select "header nav > a[href=?]", household_dashboard_path(@home), text: /支出分析/
-    assert_select "header nav > a.btn-new[href=?]", new_household_record_path(@home), 1
+    assert_select "header a.btn-new[href=?]", new_household_record_path(@home), 1
     get household_pending_path(@home)
     assert_select "header nav > a.bg-blue-50[href=?]", household_pending_path(@home)
     get household_dashboard_path(@home)
@@ -76,7 +76,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "phone: the tab bar has Bills, Analysis and New Record; the hamburger menu leaves them out" do
+  test "phone: the tab bar has Bills, Analysis and New Record; the header menus leave them out" do
     sign_in_as users(:alex)
     get household_records_path(@home)
 
@@ -85,7 +85,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", household_dashboard_path(@home)
       assert_select "a[href=?] .btn-new", new_household_record_path(@home)
     end
-    assert_select "header dialog a[href=?]", household_pending_path(@home), 0
+    assert_select "header details a[href=?]", household_pending_path(@home), 0
   end
 
   test "the red count is the unpaid bills due today or earlier" do
@@ -111,17 +111,23 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", new_household_import_path(@home), 0
   end
 
-  test "the other links are tinted on their page too: Settings (and the pages it opens), My Account, Getting Started" do
+  test "your menu: My Account, theme and language switches, Getting Started and Sign Out; tinted on their pages" do
     sign_in_as users(:alex)
     get household_members_path(@home)
-    assert_select "header nav > a.bg-blue-50[href=?]", household_settings_path(@home)
-    assert_select "dialog a.bg-blue-50[href=?]", household_settings_path(@home)
-    assert_select "header nav > a.bg-blue-50[href=?]", account_path, 0
+    assert_select "header details summary[aria-label=?]", "你的選單"
+    assert_select "header details a[href=?]", account_path, /我的帳戶/
+    assert_select "header details form[action=?] button", theme_path, 3
+    assert_select "header details form[action=?] button[aria-current=true]", locale_path, /中文/
+    assert_select "header details a[href=?]", guide_path
+    assert_select "header details form[action=?] button", session_path, /登出/
+    assert_select "header details a.bg-blue-50[href=?]", household_settings_path(@home), 1, "Settings covers the pages it opens"
+    assert_select "header details a.bg-blue-50[href=?]", account_path, 0
 
     get account_path
-    assert_select "header nav > a.bg-blue-50[href=?]", account_path
+    assert_select "header details a.bg-blue-50[href=?]", account_path
     get guide_path
-    assert_select "header nav > a.bg-blue-50[href=?]", guide_path
-    assert_select "header nav > a.bg-blue-50[href=?]", household_settings_path(@home), 0
+    assert_select "header details a.bg-blue-50[href=?]", guide_path
+    assert_select "header details a.bg-blue-50[href=?]", household_settings_path(@home), 0
+    assert_select "header dialog", 0, "no hamburger menu when signed in"
   end
 end

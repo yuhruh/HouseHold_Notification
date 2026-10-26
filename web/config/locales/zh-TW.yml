@@ -273,6 +273,15 @@ zh-TW:
       apartment: "公寓"
       menu: "選單"
       close_menu: "關閉選單"
+      bills: "帳單"
+      pending_hint: "即將到期與逾期的帳單"
+      records_hint: "所有帳單，可搜尋與篩選"
+      dashboard_hint: "依月份與類別看支出"
+      analysis: "支出分析"
+      new_record: "新增記錄"
+      due_count:
+        one: "1 筆帳單到期或逾期"
+        other: "%{count} 筆帳單到期或逾期"
       inbox_label: "通知"
       invitations:
         one: "1 個邀請"

@@ -22,7 +22,7 @@
         </label>
       <% end %>
       <% if has_photo %>
-        <%= button_to avatar_path, method: :delete, class: "btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-rose-300 px-3.5 py-2 font-medium text-red-800" do %>
+        <%= button_to avatar_path, method: :delete, class: "btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-red-200 px-3.5 py-2 font-medium text-red-900" do %>
           <%= image_tag "icons/remove_photo.png", alt: "", class: "h-6 w-6 object-contain" %><span><%= t("photos.avatar.remove") %></span>
         <% end %>
       <% end %>

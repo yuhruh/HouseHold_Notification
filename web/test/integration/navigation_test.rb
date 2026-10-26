@@ -58,6 +58,24 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "main a[href*='records.csv']", 0, "To Pay has nothing to export"
   end
 
+  test "All: search and filters are folded behind the Filters button; the ones in use show as tags" do
+    bill(Date.current + 5)
+    sign_in_as users(:alex)
+    get household_records_path(@home)
+    assert_select "main details:not([open]) summary", /篩選/
+    assert_select "main details form input[type=search][name=q]"
+    assert_select "main ul[aria-label] li", 0
+
+    get household_records_path(@home, type: "expense", q: "水")
+    assert_select "main details summary span[aria-label=?]", "已套用 2 個篩選", text: "2"
+    assert_select "main ul[aria-label='已套用 2 個篩選']" do
+      assert_select "li", text: /支出/
+      assert_select "li", text: /搜尋：水/
+      assert_select "a[aria-label='移除 支出'][href=?]", household_records_path(@home, q: "水")
+      assert_select "a[href=?]", household_records_path(@home), text: "清除"
+    end
+  end
+
   test "phone: the tab bar has Bills, Analysis and New Record; the hamburger menu leaves them out" do
     sign_in_as users(:alex)
     get household_records_path(@home)

@@ -593,6 +593,11 @@ zh-TW:
       reminders_restarted: "重新提醒"
     index:
       filters: "篩選"
+      filters_on:
+        one: "已套用 1 個篩選"
+        other: "已套用 %{count} 個篩選"
+      remove_filter: "移除 %{filter}"
+      search_chip: "搜尋：%{q}"
       export_count:
         one: "匯出這 1 筆 (CSV)"
         other: "匯出這 %{count} 筆 (CSV)"

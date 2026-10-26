@@ -1,24 +1,31 @@
-<%# Bills › All: every record, filtered (at the side on a computer), as compact rows, with Export CSV of
-    what the filters show and Import above the list. New Record is in the header %>
+<%# Bills › All: every record as compact rows, with Export CSV of what the filters show and Import above
+    the list. Search and filters stay folded behind the Filters button until needed; the ones in use
+    show as tags that remove themselves. New Record is in the header %>
 <% content_for :title, t("records.bills_switch.all_title") %>
 <% records = @filter.page_records %>
 <% owing = @filter.params[:status] == "outstanding" %>
 <% writer = policy(Record).write? %>
+<% chips = filter_chips(@filter) %>
 <div class="w-full space-y-6 py-4">
   <%= render "shared/flash" %>
   <%= render "bills_switch", current: :all %>
 
-  <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-  <aside aria-label="<%= t(".filters") %>" class="lg:card-raised lg:w-64 lg:shrink-0 lg:rounded-xl lg:bg-white lg:p-4">
-  <%= form_with url: household_records_path(Current.household), method: :get, class: "grid grid-cols-2 items-start gap-2 sm:grid-cols-4 lg:grid-cols-1 text-sm" do |f| %>
+  <div class="space-y-3">
+  <details class="group">
+    <summary class="btn-press press-sm inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl bg-gray-200 px-3.5 py-2 font-medium text-gray-900 group-open:bg-blue-100 [&::-webkit-details-marker]:hidden">
+      <%= image_tag "icons/filter.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".filters") %></span>
+      <% if chips.any? %><span class="rounded-full bg-blue-700 px-1.5 text-xs font-bold text-white" aria-label="<%= t(".filters_on", count: chips.size) %>"><%= chips.size %></span><% end %>
+      <svg class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+  <%= form_with url: household_records_path(Current.household), method: :get, class: "card-raised mt-3 grid grid-cols-2 items-start gap-2 rounded-xl bg-white p-4 text-sm sm:grid-cols-3 lg:grid-cols-6" do |f| %>
     <% p = @filter.params %>
+    <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "col-span-full h-11 rounded-md border border-gray-400 px-3 text-base", "aria-label": t(".search") %>
     <%= f.select :year, @filter.years, { include_blank: t(".all_years"), selected: p[:year] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".year") %>
     <%= f.select :month, month_options, { include_blank: t(".all_months"), selected: p[:month] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".month") %>
     <%= f.select :type, Category::RECORD_TYPES.values.map { |v| [ t("records.types.#{v}"), v ] }, { include_blank: t(".all_types"), selected: p[:type] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".type") %>
     <%= f.select :category_id, Current.household.categories.ordered.map { |c| [ "#{t("records.types.#{c.record_type}")} · #{c.name}", c.id ] }, { include_blank: t(".all_categories"), selected: p[:category_id] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".category") %>
     <%= f.select :status, Records::Filter::STATUSES.map { |s| [ t("records.status.#{s}"), s ] }, { include_blank: t(".all_statuses"), selected: p[:status] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".status") %>
     <%= f.select :payment_method_id, Current.household.payment_methods.order(:name).map { |pm| [ pm.name, pm.id ] }, { include_blank: t(".all_payment_methods"), selected: p[:payment_method_id] }, class: "h-9 rounded-md border border-gray-400 px-2", "aria-label": t(".payment_method") %>
-    <%= f.search_field :q, value: p[:q], placeholder: t(".search"), class: "h-9 rounded-md border border-gray-400 px-2" %>
     <% if p[:currency] %><%= hidden_field_tag :currency, p[:currency] %><% end %>
     <% if p[:amount] %><%= hidden_field_tag :amount, p[:amount] %><% end %>
     <% if p[:from] %><%= hidden_field_tag :from, p[:from] %><% end %>
@@ -27,9 +34,18 @@
       <% if @filter.active? %><%= link_to t(".clear"), household_records_path(Current.household, from: p[:from]), class: "px-2 py-1.5 underline" %><% end %>
     </div>
   <% end %>
-  </aside>
+  </details>
+  <% if chips.any? %>
+    <ul class="flex flex-wrap items-center gap-2 text-sm" aria-label="<%= t(".filters_on", count: chips.size) %>">
+      <% chips.each do |label, url| %>
+        <li class="inline-flex items-center gap-1 rounded-full bg-blue-100 py-1 pl-3 pr-1 text-blue-900"><span><%= label %></span>
+          <%= link_to "✕", url, class: "flex h-6 w-6 items-center justify-center rounded-full hover:bg-blue-200", "aria-label": t(".remove_filter", filter: label) %></li>
+      <% end %>
+      <li><%= link_to t(".clear"), household_records_path(Current.household, from: @filter.params[:from]), class: "px-1 text-blue-700 underline" %></li>
+    </ul>
+  <% end %>
+  </div>
 
-  <div class="min-w-0 flex-1 space-y-4">
   <section aria-label="<%= t(".summary") %>" class="card-raised overflow-x-auto rounded-xl bg-white">
     <table class="w-full text-sm border-separate border-spacing-0">
       <thead class="bg-gray-50 text-left [&_th]:border-b [&_th]:border-gray-400">
@@ -107,6 +123,4 @@
     </ul>
     <%= render "pagination", filter: @filter %>
   <% end %>
-  </div>
-  </div>
 </div>

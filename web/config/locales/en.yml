@@ -593,6 +593,11 @@ en:
       reminders_restarted: "Reminders Restarted"
     index:
       filters: "Filters"
+      filters_on:
+        one: "1 filter on"
+        other: "%{count} filters on"
+      remove_filter: "Remove %{filter}"
+      search_chip: "Search: %{q}"
       export_count:
         one: "Export This 1 (CSV)"
         other: "Export These %{count} (CSV)"

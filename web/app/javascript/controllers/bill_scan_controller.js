@@ -6,7 +6,9 @@ import { Controller } from "@hotwired/stimulus"
 // Firefox). Checked by what the browser can do, not by its name. Once all 3 barcodes are read, the
 // server (bill_scans#show, Records::BillBarcode) says what they mean and the form is filled in: fields
 // read straight from the barcodes are tagged "from barcode", guesses "please check". A biller code the
-// household hasn't seen yet asks once which category it is (biller_codes#create).
+// household hasn't seen yet asks once which category it is (biller_codes#create). Before filling, a bill
+// already recorded (same bill number) or maybe recorded (same category and period, typed in by hand)
+// shows those records first; saying a similar one is this bill gives it the bill number (bill_scans#update).
 const ZXING_URL = "/vendor/zxing-0.21.3.min.js"
 const FIRST = /^(\d{6})([0-9A-Z]{3})$/
 const THIRD = /^\d{4}[0-9A-Z]{2}\d{9}$/
@@ -15,7 +17,8 @@ let zxingLoading = null
 
 export default class extends Controller {
   static targets = ["card", "message", "photo", "dialog", "video", "tick", "light", "lightSpacer", "texts",
-                    "ask", "askAmount", "askDeadline", "askBiller", "askOnce", "askCategory", "askOffset"]
+                    "ask", "askAmount", "askDeadline", "askBiller", "askOnce", "askCategory", "askOffset",
+                    "match", "matchTitle", "matchLine", "matchList", "already", "similar", "openRecord"]
   static values = { scanUrl: String, rememberUrl: String }
 
   connect() { this.texts = JSON.parse(this.textsTarget.textContent) }
@@ -183,11 +186,50 @@ export default class extends Controller {
       const response = await fetch(`${this.scanUrlValue}?${query}`, { headers: { Accept: "application/json" } })
       if (!response.ok) return this.say(this.texts.not_found, "warn")
       this.scan = await response.json()
-      this.scan.known ? this.fill() : this.askBiller()
+      if (this.scan.match === "already" && !this.anyway) return this.showMatch("already")
+      if (!this.scan.known) return this.askBiller()
+      if (this.scan.match === "similar" && !this.anyway) return this.showMatch("similar")
+      this.fill()
     } catch (_) {
       this.say(this.texts.error, "warn")
     }
   }
+
+  // ---- Already (or maybe) recorded ------------------------------------------------------------
+
+  showMatch(kind) {
+    this.messageTarget.hidden = true
+    this.matchTitleTarget.textContent = this.texts[`${kind}_title`]
+    this.matchLineTarget.textContent = this.texts[`${kind}_line`]
+    this.matchListTarget.innerHTML = this.scan.matches
+    this.alreadyTarget.hidden = kind !== "already"
+    this.similarTarget.hidden = kind !== "similar"
+    this.openRecordTarget.href = this.matchListTarget.querySelector("a")?.href ?? "#"
+    // A similar record, opened from its card or Yes, Open It, is this bill
+    this.matchListTarget.querySelectorAll("a").forEach((card) => { if (kind === "similar") card.dataset.action = "bill-scan#claim" })
+    this.matchTarget.hidden = false
+    this.matchTarget.scrollIntoView({ behavior: "smooth", block: "center" })
+  }
+
+  async claim(event) {
+    event.preventDefault()
+    const card = event.target.closest("a[data-record-id]") ?? this.matchListTarget.querySelector("a[data-record-id]")
+    if (!card) return
+    const body = new URLSearchParams({ record_id: card.dataset.recordId, bill_number: this.scan.bill_number })
+    const response = await fetch(this.scanUrlValue, {
+      method: "PATCH", body, headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content, Accept: "application/json" }
+    }).catch(() => null)
+    if (!response?.ok) return this.say(this.texts.error, "warn")
+    window.location.assign(card.href)
+  }
+
+  fillAnyway() {
+    this.anyway = true
+    this.matchTarget.hidden = true
+    this.scan.known ? this.fill() : this.askBiller()
+  }
+
+  again() { this.open() }
 
   // ---- First time for a biller ------------------------------------------------------------------
 
@@ -240,15 +282,11 @@ export default class extends Controller {
     line.className = "block"
     line.textContent = this.texts.check
     this.messageTarget.append(title, line)
-    if (scan.duplicate) {
-      const warn = document.createElement("span")
-      warn.className = "mt-1 block font-medium text-amber-900"
-      const link = document.createElement("a")
-      link.href = scan.duplicate.url
-      link.className = "underline"
-      link.textContent = `${scan.duplicate.title} · ${scan.duplicate.period}`
-      warn.append(`${this.texts.duplicate} `, link)
-      this.messageTarget.append(warn)
+    if (!scan.match) {
+      const clear = document.createElement("span")
+      clear.className = "mt-1 block font-medium text-green-800"
+      clear.textContent = this.texts.not_recorded
+      this.messageTarget.append(clear)
     }
     this.show("bg-white")
     document.getElementById("record_amount_required")?.closest("section")?.scrollIntoView({ behavior: "smooth", block: "start" })
@@ -289,8 +327,10 @@ export default class extends Controller {
   reset() {
     this.codes = {}
     this.asked = false
+    this.anyway = false
     this.scan = null
     this.askTarget.hidden = true
+    this.matchTarget.hidden = true
     this.messageTarget.hidden = true
     this.found([])
   }

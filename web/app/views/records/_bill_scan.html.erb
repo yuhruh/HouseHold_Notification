@@ -1,8 +1,10 @@
 <%# New Record → Scan the Bill's Barcodes (三段式條碼): the phone reads the 3 barcodes (the browser's own
     reader where it has one, Android Chrome; otherwise ZXing, loaded only then: iPhone, Safari, Firefox),
     bill_scans#show says what they mean, and bill_scan_controller.js fills the form below. A biller code
-    seen for the first time asks once which category it is. Nothing is uploaded until Save %>
-<% texts = %w[not_found error reading no_camera filled check again from_barcode please_check due_offset duplicate].index_with { t("records.scan.#{it}") } %>
+    seen for the first time asks once which category it is. Before filling, the records are checked: a
+    bill already recorded (same bill number) or maybe recorded (same category and period) asks first.
+    Nothing is uploaded until Save %>
+<% texts = %w[not_found error reading no_camera filled check again from_barcode please_check due_offset not_recorded].index_with { t("records.scan.#{it}") } %>
 <section class="card-raised space-y-3 rounded-xl bg-cyan-50 p-4 dark:bg-cyan-50/60" data-bill-scan-target="card">
   <div>
     <h2 class="text-lg font-semibold"><%= t("records.scan.title") %></h2>
@@ -27,6 +29,32 @@
     </label>
   </div>
   <p hidden class="rounded-lg px-3 py-2 text-sm" role="status" data-bill-scan-target="message"></p>
+
+  <%# Checked before filling: already recorded (same bill number) or maybe recorded (same category and period) %>
+  <div hidden class="space-y-3 rounded-lg bg-white p-3" data-bill-scan-target="match">
+    <p class="font-bold text-green-800"><%= t("records.scan.all_read") %></p>
+    <div role="alert" class="space-y-3 rounded-lg border-2 border-amber-600 bg-amber-50 p-3 dark:bg-amber-50/80">
+      <div>
+        <p class="font-bold text-amber-950" data-bill-scan-target="matchTitle"></p>
+        <p class="text-sm text-amber-950" data-bill-scan-target="matchLine"></p>
+      </div>
+      <div class="space-y-2" data-bill-scan-target="matchList"></div>
+    </div>
+    <div class="space-y-3" data-bill-scan-target="already">
+      <div class="flex flex-wrap gap-2">
+        <a href="#" class="btn-press inline-flex min-h-11 items-center rounded-xl bg-cyan-200 px-3.5 py-2 font-medium text-cyan-950" data-bill-scan-target="openRecord"><%= t("records.scan.open_record") %></a>
+        <button type="button" class="btn-press inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" data-action="bill-scan#again"><%= t("records.scan.scan_another") %></button>
+      </div>
+      <button type="button" class="min-h-11 cursor-pointer text-left text-sm text-blue-700 underline" data-action="bill-scan#fillAnyway"><%= t("records.scan.fill_anyway") %></button>
+    </div>
+    <div class="space-y-3" data-bill-scan-target="similar">
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="btn-press inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-cyan-200 px-3.5 py-2 font-medium text-cyan-950" data-action="bill-scan#claim"><%= t("records.scan.yes_open") %></button>
+        <button type="button" class="btn-press inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" data-action="bill-scan#fillAnyway"><%= t("records.scan.no_fill") %></button>
+      </div>
+      <p class="text-xs text-gray-600"><%= t("records.scan.similar_hint") %></p>
+    </div>
+  </div>
 
   <%# First time for a biller code: which category, and what its deadline means (asked once) %>
   <div hidden class="space-y-3 rounded-lg bg-white p-3" data-bill-scan-target="ask">
@@ -73,6 +101,6 @@
       <button type="button" class="min-h-11 cursor-pointer rounded-xl border border-white/30 font-medium" data-action="bill-scan#photoInstead"><%= t("records.scan.take_photo") %></button>
     </div>
   </dialog>
-  <script type="application/json" data-bill-scan-target="texts"><%= raw texts.to_json %></script>
+  <script type="application/json" data-bill-scan-target="texts"><%= raw texts.merge(%w[already_title already_line similar_title similar_line].index_with { t("records.scan.#{it}") }).to_json %></script>
 </section>
 <div class="flex items-center gap-2.5 text-sm text-gray-600"><span class="h-px flex-1 bg-gray-300"></span><%= t("records.scan.or_manual") %><span class="h-px flex-1 bg-gray-300"></span></div>

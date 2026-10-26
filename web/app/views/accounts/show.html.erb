@@ -38,12 +38,12 @@
       <%= form.label :display_name, class: "block text-sm font-medium" %>
       <%= form.text_field :display_name, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <%= form.label :locale, t(".locale"), class: "block text-sm font-medium" %>
-      <%= form.select :locale, [ [ t(".locale_auto"), "" ], [ "繁體中文", "zh-TW" ], [ "English", "en" ] ], {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.select :locale, [ [ t(".locale_auto"), "" ], [ "繁體中文", "zh-TW" ], [ "English", "en" ] ], {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <%= form.label :time_zone, t(".time_zone"), class: "block text-sm font-medium" %>
       <%= form.text_field :time_zone, list: "time-zones", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
       <datalist id="time-zones"><% tz_options.each do |tz| %><option value="<%= tz %>"></option><% end %></datalist>
       <%= form.label :reminder_hour, t(".reminder_hour"), class: "block text-sm font-medium" %>
-      <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      <%= form.select :reminder_hour, (0..23).map { |h| [ format("%02d:00", h), h ] }, {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
     <% end %>
   </section>
@@ -54,7 +54,7 @@
     <%= form_with url: theme_path, method: :patch, data: { turbo: false }, class: "space-y-3" do |form| %>
       <%= form.label :theme, t(".theme_label"), class: "block text-sm font-medium" %>
       <%= form.select :theme, ThemesController::THEMES.map { |theme| [ t("layouts.header.themes.#{theme}"), theme ] }, { selected: current_theme },
-            class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+            class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 dark:bg-mauve-100" %>
       <p class="text-sm text-gray-500"><%= t(".theme_hint") %></p>
       <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
     <% end %>

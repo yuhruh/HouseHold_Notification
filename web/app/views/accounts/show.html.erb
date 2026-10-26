@@ -50,7 +50,7 @@
 
   <%# Theme for this device only (a cookie, like the header toggle); a full reload so <html data-theme> updates %>
   <section class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/theme.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".theme") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/theme.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".theme") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <%= form_with url: theme_path, method: :patch, data: { turbo: false }, class: "space-y-3" do |form| %>
       <%= form.label :theme, t(".theme_label"), class: "block text-sm font-medium" %>
       <%= form.select :theme, ThemesController::THEMES.map { |theme| [ t("layouts.header.themes.#{theme}"), theme ] }, { selected: current_theme },
@@ -61,7 +61,7 @@
   </section>
 
   <section class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/email.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".email") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/email.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".email") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <p><%= Current.user.email_address %></p>
     <% if Current.user.unconfirmed_email %>
       <div class="flex flex-wrap items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm">
@@ -82,7 +82,7 @@
   </section>
 
   <section class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/password.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".password") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/password.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".password") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <% if Current.user.password_set? %>
       <%= form_with url: account_password_path, method: :patch, class: "space-y-3" do |form| %>
         <%= form.label :current_password, t(".current_password"), class: "block text-sm font-medium" %>
@@ -100,7 +100,7 @@
   </section>
 
   <section class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/sign_in_method.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".sign_in_methods") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/sign_in_method.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".sign_in_methods") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <% if identity = Current.user.google_identity %>
       <p><%= t(".google_connected", email: identity.email) %></p>
       <% if Current.user.can_disconnect_google? %>
@@ -127,7 +127,7 @@
   </details>
 
   <section class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/ledger.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".households") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/ledger.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".households") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <ul class="divide-y rounded-lg border">
       <% Current.user.memberships.includes(:household).each do |m| %>
         <li class="flex items-center justify-between gap-2 px-4 py-2">
@@ -142,7 +142,7 @@
   </section>
 
   <section id="notifications" class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/notification.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".notifications") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/notification.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".notifications") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <p class="text-sm text-gray-600"><%= t(".notifications_hint", hour: format("%02d:00", Current.user.reminder_hour)) %></p>
     <% Current.user.memberships.includes(:household).each do |membership| %>
       <% pref = NotificationPreference.for(membership) %>
@@ -168,7 +168,7 @@
   </section>
 
   <section id="devices" class="space-y-3">
-    <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/devices.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".devices") %></h2>
+    <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/devices.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".devices") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <% devices = Current.user.push_subscriptions.includes(:session).order(created_at: :desc) %>
     <% if devices.empty? %>
       <p class="text-sm text-gray-600"><%= t(".no_devices") %></p>

@@ -6,13 +6,9 @@
   <ul class="flex flex-col space-y-2 pt-4 text-base text-gray-700">
     <% [ [ "upcoming.png", t("records.bills_switch.to_pay_title"), household_pending_path(Current.household) ],
          [ "records.png", t("records.bills_switch.all_title"), household_records_path(Current.household) ],
-         [ "dashboard.png", t("layouts.header.dashboard"), household_dashboard_path(Current.household) ],
          [ "recurring.png", t(".templates"), household_recurring_templates_path(Current.household) ],
          [ "categories.png", t(".categories"), household_categories_path(Current.household) ],
-         [ "payment.png", t(".payment_methods"), household_payment_methods_path(Current.household) ],
-         *([ [ "import.png", t(".import"), new_household_import_path(Current.household) ] ] if policy(Current.household).write?),
-         [ "members.png", t(".members"), household_members_path(Current.household) ],
-         [ "settings.png", t("layouts.header.settings"), household_settings_path(Current.household) ] ].each do |icon, label, path| %>
+         [ "payment.png", t(".payment_methods"), household_payment_methods_path(Current.household) ] ].each do |icon, label, path| %>
       <li><%= link_to nav_label(icon, label), path, class: "btn-press flex items-center gap-2 rounded-lg border px-4 py-3 font-medium transition-colors hover:bg-mist-300 hover:text-mist-800" %></li>
     <% end %>
   </ul>

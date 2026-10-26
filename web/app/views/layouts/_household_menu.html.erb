@@ -5,7 +5,7 @@
 <% label = "px-3 pb-1 pt-2 text-xs font-bold tracking-wide text-gray-600 uppercase" %>
 <% roles = Current.user.memberships.where(household: households).pluck(:household_id, :role).to_h %>
 <details class="relative" data-controller="dropdown">
-  <summary class="inline-flex min-h-10 max-w-[42vw] cursor-pointer list-none items-center gap-1.5 rounded-xl border-2 border-(--card-line) bg-white px-2.5 font-bold sm:max-w-none [&::-webkit-details-marker]:hidden <%= 'bg-blue-50' if here %>" aria-label="<%= t("layouts.header.household_menu", household: current.name) %>">
+  <summary class="inline-flex min-h-10 max-w-[42vw] cursor-pointer list-none items-center gap-1.5 rounded-xl px-2.5 font-bold btn-press [--press:3px] sm:max-w-none [[open]>&]:translate-x-[3px] [[open]>&]:translate-y-[3px] [[open]>&]:shadow-none [&::-webkit-details-marker]:hidden <%= here ? 'bg-blue-50' : 'bg-white' %>" aria-label="<%= t("layouts.header.household_menu", household: current.name) %>">
     <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 shrink-0 object-contain" %><span class="truncate"><%= current.name %></span>
     <% if pending.positive? %><span class="rounded-full bg-amber-500 px-1.5 text-xs text-white"><%= pending %></span><% end %>
     <span aria-hidden="true" class="text-gray-500">▾</span>

@@ -324,7 +324,6 @@ en:
       payment_methods: "Payment Methods"
       categories: "Categories"
       templates: "Recurring Bills"
-      import: "Import From The Sheet"
   members:
     index:
       title: "Members"

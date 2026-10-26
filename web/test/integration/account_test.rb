@@ -14,6 +14,19 @@ class AccountTest < ActionDispatch::IntegrationTest
     patch account_path, params: { user: { time_zone: "Mars/Base" } }
     assert_response :unprocessable_content
     assert_select "ul.bg-red-50 li"
+    assert_select "select#user_time_zone option[selected][value='Asia/Taipei']", 1, "the saved zone, not the rejected one"
+  end
+
+  test "time zone is read-only until the pencil, then a dropdown grouped by region" do
+    get account_path
+    assert_select "[data-edit-toggle-target=view] input[readonly][value='Asia/Taipei']"
+    assert_select "[data-edit-toggle-target=view] button[aria-label=?]", "更改時區"
+    assert_select "[data-edit-toggle-target=edit][hidden] select#user_time_zone" do
+      assert_select "optgroup[label=Asia] option[selected][value='Asia/Taipei']"
+      assert_select "optgroup[label=Europe] option[value='Europe/London']"
+      assert_select "optgroup[label=其他] option[value=UTC]"
+    end
+    assert_select "datalist", 0
   end
 
   test "email change needs the current password, notifies the old address and switches only after confirmation" do

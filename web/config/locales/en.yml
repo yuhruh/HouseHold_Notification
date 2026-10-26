@@ -436,6 +436,8 @@ en:
       locale: "Language"
       locale_auto: "Same As The Browser"
       time_zone: "Time Zone"
+      change_time_zone: "Change Time Zone"
+      time_zone_other: "Other"
       reminder_hour: "Reminder Time"
       save: "Save"
       email: "Email"

@@ -76,7 +76,7 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
     assert_select "header details a[href=?]", household_path(households(:parents)), /Parents/
     assert_select "header details a[aria-current=true][href=?]", household_path(households(:home)), /我的家/
     assert_select "header details a[href=?]", onboarding_path
-    assert_select "header details a[href=?]", household_settings_path(households(:home)), /家庭設定/
+    assert_select "header details a[href=?]", household_settings_path(households(:home)), /帳本設定/
     assert_select "header details a[href=?]", household_members_path(households(:home)), /成員/
 
     sign_out

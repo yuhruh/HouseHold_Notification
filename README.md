@@ -1,8 +1,9 @@
 # Household Tracker
 
-A shared, installable web app (PWA) for one household's bills: expenses, maintenance and taxes. It
-replaces the family Google Sheet of household expenses on desktop and Android, and reminds
-everyone before things are due.
+A shared, installable web app (PWA) for bills: expenses, maintenance and taxes, kept in shared
+**ledgers** (帳本), one for a home, another for a company or anything else. It started as the
+replacement for a family Google Sheet of household expenses, and reminds everyone before things are
+due.
 
 **Live:** https://household-tracker.up.railway.app
 
@@ -50,7 +51,7 @@ Home Screen.
   The form is filled with the amount, due date, year and category.
 - Read on the phone: the browser's `BarcodeDetector` where it supports Code 39 (Android Chrome),
   otherwise ZXing, loaded only then (iPhone, Safari, Firefox). Nothing is uploaded until Save.
-- Each household is asked once what a biller code means (category, and whether the barcode's deadline
+- Each ledger is asked once what a biller code means (category, and whether the barcode's deadline
   is the due date or 3 days after it, as on tax bills).
 - Before filling, the records are checked: the same bill number means **Already in your records**, and
   a hand-entered record with the same category and period asks whether it's the same bill (saying yes
@@ -73,17 +74,20 @@ Home Screen.
   **Settings → Reminder delivery**.
 - A red count on **Bills** (header and phone tab bar) shows the unpaid bills due today or earlier.
 
-**Household and accounts**
+**Ledgers and accounts**
 - Roles: owner, co-owner (edits records) and viewer (read-only). Members join by email invitation.
 - Sign in with email + password (email confirmation required) or Google.
-- Several households per user. The **household menu** at the left of the header is named after the
-  household you're in: switch households, + New Household, Household Settings and Members.
+- A **ledger** (帳本; `Household` in the code) holds its own records, members, categories and
+  settings, and is named by whoever creates it (a home, a company…). One account can belong to
+  several ledgers.
+- The **ledger menu** at the left of the header is named after the ledger you're in: switch ledgers,
+  + New Ledger, Ledger Settings and Members.
 - **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
   Started, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
   holds Bills, Analysis and New Record.
 - The activity log shows who did what.
 - Account deletion in the app or from a public page, with ownership transfer.
-- The owner can **delete all records** (re-authentication and the typed household name required),
+- The owner can **delete all records** (re-authentication and the typed ledger name required),
   optionally keeping the recurring templates.
 - English and Traditional Chinese for signed-in and signed-out visitors; the theme is remembered on
   each device.
@@ -93,7 +97,7 @@ Home Screen.
   metadata (including GPS) and saved as JPEG on the server.
 - Repeats are recognised by a perceptual fingerprint (dHash), both in the browser (tagged
   **Already added**) and on the server, which skips them.
-- Served only to household members ([ADR 0004](docs/adr/0004-storage-volume.md)).
+- Served only to the ledger's members ([ADR 0004](docs/adr/0004-storage-volume.md)).
 
 **Expense Analysis**
 - Apache ECharts charts: monthly spend by type, the water / electricity / gas trend and billing
@@ -116,7 +120,7 @@ it alerts even when the app is down.
 | Job | When | What it does | Heartbeat |
 |---|---|---|---|
 | `SendRemindersJob` | Hourly at :05 | Sends each member's digest at their reminder hour, then queues the owner's failure summary | `REMINDER_HEARTBEAT_URL` (grace 3 h) |
-| `OwnerFailureSummaryJob` | After each reminder run, once a day per household | One summary of failed deliveries for the owner | `DELIVERY_HEALTH_HEARTBEAT_URL` |
+| `OwnerFailureSummaryJob` | After each reminder run, once a day per ledger | One summary of failed deliveries for the owner | `DELIVERY_HEALTH_HEARTBEAT_URL` |
 | `ConfirmPushReceiptsJob` | Hourly at :35 | Marks a push no device confirmed within 24 h as failed | — |
 | `GenerateRecurringRecordsJob` | Daily 00:10 | Creates due bills from every template, in the owner's time zone | `GENERATE_HEARTBEAT_URL` (grace 26 h) |
 | `Auth::CleanupJob` | Daily 03:30 | Removes unconfirmed sign-ups older than 7 days, expired sessions and Google handoffs | — |
@@ -198,9 +202,9 @@ setup, environment variables and the manual deploy steps are in [docs/M0-SETUP.m
 The full step-by-step guide, in both languages, is in the app at **Getting Started** (`/guide`).
 In short:
 
-1. **Sign up** with email or Google, and create your household (or accept an invitation).
-2. **Invite family** from the household menu → **Members**: choose co-owner or viewer. They get an email with a link.
-3. **Set up the lists** from the household page: categories, payment methods and recurring
+1. **Sign up** with email or Google, and create your ledger (or accept an invitation).
+2. **Invite people** from the ledger menu → **Members**: choose co-owner or viewer. They get an email with a link.
+3. **Set up the lists** from the ledger's page: categories, payment methods and recurring
    templates. Or **Import CSV** on **Bills › All** with the sheet's CSV export.
 4. **Install the app:** open your menu (your initial, top right) → **Install App** (or Chrome ⋮ →
    Install app on Android).
@@ -211,7 +215,7 @@ In short:
 7. **Every day:** check **Bills › To Pay**, tap **Record Payment** after paying, and **Add photos**
    for receipts. **Expense Analysis** shows where the money goes.
 8. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
-   household menu → **Household Settings → Reminder delivery**.
+   ledger menu → **Ledger Settings → Reminder delivery**.
 
 ## Documentation
 

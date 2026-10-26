@@ -24,7 +24,7 @@ zh-TW:
       amount: "金額"
       deadline: "條碼繳費期限"
       biller: "代收單位代碼"
-      new_biller: "這個家庭第一次出現"
+      new_biller: "這個帳本第一次出現"
       which_category: "這個代收單位是哪個類別？"
       asked_once: "只問一次，下次 %{code} 的帳單會自動帶入類別。"
       deadline_meaning: "條碼上的繳費期限代表什麼？"

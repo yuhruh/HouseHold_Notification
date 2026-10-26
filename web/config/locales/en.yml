@@ -24,7 +24,7 @@ en:
         password: "Password"
         password_confirmation: "Confirm Password"
       household:
-        name: "Household Name"
+        name: "Ledger Name"
         default_currency: "Default Currency"
         reminder_lead_days: "Reminder Lead Days"
       invitation:
@@ -149,7 +149,7 @@ en:
   pages:
     home:
       signed_in_as: "Signed in as %{name}."
-      households_coming: "Households and bills are coming next."
+      households_coming: "Ledgers and bills are coming next."
       sign_out: "Sign Out"
       sign_in: "Sign In"
       sign_up: "Create An Account"
@@ -163,7 +163,7 @@ en:
     features:
       page_title: "Features · Household Tracker"
       title: "Features"
-      intro: "Household Tracker replaces the family's Google Sheet for bills, maintenance and taxes, and reminds everyone before things are due. It works on computers and phones, and installs as an app."
+      intro: "Household Tracker keeps the bills, maintenance and taxes of a home or a company in one shared ledger, and reminds everyone before things are due. It works on computers and phones, and installs as an app."
       sections:
         records:
           title: "Bills"
@@ -194,11 +194,11 @@ en:
             - "A red count on Bills shows the unpaid bills due today or earlier."
             - "If a reminder doesn't arrive, the owner gets a daily summary and can resend it."
         household:
-          title: "Household and members"
+          title: "Ledgers and members"
           items:
-            - "Owner, co-owner (edits records) and viewer (read-only). Invite family by email."
-            - "Sign in with email and password or Google; one account can belong to several households."
-            - "The household menu at the top switches households and opens Household Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or 繁體中文) and Sign Out."
+            - "Owner, co-owner (edits records) and viewer (read-only). Invite people by email."
+            - "Sign in with email and password or Google; one account can belong to several ledgers."
+            - "The ledger menu at the top switches ledgers and opens Ledger Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or 繁體中文) and Sign Out."
             - "On a phone, the tab bar at the bottom has Bills, Analysis and New Record. Put it on your home screen like an app (Android: one tap; iPhone and iPad: Safari → Add to Home Screen)."
             - "The activity log shows who did what."
         photos:
@@ -206,7 +206,7 @@ en:
           items:
             - "Add receipt photos to a bill in two steps, choose then upload; they're downsized and location data is removed."
             - "A photo that's already on the record is recognised and not added twice."
-            - "Only household members can see them."
+            - "Only ledger members can see them."
         analysis:
           title: "Expense Analysis"
           items:
@@ -229,7 +229,7 @@ en:
         items_html:
           - "Open the invitation email (sent from Household Tracker's Gmail address; the first time, check spam too)."
           - "Tap the link and choose \"Create an account\" with <strong>the email the invitation was sent to</strong>, or \"Sign in\" if you already have an account. Google sign-in works too, with a Google account on that same email."
-          - "Tap \"Accept\" and you'll see the household's bills."
+          - "Tap \"Accept\" and you'll see the ledger's bills."
       install:
         title: "2. Install it on your home screen"
         items_html:
@@ -240,7 +240,7 @@ en:
         title: "3. Turn on notifications"
         items_html:
           - "Open the app from the icon and go to %{link}."
-          - "Make sure \"Push\" is ticked for the household and tap \"Save\"."
+          - "Make sure \"Push\" is ticked for the ledger and tap \"Save\"."
           - "Tap \"Enable notifications\" and choose <strong>Allow</strong> when Chrome asks. \"This browser\" then shows it's on."
           - "To keep amounts off the lock screen, untick \"Show bill names and amounts in notifications (lock screen)\"."
         link: "My Account → Notifications"
@@ -260,8 +260,8 @@ en:
         title: "6. If something goes wrong"
         items_html:
           - "<strong>No notifications:</strong> open the app from the home screen and tap \"Enable notifications\" again in My Account. Email and the in-app inbox still have your reminders."
-          - "<strong>Lost phone:</strong> sign in on a computer and remove it under My Account → Devices, or ask the household owner to."
-          - "<strong>Anything else:</strong> ask the family member who invited you."
+          - "<strong>Lost phone:</strong> sign in on a computer and remove it under My Account → Devices, or ask the ledger owner to."
+          - "<strong>Anything else:</strong> ask the person who invited you."
       privacy: "Privacy policy"
   roles:
     owner: "Owner"
@@ -283,14 +283,13 @@ en:
         light: "Light"
         dark: "Dark"
         system: "Device Setting"
-      new_household: "+ New Household"
-      apartment: "Apartment"
+      new_household: "+ New Ledger"
       menu: "Menu"
       close_menu: "Close Menu"
       bills: "Bills"
-      household_menu: "Household menu: %{household}"
-      households: "Households"
-      household_settings: "Household Settings"
+      household_menu: "Ledger menu: %{household}"
+      households: "Ledgers"
+      household_settings: "Ledger Settings"
       your_menu: "Your Menu"
       themes_short:
         light: "Light"
@@ -309,15 +308,15 @@ en:
   onboardings:
     show:
       title: "Welcome"
-      new_title: "Create A New Household"
-      new_hint: "A new household starts empty, with its own records, members and reminders. You become its owner."
-      create_heading: "Create Your Household"
-      create: "Create Household"
+      new_title: "Create A New Ledger"
+      new_hint: "A new ledger starts empty, with its own records, members and reminders. You become its owner."
+      create_heading: "Create Your Ledger"
+      create: "Create Ledger"
       waiting_heading: "Waiting for an invite?"
       waiting: "Ask the owner to invite %{email}. The invitation will appear here when you sign in."
   households:
     create:
-      created: "Your household is ready."
+      created: "Your ledger is ready."
     show:
       role: "Your role: %{role}"
       members: "Members"
@@ -344,7 +343,7 @@ en:
       custom_date: "Date (For “On A Date”)"
       send: "Send Invitation"
       remove: "Remove"
-      remove_confirm: "Remove this member from the household?"
+      remove_confirm: "Remove this member from the ledger?"
   household_invitations:
     create:
       sent: "Invitation sent to %{email}."
@@ -361,7 +360,7 @@ en:
       from: "From %{name}"
       accept: "Accept"
       decline: "Decline"
-      create_instead: "Create Your Own Household Instead"
+      create_instead: "Create Your Own Ledger Instead"
     accept:
       accepted: "You joined %{household}."
     decline:
@@ -388,8 +387,8 @@ en:
     delete_account: "delete your account"
     change_email: "change your email"
     disconnect_google: "disconnect Google"
-    transfer_ownership: "transfer household ownership"
-    delete_household: "delete a household"
+    transfer_ownership: "transfer ledger ownership"
+    delete_household: "delete a ledger"
     delete_records: "delete all records"
   reauthentications:
     show:
@@ -434,8 +433,8 @@ en:
       last_seen: "Last seen %{time}"
       this_device: "this device"
       sign_out_others: "Sign Out All Other Devices"
-      households: "Households"
-      new_household: "+ Create A New Household"
+      households: "Ledgers"
+      new_household: "+ Create A New Ledger"
       leave: "Leave"
       leave_confirm: "Leave %{household}? You'll need a new invitation to come back."
       danger_zone: "Danger Zone"
@@ -467,13 +466,13 @@ en:
       show:
         title: "Delete Your Account"
         explain: "Deleting your account is permanent."
-        removes: "Your profile, sign-in methods and devices are removed, and you leave every household. Bills you added stay in the household, shown as added by a former member."
-        owner_rule: "If you own a household with other members, transfer ownership or delete the household first. A household where you're the only member is deleted with your account."
+        removes: "Your profile, sign-in methods and devices are removed, and you leave every ledger. Bills you added stay in the ledger, shown as added by a former member."
+        owner_rule: "If you own a ledger with other members, transfer ownership or delete the ledger first. A ledger where you're the only member is deleted with your account."
         backups: "Encrypted backups on the server expire within 4 weeks. Encrypted copies kept off the server (email and a computer) are deleted after 3 months."
-        blocked_heading: "First, for each household you own that has other members:"
+        blocked_heading: "First, for each ledger you own that has other members:"
         transfer: "Transfer Ownership"
-        delete_household: "Delete Household"
-        type_name: "Type the household name to confirm: %{name}"
+        delete_household: "Delete Ledger"
+        type_name: "Type the ledger name to confirm: %{name}"
         delete: "Delete My Account"
         final_confirm: "Delete your account permanently?"
         sign_in_first: "Sign In To Delete Your Account"
@@ -482,24 +481,24 @@ en:
         deleted: "Your account was deleted."
   household_settings:
     show:
-      title: "Household Settings"
+      title: "Ledger Settings"
       lead_days_hint: "How many days before the due date the due-soon reminder is sent (0–30)."
       save: "Save"
       transfer: "Transfer Ownership"
       delete_records: "Delete All Records"
-      delete: "Delete Household"
+      delete: "Delete Ledger"
       activity: "Activity"
       former_member: "Former Member"
       events:
         member_joined: "%{member} Joined As %{role}"
         role_changed: "%{actor} Changed %{member}'s Role To %{role}"
         member_removed: "%{actor} Removed %{member}"
-        member_left: "%{member} Left The Household"
+        member_left: "%{member} Left The Ledger"
         ownership_transferred: "%{actor} Transferred Ownership To %{member}"
-        household_updated: "%{actor} Changed Household Settings: %{fields}"
+        household_updated: "%{actor} Changed Ledger Settings: %{fields}"
         records_deleted: "%{actor} Deleted All Records (%{count})"
     update:
-      saved: "Household settings saved."
+      saved: "Ledger settings saved."
   memberships:
     update:
       updated: "Role changed."
@@ -522,7 +521,7 @@ en:
       title: "Delete All Records"
       explain: "This permanently deletes all %{count} records in %{name}."
       removes: "Gone with them: their photos, activity history, reminders and the import history (undo is no longer possible)."
-      keeps: "Kept: the household, members, categories, payment methods and settings."
+      keeps: "Kept: the ledger, members, categories, payment methods and settings."
       reimport: "Afterwards you can import the sheet again from scratch: every row comes back as new."
       delete_templates: "Also Delete The Recurring Bills (%{count})"
       keep_templates_hint: "If you keep them, they start again from this month, so past bills aren't recreated."
@@ -532,9 +531,9 @@ en:
       deleted: "Deleted %{count} records."
   household_deletions:
     new:
-      title: "Delete Household"
+      title: "Delete Ledger"
       explain: "This deletes %{name} and everything in it for every member. It can't be undone."
-      submit: "Delete Household"
+      submit: "Delete Ledger"
     create:
       name_mismatch: "The name didn't match."
       deleted: "%{name} was deleted."
@@ -545,12 +544,12 @@ en:
     google_disconnected: "Google Disconnected"
     sessions_revoked: "Other Devices Signed Out"
     member_joined: "Member Joined"
-    household_updated: "Household Settings Changed"
+    household_updated: "Ledger Settings Changed"
     role_changed: "Member Role Changed"
     member_removed: "Member Removed"
     member_left: "Member Left"
     ownership_transferred: "Ownership Transferred"
-    household_deleted: "Household Deleted"
+    household_deleted: "Ledger Deleted"
     account_deleted: "Account Deleted"
     records_deleted: "Deleted All Records"
   account_mailer:
@@ -724,7 +723,7 @@ en:
       done: "%{title} marked done."
       stale: "Someone else changed this record while you were editing. Reload it and try again."
     destroy:
-      deleted: "Record deleted. Its details stay in the household's activity log."
+      deleted: "Record deleted. Its details stay in the ledger's activity log."
     show:
       make_recurring: "Make This Recurring"
       record_payment: "Record Payment"

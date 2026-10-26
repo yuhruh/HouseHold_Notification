@@ -24,7 +24,7 @@ zh-TW:
         password: "密碼"
         password_confirmation: "確認密碼"
       household:
-        name: "家庭名稱"
+        name: "帳本名稱"
         default_currency: "預設幣別"
         reminder_lead_days: "提醒提前天數"
       invitation:
@@ -149,7 +149,7 @@ zh-TW:
   pages:
     home:
       signed_in_as: "已登入：%{name}"
-      households_coming: "家庭與帳單功能即將推出。"
+      households_coming: "帳本與帳單功能即將推出。"
       sign_out: "登出"
       sign_in: "登入"
       sign_up: "建立帳號"
@@ -163,7 +163,7 @@ zh-TW:
     features:
       page_title: "功能介紹 · Household Tracker"
       title: "功能介紹"
-      intro: "Household Tracker 取代家裡的 Google 試算表，記錄水電、保養和稅金，並在到期前提醒每位家人。電腦和手機都能用，可以安裝成 App。"
+      intro: "Household Tracker 把家裡或公司的帳單、保養和稅金記在同一本共用帳本，並在到期前提醒每位成員。電腦和手機都能用，可以安裝成 App。"
       sections:
         records:
           title: "帳單"
@@ -194,11 +194,11 @@ zh-TW:
             - "「帳單」上的紅色數字是今天或之前到期、還沒繳的帳單數。"
             - "提醒沒送達時，擁有者會收到每日摘要，可以重新寄送。"
         household:
-          title: "家庭與成員"
+          title: "帳本與成員"
           items:
-            - "擁有者、共同擁有者（可編輯記錄）、檢視者（只能看）。用 Email 邀請家人加入。"
-            - "可以用 Email 密碼或 Google 登入；一個帳號可以加入多個家庭。"
-            - "頁首的家庭選單可以切換家庭、打開家庭設定和成員；你的選單有我的帳戶、外觀（淺色、深色或跟隨裝置）、語言（English 或繁體中文）和登出。"
+            - "擁有者、共同擁有者（可編輯記錄）、檢視者（只能看）。用 Email 邀請成員加入。"
+            - "可以用 Email 密碼或 Google 登入；一個帳號可以加入多個帳本。"
+            - "頁首的帳本選單可以切換帳本、打開帳本設定和成員；你的選單有我的帳戶、外觀（淺色、深色或跟隨裝置）、語言（English 或繁體中文）和登出。"
             - "手機下方的分頁列有帳單、支出分析和新增記錄。可以像 App 一樣放到主畫面（Android 一鍵安裝；iPhone、iPad 用 Safari → 加入主畫面）。"
             - "活動記錄會列出誰做了什麼。"
         photos:
@@ -206,7 +206,7 @@ zh-TW:
           items:
             - "帳單可以附上收據照片，分兩步：先選照片再上傳；上傳前會縮小，位置等隱藏資訊會被移除。"
             - "已經在這筆記錄裡的照片會被認出來，不會重複新增。"
-            - "只有家庭成員看得到。"
+            - "只有帳本成員看得到。"
         analysis:
           title: "支出分析"
           items:
@@ -222,14 +222,14 @@ zh-TW:
       guide_link: "使用說明"
     guide:
       page_title: "使用說明 · Household Tracker"
-      title: "家人使用說明"
+      title: "受邀成員使用說明"
       intro: "用 Android 手機的 Chrome 設定一次，之後每天的帳單提醒會直接跳到手機上。"
       accept:
         title: "1. 接受邀請"
         items_html:
           - "打開邀請信（寄件人是 Household Tracker 的 Gmail；第一次請也看一下垃圾郵件）。"
           - "點信中的連結，用<strong>收到邀請的那個 Email</strong>「建立帳號」，或已經有帳號就「登入」。用 Google 登入也可以，但 Google 帳號要是同一個 Email。"
-          - "點「接受」，就會看到家裡的帳單。"
+          - "點「接受」，就會看到這個帳本的帳單。"
       install:
         title: "2. 安裝到手機主畫面"
         items_html:
@@ -240,7 +240,7 @@ zh-TW:
         title: "3. 開啟通知"
         items_html:
           - "從主畫面圖示打開 App，進入%{link}。"
-          - "確認家庭那一列勾了「推播」，按「儲存」。"
+          - "確認帳本那一列勾了「推播」，按「儲存」。"
           - "按「啟用通知」，Chrome 詢問時選<strong>允許</strong>。「這個瀏覽器」會顯示已開啟。"
           - "不想讓鎖定畫面顯示金額，可以取消「在通知（鎖定畫面）顯示帳單名稱與金額」。"
         link: "「我的帳戶」→「通知」"
@@ -260,8 +260,8 @@ zh-TW:
         title: "6. 遇到問題"
         items_html:
           - "<strong>沒收到通知：</strong>從主畫面打開 App，到「我的帳戶」再按一次「啟用通知」。Email 和通知收件匣還是會有提醒。"
-          - "<strong>手機遺失：</strong>在電腦登入，到「我的帳戶」→「裝置」移除那支手機，或請家庭擁有者移除。"
-          - "<strong>其他問題：</strong>問邀請你的家人。"
+          - "<strong>手機遺失：</strong>在電腦登入，到「我的帳戶」→「裝置」移除那支手機，或請帳本擁有者移除。"
+          - "<strong>其他問題：</strong>問邀請你的人。"
       privacy: "隱私權政策"
   roles:
     owner: "擁有者"
@@ -283,14 +283,13 @@ zh-TW:
         light: "淺色"
         dark: "深色"
         system: "跟隨裝置"
-      new_household: "＋ 新家庭"
-      apartment: "公寓"
+      new_household: "＋ 新帳本"
       menu: "選單"
       close_menu: "關閉選單"
       bills: "帳單"
-      household_menu: "家庭選單：%{household}"
-      households: "家庭"
-      household_settings: "家庭設定"
+      household_menu: "帳本選單：%{household}"
+      households: "帳本"
+      household_settings: "帳本設定"
       your_menu: "你的選單"
       themes_short:
         light: "淺色"
@@ -309,15 +308,15 @@ zh-TW:
   onboardings:
     show:
       title: "歡迎"
-      new_title: "建立新家庭"
-      new_hint: "新家庭是空的，有自己的記錄、成員和提醒，你是擁有者。"
-      create_heading: "建立你的家庭"
-      create: "建立家庭"
+      new_title: "建立新帳本"
+      new_hint: "新帳本是空的，有自己的記錄、成員和提醒，你是擁有者。"
+      create_heading: "建立你的帳本"
+      create: "建立帳本"
       waiting_heading: "在等待邀請嗎？"
       waiting: "請擁有者邀請 %{email}。登入後，邀請就會出現在這裡。"
   households:
     create:
-      created: "家庭已建立。"
+      created: "帳本已建立。"
     show:
       role: "你的角色：%{role}"
       records: "記錄"
@@ -344,7 +343,7 @@ zh-TW:
       custom_date: "日期（選擇「指定日期」時）"
       send: "寄送邀請"
       remove: "移除"
-      remove_confirm: "確定要將這位成員移出家庭？"
+      remove_confirm: "確定要將這位成員移出帳本？"
   household_invitations:
     create:
       sent: "已寄送邀請給 %{email}。"
@@ -361,7 +360,7 @@ zh-TW:
       from: "邀請人：%{name}"
       accept: "接受"
       decline: "拒絕"
-      create_instead: "改為建立自己的家庭"
+      create_instead: "改為建立自己的帳本"
     accept:
       accepted: "你已加入 %{household}。"
     decline:
@@ -388,8 +387,8 @@ zh-TW:
     delete_account: "刪除你的帳號"
     change_email: "變更電子郵件"
     disconnect_google: "取消連結 Google"
-    transfer_ownership: "轉移家庭擁有權"
-    delete_household: "刪除家庭"
+    transfer_ownership: "轉移帳本擁有權"
+    delete_household: "刪除帳本"
     delete_records: "刪除所有記錄"
   reauthentications:
     show:
@@ -434,8 +433,8 @@ zh-TW:
       last_seen: "最後使用：%{time}"
       this_device: "這個裝置"
       sign_out_others: "登出其他所有裝置"
-      households: "家庭"
-      new_household: "＋ 建立新家庭"
+      households: "帳本"
+      new_household: "＋ 建立新帳本"
       leave: "離開"
       leave_confirm: "確定要離開 %{household}？之後需要新的邀請才能再加入。"
       danger_zone: "危險區域"
@@ -467,13 +466,13 @@ zh-TW:
       show:
         title: "刪除你的帳號"
         explain: "刪除帳號後無法復原。"
-        removes: "你的個人資料、登入方式與裝置都會被移除，並離開所有家庭。你新增的帳單會留在家庭中，顯示為「前成員」新增。"
-        owner_rule: "如果你擁有的家庭還有其他成員，請先轉移擁有權或刪除該家庭。只有你一位成員的家庭會和帳號一起刪除。"
+        removes: "你的個人資料、登入方式與裝置都會被移除，並離開所有帳本。你新增的帳單會留在帳本中，顯示為「前成員」新增。"
+        owner_rule: "如果你擁有的帳本還有其他成員，請先轉移擁有權或刪除該帳本。只有你一位成員的帳本會和帳號一起刪除。"
         backups: "伺服器上的加密備份會在 4 週內過期。伺服器以外的加密副本（Email 與電腦）會在 3 個月後刪除。"
-        blocked_heading: "請先處理以下你擁有且有其他成員的家庭："
+        blocked_heading: "請先處理以下你擁有且有其他成員的帳本："
         transfer: "轉移擁有權"
-        delete_household: "刪除家庭"
-        type_name: "請輸入家庭名稱以確認：%{name}"
+        delete_household: "刪除帳本"
+        type_name: "請輸入帳本名稱以確認：%{name}"
         delete: "刪除我的帳號"
         final_confirm: "確定要永久刪除帳號？"
         sign_in_first: "登入後才能刪除帳號"
@@ -482,24 +481,24 @@ zh-TW:
         deleted: "你的帳號已刪除。"
   household_settings:
     show:
-      title: "家庭設定"
+      title: "帳本設定"
       lead_days_hint: "在到期日前幾天寄送即將到期提醒（0–30）。"
       save: "儲存"
       transfer: "轉移擁有權"
       delete_records: "刪除所有記錄"
-      delete: "刪除家庭"
+      delete: "刪除帳本"
       activity: "活動紀錄"
       former_member: "前成員"
       events:
         member_joined: "%{member} 加入，角色：%{role}"
         role_changed: "%{actor} 將 %{member} 的角色改為%{role}"
         member_removed: "%{actor} 移除了 %{member}"
-        member_left: "%{member} 離開了家庭"
+        member_left: "%{member} 離開了帳本"
         ownership_transferred: "%{actor} 將擁有權轉移給 %{member}"
-        household_updated: "%{actor} 變更了家庭設定：%{fields}"
+        household_updated: "%{actor} 變更了帳本設定：%{fields}"
         records_deleted: "%{actor} 刪除了所有記錄（%{count} 筆）"
     update:
-      saved: "家庭設定已儲存。"
+      saved: "帳本設定已儲存。"
   memberships:
     update:
       updated: "已變更角色。"
@@ -522,7 +521,7 @@ zh-TW:
       title: "刪除所有記錄"
       explain: "這會永久刪除 %{name} 的全部 %{count} 筆記錄。"
       removes: "一併刪除：記錄的照片、活動紀錄、提醒，以及匯入紀錄（之後無法再復原匯入）。"
-      keeps: "保留：家庭、成員、類別、付款方式與設定。"
+      keeps: "保留：帳本、成員、類別、付款方式與設定。"
       reimport: "之後可以重新匯入試算表，每一列都會當作新記錄。"
       delete_templates: "同時刪除定期帳單範本（%{count} 個）"
       keep_templates_hint: "如果保留，範本會從這個月重新開始，不會補建過去的帳單。"
@@ -532,9 +531,9 @@ zh-TW:
       deleted: "已刪除 %{count} 筆記錄。"
   household_deletions:
     new:
-      title: "刪除家庭"
+      title: "刪除帳本"
       explain: "這會為所有成員刪除 %{name} 及其中的所有資料，無法復原。"
-      submit: "刪除家庭"
+      submit: "刪除帳本"
     create:
       name_mismatch: "名稱不符。"
       deleted: "已刪除 %{name}。"
@@ -545,12 +544,12 @@ zh-TW:
     google_disconnected: "取消連結 Google"
     sessions_revoked: "登出其他裝置"
     member_joined: "成員加入"
-    household_updated: "變更家庭設定"
+    household_updated: "變更帳本設定"
     role_changed: "變更成員角色"
     member_removed: "移除成員"
     member_left: "成員離開"
     ownership_transferred: "轉移擁有權"
-    household_deleted: "刪除家庭"
+    household_deleted: "刪除帳本"
     account_deleted: "刪除帳號"
     records_deleted: "刪除所有記錄"
   account_mailer:
@@ -724,7 +723,7 @@ zh-TW:
       done: "已將「%{title}」標記為完成。"
       stale: "你編輯時有其他人修改了這筆記錄。請重新載入後再試一次。"
     destroy:
-      deleted: "已刪除記錄。內容仍保留在家庭的活動記錄中。"
+      deleted: "已刪除記錄。內容仍保留在帳本的活動記錄中。"
     show:
       make_recurring: "設為定期帳單"
       record_payment: "記錄繳費"

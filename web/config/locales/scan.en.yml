@@ -24,7 +24,7 @@ en:
       amount: "Amount"
       deadline: "Barcode deadline"
       biller: "Biller code"
-      new_biller: "new to this household"
+      new_biller: "new to this ledger"
       which_category: "Which category is this biller?"
       asked_once: "Asked once. Next time a bill from %{code} fills its category by itself."
       deadline_meaning: "What does the barcode deadline mean?"

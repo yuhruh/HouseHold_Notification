@@ -22,10 +22,10 @@
     <p>Household Tracker is a private household-bills app for invited family members only. It is not open to the public and shows no ads.</p>
     <ul class="list-disc space-y-1 pl-6">
       <li><strong>What we collect:</strong> your name, email address, profile photo (if you add one), language and time zone and, if you use Google sign-in, your Google account ID; the bills, amounts, dates, notes and receipt photos you and your family enter (GPS and other metadata are removed on upload); your signed-in devices (browser name and last-seen time); the push subscription of devices that receive notifications; and error reports (without personal data).</li>
-      <li><strong>How it is used:</strong> only to sign you in, show your household's data to its members, and send reminders by email and push notification.</li>
+      <li><strong>How it is used:</strong> only to sign you in, show each ledger's data to its members, and send reminders by email and push notification.</li>
       <li><strong>Google user data:</strong> Google sign-in only receives your name and email address. Reminder emails are sent from the app's own sender account; the app never reads anyone's mail. The app's use of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements.</li>
       <li><strong>Sharing:</strong> nothing is sold, rented or shared with third parties. The app runs on these services only: Railway (hosting and database), Gmail (sends reminder emails, so their content passes through Google), the browser's push service (e.g. Google, which carries encrypted notifications) and Sentry (error reports).</li>
-      <li><strong>Deletion:</strong> delete your account yourself at any time at <%= link_to "/account/deletion", account_deletion_path, class: "text-blue-700 underline" %>, or ask the household owner. Encrypted backups on the server expire within 4 weeks; encrypted copies kept off the server (email and a computer) are deleted after 3 months.</li>
+      <li><strong>Deletion:</strong> delete your account yourself at any time at <%= link_to "/account/deletion", account_deletion_path, class: "text-blue-700 underline" %>, or ask the ledger's owner. Encrypted backups on the server expire within 4 weeks; encrypted copies kept off the server (email and a computer) are deleted after 3 months.</li>
     </ul>
   </section>
 

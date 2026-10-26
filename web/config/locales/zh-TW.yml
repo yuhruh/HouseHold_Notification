@@ -323,7 +323,6 @@ zh-TW:
       payment_methods: "付款方式"
       categories: "類別"
       templates: "定期帳單"
-      import: "從試算表匯入"
       members: "成員"
   members:
     index:

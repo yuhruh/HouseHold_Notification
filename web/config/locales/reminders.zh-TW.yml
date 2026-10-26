@@ -2,7 +2,6 @@ zh-TW:
   layouts:
     header:
       install: "安裝 App"
-      pending: "待處理"
       inbox:
         one: "通知，1 則未讀"
         other: "通知，%{count} 則未讀"
@@ -63,7 +62,6 @@ zh-TW:
       cancelled: "已取消延後。"
   pending:
     show:
-      title: "待處理"
       empty: "目前沒有需要處理的帳單。🎉"
       overdue: "逾期"
       soon: "30 天內到期"

@@ -28,9 +28,6 @@
         <% end %>
         <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{sub} text-blue-700" %>
       </li>
-      <%# Export CSV and Import: in the Bills menu on a computer; the phone tab bar has no room for them %>
-      <li><%= link_to export_path, class: row do %><%= icon.("export.png") %><span><%= t("records.index.export") %></span><% end %></li>
-      <% if writer %><li><%= link_to new_household_import_path(current), class: row do %><%= icon.("import.png") %><span><%= t("records.index.import") %></span><% end %></li><% end %>
       <li><%= link_to household_settings_path(current), class: "#{row} #{here.(:settings)}" do %><%= icon.("settings.png") %><span><%= t("layouts.header.settings") %></span><% end %></li>
     <% end %>
     <li><%= link_to guide_path, class: "#{row} #{here.(:guide)}" do %><%= icon.("guide.png") %><span><%= t("layouts.header.guide") %></span><% end %></li>

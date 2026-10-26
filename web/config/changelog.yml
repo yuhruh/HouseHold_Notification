@@ -4,9 +4,11 @@
 - version: "2026.10.26"
   date: 2026-10-26
   en:
+    - "Pending and Records are now one Bills page: To Pay (what's still to pay, most urgent first, side by side on a computer) and All (every bill, with the filters at the side on a computer and one compact row per record), switched at the top. Export CSV and Import sit above the All list. The header has Bills and Expense Analysis; the phone tab bar has Bills, Analysis and New Record."
     - "New Record: Scan the Bill's Barcodes. Point the camera (or use a photo) at the 3 barcodes in the 條碼區 on the bottom part of a bill, and the amount, due date, year and category are filled in. The first bill from each biller asks once which category it is. Scanning a bill that's already recorded warns you."
     - "Scanning a bill checks your records before filling in the form: a bill already recorded shows that record instead (open it, or scan another bill), and a record you typed in yourself for the same category and period asks whether it's the same bill; saying yes saves the bill number on it."
   zh-TW:
+    - "「待處理」和「記錄」合併成一個「帳單」頁面：上方切換「待繳」（還沒繳的帳單，最急的在前，電腦上並排顯示）和「全部」（所有帳單，電腦上篩選在側邊，每筆一列）。匯出 CSV 和匯入在「全部」清單上方。頁首有「帳單」和「支出分析」；手機下方分頁列有帳單、支出分析和新增記錄。"
     - "新增記錄：掃描帳單條碼。用相機（或照片）對準帳單下方「條碼區」的 3 條條碼，就會自動填入金額、到期日、年份和類別。每個代收單位第一次會問一次是哪個類別；掃到已經記錄過的帳單會提醒你。"
     - "掃描帳單時會先檢查記錄再填表：已經記錄過的帳單會直接顯示那筆記錄（可以打開或改掃另一張）；同類別、同期間有自己輸入的記錄時，會先問是不是同一張帳單，選「是」就會把銷帳編號存到那筆記錄。"
 - version: "2026.10.25"

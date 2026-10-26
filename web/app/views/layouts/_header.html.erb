@@ -1,15 +1,15 @@
 <%# Signed-in header: Apartment menu (households + new household), pending invitations, sign out (PRD §12a).
-    From 1550px wide every link is in the bar, with Pending, Records and Expense Analysis in the Bills menu;
+    From 1550px wide every link is in the bar, Bills (To Pay and All) and Expense Analysis among them;
     narrower screens get the logo, theme toggle, inbox and a hamburger for the rest of the links, and
-    the tab bar at the bottom for Bills and New Record %>
+    the tab bar at the bottom for Bills, Analysis and New Record %>
 <% households = Current.user.households.order(:name).to_a %>
 <% pending = Invitation.pending_for(Current.user).count %>
 <% unread = Current.user.notifications.unread.count %>
 <%# Pages outside a household (inbox, My account) still link to the last one used %>
 <% nav_household = Current.household || households.find { |h| h.id == Current.user.last_household_id } || households.first %>
-<%# Bills (Pending, Records, Expense Analysis): the page you're on, the unpaid bills due today or earlier
+<%# Bills (To Pay and All) or Expense Analysis: the page you're on, the unpaid bills due today or earlier
     for the red count, and New Record for owners and co-owners %>
-<% bills_page = { "pending" => :pending, "records" => (:records if action_name == "index"), "dashboards" => :dashboard }[controller_name] %>
+<% bills_page = { "pending" => :bills, "records" => (:bills if action_name == "index"), "dashboards" => :dashboard }[controller_name] %>
 <%# The other links' page, tinted like the Bills page you're on: Settings covers the pages it opens %>
 <% nav_page = case controller_path
    when "household_settings", "members", "memberships", "household_invitations", "invitation_links", "reminder_deliveries",
@@ -20,8 +20,6 @@
    end %>
 <% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
 <% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
-<%# Export CSV: on Records, the records the filters show; anywhere else, every record %>
-<% export_path = nav_household && household_records_path(nav_household, (bills_page == :records && @filter ? @filter.params : {}).merge(format: :csv)) %>
 <% inbox = capture do %>
   <%= link_to notifications_path, class: "relative rounded-lg px-2 py-1 hover:scale-125 #{'bg-blue-50' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
@@ -39,7 +37,11 @@
       <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= render "layouts/bills_menu", household: nav_household, current: bills_page, due:, writer:, export_path: %>
+        <%= link_to household_pending_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :bills}", "aria-current": (bills_page == :bills ? "page" : nil) do %>
+          <%= nav_label("records.png", t("layouts.header.bills")) %>
+          <% if due.positive? %><span class="rounded-full bg-red-600 px-1.5 text-xs text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
+        <% end %>
+        <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if bills_page == :dashboard}", "aria-current": (bills_page == :dashboard ? "page" : nil) %>
         <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :settings}" %>
       <% end %>
       <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :account}" %>
@@ -58,7 +60,7 @@
       <button type="button" class="cursor-pointer rounded-md p-2 hover:scale-110" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
         <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <%= render "layouts/menu", households:, current: nav_household, pending:, unread:, nav_page:, writer:, export_path: %>
+      <%= render "layouts/menu", households:, current: nav_household, pending:, unread:, nav_page: %>
     </div>
   </div>
 </header>

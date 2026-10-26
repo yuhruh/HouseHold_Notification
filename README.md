@@ -14,25 +14,47 @@ totals per type) and adds:
 
 - one daily reminder digest per member, by Web Push, email and an in-app inbox;
 - recurring bills that create themselves;
-- receipt photos, a dashboard and a one-time import of the sheet history.
+- a To Pay list, bill barcode scanning, receipt photos, Expense Analysis charts and a one-time
+  import of the sheet history.
 
 It runs as one Rails 8 service on Railway with one Postgres database, and supports zh-TW and English.
-Desktop browsers and Android (installed PWA) are supported. iPhone is not supported in v1
-([ADR 0002](docs/adr/0002-pwa-over-native.md)).
+Desktop browsers and Android (installed PWA) are supported. iPhone is not a supported platform in v1
+([ADR 0002](docs/adr/0002-pwa-over-native.md)), though the app opens in Safari and can be added to the
+Home Screen.
 
 ## Features
 
-**Records**
-- Expense, Maintenance and Tax records: category, title, details, period (year + start/end month,
-  e.g. Jan. - Feb., Full Year), TWD or USD, required/paid amounts, due date, paid date, payment
-  method, notes and photos.
-- Derived status (unpaid, partial, paid ✅, overdue) using each viewer's local date.
-- One-tap **Mark paid**, per-user **Snooze**, and a history of every change.
-- List filters for year, month, type, category, status (including Outstanding), payment method and
-  search. The summary bar shows Paid per type and currency, and each
-  amount links to the matching records.
+**Bills**
+- Expense, Maintenance and Tax records: category, title, details, billing period (year + start/end
+  month, e.g. Jan. - Feb., Full Year), TWD or USD, amount due and paid, Payable From and due dates,
+  paid date, payment method, notes and photos.
+- One **Bills** page with two views switched at the top:
+  - **To Pay**: overdue, due in the next 30 days, maintenance coming up, due later and no due date,
+    most urgent first (side by side on a computer), with a count on the switch;
+  - **All**: every record as one compact row, with search and filters (year, month, type, category,
+    status including Outstanding, payment method) folded behind a **Filters** button. The filters in
+    use show as removable tags.
+- Derived status (unpaid, partly paid, paid, overdue) using each viewer's local date.
+- **Record Payment** opens the form prefilled (paid in full, today, the usual payment method);
+  maintenance reads as a task with **Mark Done**. Per-user **Remind Me Later**, and a history of every
+  change.
+- **Past Records** on a record opens the earlier periods of the same item (same category and details).
+- The summary shows Paid per type and currency, and each amount links to the matching records.
 - The list is paged: 10, 20 or 50 records per page, or a custom number (remembered on each device).
-- CSV export (every matching record, not just the page shown).
+- **Export These N (CSV)** saves every record the filters match (not just the page shown);
+  **Import CSV** sits next to it.
+
+**Scan a bill**
+- New Record → **Scan the Bill's Barcodes** reads the three convenience-store barcodes on a Taiwan
+  bill (三段式條碼) with the live camera or a photo: deadline and biller code, bill number, and amount.
+  The form is filled with the amount, due date, year and category.
+- Read on the phone: the browser's `BarcodeDetector` where it supports Code 39 (Android Chrome),
+  otherwise ZXing, loaded only then (iPhone, Safari, Firefox). Nothing is uploaded until Save.
+- Each household is asked once what a biller code means (category, and whether the barcode's deadline
+  is the due date or 3 days after it, as on tax bills).
+- Before filling, the records are checked: the same bill number means **Already in your records**, and
+  a hand-entered record with the same category and period asks whether it's the same bill (saying yes
+  stores the bill number on it).
 
 **Recurring bills**
 - Templates (e.g. water / electricity / gas every 2 months, the management fee yearly) generate
@@ -49,26 +71,34 @@ Desktop browsers and Android (installed PWA) are supported. iPhone is not suppor
   Gmail API, and the in-app inbox.
 - The owner gets a daily summary of failed deliveries and can resend them from
   **Settings → Reminder delivery**.
-- **Pending** page with Overdue, Due soon and No due date sections.
+- A red count on **Bills** (header and phone tab bar) shows the unpaid bills due today or earlier.
 
 **Household and accounts**
 - Roles: owner, co-owner (edits records) and viewer (read-only). Members join by email invitation.
 - Sign in with email + password (email confirmation required) or Google.
-- Several households per user, with a switcher. The activity log shows who did what.
+- Several households per user. The **household menu** at the left of the header is named after the
+  household you're in: switch households, + New Household, Household Settings and Members.
+- **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
+  Started, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
+  holds Bills, Analysis and New Record.
+- The activity log shows who did what.
 - Account deletion in the app or from a public page, with ownership transfer.
 - The owner can **delete all records** (re-authentication and the typed household name required),
   optionally keeping the recurring templates.
-- A language switch (🇺🇸 English / 🇹🇼 Traditional Chinese) for signed-in and signed-out visitors.
-- A Light / Dark toggle in the header, plus Device setting in My Account; remembered on each device.
+- English and Traditional Chinese for signed-in and signed-out visitors; the theme is remembered on
+  each device.
 
 **Photos**
-- Downscaled in the browser, then rotated, stripped of all metadata (including GPS) and saved as
-  JPEG on the server.
+- Added in two steps (choose, then upload). Downscaled in the browser, then rotated, stripped of all
+  metadata (including GPS) and saved as JPEG on the server.
+- Repeats are recognised by a perceptual fingerprint (dHash), both in the browser (tagged
+  **Already added**) and on the server, which skips them.
 - Served only to household members ([ADR 0004](docs/adr/0004-storage-volume.md)).
 
-**Dashboard**
-- Apache ECharts charts: monthly spend by type, the water / electricity / gas trend, spend by
-  category and by payment method, and a box plot of bill amounts.
+**Expense Analysis**
+- Apache ECharts charts: monthly spend by type, the water / electricity / gas trend and billing
+  cycles (timeline or against the same period last year), spend by category and by payment method,
+  and a box plot of bill amounts.
 - Clicking a chart element shows the records behind it.
 
 **Sheet import**
@@ -121,6 +151,9 @@ Errors from requests and jobs go to Sentry.
   and checks every photo file's size and checksum.
 - **Bilingual:** zh-TW and English throughout (rails-i18n). Locale order: the user's setting →
   the language cookie → the browser's Accept-Language → zh-TW.
+- **Bill barcodes on the device:** Code 39 is read in the browser (`BarcodeDetector`, or a vendored
+  ZXing build in `public/vendor/`); the server (`Records::BillBarcode`) is the authority on what the
+  three barcodes mean.
 - **CI** (GitHub Actions, [`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Brakeman,
   bundler-audit, importmap audit, RuboCop, unit/integration tests and system tests. Railway
   deploys `main` automatically.
@@ -166,17 +199,19 @@ The full step-by-step guide, in both languages, is in the app at **Getting Start
 In short:
 
 1. **Sign up** with email or Google, and create your household (or accept an invitation).
-2. **Invite family** from **Members**: choose co-owner or viewer. They get an email with a link.
-3. **Set up the lists** under **Settings**: categories, payment methods and recurring templates.
-   Or **Import** the sheet's CSV export.
-4. **Install the app:** tap **Install App** in the top bar (or Chrome ⋮ → Install app on Android).
-5. **Turn on notifications:** in **My Account**, tick **Push** and tap **Enable notifications**.
-   Choose your reminder time there too. On Android, set Chrome's battery use to Unrestricted so
-   pushes arrive on time.
-6. **Every day:** check **Pending**, tap **Mark paid** after paying, and **Add photos** for
-   receipts. The **Dashboard** shows where the money goes.
-7. **If a reminder fails**, the owner sees it in the daily summary and can resend it from
-   **Settings → Reminder delivery**.
+2. **Invite family** from the household menu → **Members**: choose co-owner or viewer. They get an email with a link.
+3. **Set up the lists** from the household page: categories, payment methods and recurring
+   templates. Or **Import CSV** on **Bills › All** with the sheet's CSV export.
+4. **Install the app:** open your menu (your initial, top right) → **Install App** (or Chrome ⋮ →
+   Install app on Android).
+5. **Turn on notifications:** your menu → **My Account**, tick **Push** and tap **Enable
+   notifications**. Choose your reminder time there too. On Android, set Chrome's battery use to
+   Unrestricted so pushes arrive on time.
+6. **Add bills:** **New Record**, and **Scan the Bill's Barcodes** to fill it from a paper bill.
+7. **Every day:** check **Bills › To Pay**, tap **Record Payment** after paying, and **Add photos**
+   for receipts. **Expense Analysis** shows where the money goes.
+8. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
+   household menu → **Household Settings → Reminder delivery**.
 
 ## Documentation
 

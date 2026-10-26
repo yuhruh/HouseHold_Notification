@@ -51,24 +51,27 @@ class HouseholdsTest < ActionDispatch::IntegrationTest
   end
 
   test "ledger home: one Bills card with what's to pay and the last bills paid, then the setup pages" do
-    sign_in_as users(:alex)
-    household = households(:home)
-    Categories::Seed.call(household)
-    water = household.categories.find_by!(name_zh: "水費")
-    household.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "1月-2月"), settled: true, paid_on: Date.current - 3, amount_required: 412, amount_paid: 412)
-    late = household.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "3月-4月"), due_on: Date.current - 5)
-    get household_path(household)
-    assert_select "a[href=?]", household_pending_path(household), /帳單/ do
-      assert_select "span", "1 筆逾期"
-      assert_select "span", "逾期 5 天"
-      assert_select "span", /最近繳清/
-    end
-    assert_select "a[href=?]", household_recurring_templates_path(household)
-    assert_select "main a[href=?]", household_dashboard_path(household), 0, "Expense Analysis only in the header and tab bar"
+    # Midday UTC: the same date in Taipei, where the page counts days
+    travel_to Time.zone.local(2026, 10, 20, 12) do
+      sign_in_as users(:alex)
+      household = households(:home)
+      Categories::Seed.call(household)
+      water = household.categories.find_by!(name_zh: "水費")
+      household.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "1月-2月"), settled: true, paid_on: Date.current - 3, amount_required: 412, amount_paid: 412)
+      late = household.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "3月-4月"), due_on: Date.current - 5)
+      get household_path(household)
+      assert_select "a[href=?]", household_pending_path(household), /帳單/ do
+        assert_select "span", "1 筆逾期"
+        assert_select "span", "逾期 5 天"
+        assert_select "span", /最近繳清/
+      end
+      assert_select "a[href=?]", household_recurring_templates_path(household)
+      assert_select "main a[href=?]", household_dashboard_path(household), 0, "Expense Analysis only in the header and tab bar"
 
-    late.update_columns(settled: true, paid_on: Date.current)
-    get household_path(household)
-    assert_select "a[href=?]", household_pending_path(household), /全部繳清了/
+      late.update_columns(settled: true, paid_on: Date.current)
+      get household_path(household)
+      assert_select "a[href=?]", household_pending_path(household), /全部繳清了/
+    end
   end
 
   test "a non-member gets 404 for every household URL" do

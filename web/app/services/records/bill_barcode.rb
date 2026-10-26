@@ -3,7 +3,8 @@ module Records
   #   1st: payment deadline as 民國 YYMMDD + the biller code ("1512036AM" → 2026-12-03, "6AM")
   #   2nd: the bill number (銷帳編號), unique to the bill
   #   3rd: billing year-month as 民國 YYMM + 2 check characters + the amount in 9 digits
-  #        ("0003A0000001563" → 1563; the year-month is 0000 on bills without one)
+  #        ("1410AB000000880" → 2025-10, 880). Tax bills put other digits there ("0003A0000001563":
+  #        not 2011-03), so it's a billing month only when its year is the deadline's or the one before
   # The phone reads them (bill_scan_controller.js); this is the authority on what they mean.
   class BillBarcode
     FIRST = /\A(\d{6})([0-9A-Z]{3})\z/
@@ -33,8 +34,8 @@ module Records
       @biller = first[6, 3]
       @bill_number = second
       @amount = third[-9..].to_i
-      year, month = third[0, 2].to_i, third[2, 2].to_i
-      @billing_year, @billing_month = 2011 + year, month if (1..12).cover?(month)
+      year, month = 2011 + third[0, 2].to_i, third[2, 2].to_i
+      @billing_year, @billing_month = year, month if (1..12).cover?(month) && ((@deadline.year - 1)..@deadline.year).cover?(year)
     end
   end
 end

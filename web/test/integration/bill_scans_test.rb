@@ -36,6 +36,17 @@ class BillScansTest < ActionDispatch::IntegrationTest
     assert_equal [ 1, 12 ], response.parsed_body["period_months"], "no billing month: the months of the category's latest record"
   end
 
+  test "a tax bill (no billing month) gets the due date's year and last year's months, and finds this year's record" do
+    @home.biller_codes.create!(code: "6ZX", category: @tax, deadline_offset_days: 3)
+    @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2025, "全年"), bill_number: "OLD0000001")
+    this_year = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2026, "全年"))
+    scan(%w[1512036ZX 98765432101234 0003A0000001563])
+    body = response.parsed_body
+    assert_equal [ 2026, nil, [ 1, 12 ], "2026-11-30" ], body.values_at("period_year", "period_month", "period_months", "due_on")
+    assert_equal "similar", body["match"]
+    assert_includes body["matches"], household_record_path(@home, this_year)
+  end
+
   test "a bill already recorded (same bill number) comes back as already, with its card; unreadable scans are refused" do
     record = @home.records.create!(record_type: "tax", category: @tax, period: Period.parse(2026, "全年"), bill_number: CODES[1])
     scan

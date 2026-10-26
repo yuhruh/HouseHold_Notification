@@ -10,10 +10,20 @@
 <%# Bills (Pending, Records, Expense Analysis): the page you're on, the unpaid bills due today or earlier
     for the red count, and New Record for owners and co-owners %>
 <% bills_page = { "pending" => :pending, "records" => (:records if action_name == "index"), "dashboards" => :dashboard }[controller_name] %>
+<%# The other links' page, tinted like the Bills page you're on: Settings covers the pages it opens %>
+<% nav_page = case controller_path
+   when "household_settings", "members", "memberships", "household_invitations", "invitation_links", "reminder_deliveries",
+        "ownership_transfers", "household_deletions", "record_purges" then :settings
+   when "accounts", %r{\Aaccount/} then :account
+   when "notifications" then :inbox
+   when "pages" then (:guide if action_name == "guide")
+   end %>
 <% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
 <% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
+<%# Export CSV: on Records, the records the filters show; anywhere else, every record %>
+<% export_path = nav_household && household_records_path(nav_household, (bills_page == :records && @filter ? @filter.params : {}).merge(format: :csv)) %>
 <% inbox = capture do %>
-  <%= link_to notifications_path, class: "relative px-2 py-1 hover:scale-125", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+  <%= link_to notifications_path, class: "relative rounded-lg px-2 py-1 hover:scale-125 #{'bg-blue-50' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
 <header class="border-b">
   <div class="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
@@ -29,11 +39,11 @@
       <%= inbox %>
       <% if nav_household %>
         <%= render "layouts/household_menu", households:, current: nav_household %>
-        <%= render "layouts/bills_menu", household: nav_household, current: bills_page, due: %>
-        <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+        <%= render "layouts/bills_menu", household: nav_household, current: bills_page, due:, writer:, export_path: %>
+        <%= link_to nav_label("settings.png", t("layouts.header.settings")), household_settings_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :settings}" %>
       <% end %>
-      <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
-      <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 px-2 py-1 hover:underline hover:font-bold" %>
+      <%= link_to nav_label("account.png", t("layouts.header.account")), account_path, class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :account}" %>
+      <%= link_to nav_label("guide.png", t("layouts.header.guide")), guide_path, class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-50 font-bold' if nav_page == :guide}" %>
       <%= render "layouts/theme_switch" %>
       <%= render "layouts/language_switch" %>
       <% if writer %>
@@ -48,7 +58,7 @@
       <button type="button" class="cursor-pointer rounded-md p-2 hover:scale-110" data-action="menu#open" aria-label="<%= t("layouts.header.menu") %>" aria-haspopup="dialog">
         <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <%= render "layouts/menu", households:, current: nav_household, pending:, unread: %>
+      <%= render "layouts/menu", households:, current: nav_household, pending:, unread:, nav_page:, writer:, export_path: %>
     </div>
   </div>
 </header>

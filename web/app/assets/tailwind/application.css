@@ -8,11 +8,15 @@
    stay bg-white. dark.css mirrors mauve-100 to its dark shade; [data-theme] beats its :root rules. */
 :root, :root[data-theme] { background-color: var(--color-mauve-100); }
 
-/* Form fields are white on the mauve page (Tailwind's reset makes them transparent); a bg-* class still wins */
+/* Form fields are white on the mauve page (Tailwind's reset makes them transparent); in dark mode they
+   are a dark mauve a touch lighter than the page (not the mirrored near-black white). A bg-* class still wins */
+:root { --field-bg: var(--color-white); }
+:root[data-theme="dark"] { --field-bg: var(--color-mauve-200); }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --field-bg: var(--color-mauve-200); } }
 @layer base {
   select, textarea,
   input:where(:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="submit"], [type="button"], [type="reset"], [type="image"])) {
-    background-color: var(--color-white);
+    background-color: var(--field-bg);
   }
 }
 

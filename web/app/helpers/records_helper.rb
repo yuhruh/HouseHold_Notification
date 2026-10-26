@@ -108,6 +108,23 @@ module RecordsHelper
     shown.each_with_object([]) { |n, list| list << nil if list.any? && n > list.last + 1; list << n }
   end
 
+  # Bills › All: the filters in use as [label, url without it], for the tags beside the folded Filters
+  # button (the amount filter from the summary has its own tag)
+  def filter_chips(filter)
+    p = filter.params
+    household = Current.household
+    labels = {
+      q: p[:q] && t("records.index.search_chip", q: p[:q]),
+      year: p[:year],
+      month: p[:month] && t("date.abbr_month_names")[p[:month].to_i],
+      type: p[:type] && t("records.types.#{p[:type]}", default: p[:type]),
+      category_id: p[:category_id] && household.categories.find_by(id: p[:category_id])&.name,
+      status: p[:status] && t("records.status.#{p[:status]}", default: p[:status]),
+      payment_method_id: p[:payment_method_id] && household.payment_methods.find_by(id: p[:payment_method_id])&.name
+    }
+    labels.compact_blank.map { |key, label| [ label.to_s, household_records_path(household, p.except(key)) ] }
+  end
+
   def month_options = (1..12).map { |m| [ t("date.abbr_month_names")[m], m ] }
 
   # Amount field value and step: whole numbers for TWD (1536, not 1536.0), cents otherwise

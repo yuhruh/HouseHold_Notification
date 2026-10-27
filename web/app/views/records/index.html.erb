@@ -86,8 +86,9 @@
     </div>
     <%# One row per record: item, period, due or paid date, amount, status; columns from lg, stacked on a phone %>
     <% cols = "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_6rem_9rem]" %>
-    <ul class="card-raised divide-y divide-gray-200 overflow-hidden rounded-xl bg-white">
-      <li aria-hidden="true" class="hidden gap-3 bg-gray-50 px-4 py-2 text-sm font-semibold lg:grid <%= cols %>">
+    <%# overflow-clip, not -hidden, so the column headings can stick to the top while scrolling %>
+    <ul class="card-raised divide-y divide-gray-200 overflow-clip rounded-xl bg-white">
+      <li aria-hidden="true" class="hidden gap-3 bg-gray-50 px-4 py-2 text-sm font-semibold lg:sticky lg:top-0 lg:z-10 lg:grid <%= cols %>">
         <span><%= t(".columns.item") %></span><span><%= t(".columns.period") %></span><span><%= t(".columns.date") %></span>
         <span><%= t(".status") %></span><span class="text-right"><%= t(".columns.amount") %></span>
       </li>

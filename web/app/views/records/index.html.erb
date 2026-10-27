@@ -9,9 +9,9 @@
 <% cols = "lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_6rem_9rem]" %>
 <div class="w-full space-y-6 py-4 lg:pt-0">
   <%= render "shared/flash" %>
-  <%# On a computer everything above the bills, column headings included, stays pinned at the top
+  <%# On a computer everything above the bills, column headings included, stays pinned under the header
       while the bills scroll under it (opaque, a little wider to hide the cards' shadow); a phone scrolls it all %>
-  <div class="space-y-6 lg:sticky lg:top-0 lg:z-20 lg:mb-0! lg:-mx-2 lg:bg-mauve-100 lg:px-2 lg:pt-4">
+  <div class="space-y-6 lg:sticky lg:top-(--header-h) lg:z-20 lg:mb-0! lg:-mx-2 lg:bg-mauve-100 lg:px-2 lg:pt-4">
   <%= render "bills_switch", current: :all %>
 
   <div class="space-y-3">

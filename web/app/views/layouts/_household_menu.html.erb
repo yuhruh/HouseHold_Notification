@@ -5,7 +5,7 @@
 <% label = "px-3 pb-1 pt-2 text-xs font-bold tracking-wide text-gray-600 uppercase" %>
 <% roles = Current.user.memberships.where(household: households).pluck(:household_id, :role).to_h %>
 <details class="relative" data-controller="dropdown">
-  <summary class="inline-flex min-h-10 max-w-[42vw] cursor-pointer list-none items-center gap-1.5 rounded-xl px-2.5 font-bold btn-press [--press:3px] sm:max-w-none [[open]>&]:translate-x-[3px] [[open]>&]:translate-y-[3px] [[open]>&]:shadow-none [&::-webkit-details-marker]:hidden <%= here ? 'bg-blue-50' : 'bg-violet-100/50' %>" aria-label="<%= t("layouts.header.household_menu", household: current.name) %>">
+  <summary class="inline-flex min-h-10 max-w-[42vw] cursor-pointer list-none items-center gap-1.5 rounded-xl px-2.5 font-bold btn-press [--press:3px] sm:max-w-none [[open]>&]:translate-x-[3px] [[open]>&]:translate-y-[3px] [[open]>&]:shadow-none [&::-webkit-details-marker]:hidden <%= here ? 'bg-blue-100 text-blue-900' : 'bg-violet-100/50' %>" aria-label="<%= t("layouts.header.household_menu", household: current.name) %>">
     <%= image_tag "icons/apartment.png", alt: "", class: "h-5 w-5 shrink-0 object-contain" %><span class="truncate"><%= current.name %></span>
     <% if pending.positive? %><span class="rounded-full bg-amber-500 px-1.5 text-xs text-white"><%= pending %></span><% end %>
     <span aria-hidden="true" class="text-gray-500">▾</span>
@@ -16,7 +16,7 @@
     <% end %>
     <p class="<%= label %>"><%= t("layouts.header.households") %></p>
     <% households.each do |household| %>
-      <%= link_to household_path(household), class: "#{row} #{'bg-blue-50' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
+      <%= link_to household_path(household), class: "#{row} #{'bg-blue-100 text-blue-900' if household == current}", "aria-current": (household == current ? "true" : nil) do %>
         <%= image_tag "icons/apartment.png", alt: "", class: "h-6 w-6 object-contain" %>
         <span class="flex flex-1 flex-col"><span class="<%= household == current ? 'font-bold' : 'font-medium' %>"><%= household.name %></span><span class="text-xs text-gray-600"><%= t("roles.#{roles[household.id]}", default: "") %></span></span>
         <% if household == current %><span aria-hidden="true" class="text-blue-700">✓</span><% end %>
@@ -25,7 +25,7 @@
     <%= link_to t("layouts.header.new_household"), onboarding_path, class: "#{row} text-blue-700" %>
     <span aria-hidden="true" class="my-1 h-px bg-gray-200"></span>
     <p class="<%= label %>"><%= current.name %></p>
-    <%= link_to nav_label("settings.png", t("layouts.header.household_settings")), household_settings_path(current), class: "#{row} #{'bg-blue-50 font-bold' if here}" %>
+    <%= link_to nav_label("settings.png", t("layouts.header.household_settings")), household_settings_path(current), class: "#{row} #{'bg-blue-100 font-bold text-blue-900' if here}" %>
     <%= link_to nav_label("members.png", t("households.show.members")), household_members_path(current), class: row %>
   <% end %>
 </details>

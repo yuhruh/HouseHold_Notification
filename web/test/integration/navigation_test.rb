@@ -120,14 +120,14 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "header details form[action=?] button[aria-current=true]", locale_path, /中文/
     assert_select "header details a[href=?]", guide_path
     assert_select "header details form[action=?] button", session_path, /登出/
-    assert_select "header details a.bg-blue-50[href=?]", household_settings_path(@home), 1, "Settings covers the pages it opens"
-    assert_select "header details a.bg-blue-50[href=?]", account_path, 0
+    assert_select "header details a.bg-blue-100[href=?]", household_settings_path(@home), 1, "Settings covers the pages it opens"
+    assert_select "header details a.bg-blue-100[href=?]", account_path, 0
 
     get account_path
-    assert_select "header details a.bg-blue-50[href=?]", account_path
+    assert_select "header details a.bg-blue-100[href=?]", account_path
     get guide_path
-    assert_select "header details a.bg-blue-50[href=?]", guide_path
-    assert_select "header details a.bg-blue-50[href=?]", household_settings_path(@home), 0
+    assert_select "header details a.bg-blue-100[href=?]", guide_path
+    assert_select "header details a.bg-blue-100[href=?]", household_settings_path(@home), 0
     assert_select "header dialog", 0, "no hamburger menu when signed in"
   end
 end

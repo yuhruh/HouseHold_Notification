@@ -21,7 +21,7 @@
 <% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
 <% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
 <% inbox = capture do %>
-  <%= link_to notifications_path, class: "relative rounded-lg p-1.5 hover:scale-110 #{'bg-blue-50' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
+  <%= link_to notifications_path, class: "relative rounded-lg p-1.5 hover:scale-110 #{'bg-blue-100' if nav_page == :inbox}", "aria-label": t("layouts.header.inbox", count: unread) do %><%= image_tag "icons/reminder.png", alt: "", class: "h-6 w-6 object-contain" %><% if unread.positive? %><span class="absolute -right-1 -top-1 rounded-full bg-red-600 px-1.5 text-xs text-white"><%= unread %></span><% end %><% end %>
 <% end %>
 <%# Pinned at the top of every page, above the tab bar (z-40) so its menus and sheets cover it %>
 <header class="sticky top-0 z-50 border-b bg-mauve-100">

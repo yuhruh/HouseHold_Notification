@@ -16,14 +16,14 @@ class NavigationTest < ActionDispatch::IntegrationTest
     get household_records_path(@home)
 
     assert_select "header nav details summary", text: /帳單/, count: 0
-    assert_select "header nav > a.bg-blue-50[aria-current=page][href=?]", household_pending_path(@home), text: /帳單/
+    assert_select "header nav > a.bg-blue-100[aria-current=page][href=?]", household_pending_path(@home), text: /帳單/
     assert_select "header nav > a[href=?]", household_dashboard_path(@home), text: /支出分析/
     assert_select "header a.btn-new[href=?]", new_household_record_path(@home), 1
     get household_pending_path(@home)
-    assert_select "header nav > a.bg-blue-50[href=?]", household_pending_path(@home)
+    assert_select "header nav > a.bg-blue-100[href=?]", household_pending_path(@home)
     get household_dashboard_path(@home)
-    assert_select "header nav > a.bg-blue-50[href=?]", household_dashboard_path(@home)
-    assert_select "header nav > a.bg-blue-50[href=?]", household_pending_path(@home), 0
+    assert_select "header nav > a.bg-blue-100[href=?]", household_dashboard_path(@home)
+    assert_select "header nav > a.bg-blue-100[href=?]", household_pending_path(@home), 0
   end
 
   test "Bills is one page: To Pay and All switched at the top, To Pay with its count" do

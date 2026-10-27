@@ -1,6 +1,10 @@
 <% content_for :title, t(".title") %>
 <% q = @query %>
-<div class="w-full space-y-6 py-4">
+<div class="w-full space-y-6 py-4 lg:pt-0">
+  <%# On a computer the title, filters, count-by and totals stay pinned under the header in two rows
+      while the charts scroll under them; a phone scrolls it all %>
+  <div class="space-y-6 lg:sticky lg:top-(--header-h) lg:z-20 lg:-mx-2 lg:space-y-3.5 lg:bg-mauve-100 lg:px-2 lg:py-4">
+  <div class="space-y-6 lg:flex lg:items-center lg:justify-between lg:gap-3 lg:space-y-0">
   <div class="flex flex-wrap items-center justify-between gap-3">
     <%= page_title("dashboard.png", t(".title")) %>
   </div>
@@ -15,8 +19,10 @@
     <%= hidden_field_tag :cycle_view, @cycle_view %>
     <noscript><%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-gray-200 text-gray-900 cursor-pointer px-3 py-1.5 font-medium" do %><%= image_tag "icons/filter.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.index.filter") %></span><% end %></noscript>
   <% end %>
+  </div>
 
-  <div class="flex flex-wrap items-center gap-2 text-sm" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">
+  <div class="space-y-6 lg:flex lg:items-center lg:gap-3 lg:space-y-0">
+  <div class="flex flex-wrap items-center gap-2 text-sm lg:mr-auto" data-controller="remember-mode" data-remember-mode-key-value="dashboard-mode" data-remember-mode-current-value="<%= q.mode %>" data-remember-mode-param-value="mode">
     <span class="text-gray-600"><%= t(".count_by") %></span>
     <% DashboardQuery::MODES.each do |mode| %>
       <%= link_to t(".modes.#{mode}"), household_dashboard_path(Current.household, year: q.year_param, currency: q.currency, type: q.record_type, mode:, utility_mode: @utility_query.mode, cycle_category: @cycle_category&.id, cycle_view: @cycle_view),
@@ -25,11 +31,13 @@
     <% end %>
   </div>
 
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:flex">
     <%= link_to drilldown_household_dashboard_path(Current.household, mode: q.mode, year: q.year_param, currency: q.currency, record_type: q.record_type),
-          class: "btn-press rounded-xl bg-white p-3 hover:bg-green-100", title: t(".show_paid"), data: { turbo_frame: "drilldown" } do %><p class="text-sm text-gray-600"><%= q.all_years? ? t(".spend_all") : t(".spend", year: q.year) %></p><p class="text-xl font-semibold"><%= money(q.total, q.currency) %></p><% end %>
-    <%= link_to household_records_path(Current.household, status: "unpaid"), class: "btn-press rounded-xl bg-white p-3 hover:bg-red-100" do %><p class="text-sm text-gray-600"><%= t("records.status.unpaid") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:unpaid] %></p><% end %>
-    <%= link_to household_records_path(Current.household, status: "overdue"), class: "btn-press rounded-xl bg-white p-3 hover:bg-amber-100" do %><p class="text-sm text-gray-600"><%= t("records.status.overdue") %></p><p class="text-xl font-semibold text-red-700"><%= @counts[:overdue] %></p><% end %>
+          class: "btn-press rounded-xl bg-white p-3 lg:flex lg:items-baseline lg:gap-2 lg:px-3.5 lg:py-2 hover:bg-green-100", title: t(".show_paid"), data: { turbo_frame: "drilldown" } do %><p class="text-sm text-gray-600"><%= q.all_years? ? t(".spend_all") : t(".spend", year: q.year) %></p><p class="text-xl font-semibold lg:text-lg"><%= money(q.total, q.currency) %></p><% end %>
+    <%= link_to household_records_path(Current.household, status: "unpaid"), class: "btn-press rounded-xl bg-white p-3 lg:flex lg:items-baseline lg:gap-2 lg:px-3.5 lg:py-2 hover:bg-red-100" do %><p class="text-sm text-gray-600"><%= t("records.status.unpaid") %></p><p class="text-xl font-semibold lg:text-lg text-red-700"><%= @counts[:unpaid] %></p><% end %>
+    <%= link_to household_records_path(Current.household, status: "overdue"), class: "btn-press rounded-xl bg-white p-3 lg:flex lg:items-baseline lg:gap-2 lg:px-3.5 lg:py-2 hover:bg-amber-100" do %><p class="text-sm text-gray-600"><%= t("records.status.overdue") %></p><p class="text-xl font-semibold lg:text-lg text-red-700"><%= @counts[:overdue] %></p><% end %>
+  </div>
+  </div>
   </div>
 
   <div class="grid gap-4 lg:grid-cols-2">
@@ -71,7 +79,7 @@
     </div>
   </div>
 
-  <%= turbo_frame_tag "drilldown", autoscroll: true, data: { autoscroll_block: "nearest", autoscroll_behavior: "smooth" } do %>
+  <%= turbo_frame_tag "drilldown", autoscroll: true, class: "block lg:scroll-mt-36", data: { autoscroll_block: "nearest", autoscroll_behavior: "smooth" } do %>
     <p class="rounded-lg border border-dashed p-4 text-sm text-gray-500"><%= t(".drill_hint") %></p>
   <% end %>
 </div>

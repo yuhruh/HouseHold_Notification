@@ -1,15 +1,14 @@
 <%# Bills: one page with two views, To Pay (pending#show, opens first) and All (records#index), switched
-    at the top. To Pay shows how many bills are on it %>
+    by a small pill on the title row (phones too, so it costs no height). To Pay shows how many bills are on it %>
 <% count = local_assigns[:count] || Records::ToPay.new(Current.household).count %>
-<div class="flex flex-col items-center gap-3 lg:flex-row lg:justify-between">
+<div class="flex items-center justify-between gap-3">
   <%= page_title("records.png", t("layouts.header.bills")) %>
-  <nav aria-label="<%= t("records.bills_switch.label") %>" class="grid w-full max-w-xs grid-cols-2 rounded-2xl border-2 border-(--card-line) bg-white p-1">
+  <nav aria-label="<%= t("records.bills_switch.label") %>" class="grid w-44 shrink-0 grid-cols-2 rounded-full border-2 border-(--card-line) bg-white p-0.5 text-sm">
     <% [ [ :to_pay, household_pending_path(Current.household) ], [ :all, household_records_path(Current.household) ] ].each do |view, path| %>
-      <%= link_to path, class: "flex min-h-11 items-center justify-center gap-1.5 rounded-xl #{view == current ? 'bg-blue-100 font-extrabold text-blue-900' : 'font-semibold text-gray-700 hover:bg-gray-50'}", "aria-current": (view == current ? "page" : nil) do %>
+      <%= link_to path, class: "flex min-h-8 items-center justify-center gap-1 rounded-full #{view == current ? 'bg-blue-100 font-extrabold text-blue-900' : 'font-semibold text-gray-700 hover:bg-gray-50'}", "aria-current": (view == current ? "page" : nil) do %>
         <span><%= t("records.bills_switch.#{view}") %></span>
-        <% if view == :to_pay && count.positive? %><span class="rounded-full bg-red-600 px-1.5 text-xs font-bold text-white"><%= count %></span><% end %>
+        <% if view == :to_pay && count.positive? %><span class="rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white"><%= count %></span><% end %>
       <% end %>
     <% end %>
   </nav>
-  <span class="hidden w-40 lg:block"></span>
 </div>

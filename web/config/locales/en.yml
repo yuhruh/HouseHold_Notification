@@ -174,6 +174,7 @@ en:
             - "Record Payment opens the form already filled in (paid in full, today, your usual payment method); maintenance is a task you Mark Done, with what it cost."
             - "Search and filters (year, month, type, category, status, payment method) stay folded behind a Filters button; the filters in use show as tags, the summary shows Paid totals, and Export CSV saves what the filters show."
             - "Every record keeps a history of changes, and Past Records opens the earlier times of the same item."
+            - "On a computer the header stays at the top of every page, and so does the top of each Bills view (the To Pay / All switch; on All also the filters, summary and column headings) while the bills scroll under it."
         scan:
           title: "Scan a bill"
           items:
@@ -201,6 +202,9 @@ en:
             - "The ledger menu at the top switches ledgers and opens Ledger Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or 繁體中文) and Sign Out."
             - "On a phone, the tab bar at the bottom has Bills, Analysis and New Record. Put it on your home screen like an app (Android: one tap; iPhone and iPad: Safari → Add to Home Screen)."
             - "The activity log shows who did what."
+            - "The ledger home has one Bills card: what's to pay (overdue, due in 30 days and the most urgent bills) and the last 3 bills paid. Recurring Bills, Categories and Payment Methods sit below it under Ledger Setup."
+            - "My Account: your photo, language, time zone, reminder time and theme; change your email or password, connect Google, choose notifications for each ledger, and see the devices you're signed in on (sign out the others in one tap)."
+            - "The app updates itself; Ledger Settings → App Version lists what's new."
         photos:
           title: "Photos"
           items:
@@ -213,6 +217,7 @@ en:
             - "Spending by type per month (or per year), the water, electricity and gas trend, spending by category and payment method, and a spread of bill amounts."
             - "Water, electricity and gas by billing cycle, as a timeline or against the same period last year."
             - "Click a chart to see the records behind it; choose one year or all years."
+            - "Count spending by paid date or by billing period, with totals for what's paid, unpaid and overdue; on a computer these and the filters stay at the top while the charts scroll."
         import:
           title: "Sheet import"
           items:

@@ -44,6 +44,9 @@ Home Screen.
 - The list is paged: 10, 20 or 50 records per page, or a custom number (remembered on each device).
 - **Export These N (CSV)** saves every record the filters match (not just the page shown);
   **Import CSV** sits next to it.
+- On a computer the header stays at the top of every page, and so does the top of each view: the
+  To Pay / All switch, and on All also the filters, summary, count and column headings, while the
+  bills scroll under it. A phone scrolls the page as usual, under the pinned header.
 
 **Scan a bill**
 - New Record → **Scan the Bill's Barcodes** reads the three convenience-store barcodes on a Taiwan
@@ -85,6 +88,16 @@ Home Screen.
 - **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
   Started, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
   holds Bills, Analysis and New Record.
+- The **ledger home** has one **Bills** card (what's to pay: overdue, due in 30 days and the most
+  urgent bills, beside the last 3 bills paid) and, under **Ledger Setup**, Recurring Bills,
+  Categories and Payment Methods.
+- **My Account**: profile photo, language, time zone (read-only until the pencil, then a dropdown
+  grouped by region), reminder time and theme; change email; change the password, or for a
+  Google-only account email a link to set one; connect or disconnect Google; leave a ledger;
+  notification channels per ledger (Push, email); push devices; and the signed-in devices, folded,
+  with **Sign Out All Other Devices**.
+- The app updates itself; **Ledger Settings → App Version** shows **What's New** (from
+  [`web/config/changelog.yml`](web/config/changelog.yml)).
 - The activity log shows who did what.
 - Account deletion in the app or from a public page, with ownership transfer.
 - The owner can **delete all records** (re-authentication and the typed ledger name required),
@@ -103,7 +116,11 @@ Home Screen.
 - Apache ECharts charts: monthly spend by type, the water / electricity / gas trend and billing
   cycles (timeline or against the same period last year), spend by category and by payment method,
   and a box plot of bill amounts.
+- Filter by year (or all years), currency and type, and count spending **By Paid Date** or **By
+  Billing Period**. Totals show what's paid, unpaid and overdue; each opens the records behind it.
 - Clicking a chart element shows the records behind it.
+- On a computer the title, filters, count-by switch and totals stay pinned under the header while
+  the charts scroll.
 
 **Sheet import**
 - Upload the sheet's CSV export, review a preview of new / changed / unchanged / error rows, then

@@ -37,7 +37,7 @@
   <% if policy(Current.household).manage_members? %>
     <p><%= link_to t("household_settings.show.transfer"), new_household_ownership_transfer_path(Current.household), class: "text-sm text-blue-700 underline" %></p>
     <section class="space-y-3">
-      <h2 class="text-lg font-semibold"><%= t(".pending") %></h2>
+      <h2 class="flex items-center gap-2.5 text-lg font-semibold"><%= image_tag "icons/pending_invitation.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".pending") %></h2>
       <% if @invitations.empty? %>
         <p class="text-sm text-gray-500"><%= t(".no_pending") %></p>
       <% end %>

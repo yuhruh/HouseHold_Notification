@@ -1,16 +1,16 @@
 <%# Snooze (everyone), restart reminders and maintenance Done (writers) — PRD §6. Snooze is a small cyan
-    press button (softer in dark mode); `big` (Pending cards): larger press buttons, and Snooze reads "Remind Me Later" %>
+    press button (softer in dark mode); `big` (Pending cards): larger press buttons (smaller on a computer), and Snooze reads "Remind Me Later" %>
 <% snooze = local_assigns[:snooze] %>
 <% big = local_assigns[:big] %>
 <% writer = policy(record).write? %>
-<div class="flex flex-wrap items-center gap-2 <%= big ? "gap-3" : "text-sm" %>">
+<div class="flex flex-wrap items-center gap-2 <%= big ? "gap-3 lg:gap-2" : "text-sm" %>">
   <% if snooze %>
     <span class="rounded bg-blue-50 px-2 py-0.5 text-blue-900"><%= t("records.reminders.snoozed_until", date: l(snooze)) %></span>
     <%= button_to t("records.reminders.cancel_snooze"), snooze_household_record_path(Current.household, record), method: :delete, class: "cursor-pointer underline" %>
   <% else %>
     <details class="relative" data-controller="dropdown">
       <% if big %>
-        <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 [&::-webkit-details-marker]:hidden">
+        <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm [&::-webkit-details-marker]:hidden">
           <%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.remind_later") %></summary>
       <% else %>
         <summary class="btn-press press-sm inline-flex cursor-pointer list-none items-center gap-1.5 rounded-xl bg-cyan-100 px-3 py-1 font-medium text-cyan-900 dark:bg-cyan-100/70 [&::-webkit-details-marker]:hidden"><%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.snooze") %></summary>
@@ -31,6 +31,6 @@
     <%= button_to t("records.reminders.restart"), restart_reminders_household_record_path(Current.household, record), class: "cursor-pointer rounded border px-2 py-0.5" %>
   <% end %>
   <% if writer && record.next_due_on %>
-    <%= link_to t("records.reminders.done"), done_household_record_path(Current.household, record), class: big ? "btn-press inline-flex min-h-11 items-center rounded-xl bg-green-200 px-3.5 py-2 font-medium text-green-900" : "rounded border border-green-700 px-2 py-0.5 text-green-800" %>
+    <%= link_to t("records.reminders.done"), done_household_record_path(Current.household, record), class: big ? "btn-press inline-flex min-h-11 items-center rounded-xl bg-green-200 px-3.5 py-2 font-medium text-green-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" : "rounded border border-green-700 px-2 py-0.5 text-green-800" %>
   <% end %>
 </div>

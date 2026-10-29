@@ -1,29 +1,30 @@
 <% content_for :title, t("records.bills_switch.to_pay_title") %>
 <% sections = @to_pay.sections %>
-<%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date %>
+<%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date,
+    with tighter spacing and smaller buttons (a mouse doesn't need the 44px phone buttons) %>
 <% columns = [ %i[overdue], %i[soon maintenance], %i[later no_due] ].map { |keys| sections.select { |key, list| keys.include?(key) && list.any? } }.reject(&:empty?) %>
-<div class="w-full mx-auto space-y-6 py-4 <%= columns.size > 1 ? 'max-w-3xl lg:max-w-none' : 'max-w-3xl' %>">
+<div class="w-full mx-auto space-y-6 py-4 lg:space-y-3 <%= columns.size > 1 ? 'max-w-3xl lg:max-w-none' : 'max-w-3xl' %>">
   <%= render "shared/flash" %>
   <%# The title, switch and intro stay pinned under the header while the bills scroll under them
       (opaque, a little wider to hide the cards' shadow) %>
-  <div class="sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3">
+  <div class="sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3 lg:py-2">
     <%= render "records/bills_switch", current: :to_pay, count: @to_pay.count %>
     <p class="text-center text-sm text-gray-700"><%= t(".intro") %></p>
   </div>
   <% if sections.all? { |_, list| list.empty? } %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% end %>
-  <div class="grid items-start gap-6 <%= { 2 => "lg:grid-cols-2", 3 => "lg:grid-cols-3" }[columns.size] %>">
+  <div class="grid items-start gap-6 lg:gap-4 <%= { 2 => "lg:grid-cols-2", 3 => "lg:grid-cols-3" }[columns.size] %>">
     <% columns.each do |column| %>
-      <div class="space-y-6">
+      <div class="space-y-6 lg:space-y-4">
         <% column.each do |key, list| %>
-        <section class="space-y-3">
+        <section class="space-y-3 lg:space-y-2">
           <div>
             <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
             <p class="text-sm text-gray-600"><%= t(".hints.#{key}") %></p>
           </div>
           <%# Each card says what the bill needs, worked out from the record; paying happens on the record page %>
-          <ul class="flex flex-col space-y-3">
+          <ul class="flex flex-col space-y-3 lg:space-y-2">
             <% list.each do |record| %>
               <% status = if key == :no_due && record.maintenance? then t("records.show.status_line.not_done")
                           elsif key == :no_due then (record.status == :partial ? t("records.status.partial") : t(".not_paid"))
@@ -32,14 +33,14 @@
               <% left = if key == :maintenance then nil
                         elsif record.maintenance? then (t("records.show.status_line.expected_cost", amount: money(record.amount_required, record.currency)) if record.amount_required)
                         else (t(".left_to_pay", amount: Reminders::Wording.outstanding(record)) if record.amount_required) end %>
-              <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 <%= key == :maintenance ? "bg-white" : record_card_class(record) %>">
+              <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= key == :maintenance ? "bg-white" : record_card_class(record) %>">
                 <div class="space-y-0.5">
                   <p class="font-bold <%= key == :overdue ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
-                  <p><span class="text-lg font-bold"><%= record.title %></span>
+                  <p><span class="text-lg font-bold lg:text-base"><%= record.title %></span>
                     <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
                 </div>
-                <div class="flex flex-wrap items-start gap-3">
-                  <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+                <div class="flex flex-wrap items-start gap-3 lg:gap-2">
+                  <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
                   <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id], big: true %>
                 </div>
               </li>

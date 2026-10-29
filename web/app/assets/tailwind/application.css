@@ -13,6 +13,11 @@
 :root { --header-h: 0px; }
 :root:has(> body > header) { --header-h: 65px; scroll-padding-top: var(--header-h); }
 
+/* Under 1550px the tab bar (layouts/_tab_bar) is fixed at the bottom; --tabbar-h is its height, so a part
+   pinned to the bottom of a page (Bills › All's page links) sits just above it */
+:root { --tabbar-h: 0px; }
+@media (width < 1550px) { :root:has(#tab-bar) { --tabbar-h: calc(4.25rem + max(0.75rem, env(safe-area-inset-bottom))); } }
+
 /* Form fields are white on the mauve page (Tailwind's reset makes them transparent); in dark mode they
    are a dark mauve a touch lighter than the page (not the mirrored near-black white). A bg-* class still wins */
 :root { --field-bg: var(--color-white); }

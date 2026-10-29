@@ -4,7 +4,7 @@
   [ "records.png", t("layouts.header.bills"), household_pending_path(household), current == :bills ],
   [ "dashboard.png", t("layouts.header.analysis"), household_dashboard_path(household), current == :dashboard ]
 ] %>
-<nav aria-label="<%= t("layouts.header.main_tabs") %>" class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-(--card-line) bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 min-[1550px]:hidden">
+<nav id="tab-bar" aria-label="<%= t("layouts.header.main_tabs") %>" class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-(--card-line) bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 min-[1550px]:hidden">
   <ul class="mx-auto grid max-w-md items-end px-2 <%= writer ? 'grid-cols-3' : 'grid-cols-2' %>">
     <% tabs.each_with_index do |(icon, label, path, here), index| %>
       <li><%= link_to path, class: "relative flex flex-col items-center gap-0.5 text-xs #{here ? 'font-extrabold text-blue-900' : 'font-semibold text-gray-700'}", "aria-current": (here ? "page" : nil) do %>

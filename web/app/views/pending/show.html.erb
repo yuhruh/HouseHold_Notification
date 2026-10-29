@@ -1,6 +1,7 @@
 <% content_for :title, t("records.bills_switch.to_pay_title") %>
 <% sections = @to_pay.sections %>
-<%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date,
+<%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date
+    (from 1280px; narrower, the third column wraps under the first so cards stay one line wide),
     with tighter spacing and smaller buttons (a mouse doesn't need the 44px phone buttons) %>
 <% columns = [ %i[overdue], %i[soon maintenance], %i[later no_due] ].map { |keys| sections.select { |key, list| keys.include?(key) && list.any? } }.reject(&:empty?) %>
 <div class="w-full mx-auto space-y-6 py-4 lg:space-y-3 <%= columns.size > 1 ? 'max-w-3xl lg:max-w-none' : 'max-w-3xl' %>">
@@ -14,7 +15,7 @@
   <% if sections.all? { |_, list| list.empty? } %>
     <p class="text-gray-600"><%= t(".empty") %></p>
   <% end %>
-  <div class="grid items-start gap-6 lg:gap-4 <%= { 2 => "lg:grid-cols-2", 3 => "lg:grid-cols-3" }[columns.size] %>">
+  <div class="grid items-start gap-6 lg:gap-4 <%= { 2 => "lg:grid-cols-2", 3 => "lg:grid-cols-2 xl:grid-cols-3" }[columns.size] %>">
     <% columns.each do |column| %>
       <div class="space-y-6 lg:space-y-4">
         <% column.each do |key, list| %>

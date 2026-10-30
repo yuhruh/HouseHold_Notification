@@ -123,6 +123,7 @@ Rails.application.routes.draw do
 
   get "privacy" => "pages#privacy"
   get "guide" => "pages#guide"
+  get "about" => "abouts#show", as: :about
   get "features" => "pages#features"
   patch "locale" => "locales#update"
   patch "theme" => "themes#update"

@@ -34,26 +34,6 @@
     </section>
   <% end %>
 
-  <section class="space-y-3 rounded-lg border p-4" id="app-version">
-    <h2 class="text-lg font-semibold"><%= t(".app_version") %></h2>
-    <p><%= t(".version_now", version: AppVersion.current) %></p>
-    <div class="flex flex-wrap items-center gap-3">
-      <button type="button" data-action="app-update#checkNow" class="btn-press rounded-xl bg-blue-200 text-fit text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><%= t(".check_updates") %></button>
-      <span class="text-sm text-gray-600" data-app-update-target="status" aria-live="polite"></span>
-    </div>
-    <p class="text-sm text-gray-500"><%= t(".auto_update_hint") %></p>
-    <details id="whats_new" class="text-sm">
-      <summary class="cursor-pointer font-semibold text-blue-800"><%= t(".whats_new") %></summary>
-      <div class="mt-3 space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-        <% AppVersion.entries.first(5).each do |entry| %>
-          <div>
-            <p class="font-semibold"><%= entry.version %> · <%= l(entry.date, format: :long) %></p>
-            <ul class="list-disc space-y-0.5 pl-5"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
-          </div>
-        <% end %>
-      </div>
-    </details>
-  </section>
 
   <%# Folded like What's New: the log can get long %>
   <details id="activity" class="space-y-2">

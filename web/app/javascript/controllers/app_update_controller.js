@@ -30,13 +30,17 @@ export default class extends Controller {
 
   // About This App: tag the versions that are new to this device, then they're read; and check now
   aboutTargetConnected(page) {
-    const unread = readUnread()
-    page.querySelectorAll("[data-version]").forEach((entry) => {
-      entry.querySelector("[data-new-tag]").hidden = !unread.includes(entry.dataset.version)
-    })
+    this.tagNew(readUnread())
     write(UNREAD, [])
     this.newBadgeTargets.forEach((badge) => { badge.hidden = true })
     this.checkNow()
+  }
+
+  // The versions' New tag (and light blue card) on About This App
+  tagNew(versions) {
+    this.aboutTarget.querySelectorAll("[data-version]").forEach((entry) => {
+      if (versions.includes(entry.dataset.version)) entry.querySelector("[data-new-tag]").hidden = false
+    })
   }
 
   closeCard() {
@@ -110,6 +114,8 @@ export default class extends Controller {
       const response = await fetch(`${this.urlValue}?since=${encodeURIComponent(seen.version)}`, { cache: "no-store", headers: { Accept: "application/json" } })
       const data = await response.json()
       if (!data.notes.length) return
+      // Updated while on About This App: the page itself shows what's new
+      if (this.hasAboutTarget) return this.tagNew(data.notes.map((entry) => entry.version))
       addUnread(data.notes)
       this.newBadgeTargets.forEach((badge) => { badge.hidden = false })
       if (this.hasCardTarget) this.showCard(data)

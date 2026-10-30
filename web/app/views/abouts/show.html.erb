@@ -1,9 +1,10 @@
 <% content_for :title, t(".title") %>
 <%# The newest two versions open, older ones folded. A version this device updated to since you last
-    came here gets a New tag (app-update controller), and opening the page checks for updates %>
+    came here gets a New tag and a light blue card (app-update controller), and opening the page
+    checks for updates %>
 <% entries = AppVersion.entries %>
 <% entry_card = ->(entry) do %>
-  <div class="space-y-1.5 rounded-xl border bg-white p-4" data-version="<%= entry.version %>">
+  <div class="space-y-1.5 rounded-xl border bg-white p-4 has-[[data-new-tag]:not([hidden])]:border-blue-200 has-[[data-new-tag]:not([hidden])]:bg-blue-50" data-version="<%= entry.version %>">
     <p class="flex flex-wrap items-center gap-2 font-semibold"><span><%= entry.version %> · <%= l(entry.date, format: :long) %></span><span hidden data-new-tag class="rounded-full bg-blue-700 px-2 py-0.5 text-xs font-bold text-white"><%= t(".new") %></span></p>
     <ul class="list-disc space-y-0.5 pl-5 text-sm"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
   </div>

@@ -1,13 +1,15 @@
 # What's new: shown under Settings → App version and after the app updates itself. Newest first; the
-# first entry is the app version. Add an entry (YYYY.MM.DD, or YYYY.MM.DD.2 for a second one that day)
-# with each release people will notice, in both languages.
-- version: "2026.10.27"
+# first entry is the app version. Add an entry (with today's date) with each release people will
+# notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
+# improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
+# the app works.
+- version: "1.0.8"
   date: 2026-10-27
   en:
     - "My Account: Time Zone is shown read-only; tap the pencil to pick a new one from a dropdown grouped by region (Asia, America, Europe…), or Cancel to keep it."
   zh-TW:
     - "我的帳戶：時區預設為唯讀；點鉛筆圖示就能從依地區分組（亞洲、美洲、歐洲…）的下拉選單選擇新的時區，或按取消保留原本的。"
-- version: "2026.10.26"
+- version: "1.0.7"
   date: 2026-10-26
   en:
     - "Ledger home: one Bills card shows what's to pay (overdue, due in 30 days and the most urgent bills) and the last 3 bills paid, side by side on a computer; tap it to open Bills. Recurring Bills, Categories and Payment Methods sit below under Ledger Setup."
@@ -31,7 +33,7 @@
     - "「待處理」和「記錄」合併成一個「帳單」頁面：上方切換「待繳」（還沒繳的帳單，最急的在前，電腦上並排顯示）和「全部」（所有帳單，電腦上篩選在側邊，每筆一列）。匯出 CSV 和匯入在「全部」清單上方。頁首有「帳單」和「支出分析」；手機下方分頁列有帳單、支出分析和新增記錄。"
     - "新增記錄：掃描帳單條碼。用相機（或照片）對準帳單下方「條碼區」的 3 條條碼，就會自動填入金額、到期日、年份和類別。每個代收單位第一次會問一次是哪個類別；掃到已經記錄過的帳單會提醒你。"
     - "掃描帳單時會先檢查記錄再填表：已經記錄過的帳單會直接顯示那筆記錄（可以打開或改掃另一張）；同類別、同期間有自己輸入的記錄時，會先問是不是同一張帳單，選「是」就會把銷帳編號存到那筆記錄。"
-- version: "2026.10.25"
+- version: "1.0.6"
   date: 2026-10-25
   en:
     - "Pending: a Due Later section lists unpaid bills due more than 30 days from now, so every unpaid bill shows on the page."
@@ -45,7 +47,7 @@
     - "記錄頁：新增「過去的記錄」按鈕，打開後由新到舊列出同類別、同明細的較早記錄，也可以到記錄頁看全部（那裡的「‹ 回到上一頁」會回到這筆記錄）。"
     - "新增照片改成兩個步驟：①「選擇照片」後會顯示選了幾張和縮圖，再按 ②「上傳」送出（選好照片前無法按）。"
     - "會認出已經在記錄裡的照片：再選到同一張時會標示「已新增過」並不再上傳，萬一還是送出，伺服器也會略過重複的照片。"
-- version: "2026.10.24"
+- version: "1.0.5"
   date: 2026-10-24
   en:
     - "Record form: split into Billing Details and Payment Details."
@@ -77,7 +79,7 @@
     - "「活動紀錄」改成像「更新內容」一樣可展開；「取消」改成淺琥珀色按鈕。"
     - "保養改成工作的說法：尚未完成／某日完成、待完成／已完成標籤，以及「標記完成」取代「記錄繳費」。標記完成時填的花費（零件也算，就算是自己動手）就是這次的花費。"
     - "首頁：新增「安裝 App」卡片，註冊前就能把 App 放到主畫面，Android 一鍵安裝，iPhone／iPad 用 Safari →「加入主畫面」。"
-- version: "2026.10.23"
+- version: "1.0.4"
   date: 2026-10-23
   en:
     - "Dark mode: softer outlines and shadows on buttons and cards."
@@ -87,7 +89,7 @@
     - "深色模式：按鈕和卡片的外框與陰影變得比較柔和。"
     - "頁面背景改為柔和的淡粉灰色（淺色與深色模式皆是）。"
     - "深色模式：按鈕維持淺色模式的顏色，並稍微調暗。"
-- version: "2026.10.22"
+- version: "1.0.3"
   date: 2026-10-22
   en:
     - "Settings → App version: check for updates; the app updates itself and shows what's new."
@@ -99,7 +101,7 @@
     - "按鈕、切換鈕和摘要卡片按下去會像真的按鈕一樣凹下。"
     - "設定中的「成員」和「提醒寄送」前面加上圖示。"
     - "英文介面：兩個字以上的按鈕、標題、標籤和郵件主旨，每個字的字首都大寫。"
-- version: "2026.10.21"
+- version: "1.0.2"
   date: 2026-10-21
   en:
     - "Expense Analysis: Bills by billing cycle for water, electricity and gas, as a timeline or against the same period last year."
@@ -111,7 +113,7 @@
     - "記錄：未繳的排最前面，依到期日由近到遠，並顯示到期日（逾期變紅色）。"
     - "記錄表單：應繳金額與已繳金額，可選尚未繳費／全額繳清／部分繳費；部分金額超過應繳金額時會提示。"
     - "新的應用程式圖示。"
-- version: "2026.10.20"
+- version: "1.0.1"
   date: 2026-10-20
   en:
     - "Dark mode, with a Light / Dark toggle in the header."
@@ -125,7 +127,7 @@
     - "新增記錄可「儲存並設為定期」；已存的記錄可「設為定期帳單」。"
     - "手機選單：較小的螢幕上，頁首連結收進全螢幕選單。"
     - "依記錄的備註建議付款方式。"
-- version: "2026.10.19"
+- version: "1.0.0"
   date: 2026-10-19
   en:
     - "First release: records, import from the sheet, recurring bills, reminders by email, in the app and by push, Expense Analysis, photos and households."

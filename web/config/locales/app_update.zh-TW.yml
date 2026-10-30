@@ -16,6 +16,7 @@ zh-TW:
       version: "版本"
       older: "顯示較舊版本"
       new: "新"
+      current: "目前版本"
       check_updates: "檢查更新"
       auto_update_hint: "開啟應用程式時也會自動檢查，有新版本會自動更新。"
       whats_new: "更新內容"

@@ -39,6 +39,8 @@ class AppVersionFlowTest < ActionDispatch::IntegrationTest
     assert_select "#whats_new > [data-version]", [ AppVersion.changelog.size, 2 ].min
     assert_select "#whats_new [data-version=?] li", AppVersion.current, text: AppVersion.changelog.first["zh-TW"].first
     assert_select "#whats_new [data-new-tag][hidden]", AppVersion.changelog.size
+    assert_select "#whats_new [data-version].bg-blue-50", 1
+    assert_select "#whats_new [data-version=?].bg-blue-50 [data-current-tag]", AppVersion.current, text: "目前版本"
   end
 
   test "About This App needs you signed in" do

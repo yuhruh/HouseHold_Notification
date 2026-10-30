@@ -15,6 +15,16 @@ module AppVersion
 
   def self.build = ENV["RAILWAY_GIT_COMMIT_SHA"].presence&.first(12) || current
 
-  # Entries newer than the given version (versions are YYYY.MM.DD[.n], so they sort as strings)
-  def self.since(version) = entries.select { |e| e.version > version.to_s }
+  # Entries newer than the given version (1.0.x). Versions used to be dates (YYYY.MM.DD[.n]), and a
+  # device may still have one saved, so those compare by date.
+  def self.since(version)
+    version = version.to_s
+    if (date = version[/\A\d{4}\.\d{2}\.\d{2}/])
+      entries.select { |e| e.date > Date.strptime(date, "%Y.%m.%d") }
+    elsif Gem::Version.correct?(version)
+      entries.select { |e| Gem::Version.new(e.version) > Gem::Version.new(version) }
+    else
+      []
+    end
+  end
 end

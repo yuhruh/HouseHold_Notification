@@ -1,11 +1,12 @@
 <% content_for :title, t(".title") %>
-<%# The newest two versions open, older ones folded. A version this device updated to since you last
-    came here gets a New tag and a light blue card (app-update controller), and opening the page
-    checks for updates %>
+<%# The newest two versions open, older ones folded. The version you're running is always light blue
+    with Your Version; a version this device updated to since you last came here also gets a New tag
+    (app-update controller). Opening the page checks for updates %>
 <% entries = AppVersion.entries %>
 <% entry_card = ->(entry) do %>
-  <div class="space-y-1.5 rounded-xl border bg-white p-4 has-[[data-new-tag]:not([hidden])]:border-blue-200 has-[[data-new-tag]:not([hidden])]:bg-blue-50" data-version="<%= entry.version %>">
-    <p class="flex flex-wrap items-center gap-2 font-semibold"><span><%= entry.version %> · <%= l(entry.date, format: :long) %></span><span hidden data-new-tag class="rounded-full bg-blue-700 px-2 py-0.5 text-xs font-bold text-white"><%= t(".new") %></span></p>
+  <% current = entry.version == AppVersion.current %>
+  <div class="space-y-1.5 rounded-xl border p-4 <%= current ? 'border-blue-200 bg-blue-50' : 'bg-white' %>" data-version="<%= entry.version %>">
+    <p class="flex flex-wrap items-center gap-2 font-semibold"><span><%= entry.version %> · <%= l(entry.date, format: :long) %></span><% if current %><span class="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-900" data-current-tag><%= t(".current") %></span><% end %><span hidden data-new-tag class="rounded-full bg-blue-700 px-2 py-0.5 text-xs font-bold text-white"><%= t(".new") %></span></p>
     <ul class="list-disc space-y-0.5 pl-5 text-sm"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
   </div>
 <% end %>

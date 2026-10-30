@@ -36,7 +36,7 @@ export default class extends Controller {
     this.checkNow()
   }
 
-  // The versions' New tag (and light blue card) on About This App
+  // The versions' New tag on About This App
   tagNew(versions) {
     this.aboutTarget.querySelectorAll("[data-version]").forEach((entry) => {
       if (versions.includes(entry.dataset.version)) entry.querySelector("[data-new-tag]").hidden = false

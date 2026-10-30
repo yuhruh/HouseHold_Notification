@@ -16,6 +16,7 @@ en:
       version: "Version"
       older: "Show Older Versions"
       new: "New"
+      current: "Your Version"
       check_updates: "Check For Updates"
       auto_update_hint: "The app also checks by itself when you open it, and updates automatically."
       whats_new: "What's New"

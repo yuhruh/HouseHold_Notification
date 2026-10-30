@@ -5,13 +5,13 @@
 <% entries = AppVersion.entries %>
 <% entry_card = ->(entry) do %>
   <% current = entry.version == AppVersion.current %>
-  <div class="space-y-1.5 rounded-xl border p-4 <%= current ? 'border-blue-200 bg-blue-50' : 'bg-white' %>" data-version="<%= entry.version %>">
+  <div class="card-raised-sm space-y-1.5 rounded-xl p-4 <%= current ? 'bg-blue-50' : 'bg-white' %>" data-version="<%= entry.version %>">
     <p class="flex flex-wrap items-center gap-2 font-semibold"><span><%= entry.version %> · <%= l(entry.date, format: :long) %></span><% if current %><span class="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-900" data-current-tag><%= t(".current") %></span><% end %><span hidden data-new-tag class="rounded-full bg-blue-700 px-2 py-0.5 text-xs font-bold text-white"><%= t(".new") %></span></p>
     <ul class="list-disc space-y-0.5 pl-5 text-sm"><% entry.notes.each do |note| %><li><%= note %></li><% end %></ul>
   </div>
 <% end %>
 <div class="w-full mx-auto max-w-2xl space-y-6 py-4" data-app-update-target="about">
-  <section id="app-version" class="flex flex-col items-center gap-2 rounded-xl border bg-white p-5 text-center">
+  <section id="app-version" class="card-raised flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center">
     <%= image_tag "logo-sticker.png", alt: "", class: "h-16 w-16 object-contain" %>
     <h1 class="text-xl font-bold">Household Tracker</h1>
     <p><span class="block text-sm text-gray-600"><%= t(".version") %></span><span class="text-3xl font-extrabold tracking-wide"><%= AppVersion.current %></span></p>

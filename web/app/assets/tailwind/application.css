@@ -95,3 +95,9 @@
   border: 2px solid var(--card-line);
   box-shadow: 4px 4px 0 var(--card-line);
 }
+
+/* A lower raised card, a 2px shadow, for cards that sit under a card-raised one (About This App) */
+@utility card-raised-sm {
+  border: 2px solid var(--card-line);
+  box-shadow: 2px 2px 0 var(--card-line);
+}

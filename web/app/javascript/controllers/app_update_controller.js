@@ -1,22 +1,47 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Keeps an open app on the latest version (Settings → App version). On load, when the app comes
-// back to the screen and every 30 minutes it asks /version for the server's build; when that differs
-// from the build this page was rendered with, it refreshes the service worker and reloads. If a form
-// on the page has been changed, it asks first instead of reloading. After an update it shows what's
-// new since the version this device last saw. Turbo also reloads on navigation, because the
-// app-build meta tag is tracked.
+// Keeps an open app on the latest version (About This App). On load, when the app comes back to the
+// screen and every 30 minutes it asks /version for the server's build; when that differs from the
+// build this page was rendered with, it refreshes the service worker and reloads. If a form on the
+// page has been changed, it asks first instead of reloading. After an update it shows a card with
+// what's new since the version this device last saw, and marks About This App New (menu row, a dot
+// on your photo, the versions on the page) until you open it. Turbo also reloads on navigation,
+// because the app-build meta tag is tracked.
 const SEEN = "app-update-seen"
+const UNREAD = "app-update-unread"
 const CHECK_EVERY = 30 * 60 * 1000
 const MIN_GAP = 5 * 60 * 1000
 let lastCheck = 0
 
-const readSeen = () => { try { return JSON.parse(localStorage.getItem(SEEN)) } catch (_) { return null } }
-const writeSeen = (seen) => { try { localStorage.setItem(SEEN, JSON.stringify(seen)) } catch (_) {} }
+const read = (key) => { try { return JSON.parse(localStorage.getItem(key)) } catch (_) { return null } }
+const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)) } catch (_) {} }
+const readSeen = () => read(SEEN)
+const writeSeen = (seen) => write(SEEN, seen)
+const readUnread = () => (Array.isArray(read(UNREAD)) ? read(UNREAD) : [])
+const addUnread = (entries) => write(UNREAD, [...new Set([...readUnread(), ...entries.map((entry) => entry.version)])])
 
 export default class extends Controller {
-  static targets = ["toast", "title", "notes", "reload", "status"]
+  static targets = ["toast", "title", "notes", "reload", "status", "card", "cardTitle", "cardNote", "newBadge", "about"]
   static values = { url: String, version: String, build: String, strings: Object }
+
+  newBadgeTargetConnected(badge) {
+    badge.hidden = readUnread().length === 0
+  }
+
+  // About This App: tag the versions that are new to this device, then they're read; and check now
+  aboutTargetConnected(page) {
+    const unread = readUnread()
+    page.querySelectorAll("[data-version]").forEach((entry) => {
+      entry.querySelector("[data-new-tag]").hidden = !unread.includes(entry.dataset.version)
+    })
+    write(UNREAD, [])
+    this.newBadgeTargets.forEach((badge) => { badge.hidden = true })
+    this.checkNow()
+  }
+
+  closeCard() {
+    this.cardTarget.hidden = true
+  }
 
   connect() {
     this.showWhatsNew()
@@ -66,7 +91,10 @@ export default class extends Controller {
   }
 
   reload() {
-    if (this.pending) writeSeen({ version: this.pending.version, build: this.pending.build })
+    if (this.pending) {
+      writeSeen({ version: this.pending.version, build: this.pending.build })
+      addUnread(this.pending.notes)
+    }
     window.location.reload()
   }
 
@@ -81,8 +109,19 @@ export default class extends Controller {
     try {
       const response = await fetch(`${this.urlValue}?since=${encodeURIComponent(seen.version)}`, { cache: "no-store", headers: { Accept: "application/json" } })
       const data = await response.json()
-      if (data.notes.length) this.showToast(this.stringsValue.updated.replace("%{version}", data.version), data.notes, false)
+      if (!data.notes.length) return
+      addUnread(data.notes)
+      this.newBadgeTargets.forEach((badge) => { badge.hidden = false })
+      if (this.hasCardTarget) this.showCard(data)
+      else this.showToast(this.stringsValue.updated.replace("%{version}", data.version), data.notes, false)
     } catch (_) {}
+  }
+
+  // Signed in: the newest change in a card at the top of the page; See What's New lists them all
+  showCard(data) {
+    this.cardTitleTarget.textContent = this.stringsValue.updated_short.replace("%{version}", data.version)
+    this.cardNoteTarget.textContent = data.notes[0].notes[0] ?? ""
+    this.cardTarget.hidden = false
   }
 
   showToast(title, entries, offerReload) {

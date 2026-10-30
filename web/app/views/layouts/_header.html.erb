@@ -17,6 +17,7 @@
    when "accounts", %r{\Aaccount/} then :account
    when "notifications" then :inbox
    when "pages" then (:guide if action_name == "guide")
+   when "abouts" then :about
    end %>
 <% due = nav_household ? nav_household.records.where(settled: false, due_on: ..Date.current).count : 0 %>
 <% writer = nav_household && Current.user.memberships.find_by(household: nav_household)&.can_write? %>
@@ -49,7 +50,7 @@
       <% if writer %>
         <%= link_to nav_label("new_entry.png", t("layouts.header.new_record")), new_household_record_path(nav_household), class: "btn-press btn-new press-sm hidden items-center gap-1 rounded-xl px-3 py-1.5 font-bold min-[1550px]:inline-flex" %>
       <% end %>
-      <%= render "layouts/you_menu", nav_page:, here: %i[account guide].include?(nav_page) %>
+      <%= render "layouts/you_menu", nav_page:, here: %i[account guide about].include?(nav_page) %>
     </div>
   </div>
 </header>

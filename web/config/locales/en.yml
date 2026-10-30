@@ -280,6 +280,8 @@ en:
       settings: "Settings"
       account: "My Account"
       guide: "Getting Started"
+      about: "About This App"
+      new: "New"
       sign_out: "Sign Out"
       language: "Switch Language"
       languages: "Languages"

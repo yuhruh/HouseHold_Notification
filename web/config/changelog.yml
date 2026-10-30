@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.1.0"
+  date: 2026-10-30
+  en:
+    - "About This App, in your menu: the app version (now numbered like 1.1.0), Check For Updates and what's new in every version. It moved out of Ledger Settings."
+    - "After the app updates itself, a card at the top of the page shows what changed, with See What's New; About This App is marked New, with a dot on your photo, until you open it."
+  zh-TW:
+    - "選單裡新增「關於此應用程式」：顯示版本（改成 1.1.0 這樣的編號）、檢查更新，以及每個版本的更新內容。原本在帳本設定，現在移到這裡。"
+    - "應用程式自動更新後，頁面最上方會出現卡片說明更新了什麼，按「查看更新內容」看全部；「關於此應用程式」會標示「新」，你的頭像上也會有小圓點，打開後就會消失。"
 - version: "1.0.8"
   date: 2026-10-27
   en:

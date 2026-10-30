@@ -3,15 +3,19 @@ en:
     updated: "Updated to %{version}. What's new:"
     ready: "A new version is ready. Update when you've saved your changes."
     update_now: "Update Now"
+    updated_short: "Updated to %{version}"
+    see_whats_new: "See What's New"
     close: "Close"
     checking: "Checking…"
     latest: "You have the latest version."
     updating: "New version found, updating…"
     failed: "Couldn't check for updates. Try again when you're online."
-  household_settings:
+  abouts:
     show:
-      app_version: "App Version"
-      version_now: "Version %{version}"
+      title: "About This App"
+      version: "Version"
+      older: "Show Older Versions"
+      new: "New"
       check_updates: "Check For Updates"
       auto_update_hint: "The app also checks by itself when you open it, and updates automatically."
       whats_new: "What's New"

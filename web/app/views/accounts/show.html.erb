@@ -112,7 +112,7 @@
   <section class="space-y-3">
     <h2 class="flex items-center gap-2.5 text-lg font-semibold"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/sign_in_method.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".sign_in_methods") %><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></h2>
     <% if identity = Current.user.google_identity %>
-      <p><%= t(".google_connected", email: identity.email) %></p>
+      <p class="flex items-center gap-2"><%= image_tag "icons/google_connect.png", alt: "", class: "h-6 w-6 shrink-0 object-contain" %><span class="min-w-0 break-words"><%= t(".google_connected", email: identity.email) %></span></p>
       <% if Current.user.can_disconnect_google? %>
         <%= button_to t(".disconnect_google"), account_google_identity_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
       <% else %>
@@ -126,7 +126,7 @@
   <%# Folded like the record activity log: most people never need the list %>
   <% active_sessions = Current.user.sessions.active.order(last_seen_at: :desc).to_a %>
   <details id="sessions" class="group space-y-3">
-    <summary class="flex cursor-pointer list-none items-center gap-2.5 text-lg font-semibold text-blue-800 [&::-webkit-details-marker]:hidden"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><h2><%= t(".sessions") %> (<%= active_sessions.size %>)</h2>
+    <summary class="flex cursor-pointer list-none items-center gap-2.5 text-lg font-semibold text-blue-800 [&::-webkit-details-marker]:hidden"><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span><%= image_tag "icons/signed_in_devices.png", alt: "", class: "h-7 w-7 object-contain" %><h2><%= t(".sessions") %> (<%= active_sessions.size %>)</h2>
       <svg class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span aria-hidden="true" class="h-0.5 flex-1 bg-gray-300"></span></summary>
     <ul class="divide-y rounded-lg border text-sm">
       <% active_sessions.each do |s| %>

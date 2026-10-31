@@ -38,6 +38,9 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-frame#drilldown td#drilldown-total", "NT$290"
     assert_select "turbo-frame#drilldown a", "水費"
+    # On a phone a card per record, with the total under them
+    assert_select "turbo-frame#drilldown ul.sm\\:hidden li a", "水費"
+    assert_select "turbo-frame#drilldown p.sm\\:hidden", /NT\$290/
   end
 
   test "other households' records never appear" do

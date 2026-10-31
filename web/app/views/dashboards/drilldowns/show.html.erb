@@ -6,7 +6,28 @@
       <% box = @group[:stats][:box] %>
       <p class="text-sm text-gray-600"><%= t(".quartiles", q1: money(box[1], @query.currency), median: money(box[2], @query.currency), q3: money(box[3], @query.currency)) %></p>
     <% end %>
-    <div class="overflow-x-auto">
+    <% rows = @box ? @rows.sort_by { |r, _| r.amount_paid } : @rows %>
+    <%# On a phone one card per record: the bill and the amount counted here, then period, paid date and
+        payment method, details cut to 2 lines; Required and Paid only when they differ from that amount %>
+    <ul class="space-y-2 sm:hidden">
+      <% rows.each do |record, amount| %>
+        <% shown = @box ? record.amount_paid : amount %>
+        <li class="card-raised-sm space-y-1 rounded-xl bg-white px-3 py-2.5">
+          <div class="flex items-baseline gap-2"><%= link_to record.title, household_record_path(Current.household, record), data: { turbo_frame: "_top" }, class: "min-w-0 flex-1 break-words font-semibold text-blue-700 underline" %>
+            <span class="whitespace-nowrap font-bold"><%= money(shown, record.currency) %></span></div>
+          <p class="text-xs text-gray-600"><%= safe_join([ record.period.to_s, "#{t("records.index.paid_on")} #{l(record.paid_on)}", record.payment_method&.name ].compact_blank, " · ") %></p>
+          <% if record.amount_required != shown || record.amount_paid != shown %>
+            <p class="text-xs text-amber-800"><%= t("records.index.required") %> <%= money(record.amount_required, record.currency) %> · <%= t("records.index.paid") %> <%= money(record.amount_paid, record.currency) %></p>
+          <% end %>
+          <% if record.details.present? %><p class="line-clamp-2 text-xs text-gray-500"><%= record.details %></p><% end %>
+          <% if record.payment_note.present? %><p class="truncate text-xs text-gray-500"><%= record.payment_note %></p><% end %>
+        </li>
+      <% end %>
+    </ul>
+    <% unless @box %>
+      <p class="flex justify-between border-t-2 border-zinc-500 pt-2 font-bold sm:hidden"><span><%= t(".total") %></span><span><%= money(@total, @query.currency) %></span></p>
+    <% end %>
+    <div class="hidden overflow-x-auto sm:block">
       <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
         <thead class="text-left [&_th]:border-b [&_th]:border-gray-400"><tr>
           <th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t("records.index.item") %></th>
@@ -15,7 +36,6 @@
           <th class="py-1 pr-2"><%= t("records.index.paid_on") %></th><th class="py-1 pr-2"><%= Record.human_attribute_name(:payment_method) %></th>
           <th class="py-1"><%= Record.human_attribute_name(:payment_note) %></th></tr></thead>
         <tbody>
-          <% rows = @box ? @rows.sort_by { |r, _| r.amount_paid } : @rows %>
           <% rows.each do |record, amount| %>
             <tr class="align-top"><td class="whitespace-nowrap py-1 pr-2"><%= record.period %></td>
               <td class="py-1 pr-2"><%= link_to record.title, household_record_path(Current.household, record), data: { turbo_frame: "_top" }, class: "text-blue-700 underline" %><span class="block text-xs text-gray-500"><%= record.details %></span></td>

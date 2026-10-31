@@ -7,20 +7,17 @@
       <p class="text-sm text-gray-600"><%= t(".quartiles", q1: money(box[1], @query.currency), median: money(box[2], @query.currency), q3: money(box[3], @query.currency)) %></p>
     <% end %>
     <% rows = @box ? @rows.sort_by { |r, _| r.amount_paid } : @rows %>
-    <%# On a phone one card per record: the bill and the amount counted here, then period, paid date and
-        payment method, details cut to 2 lines; Required and Paid only when they differ from that amount %>
+    <%# One card per record on a phone, a table from sm up. A bill split across periods shows its share here,
+        with the full amount under it, so the rows add up to the total %>
     <ul class="space-y-2 sm:hidden">
       <% rows.each do |record, amount| %>
         <% shown = @box ? record.amount_paid : amount %>
         <li class="card-raised-sm space-y-1 rounded-xl bg-white px-3 py-2.5">
           <div class="flex items-baseline gap-2"><%= link_to record.title, household_record_path(Current.household, record), data: { turbo_frame: "_top" }, class: "min-w-0 flex-1 break-words font-semibold text-blue-700 underline" %>
-            <span class="whitespace-nowrap font-bold"><%= money(shown, record.currency) %></span></div>
+            <span class="whitespace-nowrap text-right"><span class="block font-bold"><%= money(shown, record.currency) %></span>
+              <% if shown != record.amount_paid %><span class="block text-xs text-gray-500"><%= t(".of_full", amount: money(record.amount_paid, record.currency)) %></span><% end %></span></div>
           <p class="text-xs text-gray-600"><%= safe_join([ record.period.to_s, "#{t("records.index.paid_on")} #{l(record.paid_on)}", record.payment_method&.name ].compact_blank, " · ") %></p>
-          <% if record.amount_required != shown || record.amount_paid != shown %>
-            <p class="text-xs text-amber-800"><%= t("records.index.required") %> <%= money(record.amount_required, record.currency) %> · <%= t("records.index.paid") %> <%= money(record.amount_paid, record.currency) %></p>
-          <% end %>
           <% if record.details.present? %><p class="line-clamp-2 text-xs text-gray-500"><%= record.details %></p><% end %>
-          <% if record.payment_note.present? %><p class="truncate text-xs text-gray-500"><%= record.payment_note %></p><% end %>
         </li>
       <% end %>
     </ul>
@@ -31,25 +28,22 @@
       <table class="w-full text-sm border-separate border-spacing-0 rounded-lg border-2 border-zinc-500">
         <thead class="text-left [&_th]:border-b [&_th]:border-gray-400"><tr>
           <th class="py-1 pr-2"><%= t("records.index.period") %></th><th class="py-1 pr-2"><%= t("records.index.item") %></th>
-          <th class="py-1 pr-2 text-right"><%= t("records.index.required") %></th><th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th>
-          <% unless @box %><th class="py-1 pr-2 text-right"><%= t(".counted") %></th><% end %>
-          <th class="py-1 pr-2"><%= t("records.index.paid_on") %></th><th class="py-1 pr-2"><%= Record.human_attribute_name(:payment_method) %></th>
-          <th class="py-1"><%= Record.human_attribute_name(:payment_note) %></th></tr></thead>
+          <th class="py-1 pr-2 text-right"><%= t("records.index.paid") %></th>
+          <th class="py-1 pr-2"><%= t("records.index.paid_on") %></th><th class="py-1 pr-2"><%= Record.human_attribute_name(:payment_method) %></th></tr></thead>
         <tbody>
           <% rows.each do |record, amount| %>
+            <% shown = @box ? record.amount_paid : amount %>
             <tr class="align-top"><td class="whitespace-nowrap py-1 pr-2"><%= record.period %></td>
               <td class="py-1 pr-2"><%= link_to record.title, household_record_path(Current.household, record), data: { turbo_frame: "_top" }, class: "text-blue-700 underline" %><span class="block text-xs text-gray-500"><%= record.details %></span></td>
-              <td class="whitespace-nowrap py-1 pr-2 text-right"><%= money(record.amount_required, record.currency) %></td>
-              <td class="whitespace-nowrap py-1 pr-2 text-right"><%= money(record.amount_paid, record.currency) %></td>
-              <% unless @box %><td class="whitespace-nowrap py-1 pr-2 text-right font-medium"><%= money(amount, record.currency) %></td><% end %>
+              <td class="whitespace-nowrap py-1 pr-2 text-right font-medium"><%= money(shown, record.currency) %>
+                <% if shown != record.amount_paid %><span class="block text-xs font-normal text-gray-500"><%= t(".of_full", amount: money(record.amount_paid, record.currency)) %></span><% end %></td>
               <td class="whitespace-nowrap py-1 pr-2"><%= l(record.paid_on) %></td>
-              <td class="py-1 pr-2"><%= record.payment_method&.name %></td>
-              <td class="max-w-48 truncate py-1" title="<%= record.payment_note %>"><%= record.payment_note %></td></tr>
+              <td class="py-1 pr-2"><%= record.payment_method&.name %></td></tr>
           <% end %>
         </tbody>
         <% unless @box %>
-          <tfoot><tr class="font-semibold"><td colspan="4" class="py-1 pr-2 text-right"><%= t(".total") %></td>
-            <td class="whitespace-nowrap py-1 pr-2 text-right" id="drilldown-total"><%= money(@total, @query.currency) %></td><td colspan="3"></td></tr></tfoot>
+          <tfoot><tr class="font-semibold"><td colspan="2" class="py-1 pr-2 text-right"><%= t(".total") %></td>
+            <td class="whitespace-nowrap py-1 pr-2 text-right" id="drilldown-total"><%= money(@total, @query.currency) %></td><td colspan="2"></td></tr></tfoot>
         <% end %>
       </table>
     </div>

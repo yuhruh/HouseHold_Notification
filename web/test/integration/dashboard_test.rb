@@ -41,6 +41,10 @@ class DashboardTest < ActionDispatch::IntegrationTest
     # On a phone a card per record, with the total under them
     assert_select "turbo-frame#drilldown ul.sm\\:hidden li a", "水費"
     assert_select "turbo-frame#drilldown p.sm\\:hidden", /NT\$290/
+    # A bill split across periods shows its share with the full amount under it; only these columns
+    assert_select "turbo-frame#drilldown th", 5
+    assert_select "turbo-frame#drilldown td span", /共 NT\$580/
+    assert_select "turbo-frame#drilldown li span", /共 NT\$580/
   end
 
   test "other households' records never appear" do

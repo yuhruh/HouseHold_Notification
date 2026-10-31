@@ -45,6 +45,6 @@ en:
         title:
           one: "1 record"
           other: "%{count} records"
-        counted: "Counted Here"
+        of_full: "of %{amount}"
         total: "Total"
         quartiles: "Q1 %{q1} · median %{median} · Q3 %{q3}"

@@ -45,6 +45,6 @@ zh-TW:
         title:
           one: "1 筆記錄"
           other: "%{count} 筆記錄"
-        counted: "計入金額"
+        of_full: "共 %{amount}"
         total: "合計"
         quartiles: "Q1 %{q1} · 中位數 %{median} · Q3 %{q3}"

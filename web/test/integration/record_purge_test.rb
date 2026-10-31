@@ -39,7 +39,7 @@ class RecordPurgeTest < ActionDispatch::IntegrationTest
   test "kept templates restart this month instead of recreating past bills" do
     post household_record_purge_path(@home), params: { confirm_name: @home.name, delete_templates: "0" }
     @template.reload
-    assert_equal Date.current.beginning_of_month, @template.starts_on
+    assert_equal Time.use_zone(users(:alex).time_zone) { Date.current }.beginning_of_month, @template.starts_on
     assert_equal 1, @template.anchor_month, "the billing rhythm is unchanged"
   end
 

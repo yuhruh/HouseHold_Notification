@@ -5,6 +5,7 @@ require_relative "test_helpers/session_test_helper"
 require_relative "test_helpers/omniauth_test_helper"
 require_relative "test_helpers/reauth_test_helper"
 require_relative "test_helpers/photo_test_helper"
+require_relative "test_helpers/fake_drive"
 
 module ActiveSupport
   class TestCase

@@ -27,6 +27,10 @@ module Web
     config.i18n.default_locale = :"zh-TW"
     config.i18n.fallbacks = [ :en ]
 
+    # Encrypts Google Drive refresh tokens (DriveBackup); production keys are Railway variables
+    config.active_record.encryption.primary_key = ENV["ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY"]
+    config.active_record.encryption.key_derivation_salt = ENV["ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT"]
+
     # Photos are private (PRD §7): no public-by-link /rails/active_storage routes; PhotosController
     # and AvatarsController serve files after the household check.
     config.active_storage.draw_routes = false

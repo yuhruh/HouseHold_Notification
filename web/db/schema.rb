@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -111,6 +111,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
     t.datetime "received_at"
     t.index ["receipt_token_digest"], name: "index_delivery_attempts_on_receipt_token_digest", unique: true, where: "(receipt_token_digest IS NOT NULL)"
     t.index ["reminder_delivery_id"], name: "index_delivery_attempts_on_reminder_delivery_id"
+  end
+
+  create_table "drive_backup_files", force: :cascade do |t|
+    t.bigint "drive_backup_id", null: false
+    t.bigint "blob_id", null: false
+    t.string "drive_file_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["drive_backup_id", "blob_id"], name: "index_drive_backup_files_on_drive_backup_id_and_blob_id", unique: true
+  end
+
+  create_table "drive_backups", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "connected_by_id", null: false
+    t.string "google_email", null: false
+    t.text "refresh_token", null: false
+    t.string "folder_id"
+    t.string "csv_file_id"
+    t.jsonb "folders", default: {}, null: false
+    t.datetime "running_since"
+    t.datetime "last_backup_at"
+    t.integer "bills_count", default: 0, null: false
+    t.integer "photos_count", default: 0, null: false
+    t.string "problem"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["connected_by_id"], name: "index_drive_backups_on_connected_by_id"
+    t.index ["household_id"], name: "index_drive_backups_on_household_id", unique: true
+    t.check_constraint "problem::text = ANY (ARRAY['reconnect'::character varying, 'storage_full'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_problem"
   end
 
   create_table "households", force: :cascade do |t|
@@ -705,6 +734,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_010000) do
   add_foreign_key "category_aliases", "categories"
   add_foreign_key "category_aliases", "households"
   add_foreign_key "delivery_attempts", "reminder_deliveries", on_delete: :cascade
+  add_foreign_key "drive_backup_files", "drive_backups", on_delete: :cascade
+  add_foreign_key "drive_backups", "households"
+  add_foreign_key "drive_backups", "users", column: "connected_by_id"
   add_foreign_key "identities", "users"
   add_foreign_key "import_batch_changes", "import_batches"
   add_foreign_key "import_batches", "households"

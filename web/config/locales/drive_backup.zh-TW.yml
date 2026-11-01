@@ -1,0 +1,35 @@
+zh-TW:
+  household_settings:
+    drive_backup:
+      title: "Google 雲端硬碟備份"
+      intro: "每週把所有帳單的 CSV 和帳單照片，存到你自己的 Google 雲端硬碟資料夾。"
+      privacy: "本應用程式只能看到自己建立的檔案，無法讀取雲端硬碟裡的其他內容。"
+      connect: "連結 Google 雲端硬碟"
+      connect_again: "重新連結"
+      connected_as: "已連結 %{email}"
+      last_backup: "上次備份"
+      last_backup_detail: "%{time} · %{bills} 筆帳單、%{photos} 張照片"
+      not_yet: "尚未備份"
+      next_backup: "下次備份"
+      next_backup_detail: "週日清晨 4:30 左右（台灣時間）"
+      back_up_now: "立即備份"
+      running: "備份中…"
+      open_folder: "開啟資料夾"
+      disconnect: "取消連結"
+      disconnect_confirm: "要停止備份到 Google 雲端硬碟嗎？"
+      disconnect_hint: "取消連結後會停止備份，已存到雲端硬碟的檔案會保留。"
+  drive_backups:
+    run:
+      started: "已開始備份，可能需要幾分鐘。"
+    destroy:
+      disconnected: "已取消連結 Google 雲端硬碟，檔案仍保留在雲端硬碟。"
+    notification:
+      title: "%{household}：Google 雲端硬碟備份已停止"
+    problems:
+      reconnect: "上次備份未完成，因為 Google 存取權已被移除。請重新連結以恢復備份。"
+      storage_full: "上次備份未完成，因為你的 Google 雲端硬碟已滿。週日會再試一次。"
+      failed: "上次備份未完成，因為 Google 雲端硬碟發生問題。週日會再試一次。"
+  drive_backup_callbacks:
+    show:
+      connected: "已連結 Google 雲端硬碟，第一次備份已開始。"
+      failed: "未能連結 Google 雲端硬碟。請再試一次，並允許存取本應用程式建立的檔案。"

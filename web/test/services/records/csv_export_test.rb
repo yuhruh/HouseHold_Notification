@@ -44,4 +44,13 @@ class Records::CsvExportTest < ActiveSupport::TestCase
     assert_equal BigDecimal("650"), record.reload.amount_required
     assert_equal 1, @home.records.count
   end
+
+  test "a cell a spreadsheet would run as a formula is quoted, and imports back unchanged" do
+    water = @home.categories.find_by!(name_zh: "水費")
+    record = @home.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "3月"), amount_required: 600, details: "=HYPERLINK(1)", payment_note: "+886")
+    csv = Records::CsvExport.new([ record ]).to_csv
+    row = CSV.parse(csv)[2]
+    assert_equal [ "'=HYPERLINK(1)", "'+886" ], [ row[6], row[10] ]
+    assert_equal "unchanged", import("\uFEFF#{csv}").rows.sole["kind"]
+  end
 end

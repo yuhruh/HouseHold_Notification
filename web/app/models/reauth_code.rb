@@ -3,7 +3,7 @@
 class ReauthCode < ApplicationRecord
   TTL = 10.minutes
   MAX_ATTEMPTS = 5
-  PURPOSES = %w[delete_account change_email disconnect_google transfer_ownership delete_household delete_records].freeze
+  PURPOSES = %w[delete_account change_email disconnect_google transfer_ownership delete_household delete_records connect_drive_backup].freeze
 
   belongs_to :user
 

@@ -1,0 +1,35 @@
+en:
+  household_settings:
+    drive_backup:
+      title: "Google Drive Backup"
+      intro: "Every week, save a CSV of all bills and every bill photo to a folder in your own Google Drive."
+      privacy: "The app can only see the files it creates. It can't read anything else in your Drive."
+      connect: "Connect Google Drive"
+      connect_again: "Connect Again"
+      connected_as: "Connected as %{email}"
+      last_backup: "Last backup"
+      last_backup_detail: "%{time} · %{bills} bills, %{photos} photos"
+      not_yet: "Not yet"
+      next_backup: "Next backup"
+      next_backup_detail: "Sunday, around 4:30 AM Taiwan time"
+      back_up_now: "Back Up Now"
+      running: "Backing Up…"
+      open_folder: "Open Folder"
+      disconnect: "Disconnect"
+      disconnect_confirm: "Stop backing up to Google Drive?"
+      disconnect_hint: "Disconnecting stops the backups. Files already in your Drive stay there."
+  drive_backups:
+    run:
+      started: "Backup started. It can take a few minutes."
+    destroy:
+      disconnected: "Google Drive disconnected. Your files stay in Drive."
+    notification:
+      title: "%{household}: Google Drive backup stopped"
+    problems:
+      reconnect: "The last backup didn't finish because Google access was removed. Connect again to restart backups."
+      storage_full: "The last backup didn't finish because your Google Drive is full. It will try again on Sunday."
+      failed: "The last backup didn't finish because of a problem with Google Drive. It will try again on Sunday."
+  drive_backup_callbacks:
+    show:
+      connected: "Google Drive connected. The first backup has started."
+      failed: "Google Drive wasn't connected. Try again, and allow access to the files this app creates."

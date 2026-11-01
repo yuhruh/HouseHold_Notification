@@ -6,6 +6,7 @@ module Records
   # Finished Date, Note. Records entered in the app have no sheet ID and export as "app-<record_no>".
   class CsvExport
     HEADER = [ "ID", "✅", "Type", "year", "month", "Item", "Detailed", "Required", "Paid", "Finished Date", "Note" ].freeze
+    FORMULA = /\A[=+\-@\t\r]/
 
     def initialize(records)
       @records = records
@@ -28,11 +29,14 @@ module Records
     def row(record)
       [
         record.import_key || self.class.app_key(record), record.settled ? "TRUE" : "FALSE", record.record_type.capitalize,
-        record.period_year, month(record), record.import_snapshot&.dig("item") || record.title, record.details,
+        record.period_year, month(record), text(record.import_snapshot&.dig("item") || record.title), text(record.details),
         amount(record.amount_required, record.currency), amount(record.amount_paid, record.currency),
-        record.paid_on&.strftime("%Y/%-m/%-d"), record.payment_note
+        record.paid_on&.strftime("%Y/%-m/%-d"), text(record.payment_note)
       ]
     end
+
+    # A spreadsheet would run a cell starting like this as a formula; the importer drops the quote again
+    def text(value) = value.to_s.match?(FORMULA) ? "'#{value}" : value
 
     def month(record)
       start, finish = record.period_start_month, record.period_end_month

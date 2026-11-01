@@ -15,10 +15,12 @@ module DriveBackups
       google = client(redirect_uri:)
       google.code = code
       token = google.fetch_access_token!
-      raise Denied unless token["refresh_token"].present? && token["scope"].to_s.split.include?(SCOPE)
+      # Signet renames Google's "scope" to this. Unticking Drive on the consent screen leaves it out.
+      raise Denied unless token["refresh_token"].present? && token["granted_scopes"].to_s.split.include?(SCOPE)
 
       token["refresh_token"]
-    rescue Signet::AuthorizationError
+    rescue Signet::AuthorizationError => e
+      Rails.logger.warn("Drive token exchange refused: #{e.message}")
       raise Denied
     end
 

@@ -15,7 +15,8 @@ class DriveBackup < ApplicationRecord
 
   # Off until the Google client and the encryption keys are set (nothing shows in Ledger Settings)
   def self.available?
-    [ ENV["GOOGLE_DRIVE_CLIENT_ID"], ENV["GOOGLE_DRIVE_CLIENT_SECRET"], ActiveRecord::Encryption.config.primary_key ].all?(&:present?)
+    [ ENV["GOOGLE_DRIVE_CLIENT_ID"], ENV["GOOGLE_DRIVE_CLIENT_SECRET"], ActiveRecord::Encryption.config.primary_key,
+      ActiveRecord::Encryption.config.key_derivation_salt ].all?(&:present?)
   end
 
   def running? = running_since.present? && running_since > STUCK_AFTER.ago

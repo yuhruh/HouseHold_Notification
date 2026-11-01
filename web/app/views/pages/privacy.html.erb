@@ -11,8 +11,8 @@
     <ul class="list-disc space-y-1 pl-6">
       <li><strong>收集的資料：</strong>你的姓名、電子郵件、個人照片（如有上傳）、語言與時區、（使用 Google 登入時）Google 帳號 ID；你和家人輸入的帳單、金額、日期、備註與收據照片（上傳時會移除 GPS 等中繼資料）；登入的裝置（瀏覽器名稱與最後使用時間）；接收推播通知的裝置訂閱資訊；以及錯誤報告（不含個人資料）。</li>
       <li><strong>用途：</strong>只用於登入、讓同一家庭的成員查看資料，以及透過電子郵件和推播寄送提醒。</li>
-      <li><strong>Google 資料：</strong>Google 登入只取得你的姓名和電子郵件。寄送提醒信使用本應用程式自己的寄件帳號，不會讀取任何人的信件。本應用程式對 Google API 資料的使用遵守 Google API 服務使用者資料政策，包括「有限使用」規定。</li>
-      <li><strong>分享：</strong>不出售、不出租，也不與第三方分享。只使用以下服務來運作：Railway（主機與資料庫）、Gmail（寄送提醒信，信件內容會經過 Google）、瀏覽器的推播服務（例如 Google，傳送加密的通知內容）、Sentry（錯誤報告）。</li>
+      <li><strong>Google 資料：</strong>Google 登入只取得你的姓名和電子郵件。寄送提醒信使用本應用程式自己的寄件帳號，不會讀取任何人的信件。帳本擁有者如果選擇連結 Google 雲端硬碟備份，本應用程式會在對方指定的帳號建立資料夾，存入帳單 CSV 和收據照片；只能存取自己建立的檔案，不會讀取雲端硬碟裡的其他內容，可隨時取消連結。本應用程式對 Google API 資料的使用遵守 Google API 服務使用者資料政策，包括「有限使用」規定。</li>
+      <li><strong>分享：</strong>不出售、不出租，也不與第三方分享。只使用以下服務來運作：Railway（主機與資料庫）、Gmail（寄送提醒信，信件內容會經過 Google）、Google 雲端硬碟（僅限擁有者連結備份時）、瀏覽器的推播服務（例如 Google，傳送加密的通知內容）、Sentry（錯誤報告）。</li>
       <li><strong>刪除：</strong>你可以隨時在 <%= link_to "/account/deletion", account_deletion_path, class: "text-blue-700 underline" %> 自行刪除帳號，或請家庭擁有者協助。伺服器上的加密備份會在 4 週內過期；伺服器以外的加密副本（Email 與電腦）會在 3 個月後刪除。</li>
     </ul>
   </section>
@@ -23,8 +23,8 @@
     <ul class="list-disc space-y-1 pl-6">
       <li><strong>What we collect:</strong> your name, email address, profile photo (if you add one), language and time zone and, if you use Google sign-in, your Google account ID; the bills, amounts, dates, notes and receipt photos you and your family enter (GPS and other metadata are removed on upload); your signed-in devices (browser name and last-seen time); the push subscription of devices that receive notifications; and error reports (without personal data).</li>
       <li><strong>How it is used:</strong> only to sign you in, show each ledger's data to its members, and send reminders by email and push notification.</li>
-      <li><strong>Google user data:</strong> Google sign-in only receives your name and email address. Reminder emails are sent from the app's own sender account; the app never reads anyone's mail. The app's use of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements.</li>
-      <li><strong>Sharing:</strong> nothing is sold, rented or shared with third parties. The app runs on these services only: Railway (hosting and database), Gmail (sends reminder emails, so their content passes through Google), the browser's push service (e.g. Google, which carries encrypted notifications) and Sentry (error reports).</li>
+      <li><strong>Google user data:</strong> Google sign-in only receives your name and email address. Reminder emails are sent from the app's own sender account; the app never reads anyone's mail. If a ledger owner connects Google Drive Backup, the app creates a folder in the account they choose and saves the bills CSV and receipt photos there; it can only reach files it created, never reads anything else in Drive, and can be disconnected at any time. The app's use of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements.</li>
+      <li><strong>Sharing:</strong> nothing is sold, rented or shared with third parties. The app runs on these services only: Railway (hosting and database), Gmail (sends reminder emails, so their content passes through Google), Google Drive (only if an owner connects the backup), the browser's push service (e.g. Google, which carries encrypted notifications) and Sentry (error reports).</li>
       <li><strong>Deletion:</strong> delete your account yourself at any time at <%= link_to "/account/deletion", account_deletion_path, class: "text-blue-700 underline" %>, or ask the ledger's owner. Encrypted backups on the server expire within 4 weeks; encrypted copies kept off the server (email and a computer) are deleted after 3 months.</li>
     </ul>
   </section>

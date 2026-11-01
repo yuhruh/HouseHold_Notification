@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   end
 
   # Households (PRD §12, §12a)
+  get "google_drive/callback" => "drive_backup_callbacks#show", as: :google_drive_callback
   resource :onboarding, only: :show
   resources :households, only: :create
   scope "h/:household_id", as: :household do
@@ -34,6 +35,9 @@ Rails.application.routes.draw do
     resources :members, only: :index
     resources :member_devices, only: :destroy
     resource :settings, only: %i[show update], controller: "household_settings"
+    resource :drive_backup, only: %i[create destroy] do
+      post :run
+    end
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection
     end

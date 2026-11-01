@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.2.0"
+  date: 2026-11-01
+  en:
+    - "Google Drive Backup, in Ledger Settings: the owner can connect their Google Drive, and every week a CSV of all bills and the bill photos are saved there automatically."
+  zh-TW:
+    - "帳本設定新增「Google 雲端硬碟備份」：擁有者連結 Google 雲端硬碟後，每週會自動把所有帳單的 CSV 和帳單照片存到雲端硬碟。"
 - version: "1.1.0"
   date: 2026-10-30
   en:

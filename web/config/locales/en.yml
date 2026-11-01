@@ -422,6 +422,7 @@ en:
     transfer_ownership: "transfer ledger ownership"
     delete_household: "delete a ledger"
     delete_records: "delete all records"
+    connect_drive_backup: "connect Google Drive backup"
   reauthentications:
     show:
       title: "Confirm It's You"
@@ -576,6 +577,8 @@ en:
     password_changed: "Password Changed"
     google_connected: "Google Connected"
     google_disconnected: "Google Disconnected"
+    drive_backup_connected: "Google Drive Backup Connected"
+    drive_backup_disconnected: "Google Drive Backup Disconnected"
     sessions_revoked: "Other Devices Signed Out"
     member_joined: "Member Joined"
     household_updated: "Ledger Settings Changed"

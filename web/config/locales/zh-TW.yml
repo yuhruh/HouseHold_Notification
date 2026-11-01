@@ -422,6 +422,7 @@ zh-TW:
     transfer_ownership: "轉移帳本擁有權"
     delete_household: "刪除帳本"
     delete_records: "刪除所有記錄"
+    connect_drive_backup: "連結 Google 雲端硬碟備份"
   reauthentications:
     show:
       title: "確認是你本人"
@@ -576,6 +577,8 @@ zh-TW:
     password_changed: "變更密碼"
     google_connected: "連結 Google"
     google_disconnected: "取消連結 Google"
+    drive_backup_connected: "連結 Google 雲端硬碟備份"
+    drive_backup_disconnected: "取消連結 Google 雲端硬碟備份"
     sessions_revoked: "登出其他裝置"
     member_joined: "成員加入"
     household_updated: "變更帳本設定"

@@ -1,0 +1,29 @@
+<%# Owner only; hidden until the Google client and encryption keys are set %>
+<% backup = Current.household.drive_backup %>
+<section id="drive-backup" class="card-raised-sm space-y-3 rounded-xl bg-white p-4">
+  <h2 class="flex items-center gap-2 text-lg font-semibold"><%= image_tag "icons/google_connect.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".title") %></h2>
+  <% button = "btn-press inline-flex items-center gap-2 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-2 font-medium" %>
+  <% if backup.nil? %>
+    <p class="text-gray-700"><%= t(".intro") %></p>
+    <p class="text-sm text-gray-600"><%= t(".privacy") %></p>
+    <%= button_to household_drive_backup_path(Current.household), method: :post, class: button, form: { data: { turbo: false } } do %><%= image_tag "icons/google_connect.png", alt: "", class: "h-5 w-5 object-contain" %><%= t(".connect") %><% end %>
+  <% else %>
+    <% if backup.problem %><p class="rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-900"><%= t("drive_backups.problems.#{backup.problem}") %></p><% end %>
+    <p class="text-gray-700"><%= t(".connected_as", email: backup.google_email) %></p>
+    <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm">
+      <dt class="text-gray-600"><%= t(".last_backup") %></dt>
+      <dd class="font-medium"><%= backup.last_backup_at ? t(".last_backup_detail", time: l(backup.last_backup_at, format: :short), bills: backup.bills_count, photos: backup.photos_count) : t(".not_yet") %></dd>
+      <% unless backup.needs_reconnect? %><dt class="text-gray-600"><%= t(".next_backup") %></dt><dd><%= t(".next_backup_detail") %></dd><% end %>
+    </dl>
+    <div class="flex flex-wrap items-center gap-3">
+      <% if backup.needs_reconnect? %>
+        <%= button_to household_drive_backup_path(Current.household), method: :post, class: button, form: { data: { turbo: false } } do %><%= image_tag "icons/google_connect.png", alt: "", class: "h-5 w-5 object-contain" %><%= t(".connect_again") %><% end %>
+      <% else %>
+        <%= button_to (backup.running? ? t(".running") : t(".back_up_now")), run_household_drive_backup_path(Current.household), method: :post, disabled: backup.running?, class: "#{button} disabled:cursor-not-allowed disabled:opacity-60" %>
+      <% end %>
+      <% if backup.folder_url %><%= link_to t(".open_folder"), backup.folder_url, target: "_blank", rel: "noopener", class: "btn-press inline-flex items-center rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" %><% end %>
+    </div>
+    <%= button_to t(".disconnect"), household_drive_backup_path(Current.household), method: :delete, class: "cursor-pointer text-red-700 underline", form: { data: { turbo_confirm: t(".disconnect_confirm") } } %>
+    <p class="text-sm text-gray-600"><%= t(".disconnect_hint") %></p>
+  <% end %>
+</section>

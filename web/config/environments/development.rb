@@ -5,6 +5,10 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries = true
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Not secret: only for local data
+  config.active_record.encryption.primary_key = "local-only-primary-key-0123456789"
+  config.active_record.encryption.key_derivation_salt = "local-only-derivation-salt-012345"
+
   # Make code changes take effect immediately without server restart.
   config.enable_reloading = true
 

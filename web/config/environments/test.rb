@@ -6,6 +6,10 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # Not secret: only for local data
+  config.active_record.encryption.primary_key = "local-only-primary-key-0123456789"
+  config.active_record.encryption.key_derivation_salt = "local-only-derivation-salt-012345"
+
   # While tests run files are not watched, reloading is not necessary.
   config.enable_reloading = false
 

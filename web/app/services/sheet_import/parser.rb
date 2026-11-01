@@ -97,7 +97,7 @@ module SheetImport
     end
 
     def parse_row(cells, line, columns)
-      cell = ->(key) { columns[key] ? cells[columns[key]].to_s.strip : "" }
+      cell = ->(key) { columns[key] ? cells[columns[key]].to_s.strip.sub(/\A'(?=[=+\-@])/, "") : "" }
       row = Row.new(line: line, errors: [], warnings: [], id: cell.(:id), item: cell.(:item),
                     details: cell.(:details).presence, note: cell.(:note).presence,
                     done_in_sheet: DONE_VALUES.include?(cell.(:done).downcase))

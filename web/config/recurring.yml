@@ -31,6 +31,9 @@ production:
   backup:
     class: BackupJob
     schedule: "0 4 * * 0 Asia/Taipei"
+  drive_backups:
+    class: ScheduleDriveBackupsJob
+    schedule: "30 4 * * 0 Asia/Taipei"
   auth_cleanup:
     class: Auth::CleanupJob
     schedule: "30 3 * * * Asia/Taipei"

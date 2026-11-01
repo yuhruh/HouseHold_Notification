@@ -14,6 +14,8 @@ module Accounts
         to_membership.reload.update!(role: "owner")
         SecurityEvent.record!("ownership_transferred", actor: from, user: to_membership.user, household:)
       end
+      # Backups go to the owner who connected them, who no longer owns this ledger
+      DriveBackups::Disconnect.call(household, actor: from)
     end
   end
 end

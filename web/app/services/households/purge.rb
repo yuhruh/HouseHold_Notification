@@ -3,6 +3,7 @@ module Households
   # Tables added by later milestones (records, photos, reminders…) get their own step here.
   class Purge
     def self.call(household, actor:)
+      DriveBackups::Disconnect.call(household, actor:)
       # Photo files go after the commit; their attachment rows go with the records
       photo_blob_ids = ActiveStorage::Attachment.where(record_type: "Record", record_id: household.records.select(:id)).pluck(:blob_id)
       household.with_lock do

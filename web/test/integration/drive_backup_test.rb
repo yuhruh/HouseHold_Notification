@@ -75,6 +75,20 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     assert_nil @home.reload.drive_backup
   end
 
+  test "a browser sending a null origin can connect with a valid token, but not without one" do
+    sign_in_as users(:alex)
+    reauthenticate!(Session.last)
+    ActionController::Base.allow_forgery_protection = true
+    get household_settings_path(@home)
+    token = css_select("#drive-backup form input[name=authenticity_token]").first["value"]
+    post household_drive_backup_path(@home), params: { authenticity_token: token }, headers: { "Origin" => "null" }
+    assert_redirected_to(/accounts\.google\.com/)
+    post household_drive_backup_path(@home), params: { authenticity_token: "wrong" }, headers: { "Origin" => "null" }
+    assert_response :unprocessable_content
+  ensure
+    ActionController::Base.allow_forgery_protection = false
+  end
+
   test "members who aren't the owner can't see or use it" do
     sign_in_as users(:google_only) # a viewer
     get household_settings_path(@home)

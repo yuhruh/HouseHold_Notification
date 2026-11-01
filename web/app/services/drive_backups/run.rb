@@ -1,5 +1,5 @@
 module DriveBackups
-  # One backup: the CSV of every bill, replaced each time, then the photos Drive doesn't have yet.
+  # One backup: the CSV of every bill, replaced and renamed to the day's date each time, then the photos Drive doesn't have yet.
   # Files are never deleted from Drive. Each uploaded photo is remembered as it goes, so a run that
   # stops part way carries on from there next time.
   class Run
@@ -50,7 +50,7 @@ module DriveBackups
 
     def upload_csv
       io = StringIO.new(BOM + Records::CsvExport.new(records).to_csv)
-      name = "#{@household.name} bills.csv"
+      name = "#{@household.name} bills_#{Time.current.in_time_zone(@household.time_zone).strftime("%Y%m%d")}.csv"
       if @backup.csv_file_id && @client.exists?(@backup.csv_file_id)
         @client.replace_file(@backup.csv_file_id, name, io, content_type: "text/csv")
       else
@@ -78,11 +78,15 @@ module DriveBackups
       Sentry.capture_exception(e)
     end
 
+    # Saved as soon as they're made: the run reloads the backup before each upload
     def year_folder(year)
-      @backup.folders[year.to_s] ||= begin
-        photos = @backup.folders["photos"] ||= @client.create_folder("Photos", parent: @backup.folder_id)
-        @client.create_folder(year.to_s, parent: photos)
-      end.tap { @backup.save! }
+      @backup.folders[year.to_s] ||= @client.create_folder(year.to_s, parent: photos_folder)
+      @backup.save!
+      @backup.folders[year.to_s]
+    end
+
+    def photos_folder
+      @backup.folders["photos"] ||= @client.create_folder("Photos", parent: @backup.folder_id)
     end
   end
 end

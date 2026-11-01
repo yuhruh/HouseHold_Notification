@@ -15,7 +15,7 @@ class DriveBackups::RunTest < ActiveSupport::TestCase
 
   test "saves the CSV and photos into the ledger's folder, sorted by year" do
     run_backup
-    csv = @drive.named(/bills\.csv\z/).sole
+    csv = @drive.named(/bills_\d{8}\.csv\z/).sole
     assert csv[:body].start_with?("\uFEFF"), "Excel needs the BOM"
     assert_includes csv[:body], "app-#{@bill.record_no}"
     assert_equal [ "Household Tracker Backup", @home.name ], @drive.path_of(csv[:parent])
@@ -34,12 +34,33 @@ class DriveBackups::RunTest < ActiveSupport::TestCase
     @bill.photos.attach(io: StringIO.new("jpeg-2"), filename: "b.jpg", content_type: "image/jpeg")
     @home.records.create!(record_type: "expense", category: @water, period: Period.parse(2026, "10月"), amount_required: 700, title: "Later")
     run_backup
-    assert_equal 1, @drive.named(/bills\.csv\z/).size
-    assert_includes @drive.named(/bills\.csv\z/).sole[:body], "Later"
+    assert_equal 1, @drive.named(/bills_\d{8}\.csv\z/).size
+    assert_includes @drive.named(/bills_\d{8}\.csv\z/).sole[:body], "Later"
     assert_equal 2, @drive.named(/\.jpg\z/).size
 
     ActiveStorage::Attachment.where(record_id: @bill.id, record_type: "Record").delete_all
     assert_no_changes -> { @drive.files.size } do run_backup end
+  end
+
+  test "the CSV is named with the owner's local date, and renamed by the next run" do
+    travel_to Time.utc(2026, 10, 31, 20) do run_backup end # already Nov 1 in Taiwan
+    assert_equal "#{@home.name} bills_20261101.csv", @drive.named(/\.csv\z/).sole[:name]
+    travel_to Time.utc(2026, 11, 8, 20) do run_backup end
+    assert_equal "#{@home.name} bills_20261109.csv", @drive.named(/\.csv\z/).sole[:name]
+  end
+
+  test "photos from the same year share one folder, also in a later run" do
+    @bill.photos.attach(io: StringIO.new("jpeg-2"), filename: "b.jpg", content_type: "image/jpeg")
+    other = @home.records.create!(record_type: "expense", category: @water, period: Period.parse(2026, "10月"), amount_required: 1, title: "Same year")
+    other.photos.attach(io: StringIO.new("jpeg-3"), filename: "c.jpg", content_type: "image/jpeg")
+    run_backup
+    assert_equal 3, @drive.named(/\.jpg\z/).size
+    assert_equal 1, @drive.folders.values.count { |folder| folder[:name] == "2026" }
+
+    other.photos.attach(io: StringIO.new("jpeg-4"), filename: "d.jpg", content_type: "image/jpeg")
+    run_backup
+    assert_equal 1, @drive.folders.values.count { |folder| folder[:name] == "2026" }
+    assert_equal 1, @drive.named(/\.jpg\z/).map { |file| file[:parent] }.uniq.size
   end
 
   test "a folder removed in Drive is made again, with everything uploaded again" do

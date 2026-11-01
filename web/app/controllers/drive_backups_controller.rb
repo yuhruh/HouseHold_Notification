@@ -23,4 +23,10 @@ class DriveBackupsController < ApplicationController
     DriveBackups::Disconnect.call(Current.household, actor: Current.user)
     redirect_to household_settings_path(Current.household), notice: t(".disconnected")
   end
+
+  private
+
+  # Browsers can send Origin: null for this form (seen in Chrome after the Google redirect), which
+  # Rails refuses outright. The form's CSRF token is still checked.
+  def valid_request_origin? = request.origin == "null" || super
 end

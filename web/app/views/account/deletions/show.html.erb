@@ -15,7 +15,7 @@
         <p class="font-medium"><%= t(".blocked_heading") %></p>
         <% @blocking.each do |h| %>
           <p><%= h.name %>:
-            <%= link_to t(".transfer"), new_household_ownership_transfer_path(h), class: "underline" %> ·
+            <%= link_to new_household_ownership_transfer_path(h), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/transfer_ownership.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".transfer") %></span><% end %> ·
             <%= link_to new_household_deletion_path(h), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete_household") %></span><% end %></p>
         <% end %>
       </div>

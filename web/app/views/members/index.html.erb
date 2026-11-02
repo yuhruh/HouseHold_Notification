@@ -35,7 +35,7 @@
   <% end %>
 
   <% if policy(Current.household).manage_members? %>
-    <p><%= link_to t("household_settings.show.transfer"), new_household_ownership_transfer_path(Current.household), class: "text-sm text-blue-700 underline" %></p>
+    <p><%= link_to new_household_ownership_transfer_path(Current.household), class: "inline-flex items-center gap-1 text-sm text-blue-700 underline" do %><%= image_tag "icons/transfer_ownership.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t("household_settings.show.transfer") %></span><% end %></p>
     <section class="space-y-3">
       <h2 class="flex items-center gap-2.5 text-lg font-semibold"><%= image_tag "icons/pending_invitation.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".pending") %></h2>
       <% if @invitations.empty? %>
@@ -56,7 +56,7 @@
     </section>
 
     <section class="space-y-4">
-      <h2 class="text-lg font-semibold"><%= t(".invite") %></h2>
+      <h2 class="flex items-center gap-2.5 text-lg font-semibold"><%= image_tag "icons/add_person_invitation.png", alt: "", class: "h-7 w-7 object-contain" %><%= t(".invite") %></h2>
       <%= form_with model: @invitation, url: household_invitations_path(Current.household), class: "space-y-4" do |form| %>
         <%= form.label :email, t("auth.email"), class: "block text-sm font-medium" %>
         <%= form.email_field :email, required: true, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
@@ -66,7 +66,7 @@
         <%= form.select :expiry, Invitation::EXPIRY_CHOICES.map { |c| [ t(".expiry_#{c}"), c ] }, { selected: "7" }, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
         <%= form.label :custom_date, t(".custom_date"), class: "block text-sm font-medium" %>
         <%= form.date_field :custom_date, min: Date.current + 1, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-        <%= form.submit t(".send"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2.5 font-medium" %>
+        <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2.5 font-medium" do %><%= image_tag "icons/invitation.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".send") %></span><% end %>
       <% end %>
     </section>
   <% end %>

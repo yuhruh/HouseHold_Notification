@@ -14,7 +14,7 @@ module DriveBackups
     end
 
     def call
-      return unless claim
+      return if nothing_yet? || !claim
 
       begin
         prepare_folders
@@ -28,9 +28,12 @@ module DriveBackups
 
     private
 
+    # An empty ledger that hasn't backed up has nothing to save, and may be about to be restored
+    def nothing_yet? = @backup.folder_id.nil? && @household.records.none?
+
     def claim
       @backup.with_lock do
-        next false if @backup.running?
+        next false if @backup.running? || @backup.restoring?
         @backup.update!(running_since: Time.current)
       end
     end

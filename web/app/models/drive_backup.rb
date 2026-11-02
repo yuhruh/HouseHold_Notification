@@ -10,6 +10,8 @@ class DriveBackup < ApplicationRecord
   PROBLEMS = %w[reconnect storage_full failed].freeze
   # A run that died with the server leaves running_since behind; this long after, it no longer counts
   STUCK_AFTER = 2.hours
+  # Each restored photo touches the row, so this long without one means it stopped
+  RESTORE_STUCK_AFTER = 15.minutes
 
   validates :problem, inclusion: { in: PROBLEMS }, allow_nil: true
 
@@ -20,6 +22,8 @@ class DriveBackup < ApplicationRecord
   end
 
   def running? = running_since.present? && running_since > STUCK_AFTER.ago
+  def restoring? = restore_state == "running" && updated_at > RESTORE_STUCK_AFTER.ago
+  def found(folder_id) = found_backups.find { |backup| backup["folder_id"] == folder_id }
   def needs_reconnect? = problem == "reconnect"
   def folder_url = folder_id && "https://drive.google.com/drive/folders/#{folder_id}"
 end

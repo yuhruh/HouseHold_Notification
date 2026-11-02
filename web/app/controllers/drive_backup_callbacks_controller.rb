@@ -12,8 +12,10 @@ class DriveBackupCallbacksController < ApplicationController
 
     token = DriveBackups::Oauth.exchange(code: params[:code], redirect_uri: google_drive_callback_url)
     backup = DriveBackups::Connect.call(household:, user: Current.user, refresh_token: token)
-    DriveBackupJob.perform_later(backup.id)
-    redirect_to settings, notice: t(".connected")
+    return redirect_to(settings, notice: t(".connected")).tap { DriveBackupJob.perform_later(backup.id) } if household.records.exists?
+
+    backup.update!(found_backups: DriveBackups::Scan.call(DriveBackups::Client.new(token)))
+    redirect_to settings, notice: t(".connected_empty")
   rescue DriveBackups::Oauth::Denied, DriveBackups::Client::NeedsReconnect
     redirect_to settings, alert: t(".failed")
   end

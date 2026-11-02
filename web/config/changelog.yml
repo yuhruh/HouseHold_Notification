@@ -7,8 +7,10 @@
   date: 2026-11-01
   en:
     - "Google Drive Backup, in Ledger Settings: the owner can connect their Google Drive, and every week a CSV of all bills and the bill photos are saved there automatically."
+    - "If a ledger's data is ever lost, connect Google Drive on an empty ledger to restore its bills and photos from the backup."
   zh-TW:
     - "帳本設定新增「Google 雲端硬碟備份」：擁有者連結 Google 雲端硬碟後，每週會自動把所有帳單的 CSV 和帳單照片存到雲端硬碟。"
+    - "如果帳本資料遺失，在空的帳本連結 Google 雲端硬碟，就能從備份還原帳單和照片。"
 - version: "1.1.0"
   date: 2026-10-30
   en:

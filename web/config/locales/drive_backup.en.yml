@@ -17,6 +17,12 @@ en:
       open_folder: "Open Folder"
       disconnect: "Disconnect"
       disconnect_confirm: "Stop backing up to Google Drive?"
+      restoring: "Restoring… see progress"
+      found: "Backup found in your Drive"
+      found_detail: "%{name} · saved %{date} · %{bills} bills, %{photos} photos"
+      found_hint: "This ledger is empty. Restore it now, or start fresh and the next backup will save to a new folder."
+      check_backup: "Check Backup"
+      start_fresh: "Start Fresh Instead"
       disconnect_hint: "Disconnecting stops the backups. Files already in your Drive stay there."
   drive_backups:
     run:
@@ -32,4 +38,45 @@ en:
   drive_backup_callbacks:
     show:
       connected: "Google Drive connected. The first backup has started."
+      connected_empty: "Google Drive connected."
       failed: "Google Drive wasn't connected. Try again, and allow access to the files this app creates."
+  drive_restores:
+    show:
+      title: "Restore From Drive"
+      gone: "That backup wasn't found. Connect Google Drive again to look for it."
+      not_empty: "Only an empty ledger can be restored."
+      will_restore: "Will be restored"
+      new_bills: "New bills"
+      photos_matched: "Photos matched to a bill"
+      photos_unmatched: "Photos with no matching bill"
+      not_included: "Not in this backup"
+      not_included_detail: "Members, recurring bills, payment methods and reminder settings. You'll set these up again afterwards."
+      safe: "Nothing changes until you press Restore, and nothing in your Drive is changed."
+      restore:
+        one: "Restore 1 Bill"
+        other: "Restore %{count} Bills"
+      cancel: "Cancel"
+      unreadable:
+        one: "1 row in this backup can't be read, so nothing has been restored."
+        other: "%{count} rows in this backup can't be read, so nothing has been restored."
+      unreadable_hint: "You can download the CSV from Drive and use Import to see which rows need fixing."
+      running: "Restoring…"
+      bills: "Bills"
+      photos: "Photos"
+      of: "%{done} of %{total}"
+      leave: "You can leave this page. If it stops, you can carry on from where it was."
+      finished: "Restore Finished"
+      finished_detail: "%{bills} bills and %{photos} photos are back."
+      unmatched:
+        one: "1 photo wasn't restored. It's still in your Drive, in the Photos folder."
+        other: "%{count} photos weren't restored. They're still in your Drive, in the Photos folder."
+      failed: "The restore didn't finish. Everything restored so far has been kept."
+      try_again: "Try Again"
+      set_up_again: "Set up again"
+      invite: "Invite members"
+      recurring: "Add recurring bills"
+      payment_methods: "Add payment methods"
+      reminders: "Reminder settings"
+      go_to_bills: "Go to Bills"
+    create:
+      failed: "The restore didn't finish. Try again."

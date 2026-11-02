@@ -38,6 +38,9 @@ Rails.application.routes.draw do
     resource :drive_backup, only: %i[create destroy] do
       post :run
     end
+    resource :drive_restore, only: %i[show create destroy] do
+      post :resume
+    end
     resources :memberships, only: %i[update destroy] do
       post :leave, on: :collection
     end

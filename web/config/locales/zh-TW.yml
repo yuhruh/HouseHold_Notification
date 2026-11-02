@@ -423,6 +423,7 @@ zh-TW:
     delete_household: "刪除帳本"
     delete_records: "刪除所有記錄"
     connect_drive_backup: "連結 Google 雲端硬碟備份"
+    restore_drive_backup: "從 Google 雲端硬碟還原帳本"
   reauthentications:
     show:
       title: "確認是你本人"

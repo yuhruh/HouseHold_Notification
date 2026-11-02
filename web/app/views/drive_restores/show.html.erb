@@ -1,0 +1,53 @@
+<% content_for :title, t(".title") %>
+<% if @backup.restoring? %><% content_for :head do %><meta http-equiv="refresh" content="3"><% end %><% end %>
+<% card = "card-raised-sm space-y-2 rounded-xl bg-white p-4" %>
+<% button = "btn-press inline-flex items-center rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3 py-2 font-medium" %>
+<div class="w-full mx-auto max-w-2xl space-y-4 py-4">
+  <%= render "shared/flash" %>
+  <h1 class="text-center text-3xl font-bold"><%= @backup.restore_state == "finished" ? t(".finished") : t(".title") %></h1>
+  <% if @plan&.preview %>
+    <section class="<%= card %>">
+      <h2 class="font-semibold"><%= t(".will_restore") %></h2>
+      <dl class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1">
+        <dt><%= t(".new_bills") %></dt><dd class="font-bold"><%= @plan.preview.rows.size %></dd>
+        <dt><%= t(".photos_matched") %></dt><dd class="font-bold"><%= @plan.matched %></dd>
+        <dt><%= t(".photos_unmatched") %></dt><dd class="font-bold"><%= @plan.photos - @plan.matched %></dd>
+      </dl>
+    </section>
+    <section class="<%= card %>">
+      <h2 class="font-semibold"><%= t(".not_included") %></h2>
+      <p class="text-gray-700"><%= t(".not_included_detail") %></p>
+    </section>
+    <p class="text-sm text-gray-600"><%= t(".safe") %></p>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= button_to t(".restore", count: @plan.preview.rows.size), household_drive_restore_path(Current.household), params: { folder: @found["folder_id"], preview_id: @plan.preview.id }, class: button %>
+      <%= link_to t(".cancel"), household_settings_path(Current.household), class: "btn-press inline-flex items-center rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" %>
+    </div>
+  <% elsif @plan %>
+    <p class="rounded-lg bg-amber-100 px-3 py-2 text-amber-900"><%= t(".unreadable", count: @plan.failed.error_rows.size) %></p>
+    <p class="text-sm text-gray-600"><%= t(".unreadable_hint") %></p>
+    <%= link_to t(".cancel"), household_settings_path(Current.household), class: "btn-press inline-flex items-center rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" %>
+  <% elsif @backup.restoring? %>
+    <section class="<%= card %>">
+      <h2 class="font-semibold"><%= t(".running") %></h2>
+      <p class="flex justify-between"><span><%= t(".bills") %></span><span class="font-bold"><%= t(".of", done: @backup.restore_bills, total: @backup.restore_bills) %></span></p>
+      <p class="flex justify-between"><span><%= t(".photos") %></span><span class="font-bold"><%= t(".of", done: @backup.restore_done + @backup.restore_unmatched, total: @backup.restore_total) %></span></p>
+      <progress class="w-full" value="<%= @backup.restore_done + @backup.restore_unmatched %>" max="<%= [ @backup.restore_total, 1 ].max %>"></progress>
+      <p class="text-sm text-gray-600"><%= t(".leave") %></p>
+    </section>
+  <% elsif @backup.restore_state == "finished" %>
+    <p class="rounded-lg bg-green-100 px-3 py-2 font-semibold text-green-900"><%= t(".finished_detail", bills: @backup.restore_bills, photos: @backup.restore_done) %></p>
+    <% if @backup.restore_unmatched.positive? %><p class="rounded-lg bg-amber-100 px-3 py-2 text-amber-900"><%= t(".unmatched", count: @backup.restore_unmatched) %></p><% end %>
+    <section class="<%= card %>">
+      <h2 class="font-semibold"><%= t(".set_up_again") %></h2>
+      <% [ [ ".invite", household_members_path(Current.household) ], [ ".recurring", household_recurring_templates_path(Current.household) ],
+           [ ".payment_methods", household_payment_methods_path(Current.household) ], [ ".reminders", account_path ] ].each do |label, path| %>
+        <%= link_to t(label), path, class: "flex min-h-11 items-center justify-between text-blue-700" %>
+      <% end %>
+    </section>
+    <%= link_to t(".go_to_bills"), household_records_path(Current.household), class: button %>
+  <% else %>
+    <p class="rounded-lg bg-amber-100 px-3 py-2 text-amber-900"><%= t(".failed") %></p>
+    <%= button_to t(".try_again"), resume_household_drive_restore_path(Current.household), method: :post, class: button %>
+  <% end %>
+</div>

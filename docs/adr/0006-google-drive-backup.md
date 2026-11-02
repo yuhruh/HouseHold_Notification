@@ -12,4 +12,7 @@ app saves a CSV of every bill and any new photos to a folder in that account.
 - **Add-only:** nothing is deleted from Drive, so a bill deleted in the app stays backed up.
 - **Ownership:** the connection belongs to the owner who made it and ends when ownership is transferred,
   so a former owner stops receiving the ledger's data.
+- **Restore:** an empty ledger that connects looks for earlier backups and can restore the bills (through
+  the normal import) and photos (matched by the bill ID in the filename). Nothing in Drive changes. It
+  can't bring back members, recurring bills or payment methods, which aren't in the CSV.
 - **Not a replacement** for the weekly encrypted database backup, which is what a restore uses.

@@ -39,6 +39,8 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
   end
 
   test "the owner connects after re-authenticating; the token is stored encrypted and a first backup starts" do
+    Categories::Seed.call(@home)
+    @home.records.create!(record_type: "expense", category: @home.categories.first, period: Period.parse(2026, "9月"), amount_required: 1)
     sign_in_as users(:alex)
     get household_settings_path(@home)
     assert_select "#drive-backup button", /連結 Google 雲端硬碟/
@@ -144,5 +146,85 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
       Households::Purge.call(@home, actor: membership.user)
       assert_equal 0, DriveBackup.where(household_id: @home.id).count
     end
+  end
+
+  test "an empty ledger is offered the backup instead of a first backup, and the owner can restore it" do
+    home = households(:parents)
+    Categories::Seed.call(home)
+    home.records.delete_all
+    owner = home.owner
+    other = households(:home)
+    Categories::Seed.call(other)
+    water = other.categories.find_by!(name_zh: "水費")
+    bill = other.records.create!(record_type: "expense", category: water, period: Period.parse(2026, "9月"), amount_required: 600, title: "Water")
+    drive = FakeDrive.new
+    DriveBackups::Run.call(DriveBackup.create!(household: other, connected_by: users(:alex), google_email: "a@example.com", refresh_token: "t"), client: drive)
+    backup = DriveBackup.create!(household: home, connected_by: owner, google_email: "a@example.com", refresh_token: "t",
+      found_backups: DriveBackups::Scan.call(drive))
+    folder = backup.found_backups.sole["folder_id"]
+
+    sign_in_as owner
+    reauthenticate!(Session.last)
+    get household_settings_path(home)
+    assert_select "#drive-backup", /Backup found|找到備份/
+
+    with_stub(DriveBackups::Client, :new, drive) do
+      get household_drive_restore_path(home, folder:)
+      assert_response :success
+      preview = home.import_previews.last
+      assert_enqueued_jobs(1, only: DriveRestoreJob) do
+        post household_drive_restore_path(home), params: { folder:, preview_id: preview.id }
+      end
+    end
+    assert_equal bill.title, home.records.reload.sole.title
+    assert_equal "running", backup.reload.restore_state
+    get household_drive_restore_path(home)
+    assert_select "meta[http-equiv=refresh]"
+
+    backup.update!(restore_state: "finished", restore_bills: 1)
+    get household_drive_restore_path(home)
+    assert_select "a[href=?]", household_members_path(home)
+  end
+
+  test "another folder can't be restored, a ledger with bills can't be restored, and only the owner can" do
+    home = households(:home)
+    Categories::Seed.call(home)
+    home.records.create!(record_type: "expense", category: home.categories.first, period: Period.parse(2026, "9月"), amount_required: 1)
+    DriveBackup.create!(household: home, connected_by: users(:alex), google_email: "a@example.com", refresh_token: "t",
+      found_backups: [ { "folder_id" => "mine", "csv_id" => "c", "name" => "x", "saved_at" => Time.current.to_s, "bills" => 1, "photos" => 0 } ])
+    sign_in_as users(:alex)
+    reauthenticate!(Session.last)
+    post household_drive_restore_path(home), params: { folder: "someone-elses", preview_id: 1 }
+    assert_redirected_to household_settings_path(home)
+    get household_drive_restore_path(home, folder: "mine")
+    assert_redirected_to household_settings_path(home)
+    delete session_path rescue nil
+
+    sign_in_as users(:google_only)
+    get household_drive_restore_path(home, folder: "mine")
+    assert_not_equal 200, response.status
+  end
+
+  test "disconnecting one ledger keeps Google access for another on the same account" do
+    home, other = households(:home), households(:parents)
+    DriveBackup.create!(household: home, connected_by: home.owner, google_email: "same@example.com", refresh_token: "a")
+    DriveBackup.create!(household: other, connected_by: other.owner, google_email: "same@example.com", refresh_token: "b")
+    revoked = []
+    with_stub(DriveBackups::Oauth, :revoke, ->(token) { revoked << token }) do
+      DriveBackups::Disconnect.call(home, actor: home.owner)
+      assert_empty revoked
+      DriveBackups::Disconnect.call(other, actor: other.owner)
+    end
+    assert_equal [ "b" ], revoked
+  end
+
+  test "Start Fresh forgets the found backup" do
+    home = households(:home)
+    home.records.delete_all
+    backup = DriveBackup.create!(household: home, connected_by: users(:alex), google_email: "a@example.com", refresh_token: "t",
+      found_backups: [ { "folder_id" => "mine" } ])
+    sign_in_as users(:alex)
+    delete household_drive_restore_path(home)
+    assert_empty backup.reload.found_backups
   end
 end

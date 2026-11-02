@@ -423,6 +423,7 @@ en:
     delete_household: "delete a ledger"
     delete_records: "delete all records"
     connect_drive_backup: "connect Google Drive backup"
+    restore_drive_backup: "restore a ledger from Google Drive"
   reauthentications:
     show:
       title: "Confirm It's You"

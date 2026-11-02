@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -137,9 +137,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_010000) do
     t.string "problem"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "found_backups", default: [], null: false
+    t.string "restore_state"
+    t.integer "restore_bills", default: 0, null: false
+    t.integer "restore_total", default: 0, null: false
+    t.integer "restore_done", default: 0, null: false
+    t.integer "restore_unmatched", default: 0, null: false
     t.index ["connected_by_id"], name: "index_drive_backups_on_connected_by_id"
     t.index ["household_id"], name: "index_drive_backups_on_household_id", unique: true
     t.check_constraint "problem::text = ANY (ARRAY['reconnect'::character varying, 'storage_full'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_problem"
+    t.check_constraint "restore_state::text = ANY (ARRAY['running'::character varying, 'finished'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_restore_state"
   end
 
   create_table "households", force: :cascade do |t|

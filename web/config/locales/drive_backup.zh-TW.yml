@@ -17,6 +17,12 @@ zh-TW:
       open_folder: "開啟資料夾"
       disconnect: "取消連結"
       disconnect_confirm: "要停止備份到 Google 雲端硬碟嗎？"
+      restoring: "還原中，查看進度"
+      found: "在雲端硬碟找到備份"
+      found_detail: "%{name} · %{date} 儲存 · %{bills} 筆帳單、%{photos} 張照片"
+      found_hint: "這個帳本是空的。可以現在還原，或重新開始，之後的備份會存到新的資料夾。"
+      check_backup: "檢查備份"
+      start_fresh: "重新開始"
       disconnect_hint: "取消連結後會停止備份，已存到雲端硬碟的檔案會保留。"
   drive_backups:
     run:
@@ -32,4 +38,45 @@ zh-TW:
   drive_backup_callbacks:
     show:
       connected: "已連結 Google 雲端硬碟，第一次備份已開始。"
+      connected_empty: "已連結 Google 雲端硬碟。"
       failed: "未能連結 Google 雲端硬碟。請再試一次，並允許存取本應用程式建立的檔案。"
+  drive_restores:
+    show:
+      title: "從雲端硬碟還原"
+      gone: "找不到這個備份，請重新連結 Google 雲端硬碟。"
+      not_empty: "只有空的帳本可以還原。"
+      will_restore: "將會還原"
+      new_bills: "新帳單"
+      photos_matched: "對應到帳單的照片"
+      photos_unmatched: "沒有對應帳單的照片"
+      not_included: "這份備份不包含"
+      not_included_detail: "成員、定期帳單、付款方式和提醒設定。還原後需要重新設定。"
+      safe: "按下還原前不會有任何變更，雲端硬碟裡的檔案也不會被更動。"
+      restore:
+        one: "還原 %{count} 筆帳單"
+        other: "還原 %{count} 筆帳單"
+      cancel: "取消"
+      unreadable:
+        one: "這份備份有 %{count} 列無法讀取，所以尚未還原任何資料。"
+        other: "這份備份有 %{count} 列無法讀取，所以尚未還原任何資料。"
+      unreadable_hint: "可以從雲端硬碟下載 CSV，再用匯入功能查看是哪幾列有問題。"
+      running: "還原中…"
+      bills: "帳單"
+      photos: "照片"
+      of: "%{done} / %{total}"
+      leave: "可以離開這個頁面。如果中途停止，可以從停下的地方繼續。"
+      finished: "還原完成"
+      finished_detail: "已還原 %{bills} 筆帳單和 %{photos} 張照片。"
+      unmatched:
+        one: "有 %{count} 張照片沒有還原，仍保留在你的雲端硬碟 Photos 資料夾。"
+        other: "有 %{count} 張照片沒有還原，仍保留在你的雲端硬碟 Photos 資料夾。"
+      failed: "還原沒有完成，已還原的資料都保留著。"
+      try_again: "再試一次"
+      set_up_again: "重新設定"
+      invite: "邀請成員"
+      recurring: "新增定期帳單"
+      payment_methods: "新增付款方式"
+      reminders: "提醒設定"
+      go_to_bills: "前往帳單"
+    create:
+      failed: "還原未完成，請再試一次。"

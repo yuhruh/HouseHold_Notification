@@ -24,6 +24,24 @@ class FakeDrive
     id
   end
 
+  Entry = Struct.new(:id, :name, :mime_type, :modified_time)
+
+  def folders_named(name) = @folders.select { |_, folder| folder[:name] == name }.keys
+  def folder?(entry) = entry.mime_type == DriveBackups::Client::FOLDER_TYPE
+
+  def children(parent)
+    folders = @folders.select { |id, folder| folder[:parent] == parent && !@gone.include?(id) }
+      .map { |id, folder| Entry.new(id, folder[:name], DriveBackups::Client::FOLDER_TYPE, Time.utc(2026, 11, 1)) }
+    files = @files.select { |_, file| file[:parent] == parent }.map { |id, file| Entry.new(id, file[:name], file[:content_type], Time.utc(2026, 11, 1)) }
+    folders + files
+  end
+
+  def download(id, io)
+    io.write(@files.fetch(id)[:body])
+    io.rewind
+    io
+  end
+
   def named(pattern) = @files.values.select { |file| file[:name].match?(pattern) }
   def path_of(id) = @folders[id]&.then { |folder| [ *path_of(folder[:parent]), folder[:name] ] }
 end

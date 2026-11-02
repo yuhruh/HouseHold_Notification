@@ -10,15 +10,28 @@
   <% else %>
     <% if backup.problem %><p class="rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-900"><%= t("drive_backups.problems.#{backup.problem}") %></p><% end %>
     <p class="text-gray-700"><%= t(".connected_as", email: backup.google_email) %></p>
+    <% if backup.restoring? %><%= link_to t(".restoring"), household_drive_restore_path(Current.household), class: "font-medium text-blue-700 underline" %><% end %>
+    <% offer_restore = backup.found_backups.any? && !Current.household.records.exists? %>
+    <% if offer_restore %>
+      <% backup.found_backups.each do |found| %>
+        <div class="space-y-2 rounded-lg bg-blue-100 px-3 py-2.5">
+          <p class="font-bold"><%= t(".found") %></p>
+          <p class="text-sm text-gray-800"><%= t(".found_detail", name: found["name"], date: l(Time.zone.parse(found["saved_at"]).to_date, format: :long), bills: found["bills"], photos: found["photos"]) %></p>
+          <%= link_to t(".check_backup"), household_drive_restore_path(Current.household, folder: found["folder_id"]), class: "btn-press inline-flex items-center rounded-xl bg-blue-200 text-gray-900 px-3 py-2 font-medium" %>
+        </div>
+      <% end %>
+      <p class="text-sm text-gray-600"><%= t(".found_hint") %></p>
+      <%= button_to t(".start_fresh"), household_drive_restore_path(Current.household), method: :delete, class: "cursor-pointer text-blue-700 underline" %>
+    <% end %>
     <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm">
       <dt class="text-gray-600"><%= t(".last_backup") %></dt>
       <dd class="font-medium"><%= backup.last_backup_at ? t(".last_backup_detail", time: l(backup.last_backup_at, format: :short), bills: backup.bills_count, photos: backup.photos_count) : t(".not_yet") %></dd>
-      <% unless backup.needs_reconnect? %><dt class="text-gray-600"><%= t(".next_backup") %></dt><dd><%= t(".next_backup_detail") %></dd><% end %>
+      <% unless backup.needs_reconnect? || offer_restore %><dt class="text-gray-600"><%= t(".next_backup") %></dt><dd><%= t(".next_backup_detail") %></dd><% end %>
     </dl>
     <div class="flex flex-wrap items-center gap-3">
       <% if backup.needs_reconnect? %>
         <%= button_to household_drive_backup_path(Current.household), method: :post, class: button, form: { data: { turbo: false } } do %><%= image_tag "icons/google_connect.png", alt: "", class: "h-5 w-5 object-contain" %><%= t(".connect_again") %><% end %>
-      <% else %>
+      <% elsif !offer_restore %>
         <%= button_to (backup.running? ? t(".running") : t(".back_up_now")), run_household_drive_backup_path(Current.household), method: :post, disabled: backup.running?, class: "#{button} disabled:cursor-not-allowed disabled:opacity-60" %>
       <% end %>
       <% if backup.folder_url %><%= link_to t(".open_folder"), backup.folder_url, target: "_blank", rel: "noopener", class: "btn-press inline-flex items-center rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" %><% end %>

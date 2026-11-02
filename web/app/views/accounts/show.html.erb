@@ -114,7 +114,7 @@
     <% if identity = Current.user.google_identity %>
       <p class="flex items-center gap-2"><%= image_tag "icons/google_connect.png", alt: "", class: "h-6 w-6 shrink-0 object-contain" %><span class="min-w-0 break-words"><%= t(".google_connected", email: identity.email) %></span></p>
       <% if Current.user.can_disconnect_google? %>
-        <%= button_to t(".disconnect_google"), account_google_identity_path, method: :delete, class: "btn-press rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" %>
+        <%= button_to account_google_identity_path, method: :delete, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/disconnect.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".disconnect_google") %></span><% end %>
       <% else %>
         <p class="text-sm text-gray-500"><%= t(".last_method") %></p>
       <% end %>

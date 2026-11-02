@@ -36,7 +36,7 @@
       <% end %>
       <% if backup.folder_url %><%= link_to backup.folder_url, target: "_blank", rel: "noopener", class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" do %><%= image_tag "icons/open_folder.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".open_folder") %></span><% end %><% end %>
     </div>
-    <%= button_to t(".disconnect"), household_drive_backup_path(Current.household), method: :delete, class: "cursor-pointer text-red-700 underline", form: { data: { turbo_confirm: t(".disconnect_confirm") } } %>
+    <%= button_to household_drive_backup_path(Current.household), method: :delete, class: "inline-flex cursor-pointer items-center gap-1 text-red-700 underline", form: { data: { turbo_confirm: t(".disconnect_confirm") } } do %><%= image_tag "icons/disconnect.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".disconnect") %></span><% end %>
     <p class="text-sm text-gray-600"><%= t(".disconnect_hint") %></p>
   <% end %>
 </section>

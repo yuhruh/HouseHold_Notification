@@ -32,9 +32,9 @@
       <% if backup.needs_reconnect? %>
         <%= button_to household_drive_backup_path(Current.household), method: :post, class: button, form: { data: { turbo: false } } do %><%= image_tag "icons/google_connect.png", alt: "", class: "h-5 w-5 object-contain" %><%= t(".connect_again") %><% end %>
       <% elsif !offer_restore %>
-        <%= button_to (backup.running? ? t(".running") : t(".back_up_now")), run_household_drive_backup_path(Current.household), method: :post, disabled: backup.running?, class: "#{button} disabled:cursor-not-allowed disabled:opacity-60" %>
+        <%= button_to run_household_drive_backup_path(Current.household), method: :post, disabled: backup.running?, class: "#{button} disabled:cursor-not-allowed disabled:opacity-60" do %><%= image_tag "icons/back_up_now.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= backup.running? ? t(".running") : t(".back_up_now") %></span><% end %>
       <% end %>
-      <% if backup.folder_url %><%= link_to t(".open_folder"), backup.folder_url, target: "_blank", rel: "noopener", class: "btn-press inline-flex items-center rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" %><% end %>
+      <% if backup.folder_url %><%= link_to backup.folder_url, target: "_blank", rel: "noopener", class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 px-3 py-2 font-medium" do %><%= image_tag "icons/open_folder.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".open_folder") %></span><% end %><% end %>
     </div>
     <%= button_to t(".disconnect"), household_drive_backup_path(Current.household), method: :delete, class: "cursor-pointer text-red-700 underline", form: { data: { turbo_confirm: t(".disconnect_confirm") } } %>
     <p class="text-sm text-gray-600"><%= t(".disconnect_hint") %></p>

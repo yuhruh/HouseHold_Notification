@@ -1,0 +1,22 @@
+<%# One bill on To Pay or Coming Up (`key` = its section): what it needs, worked out from the record; paying
+    happens on the record page. Due in the next 30 days is red like overdue; Coming Up's bills (`later`)
+    also say when they move to To Pay %>
+<% status = if key == :no_due && record.maintenance? then t("records.show.status_line.not_done")
+            elsif key == :no_due then (record.status == :partial ? t("records.status.partial") : t("pending.show.not_paid"))
+            else Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : "due_today", @today).upcase_first end %>
+<%# Bills say what's left to pay; maintenance (a task) says what it's expected to cost %>
+<% left = if key == :maintenance then nil
+          elsif record.maintenance? then (t("records.show.status_line.expected_cost", amount: money(record.amount_required, record.currency)) if record.amount_required)
+          else (t("pending.show.left_to_pay", amount: Reminders::Wording.outstanding(record)) if record.amount_required) end %>
+<li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= case key when :maintenance then "bg-white" when :soon then RecordsHelper::CARD_CLASSES[:overdue] else record_card_class(record) end %>">
+  <div class="space-y-0.5">
+    <p class="font-bold <%= key.in?(%i[overdue soon]) ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
+    <p><span class="text-lg font-bold lg:text-base"><%= record.title %></span>
+      <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
+    <% if key == :later %><p class="text-sm text-gray-700"><%= t("pending.coming_up.moves_on", date: l(@to_pay.to_pay_on(record))) %></p><% end %>
+  </div>
+  <div class="flex flex-wrap items-start gap-3 lg:gap-2">
+    <%= link_to household_record_path(Current.household, record), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+    <%= render "records/reminder_actions", record:, snooze: @snoozes[record.id], big: true %>
+  </div>
+</li>

@@ -347,9 +347,9 @@ zh-TW:
         other:
           one: "另有 1 筆未繳"
           other: "另有 %{count} 筆未繳"
-        scheduled:
-          one: "1 筆定期帳單已排定"
-          other: "%{count} 筆定期帳單已排定"
+        coming_up:
+          one: "1 筆即將到來"
+          other: "%{count} 筆即將到來"
         days_overdue:
           one: "逾期 1 天"
           other: "逾期 %{count} 天"
@@ -609,8 +609,10 @@ zh-TW:
     bills_switch:
       label: "顯示"
       to_pay: "待繳"
+      coming_up: "即將到來"
       all: "全部"
       to_pay_title: "待繳帳單"
+      coming_up_title: "即將到來的帳單"
       all_title: "所有帳單"
     pagination:
       showing: "第 %{from}–%{to} 筆，共 %{total} 筆"
@@ -654,6 +656,9 @@ zh-TW:
       template_updated: "由定期帳單範本更新"
       reminders_restarted: "重新提醒"
     index:
+      scheduled:
+        one: "1 筆定期帳單已排定，尚未建立：%{names}"
+        other: "%{count} 筆定期帳單已排定，尚未建立：%{names}"
       filters: "篩選"
       filters_on:
         one: "已套用 1 個篩選"

@@ -1,0 +1,29 @@
+<% content_for :title, t("records.bills_switch.coming_up_title") %>
+<%# Bills › Coming Up: what isn't due yet, by month, soonest first. Unpaid bills due after the 30 days
+    (amber, with Details) and recurring bills not created yet (sky); each says when it moves to To Pay.
+    On a computer the cards of a month sit two per row %>
+<% groups = @to_pay.coming_up.group_by { @to_pay.date_of(it).beginning_of_month } %>
+<div class="w-full mx-auto max-w-3xl space-y-6 py-4 lg:max-w-none lg:space-y-4">
+  <%= render "shared/flash" %>
+  <div class="sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3 lg:py-2">
+    <%= render "records/bills_switch", current: :coming_up, to_pay: @to_pay %>
+    <p class="text-sm text-gray-700"><%= t(".intro") %></p>
+  </div>
+  <% if groups.empty? %>
+    <p class="text-gray-600"><%= t(".empty") %></p>
+  <% end %>
+  <% groups.each do |month, items| %>
+    <section class="space-y-3 lg:space-y-2" aria-labelledby="month-<%= month.strftime("%Y-%m") %>">
+      <h2 id="month-<%= month.strftime("%Y-%m") %>" class="text-lg font-semibold text-sky-800"><%= t(".month", year: month.year, month: month.month) %></h2>
+      <ul class="grid gap-3 lg:grid-cols-2 lg:gap-4">
+        <% items.each do |item| %>
+          <% if item.is_a?(Records::ToPay::Scheduled) %>
+            <%= render "scheduled_card", scheduled: item %>
+          <% else %>
+            <%= render "record_card", record: item, key: :later %>
+          <% end %>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

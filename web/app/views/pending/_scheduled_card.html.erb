@@ -1,0 +1,19 @@
+<%# A recurring bill's next one, not created yet (Coming Up): reads like a bill (not done / not paid yet) in
+    sky, with when it's due, how often it repeats and the day it moves to To Pay %>
+<% template = scheduled.template %>
+<% amount = template.default_amount if template.amount_fixed? || template.maintenance? %>
+<% status = if template.maintenance? then [ t("records.show.status_line.not_done"), (t("records.show.status_line.expected_cost", amount: money(amount, template.currency)) if amount) ]
+            else [ t("pending.show.not_paid"), (t("pending.show.left_to_pay", amount: money(amount, template.currency)) if amount) ] end %>
+<li class="card-raised space-y-3 rounded-xl bg-sky-50 px-4 py-3 lg:space-y-2 lg:py-2.5 dark:bg-sky-50/60">
+  <div class="space-y-0.5">
+    <p class="font-bold text-sky-900"><%= status.compact.join(" · ") %></p>
+    <p><span class="text-lg font-bold lg:text-base"><%= template.title %></span>
+      <span class="text-sm text-gray-600"><%= [ template.details.presence, scheduled.period.to_s ].compact.join(" · ") %></span></p>
+    <p class="text-sm text-gray-700"><%= t(scheduled.due_on ? "pending.coming_up.due" : "pending.coming_up.starts", date: l(scheduled.date), count: (scheduled.date - @today).to_i) %>
+      · <%= t("pending.coming_up.moves_on", date: l(scheduled.to_pay_on)) %></p>
+  </div>
+  <div class="flex flex-wrap items-center gap-3 lg:gap-2">
+    <span class="rounded-md bg-sky-100 px-2 py-0.5 text-sm font-semibold text-sky-900"><%= interval_label(template.interval_months) %></span>
+    <%= link_to household_recurring_templates_path(Current.household), class: "btn-press inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/recurring.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("pending.coming_up.recurring_bills") %></span><% end %>
+  </div>
+</li>

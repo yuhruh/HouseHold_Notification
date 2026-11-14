@@ -64,9 +64,18 @@ class BackupJobTest < ActiveJob::TestCase
     Dir.mktmpdir do |tmp|
       encrypted, decrypted = File.join(tmp, "x.enc"), File.join(tmp, "x.dump")
       File.binwrite(encrypted, attachment.decoded)
-      assert_raises(BackupJob::Error) { BackupJob.openssl!("-d", "-in", encrypted, "-out", decrypted, passphrase: "wrong") }
       BackupJob.openssl!("-d", "-in", encrypted, "-out", decrypted, passphrase: PASSPHRASE)
       assert_includes BackupJob.run!({}, "pg_restore", "--list", decrypted), "TABLE DATA public records"
+
+      # A wrong passphrase never recovers the dump. Usually openssl reports "bad decrypt", but CBC only
+      # notices through the padding, so about 1 run in 256 it "succeeds" with garbage instead
+      wrong = File.join(tmp, "wrong.dump")
+      begin
+        BackupJob.openssl!("-d", "-in", encrypted, "-out", wrong, passphrase: "wrong")
+        refute_equal File.binread(decrypted), File.binread(wrong)
+      rescue BackupJob::Error
+        pass
+      end
     end
   end
 

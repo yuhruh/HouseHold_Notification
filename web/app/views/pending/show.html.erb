@@ -1,9 +1,10 @@
 <% content_for :title, t("records.bills_switch.to_pay_title") %>
-<% sections = @to_pay.sections %>
+<%# Scheduled (recurring bills not created yet) is listed last but isn't counted: nothing to pay yet %>
+<% sections = @to_pay.sections + [ [ :scheduled, @to_pay.scheduled ] ] %>
 <%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date
     (from 1280px; narrower, the third column wraps under the first so cards stay one line wide),
     with tighter spacing and smaller buttons (a mouse doesn't need the 44px phone buttons) %>
-<% columns = [ %i[overdue], %i[soon maintenance], %i[later no_due] ].map { |keys| sections.select { |key, list| keys.include?(key) && list.any? } }.reject(&:empty?) %>
+<% columns = [ %i[overdue], %i[soon maintenance], %i[later no_due scheduled] ].map { |keys| sections.select { |key, list| keys.include?(key) && list.any? } }.reject(&:empty?) %>
 <div class="w-full mx-auto space-y-6 py-4 lg:space-y-3 <%= columns.size > 1 ? 'max-w-3xl lg:max-w-none' : 'max-w-3xl' %>">
   <%= render "shared/flash" %>
   <%# The title, switch and intro stay pinned under the header while the bills scroll under them
@@ -27,6 +28,19 @@
           <%# Each card says what the bill needs, worked out from the record; paying happens on the record page %>
           <ul class="flex flex-col space-y-3 lg:space-y-2">
             <% list.each do |record| %>
+              <% if key == :scheduled %>
+                <% scheduled = record %>
+                <li class="card-raised space-y-3 rounded-xl bg-white px-4 py-3 lg:space-y-2 lg:py-2.5">
+                  <div class="space-y-0.5">
+                    <p class="font-bold text-gray-700"><%= t(scheduled.due_on ? ".scheduled_due" : ".scheduled_starts", date: l(scheduled.date)) %></p>
+                    <p><span class="text-lg font-bold lg:text-base"><%= scheduled.template.title %></span>
+                      <span class="text-sm text-gray-600"><%= [ scheduled.template.details.presence, scheduled.period.to_s ].compact.join(" · ") %></span></p>
+                    <p class="text-sm text-gray-600"><%= t(".scheduled_creates", date: l(scheduled.creates_on)) %></p>
+                  </div>
+                  <%= link_to household_recurring_templates_path(Current.household), class: "btn-press inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/recurring.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t(".scheduled_open") %></span><% end %>
+                </li>
+                <% next %>
+              <% end %>
               <% status = if key == :no_due && record.maintenance? then t("records.show.status_line.not_done")
                           elsif key == :no_due then (record.status == :partial ? t("records.status.partial") : t(".not_paid"))
                           else Reminders::Wording.status(record, key == :maintenance ? "next_due_today" : "due_today", @today).upcase_first end %>

@@ -68,6 +68,7 @@ zh-TW:
       maintenance: "該保養了"
       no_due: "未設定到期日"
       later: "之後到期"
+      scheduled: "已排定"
       intro: "按「查看明細」查看帳單並記錄繳費。"
       hints:
         overdue: "已過到期日，請優先繳。"
@@ -75,8 +76,13 @@ zh-TW:
         maintenance: "該保養了，完成後按「完成」。"
         no_due: "沒有設定期限，方便時再繳。"
         later: "30 天後才到期，現在還不用處理。"
+        scheduled: "每個定期帳單的下一筆，會在顯示的日期加入帳單。"
       not_paid: "尚未繳費"
       left_to_pay: "還要繳 %{amount}"
+      scheduled_due: "%{date} 到期"
+      scheduled_starts: "%{date} 開始"
+      scheduled_creates: "%{date} 加入帳單"
+      scheduled_open: "定期帳單"
   notifications:
     index:
       title: "通知"

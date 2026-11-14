@@ -47,8 +47,10 @@ class RecurringTemplate < ApplicationRecord
     Period.new(start_year: index / 12, start_month: index % 12 + 1, end_year: finish / 12, end_month: finish % 12 + 1)
   end
 
+  # Maintenance without a due day is due when its period starts, so the task has a date (To Pay,
+  # reminders) and Mark Done settles it; other bills without one have no due date
   def due_on_for(period)
-    return unless due_day
+    return (Date.new(period.start_year, period.start_month, 1) if maintenance?) unless due_day
     month = Date.new(period.start_year, period.start_month, 1) >> due_month_offset
     Date.new(month.year, month.month, [ due_day, month.end_of_month.day ].min)
   end
@@ -57,6 +59,15 @@ class RecurringTemplate < ApplicationRecord
   def generation_date(period) = (due_on_for(period) || Date.new(period.start_year, period.start_month, 1)) - lead_days
 
   def next_period(today) = periods_from(today.beginning_of_month).first
+
+  # The first period without a bill whose generation date is still ahead: what To Pay shows as
+  # scheduled until the daily job creates it (periods already due but ambiguous are on the template page)
+  def next_scheduled_period(today)
+    existing = records.pluck(:period_year, :period_start_month).to_set
+    periods_from(starts_on).lazy.take(MAX_PERIODS_PER_RUN * 8)
+      .reject { |p| existing.include?([ p.start_year, p.start_month ]) }
+      .find { |p| generation_date(p) > today }
+  end
 
   # "Make this recurring" on a record: the template starts at the record's period (so the record is
   # linked as its first bill) and repeats every period length (1月-2月 → every 2 months)

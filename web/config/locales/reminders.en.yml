@@ -68,6 +68,7 @@ en:
       maintenance: "Maintenance Due"
       no_due: "No Due Date"
       later: "Due Later"
+      scheduled: "Scheduled"
       intro: "Open a bill's Details to see it and record what you paid."
       hints:
         overdue: "Past the due date. Pay these first."
@@ -75,8 +76,13 @@ en:
         maintenance: "Time for upkeep. Press Done when it's finished."
         no_due: "No deadline set. Pay when you can."
         later: "Due more than 30 days from now. Nothing to do yet."
+        scheduled: "The next bill of each recurring bill. It appears here as a bill on the date shown."
       not_paid: "Not paid yet"
       left_to_pay: "%{amount} left to pay"
+      scheduled_due: "Due %{date}"
+      scheduled_starts: "Starts %{date}"
+      scheduled_creates: "Added to your bills on %{date}"
+      scheduled_open: "Recurring Bills"
   notifications:
     index:
       title: "Inbox"

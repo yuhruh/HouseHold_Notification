@@ -51,6 +51,14 @@ class Recurring::GeneratorTest < ActiveSupport::TestCase
     assert_equal [ nil, "weekly", Date.new(2025, 12, 27) ], [ bill.due_on, bill.reminder_frequency, bill.reminder_starts_on ]
   end
 
+  test "maintenance without a due day is due when its period starts, so it has a date" do
+    ac = @home.categories.find_by!(name_zh: "冷氣清洗")
+    t = @home.recurring_templates.create!(category: ac, details: "客廳", interval_months: 2, starts_on: Date.new(2026, 11, 1), lead_days: 7)
+    assert_equal [ "2026 11月-12月" ], generate(t, Date.new(2026, 12, 24)).created.map { it.period.to_s }, "1月 is made 7 days before it starts"
+    bill = generate(t, Date.new(2026, 12, 25)).created.sole
+    assert_equal [ "2027 1月-2月", Date.new(2027, 1, 1), "none" ], [ bill.period.to_s, bill.due_on, bill.reminder_frequency ]
+  end
+
   test "the daily job generates in the owner's time zone" do
     users(:alex).update!(time_zone: "Pacific/Pago_Pago") # UTC−11
     t = water_template

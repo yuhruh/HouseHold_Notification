@@ -347,6 +347,9 @@ zh-TW:
         other:
           one: "另有 1 筆未繳"
           other: "另有 %{count} 筆未繳"
+        scheduled:
+          one: "1 筆定期帳單已排定"
+          other: "%{count} 筆定期帳單已排定"
         days_overdue:
           one: "逾期 1 天"
           other: "逾期 %{count} 天"

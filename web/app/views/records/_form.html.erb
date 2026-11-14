@@ -85,7 +85,8 @@
         <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
       </div>
 
-      <% unless doing %>
+      <%# Recurring bills get their next one from the template %>
+      <% unless doing || record.recurring_template_id %>
         <div>
           <%= form.label :next_due_on, class: "block text-sm font-medium" %>
           <%= form.date_field :next_due_on, class: field %>
@@ -138,11 +139,13 @@
             <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
             <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field %>
           </div>
-          <div>
-            <%= form.label :next_due_on, class: "block text-sm font-medium" %>
-            <%= form.date_field :next_due_on, class: field %>
-          </div>
-          <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+          <% unless record.recurring_template_id %>
+            <div>
+              <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+              <%= form.date_field :next_due_on, class: field %>
+            </div>
+            <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+          <% end %>
         </div>
         <div>
           <%= form.label :payment_note, t("records.form.note"), class: "block text-sm font-medium" %>

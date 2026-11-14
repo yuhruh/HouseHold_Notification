@@ -83,6 +83,9 @@ class Record < ApplicationRecord
       self.period_end_year = period_end_month.to_i < period_start_month.to_i ? period_year.to_i + 1 : period_year.to_i
     end
     self.reminder_frequency = "none" if due_on.present?
+    # A recurring bill's next one comes from its template (To Pay › Scheduled, then the daily job):
+    # a next due date here would list it twice and offer a Done that makes an unlinked duplicate
+    self.next_due_on = nil if recurring_template_id
   end
 
   def period_end_year_follows_rule

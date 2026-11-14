@@ -91,6 +91,31 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_equal today + 180, @home.records.order(:id).last.next_due_on
   end
 
+  test "To Pay and the dashboard show a recurring bill that isn't created yet as scheduled" do
+    ac = @home.categories.find_by!(name_zh: "冷氣清洗")
+    start = today.next_month.beginning_of_month >> 1
+    @home.recurring_templates.create!(category: ac, details: "客廳", interval_months: 2, starts_on: start, lead_days: 7)
+    get household_pending_path(@home)
+    assert_select "h2", /已排定/
+    assert_select "li", /冷氣清洗.*客廳/m
+    assert_select "a[href=?]", household_recurring_templates_path(@home)
+    get household_path(@home)
+    assert_select "span", /1 筆定期帳單已排定/
+  end
+
+  test "a recurring maintenance record drops its next-due date, so Done can't make an unlinked duplicate" do
+    ac = @home.categories.find_by!(name_zh: "冷氣清洗")
+    old = @home.records.create!(record_type: "maintenance", category: ac, details: "客廳", period: Period.parse(2026, "4月"),
+      paid_on: Date.new(2026, 4, 1), next_due_on: today)
+    template = @home.recurring_templates.create!(category: ac, details: "客廳", interval_months: 2, starts_on: Date.new(2026, 4, 1))
+    old.update!(recurring_template: template)
+    assert_nil old.next_due_on
+    get done_household_record_path(@home, old.tap { it.update_column(:next_due_on, today) })
+    assert_redirected_to household_record_path(@home, old)
+    get edit_household_record_path(@home, old)
+    assert_select "input[name='record[next_due_on]']", count: 0
+  end
+
   test "inbox lists notifications and marks them read; preferences save per household" do
     Notification.create!(household: @home, user: users(:alex), kind: "reminder_digest", title: "我的家：1 筆帳單需要處理", body: "水費")
     get household_records_path(@home)

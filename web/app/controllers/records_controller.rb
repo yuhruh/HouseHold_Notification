@@ -41,6 +41,8 @@ class RecordsController < ApplicationController
   # clears next_due_on on this one
   def done
     authorize @record, :create?
+    # A recurring bill's next one is made by its template, not by Done
+    return redirect_to household_record_path(Current.household, @record) if @record.recurring_template_id
     today = Date.current
     @continues = @record
     @record = Current.household.records.new(@continues.slice(:record_type, :category_id, :title, :details, :payment_method_id, :currency)

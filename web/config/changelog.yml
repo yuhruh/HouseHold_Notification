@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.2.1"
+  date: 2026-11-14
+  en:
+    - "Bills › To Pay: a new Scheduled section shows the next bill of each recurring bill before it's created, with its date and the day it'll be added to your bills. The ledger home shows how many are scheduled."
+    - "Recurring maintenance now gets a due date (the day its period starts), so it shows with a date in To Pay and reminds you like other bills."
+    - "Fixed: Done on a recurring maintenance record could create a second copy of the next task. Recurring records now take their next due date from the recurring bill."
+  zh-TW:
+    - "帳單 › 待繳：新增「已排定」區塊，在定期帳單的下一筆建立前就先顯示，包括日期和加入帳單的日子。帳本首頁也會顯示已排定幾筆。"
+    - "定期保養現在會有到期日（該期開始的那天），所以會帶著日期出現在待繳，並像其他帳單一樣提醒你。"
+    - "修正：在定期保養的紀錄按「完成」，可能會多建立一筆重複的下一次保養。定期紀錄的下次到期日現在由定期帳單決定。"
 - version: "1.2.0"
   date: 2026-11-01
   en:

@@ -347,6 +347,9 @@ en:
         other:
           one: "1 more unpaid"
           other: "%{count} more unpaid"
+        scheduled:
+          one: "1 recurring bill scheduled"
+          other: "%{count} recurring bills scheduled"
         days_overdue:
           one: "1 day overdue"
           other: "%{count} days overdue"

@@ -1,0 +1,88 @@
+<% content_for :title, t(".title") %>
+<% household = Current.household %>
+<% account = @gas_account %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% content_for :settings_section do %>
+<div class="w-full mx-auto max-w-4xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <%= page_title("expense.png", t(".title")) %>
+  <p class="text-gray-700"><%= t(".intro") %></p>
+
+  <div class="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+    <section class="card-raised-sm space-y-4 rounded-xl bg-white p-4" aria-label="<%= t(".title") %>">
+      <%= form_with model: account, url: household_gas_account_path(household), method: :patch, class: "space-y-4" do |form| %>
+        <% if account.errors.any? %>
+          <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% account.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+        <% end %>
+        <div class="space-y-1">
+          <%= form.label :customer_code, class: "block text-sm font-medium" %>
+          <%= form.text_field :customer_code, required: true, inputmode: "numeric", autocomplete: "off", maxlength: 10, pattern: "[0-9]{10}", class: field %>
+          <p class="text-sm text-gray-500"><%= t(".customer_code_hint") %></p>
+        </div>
+        <div class="space-y-1">
+          <%= form.label :category_id, class: "block text-sm font-medium" %>
+          <%= form.collection_select :category_id, household.categories.active.where(record_type: "expense").ordered, :id, :name, { prompt: account.category ? nil : t(".choose") }, required: true, class: field %>
+        </div>
+        <div class="space-y-1">
+          <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+          <%= form.collection_select :payment_method_id, household.payment_methods.active.order(:name), :id, :name, { include_blank: t(".no_payment_method") }, class: field %>
+          <p class="text-sm text-gray-500"><%= t(".payment_method_hint") %></p>
+        </div>
+        <label class="flex min-h-11 items-center gap-3 font-medium">
+          <%= form.check_box :enabled, class: "h-5 w-5" %><%= t(".enabled") %>
+        </label>
+        <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
+      <% end %>
+      <% if account.persisted? %>
+        <div class="flex flex-wrap gap-3 border-t pt-4">
+          <%= button_to check_household_gas_account_path(household), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-amber-100 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/back_up_now.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".check_now") %></span><% end %>
+          <%= button_to household_gas_account_path(household), method: :delete, form: { data: { turbo_confirm: t(".disconnect_confirm") } }, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-red-700 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/disconnect.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".disconnect") %></span><% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="card-raised-sm space-y-4 rounded-xl bg-white p-4" aria-labelledby="gas-status">
+      <% if account.new_record? %>
+        <h2 id="gas-status" class="text-lg font-semibold"><%= t(".how_title") %></h2>
+        <ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">
+          <% t(".how").each do |line| %><li><%= line %></li><% end %>
+        </ul>
+      <% else %>
+        <h2 id="gas-status" class="flex items-center gap-2 text-lg font-semibold">
+          <span class="h-3 w-3 rounded-full <%= account.last_error ? 'bg-red-600' : account.connected? ? 'bg-green-600' : 'bg-gray-400' %>" aria-hidden="true"></span>
+          <%= account.last_error ? t(".status.failed") : account.connected? ? t(".status.connected") : t(".status.not_checked") %>
+        </h2>
+        <% if account.last_error %>
+          <p class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800"><%= account.last_error == "not_found" ? t(".error.not_found") : t(".error.other", detail: account.last_error) %></p>
+        <% end %>
+        <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+          <dt class="text-gray-600"><%= GasAccount.human_attribute_name(:customer_code) %></dt><dd class="font-medium"><%= account.masked_code %></dd>
+          <dt class="text-gray-600"><%= t(".last_checked") %></dt><dd class="font-medium"><%= account.last_checked_at ? l(account.last_checked_at, format: :short) : t(".not_yet") %></dd>
+          <dt class="text-gray-600"><%= t(".schedule_label") %></dt><dd><%= account.enabled ? t(".schedule") : t(".paused") %></dd>
+        </dl>
+        <div class="space-y-2">
+          <h3 class="font-semibold"><%= t(".activity") %></h3>
+          <% if account.activity.empty? %>
+            <p class="text-sm text-gray-600"><%= t(".no_activity") %></p>
+          <% else %>
+            <% records = household.records.where(id: account.activity.flat_map { [ it["record_id"], *it["record_ids"] ] }.compact).index_by(&:id) %>
+            <ul class="divide-y rounded-lg border text-sm">
+              <% account.activity.each do |line| %>
+                <li class="px-3 py-2 <%= 'bg-amber-50' if line["kind"].in?(%w[amount_differs needs_a_look]) %>">
+                  <%= t(".lines.#{line["kind"]}", period: line["period"], amount: line["amount"], recorded: line["recorded"], due: line["due_on"]) %>
+                  <% Array(line["record_id"] || line["record_ids"]).filter_map { records[it] }.each do |record| %>
+                    <%= link_to t(".open_bill"), household_record_path(household, record), class: "text-blue-700 underline" %>
+                  <% end %>
+                  <span class="block text-gray-500"><%= l(Time.zone.parse(line["at"]), format: :short) %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      <% end %>
+      <p class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"><%= t(".delay_hint") %></p>
+    </section>
+  </div>
+</div>
+<% end %>
+<%= render "household_settings/layout", current: :gas_account %>

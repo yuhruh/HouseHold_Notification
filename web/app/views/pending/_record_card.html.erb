@@ -10,6 +10,7 @@
           else (t("pending.show.left_to_pay", amount: Reminders::Wording.outstanding(record)) if record.amount_required) end %>
 <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= case key when :maintenance then "bg-white" when :soon then RecordsHelper::CARD_CLASSES[:overdue] else record_card_class(record) end %>">
   <div class="space-y-0.5">
+    <% if record.external_ref %><p class="text-xs font-semibold text-orange-800"><%= t("records.show.synced") %></p><% end %>
     <p class="font-bold <%= key.in?(%i[overdue soon]) ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
     <p><span class="text-lg font-bold lg:text-base"><%= record.title %></span>
       <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>

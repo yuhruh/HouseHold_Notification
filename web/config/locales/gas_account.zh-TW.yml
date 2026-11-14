@@ -1,0 +1,77 @@
+zh-TW:
+  activerecord:
+    models:
+      gas_account: "瓦斯帳號"
+    attributes:
+      gas_account:
+        customer_code: "用戶編號"
+        category_id: "瓦斯帳單類別"
+        category: "類別"
+        payment_method_id: "新帳單的付款方式"
+        payment_method: "付款方式"
+        enabled: "每個上班日自動檢查"
+        household_id: "帳本"
+    errors:
+      models:
+        gas_account:
+          attributes:
+            customer_code:
+              invalid: "請輸入瓦斯費單據上的 10 位數字"
+              taken: "已連結到另一本帳本"
+            household_id:
+              taken: "已經有用戶編號了"
+  household_settings:
+    layout:
+      label: "帳本設定項目"
+      general: "一般"
+  gas_accounts:
+    show:
+      title: "瓦斯帳號"
+      intro: "連結欣桃天然氣的用戶編號。每個上班日 11:30 會自動查詢，新的瓦斯費會加到帳單，欣桃顯示已繳後會自動標示為已付款。"
+      customer_code_hint: "瓦斯費單據上的 10 位數字。只有這個號碼會傳給欣桃天然氣。"
+      choose: "選擇類別"
+      no_payment_method: "不指定"
+      payment_method_hint: "自動新增的帳單會用這個付款方式。"
+      enabled: "每個上班日自動檢查"
+      save: "儲存"
+      check_now: "立即檢查"
+      disconnect: "取消連結"
+      disconnect_confirm: "要取消連結這個用戶編號嗎？已新增的帳單會留在帳單裡。"
+      how_title: "運作方式"
+      how:
+        - "新的瓦斯費會加到帳單，並填入金額和限繳日。"
+        - "你已經輸入或掃描的帳單，會依期間或限繳日和金額比對，直接補上資料，不會重複新增。"
+        - "欣桃天然氣顯示已繳費後，帳單會標示為已付款。"
+        - "已付款的帳單不會被更改，也不會刪除任何資料。"
+      status:
+        connected: "已連結"
+        failed: "上次檢查沒有成功"
+        not_checked: "尚未檢查"
+      error:
+        not_found: "欣桃天然氣查不到這個用戶編號，請核對瓦斯費單據上的號碼。帳單都沒有更動。"
+        other: "無法向欣桃天然氣查詢（%{detail}）。帳單都沒有更動，下個上班日會再試一次。"
+      last_checked: "上次檢查"
+      not_yet: "尚未"
+      schedule_label: "下次檢查"
+      schedule: "上班日 11:30"
+      paused: "已暫停"
+      activity: "最近紀錄"
+      no_activity: "目前沒有紀錄。"
+      open_bill: "查看"
+      lines:
+        added: "新增 %{period}：NT$%{amount}，限繳日 %{due}"
+        matched: "補上你的 %{period} 帳單：NT$%{amount}，限繳日 %{due}"
+        paid: "標示已付款：%{period}，NT$%{amount}"
+        amount_differs: "%{period} 金額不同：你記錄 NT$%{recorded}，欣桃天然氣帳單 NT$%{amount}。沒有更動。"
+        needs_a_look: "有不只一筆帳單可能是 %{period}（NT$%{amount}），都沒有更動。"
+      delay_hint: "在超商或銀行繳費的話，欣桃天然氣約需 12 個營業日才會顯示已繳。你也可以自己先標示為已付款。"
+    update:
+      saved: "瓦斯帳號已儲存。"
+    check:
+      done:
+        zero: "已向欣桃天然氣查詢，沒有新的變動。"
+        one: "已向欣桃天然氣查詢：1 筆更新。"
+        other: "已向欣桃天然氣查詢：%{count} 筆更新。"
+      failed: "無法向欣桃天然氣查詢，請看下方說明。"
+    destroy:
+      disconnected: "已取消連結瓦斯帳號，帳單仍保留。"

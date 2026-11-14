@@ -1,0 +1,31 @@
+{
+ "Data": {
+  "CUST_CODE": "1234567890",
+  "TotalAmt": 427,
+  "Details": [
+   {
+    "PRE_REC_DATE": "/Date(1791129600000)/",
+    "REC_DATE": "/Date(1796400000000)/",
+    "PAY_DATE": "/Date(1797782400000)/",
+    "LIMIT_DATE": "/Date(1797782400000)/",
+    "REC_QTY": 413,
+    "USE_QTY": 12,
+    "PAY_QTY": 12,
+    "A1": 127,
+    "A2": 300,
+    "A3": 0,
+    "A5": 0,
+    "D0": 0,
+    "PAmt": 0,
+    "SAmt": 0,
+    "LAmt": 0,
+    "TotalAmt": 427,
+    "Formula": "127元=12度x10.59元/度"
+   }
+  ]
+ },
+ "Status": 1,
+ "Message": null,
+ "ErrorGuid": null,
+ "ErrorMessage": null
+}

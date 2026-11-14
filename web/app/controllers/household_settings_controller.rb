@@ -1,10 +1,25 @@
-# Household settings (PRD §14): everyone sees them, only the owner changes them
+# Household settings (PRD §14): everyone sees them, only the owner changes them. General is the
+# settings page itself; Backup, Activity and Danger zone are its other sections (household_settings/_layout)
 class HouseholdSettingsController < ApplicationController
   include HouseholdScoped
 
   def show
     authorize Current.household
+  end
+
+  def activity
+    authorize Current.household, :show?
     load_events
+  end
+
+  # Owner only, like the buttons on them
+  def backup
+    authorize Current.household, :manage?
+    head :not_found unless DriveBackup.available?
+  end
+
+  def danger
+    authorize Current.household, :manage?
   end
 
   def update
@@ -13,7 +28,6 @@ class HouseholdSettingsController < ApplicationController
       SecurityEvent.record!("household_updated", actor: Current.user, household: Current.household, changes: Current.household.saved_changes.except("updated_at").keys)
       redirect_to household_settings_path(Current.household), notice: t(".saved")
     else
-      load_events
       render :show, status: :unprocessable_content
     end
   end

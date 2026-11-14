@@ -46,5 +46,5 @@ class DriveRestoresController < ApplicationController
     @backup = Current.household.drive_backup or redirect_to(settings)
   end
 
-  def settings = household_settings_path(Current.household)
+  def settings = backup_household_settings_path(Current.household)
 end

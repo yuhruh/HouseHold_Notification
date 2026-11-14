@@ -34,6 +34,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     KEYS.each_key { |key| ENV[key] = nil }
     get household_settings_path(@home)
     assert_select "#drive-backup", 0
+    assert_select "a[href=?]", backup_household_settings_path(@home), 0
     post household_drive_backup_path(@home)
     assert_response :not_found
   end
@@ -42,7 +43,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     Categories::Seed.call(@home)
     @home.records.create!(record_type: "expense", category: @home.categories.first, period: Period.parse(2026, "9月"), amount_required: 1)
     sign_in_as users(:alex)
-    get household_settings_path(@home)
+    get backup_household_settings_path(@home)
     assert_select "#drive-backup button", /連結 Google 雲端硬碟/
     post household_drive_backup_path(@home)
     assert_redirected_to reauthentication_path
@@ -52,7 +53,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     assert_enqueued_jobs(1, only: DriveBackupJob) do
       with_google { get google_drive_callback_path, params: { state:, code: "the-code" } }
     end
-    assert_redirected_to household_settings_path(@home)
+    assert_redirected_to backup_household_settings_path(@home)
     backup = @home.reload.drive_backup
     assert_equal "alex@example.com", backup.google_email
     assert_equal "refresh-token", backup.refresh_token
@@ -73,7 +74,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     reauthenticate!(Session.last)
     state = connect_flow
     get google_drive_callback_path, params: { state:, error: "access_denied" }
-    assert_redirected_to household_settings_path(@home)
+    assert_redirected_to backup_household_settings_path(@home)
     assert_nil @home.reload.drive_backup
   end
 
@@ -81,7 +82,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
     reauthenticate!(Session.last)
     ActionController::Base.allow_forgery_protection = true
-    get household_settings_path(@home)
+    get backup_household_settings_path(@home)
     token = css_select("#drive-backup form input[name=authenticity_token]").first["value"]
     post household_drive_backup_path(@home), params: { authenticity_token: token }, headers: { "Origin" => "null" }
     assert_redirected_to(/accounts\.google\.com/)
@@ -95,6 +96,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     sign_in_as users(:google_only) # a viewer
     get household_settings_path(@home)
     assert_select "#drive-backup", 0
+    assert_select "a[href=?]", backup_household_settings_path(@home), 0
     post household_drive_backup_path(@home)
     assert_not_includes response.location.to_s, "accounts.google.com"
     assert_nil @home.reload.drive_backup
@@ -104,7 +106,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     backup = DriveBackup.create!(household: @home, connected_by: users(:alex), google_email: "alex@example.com", refresh_token: "token",
       folder_id: "abc", last_backup_at: Time.current, bills_count: 3, photos_count: 2)
     sign_in_as users(:alex)
-    get household_settings_path(@home)
+    get backup_household_settings_path(@home)
     assert_select "#drive-backup", /alex@example.com/
     assert_select "#drive-backup a[href=?]", "https://drive.google.com/drive/folders/abc"
     assert_enqueued_jobs(1, only: DriveBackupJob) { post run_household_drive_backup_path(@home) }
@@ -113,7 +115,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     assert_no_enqueued_jobs(only: DriveBackupJob) { post run_household_drive_backup_path(@home) }
 
     backup.update!(running_since: nil, problem: "reconnect")
-    get household_settings_path(@home)
+    get backup_household_settings_path(@home)
     assert_select "#drive-backup button", /重新連結/
     assert_select "#drive-backup", /Google 存取權已被移除/
 
@@ -165,7 +167,7 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
 
     sign_in_as owner
     reauthenticate!(Session.last)
-    get household_settings_path(home)
+    get backup_household_settings_path(home)
     assert_select "#drive-backup", /Backup found|找到備份/
 
     with_stub(DriveBackups::Client, :new, drive) do
@@ -195,9 +197,9 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
     reauthenticate!(Session.last)
     post household_drive_restore_path(home), params: { folder: "someone-elses", preview_id: 1 }
-    assert_redirected_to household_settings_path(home)
+    assert_redirected_to backup_household_settings_path(home)
     get household_drive_restore_path(home, folder: "mine")
-    assert_redirected_to household_settings_path(home)
+    assert_redirected_to backup_household_settings_path(home)
     delete session_path rescue nil
 
     sign_in_as users(:google_only)

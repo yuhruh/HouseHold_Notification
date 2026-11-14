@@ -1,5 +1,6 @@
 <% content_for :title, t(".title") %>
 <% owner = policy(Current.household).manage? %>
+<% content_for :settings_section do %>
 <div class="w-full mx-auto max-w-2xl space-y-8 py-4">
   <%= render "shared/flash" %>
   <h1 class="flex justify-center items-center gap-3 text-3xl font-bold"><%= image_tag "/household.png", alt: "", class: "h-10 w-10 object-contain" %><span><%= t(".title") %></span></h1>
@@ -19,32 +20,6 @@
       <% if owner %><%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %><% end %>
     </fieldset>
   <% end %>
-
-  <p class="grid grid-cols-2 gap-3 pr-1 sm:flex sm:flex-wrap sm:gap-4"><%= link_to nav_label("members.png", t("households.show.members")), household_members_path(Current.household), class: "btn-press rounded-xl flex min-w-0 items-center justify-center gap-1 bg-amber-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium sm:px-3.5 [&>img]:shrink-0" %>
-    <% if owner %><%= link_to nav_label("reminder_delivery.png", t("reminder_deliveries.index.title")), household_reminder_deliveries_path(Current.household), class: "btn-press rounded-xl flex min-w-0 items-center justify-center gap-1 bg-teal-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium sm:px-3.5 [&>img]:shrink-0" %><% end %></p>
-
-  <%= render "drive_backup" if owner && DriveBackup.available? %>
-
-  <% if owner %>
-    <section class="space-y-3 rounded-lg shadow-md shadow-red-100 border-2 border-red-200 p-4">
-      <h2 class="text-lg font-semibold text-red-700"><%= t("accounts.show.danger_zone") %></h2>
-      <div class="grid grid-cols-1 gap-3 pr-1 md:grid-cols-3">
-        <%= link_to new_household_ownership_transfer_path(Current.household), class: "btn-press flex items-center justify-center gap-1.5 min-w-0 rounded-xl bg-slate-200 text-center text-fit text-gray-900 cursor-pointer px-2 py-2 font-medium break-words" do %><%= image_tag "icons/transfer_ownership.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".transfer") %></span><% end %>
-        <%= link_to new_household_record_purge_path(Current.household), class: "btn-press flex items-center justify-center gap-1.5 min-w-0 rounded-xl bg-white text-center text-fit cursor-pointer px-2 py-2 font-medium text-red-700 break-words" do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete_records") %></span><% end %>
-        <%= link_to new_household_deletion_path(Current.household), class: "btn-press flex items-center justify-center gap-1.5 min-w-0 rounded-xl bg-red-200 text-center text-fit text-red-900 cursor-pointer px-2 py-2 font-medium break-words" do %><%= image_tag "icons/delete.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".delete") %></span><% end %>
-      </div>
-    </section>
-  <% end %>
-
-
-  <%# Folded like What's New: the log can get long %>
-  <details id="activity" class="space-y-2">
-    <summary class="cursor-pointer text-lg font-semibold text-blue-800"><h2 class="inline"><%= t(".activity") %> (<%= @events.size %>)</h2></summary>
-    <ul class="mt-2 divide-y rounded-lg border text-sm">
-      <% @events.each do |event| %>
-        <li class="px-4 py-2"><%= activity_line(event, @event_users) %>
-          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %></span></li>
-      <% end %>
-    </ul>
-  </details>
 </div>
+<% end %>
+<%= render "household_settings/layout", current: :general %>

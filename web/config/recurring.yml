@@ -22,6 +22,9 @@ production:
   generate_recurring_records:
     class: GenerateRecurringRecordsJob
     schedule: "10 0 * * * Asia/Taipei"
+  sync_gas_accounts:
+    class: SyncGasAccountsJob
+    schedule: "30 11 * * 1-5 Asia/Taipei"
   photo_backup_reminder:
     class: PhotoBackupReminderJob
     schedule: "0 9 1 * * Asia/Taipei"

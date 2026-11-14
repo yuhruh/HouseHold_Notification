@@ -1,0 +1,13 @@
+<% content_for :title, t("household_settings.show.activity") %>
+<% content_for :settings_section do %>
+<div class="w-full mx-auto max-w-2xl space-y-6 py-4">
+  <h1 class="text-center text-3xl font-bold"><%= t("household_settings.show.activity") %> (<%= @events.size %>)</h1>
+  <ul id="activity" class="divide-y rounded-lg border text-sm">
+    <% @events.each do |event| %>
+      <li class="px-4 py-2"><%= activity_line(event, @event_users) %>
+        <span class="block text-gray-500"><%= l(event.created_at, format: :short) %></span></li>
+    <% end %>
+  </ul>
+</div>
+<% end %>
+<%= render "household_settings/layout", current: :activity %>

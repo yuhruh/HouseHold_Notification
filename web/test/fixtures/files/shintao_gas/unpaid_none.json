@@ -1,0 +1,11 @@
+{
+ "Data": {
+  "CUST_CODE": "1234567890",
+  "TotalAmt": null,
+  "Details": []
+ },
+ "Status": 1,
+ "Message": null,
+ "ErrorGuid": null,
+ "ErrorMessage": null
+}

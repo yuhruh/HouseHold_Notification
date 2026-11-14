@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.4.0"
+  date: 2026-11-14
+  en:
+    - "Gas account, in Ledger Settings: connect your 欣桃天然氣 用戶編號 and gas bills look after themselves. Every working day at 11:30 new gas bills are added with their amount and 限繳日, and bills are marked paid once 欣桃天然氣 shows them paid."
+    - "Gas bills you already entered or scanned are matched by their period (or due date and amount) and filled in, never added twice. Bills already paid are never changed; an amount that doesn't match 欣桃's is only listed for you to check."
+    - "Ledger Settings has a menu of its sections at the left on a computer, and a list of them on a phone: General, Members, Reminder Delivery, Recurring Bills, Categories, Payment Methods, Gas Account, Google Drive Backup, Activity and Danger Zone."
+  zh-TW:
+    - "帳本設定新增「瓦斯帳號」：連結欣桃天然氣的用戶編號後，每個上班日 11:30 會自動新增瓦斯費（含金額和限繳日），欣桃顯示已繳後自動標示為已付款。"
+    - "你已經輸入或掃描的瓦斯費，會依期間（或限繳日和金額）比對並補上資料，不會重複新增。已付款的帳單不會被更改；金額和欣桃不同時，只會列出來讓你確認。"
+    - "帳本設定在電腦上左側有選單，手機上則是清單：一般、成員、提醒送達狀態、定期帳單、類別、付款方式、瓦斯帳號、Google 雲端硬碟備份、活動紀錄和危險區域。"
 - version: "1.3.0"
   date: 2026-11-14
   en:

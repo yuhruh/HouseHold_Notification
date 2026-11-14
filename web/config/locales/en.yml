@@ -655,6 +655,8 @@ en:
       import_undone: "Import Undone"
       template_updated: "Updated By Its Recurring Template"
       reminders_restarted: "Reminders Restarted"
+      gas_synced: "Added Or Filled In From 欣桃天然氣"
+      gas_paid: "Marked Paid From 欣桃天然氣"
     index:
       scheduled:
         one: "1 recurring bill is scheduled and not created yet: %{names}"
@@ -797,6 +799,8 @@ en:
       delete_confirm: "Delete this record? It can't be undone."
       activity: "Activity"
       former_member: "former member"
+      auto_sync: "欣桃天然氣 auto-sync"
+      synced: "Synced from 欣桃天然氣"
       past_records: "Past Records (%{count})"
       past_hint: "Earlier records with the same category and details, newest first."
       past_see_all: "See All In Records ›"

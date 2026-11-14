@@ -12,6 +12,7 @@
      [ :categories, "categories.png", t("households.show.categories"), household_categories_path(household) ],
      [ :payment_methods, "payment.png", t("households.show.payment_methods"), household_payment_methods_path(household) ],
      ([ :gas_account, "expense.png", t("gas_accounts.show.title"), household_gas_account_path(household) ] if owner),
+     ([ :electricity_account, "email.png", t("electricity_accounts.show.title"), household_electricity_account_path(household) ] if policy(household).write?),
      ([ :backup, "google_connect.png", t("household_settings.drive_backup.title"), backup_household_settings_path(household) ] if owner && DriveBackup.available?),
      [ :activity, "details.png", t("household_settings.show.activity"), activity_household_settings_path(household) ],
      ([ :danger, "delete.png", t("accounts.show.danger_zone"), danger_household_settings_path(household) ] if owner)

@@ -1,0 +1,23 @@
+<%# A utility account's recent activity, newest first. `scope` is the page's locale scope (its
+    activity, no_activity, open_bill and lines.<kind> keys) %>
+<% household = Current.household %>
+<div class="space-y-2">
+  <h3 class="font-semibold"><%= t("#{scope}.activity") %></h3>
+  <% if account.activity.empty? %>
+    <p class="text-sm text-gray-600"><%= t("#{scope}.no_activity") %></p>
+  <% else %>
+    <% records = household.records.where(id: account.activity.flat_map { [ it["record_id"], *it["record_ids"] ] }.compact).index_by(&:id) %>
+    <ul class="divide-y rounded-lg border text-sm">
+      <% account.activity.each do |line| %>
+        <li class="px-3 py-2 <%= 'bg-amber-50' if line["kind"].in?(%w[amount_differs needs_a_look ignored]) %>">
+          <% detail = line["reason"] ? t("utilities.forwarded_mail.#{line["reason"]}", detail: line["detail"]) : line["detail"] %>
+          <%= t("#{scope}.lines.#{line["kind"]}", period: line["period"], amount: line["amount"], recorded: line["recorded"], due: line["due_on"], detail:) %>
+          <% Array(line["record_id"] || line["record_ids"]).filter_map { records[it] }.each do |record| %>
+            <%= link_to t("#{scope}.open_bill"), household_record_path(household, record), class: "text-blue-700 underline" %>
+          <% end %>
+          <span class="block text-gray-500"><%= l(Time.zone.parse(line["at"]), format: :short) %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

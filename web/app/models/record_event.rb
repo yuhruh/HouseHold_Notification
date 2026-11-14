@@ -6,7 +6,7 @@ class RecordEvent < ApplicationRecord
   belongs_to :household
   belongs_to :user, optional: true
 
-  enum :action, %w[created updated deleted marked_paid import_created import_updated import_undone template_updated reminders_restarted gas_synced gas_paid].index_by(&:itself), validate: true
+  enum :action, %w[created updated deleted marked_paid import_created import_updated import_undone template_updated reminders_restarted gas_synced gas_paid taipower_synced taipower_paid].index_by(&:itself), validate: true
 
   # created/deleted keep a full snapshot; updates keep [before, after] per changed field, leaving out
   # blank-to-blank changes (nil ↔ "") that nobody made on purpose

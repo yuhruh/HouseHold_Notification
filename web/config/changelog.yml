@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.5.0"
+  date: 2026-11-15
+  en:
+    - "Electricity (台電), in Ledger Settings: turn it on to get this ledger's own forwarding address. Whoever receives 台電's emails sets up Gmail once to forward them there, following the steps on the page."
+    - "Gmail's forwarding confirmation code shows up on the Electricity page within about 5 minutes, ready to copy. Co-owners can open the page to see the address and code; only the owner can change it."
+    - "Only 台電's own emails, forwarded through a member's Gmail, are accepted. Anything else is ignored, and Recent activity says why. Reading the bill amounts from these emails comes next; emails that arrive before then are kept and read then."
+  zh-TW:
+    - "帳本設定新增「電費（台電）」：開啟後會產生這本帳本專屬的轉寄地址。收到台電 Email 的人，依照頁面上的步驟在 Gmail 設定一次自動轉寄。"
+    - "Gmail 的轉寄確認碼約 5 分鐘內會顯示在電費頁面上，可直接複製。共同擁有者可以打開這個頁面查看地址和確認碼，只有擁有者可以更改設定。"
+    - "只接受成員 Gmail 轉寄的台電 Email，其他的信都會被略過，並在最近紀錄說明原因。從這些 Email 讀取帳單金額是下一步；在那之前收到的信會先保留，之後再讀取。"
 - version: "1.4.0"
   date: 2026-11-14
   en:

@@ -25,6 +25,9 @@ production:
   sync_gas_accounts:
     class: SyncGasAccountsJob
     schedule: "30 11 * * 1-5 Asia/Taipei"
+  poll_utility_mail:
+    class: PollUtilityMailJob
+    schedule: "*/5 * * * *"
   photo_backup_reminder:
     class: PhotoBackupReminderJob
     schedule: "0 9 1 * * Asia/Taipei"

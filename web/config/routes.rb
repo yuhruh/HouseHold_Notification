@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     resource :gas_account, only: %i[show update destroy] do
       post :check
     end
+    resource :electricity_account, only: %i[show update destroy]
     resource :drive_backup, only: %i[create destroy] do
       post :run
     end

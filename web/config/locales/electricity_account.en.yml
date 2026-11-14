@@ -1,0 +1,90 @@
+en:
+  activerecord:
+    models:
+      electricity_account: "Electricity Account"
+    attributes:
+      electricity_account:
+        customer_code: "電號"
+        category_id: "Put Electricity Bills In"
+        category: "Category"
+        payment_method_id: "Payment Method For New Bills"
+        payment_method: "Payment Method"
+        allowed_senders: "Other Emails That Forward"
+        household_id: "Ledger"
+    errors:
+      models:
+        electricity_account:
+          attributes:
+            customer_code:
+              invalid: "must be the 11 digits of the 電號 on your bill"
+              taken: "is already used by another ledger"
+            allowed_senders:
+              invalid: "aren't email addresses: %{emails}"
+            household_id:
+              taken: "already has an electricity account"
+  electricity_accounts:
+    show:
+      title: "Electricity (台電)"
+      intro: "New 電費 bills come from 台電's 電子帳單 email, forwarded by whoever receives it. The app fills in the bill's amount and 繳費期限."
+      settings_title: "Bill settings"
+      optional: "(optional)"
+      customer_code_hint: "Filled in from the first 台電 email. After that, emails for any other 電號 are ignored."
+      choose: "Choose a category"
+      no_payment_method: "None"
+      payment_method_hint: "Given to bills the app adds. Leave it empty if you pay with different cards."
+      allowed_senders_hint: "Members can always forward. Add a member's other email here if 台電's mail goes to an address they don't sign in with. One per line."
+      save: "Save"
+      turn_on: "Turn On"
+      turn_on_hint: "Choose the category and tap Turn On to get this ledger's forwarding address."
+      not_on_yet: "The owner hasn't turned this on yet."
+      owner_only: "Only the owner can change these."
+      disconnect: "Disconnect"
+      disconnect_confirm: "Disconnect electricity? The forwarding address stops working. Bills it added stay in Bills."
+      how_title: "How it works"
+      how:
+        - "Whoever gets 台電's emails sets up Gmail once to forward them to this ledger's address."
+        - "Each 電子帳單 email fills in the 電費 bill with its amount and 繳費期限, or adds it."
+        - "A bill you already entered is matched by its period and filled in, never added twice."
+        - "Bills already marked paid are never changed, and nothing is ever deleted."
+      forwarding_title: "Forward 台電's emails"
+      forward_to: "Forward to this address"
+      copy: "Copy"
+      copied: "Copied"
+      who_sets_up: "Whoever receives 台電's emails does this once, in Gmail on a computer:"
+      steps:
+        - "Gmail ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address › Next › Proceed. Leave forwarding itself off."
+        - "Gmail sends a confirmation code to this address. Type it into Gmail's confirmation code box › Verify."
+        - "In Gmail's search box type from:taipower.com.tw › Show search options › Create filter › tick Forward it to › choose this address › Create filter."
+      code_soon: "Gmail's confirmation code shows up here within about 5 minutes of step 1. Reload the page to see it."
+      code_title: "Gmail's confirmation code"
+      code_from: "Asked for by %{email}, %{time}"
+      code_next: "Type it into Gmail's confirmation code box › Verify, then do step 3."
+      no_mailbox: "The app's mailbox isn't set up on this server, so there's no forwarding address yet."
+      status:
+        working: "Forwarding works"
+        waiting: "No 台電 email yet"
+      from_first_email: "From the first 台電 email"
+      last_email: "Last 台電 email"
+      not_yet: "Not yet"
+      activity: "Recent activity"
+      no_activity: "Nothing yet."
+      open_bill: "Open"
+      lines:
+        added: "Added %{period}: NT$%{amount}, 繳費期限 %{due}"
+        matched: "Filled in your %{period} bill: NT$%{amount}, 繳費期限 %{due}"
+        paid: "Marked paid: %{period}, NT$%{amount}"
+        amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, 台電 billed NT$%{amount}. Not changed."
+        needs_a_look: "More than one bill could be %{period} (NT$%{amount}). None was changed."
+        ignored: "Ignored an email: %{detail}"
+        received: "Received a 台電 email forwarded by %{detail}"
+        forwarding_code: "Gmail sent a forwarding confirmation code for %{detail}"
+    update:
+      saved: "Electricity saved."
+    destroy:
+      disconnected: "Electricity disconnected. Its bills stay in Bills."
+  utilities:
+    forwarded_mail:
+      not_taipower: "not from 台電 (from %{detail})"
+      not_authentic: "claims to be from %{detail} but failed Gmail's sender check"
+      unknown_forwarder: "couldn't tell whose Gmail forwarded it (only Gmail filter forwarding from a member is accepted)"
+      not_member: "forwarded by %{detail}, who isn't a member of this ledger"

@@ -3,6 +3,7 @@ class Notification < ApplicationRecord
   belongs_to :household
   belongs_to :user
   belongs_to :reminder_delivery, optional: true
+  has_many :delivery_attempts, dependent: :delete_all
 
   scope :unread, -> { where(read_at: nil) }
 

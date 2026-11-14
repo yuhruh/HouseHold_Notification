@@ -1,21 +1,26 @@
 module Utilities
   # Reads what members' Gmail forwarded to the ledgers' addresses (ElectricityAccount#inbox_address)
-  # and decides what each message is. Every message is labelled handled, whatever it is.
+  # and decides what each message is. Every message is labelled handled, whatever it is; what it
+  # did (or why it was ignored) goes in the account's activity.
   #
-  # - Gmail's forwarding confirmation (someone added the address in Gmail): its code is kept on the
-  #   account so the Electricity page can show it.
-  # - A 台電 email is accepted only when all of these hold; anything else is ignored and noted in
-  #   the account's activity:
-  #     1. it was sent by 台電 (From @taipower.com.tw, and not failing DKIM/DMARC)
-  #     2. it came through a ledger member's Gmail (or one of the account's allowed senders): Gmail's
-  #        filter forwarding sends it from "<member>+caf_=…@gmail.com", which Gmail's own SPF check
-  #        on arrival must pass
-  #   Accepted ones are labelled for the bill reader.
+  # - Gmail's forwarding confirmation (someone added the address in Gmail): signed by Google, with a
+  #   confirmation link. When a member (or an allowed sender) asked, the link is kept so the
+  #   Electricity page can show a Confirm button.
+  # - A 台電 email, accepted only when it's one of:
+  #     a. forwarded by a Gmail filter: From @taipower.com.tw (not failing DKIM/DMARC), sent on by
+  #        "<member>+caf_=…@gmail.com", which Gmail's own SPF check on arrival passed
+  #     b. forwarded by hand: From a member (signed by their mail provider), with a forwarded
+  #        message from @taipower.com.tw inside
+  #   Accepted ones are labelled for the bill reader. Only (a) counts as "the filter works".
   class ForwardedMail
     TOKEN = /\+h(\d+)-([a-z0-9]{10})@/i
     GOOGLE_FORWARDING = "forwarding-noreply@google.com".freeze
     TAIPOWER = /(\A|\.)taipower\.com\.tw\z/i
-    CODE_KEPT = 7.days
+    CONFIRM_LINK = %r{https://mail-settings\.google\.com/mail/vf-[^\s<>"]+}
+    EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/
+    # The header Gmail (or Outlook, Apple Mail) puts above a forwarded message, in English or Chinese
+    FORWARDED_FROM = /^\s*(?:\*\s*)?(?:From|寄件者|寄件人|發件人)\s*[:：]\s*\*?[^\n]*?@((?:[\w-]+\.)*taipower\.com\.tw)\b/i
+    LINK_KEPT = 7.days
 
     def self.call(inbox: Inbox.connect)
       return [] unless inbox && ElectricityAccount.mailbox
@@ -34,16 +39,12 @@ module Utilities
       @mail, @accounts = mail, accounts
     end
 
-    # :code, :bill, :ignored, or :unknown (no ledger's address on it)
+    # :confirm, :bill, :ignored, or :unknown (no ledger's address on it)
     def call
-      account = find_account or return :unknown
-      return confirmation(account) if from == GOOGLE_FORWARDING
-
-      reason, detail = rejection(account)
-      account.last_success_at = Time.current unless reason
-      account.add_activity([ reason ? { "kind" => "ignored", "reason" => reason, "detail" => detail } : { "kind" => "received", "detail" => forwarder } ])
-      account.save!
-      reason ? :ignored : :bill
+      @account = find_account or return :unknown
+      result = from == GOOGLE_FORWARDING ? confirmation : forwarded_bill
+      @account.save!
+      result
     end
 
     # The address it was delivered to names the ledger: "+h<household id>-<token>@"
@@ -61,43 +62,62 @@ module Utilities
 
     def from = Array(@mail.from).first.to_s.downcase
 
-    # Gmail's own message: "(#123456789) Gmail Forwarding Confirmation - Receive Mail from x@gmail.com"
-    # (or the same in another language); the code is also in the body
-    def confirmation(account)
-      return :ignored unless authenticated?(dkim: /\A(.*\.)?google\.com\z/)
+    # Gmail's own message: "x@gmail.com has requested to automatically forward mail to your email
+    # address …", with a confirmation link (older ones also had a code)
+    def confirmation
+      return ignore("not_authentic", from) unless signed_by?(/\A(.*\.)?google\.com\z/)
 
       text = "#{@mail.subject}\n#{body_text}"
-      code = @mail.subject.to_s[/\(#(\d{6,12})\)/, 1] || text[/\b(\d{9})\b/, 1] or return :ignored
-      mailbox = ElectricityAccount.mailbox.to_s.downcase
-      requester = text.scan(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/).map(&:downcase).find { !it.start_with?(mailbox.split("@").first) && it != GOOGLE_FORWARDING }
-      account.assign_attributes(forwarding_code: code, forwarding_from: requester, forwarding_code_at: Time.current)
-      account.add_activity([ { "kind" => "forwarding_code", "detail" => requester.to_s } ])
-      account.save!
-      :code
+      requester = text.scan(EMAIL).map(&:downcase).find { it != GOOGLE_FORWARDING && !it.match?(TOKEN) }
+      link = text[CONFIRM_LINK]
+      code = @mail.subject.to_s[/\(#(\d{6,12})\)/, 1]
+      return ignore("no_confirmation", nil) unless requester && (link || code)
+      return ignore("not_member", requester) unless allowed?(requester)
+
+      @account.assign_attributes(forwarding_link: link, forwarding_code: code, forwarding_from: requester, forwarding_code_at: Time.current)
+      note("forwarding_request", requester)
+      :confirm
     end
 
-    # nil, or why it's ignored: [reason, detail] (see utilities.forwarded_mail in the locales)
-    def rejection(account)
-      domain = from.split("@").last.to_s
-      return [ "not_taipower", from.presence || "?" ] unless domain.match?(TAIPOWER)
-      return [ "not_authentic", from ] if failed_authentication?
+    def forwarded_bill
+      if from.split("@").last.to_s.match?(TAIPOWER)
+        return ignore("not_authentic", from) if failed_authentication?
 
-      who = forwarder or return [ "unknown_forwarder", nil ]
-      [ "not_member", who ] unless allowed?(account, who)
-    end
+        who = filter_forwarder or return ignore("unknown_forwarder", nil)
+        return ignore("not_member", who) unless allowed?(who)
 
-    # The member's Gmail that forwarded it, from the envelope sender Gmail uses for filter forwarding
-    # ("member+caf_=dest=gmail.com@gmail.com"), and only when Gmail's SPF check on arrival passed for it
-    def forwarder
-      @forwarder ||= begin
-        sender = header_values("Return-Path").first.to_s.delete("<> ").downcase
-        local = sender[/\A(.+?)\+caf_=.*@gmail\.com\z/, 1]
-        "#{local}@gmail.com" if local && google_results.match?(/\bspf=pass\b[^;]*smtp\.mailfrom="?#{Regexp.escape(sender)}"?/i)
+        @account.last_success_at = Time.current
+        note("received", who)
+      elsif allowed?(from)
+        return ignore("not_authentic", from) unless signed_by?(/\A(.*\.)?#{Regexp.escape(from.split("@").last)}\z/i)
+        return ignore("not_taipower_forward", from) unless body_text.match?(FORWARDED_FROM)
+
+        note("received_by_hand", from)
+      else
+        return ignore("not_taipower", from.presence || "?")
       end
+      :bill
     end
 
-    def allowed?(account, email)
-      emails = account.household.users.map(&:email_address) + account.allowed_senders
+    def note(kind, detail) = @account.add_activity([ { "kind" => kind, "detail" => detail } ])
+
+    # reason: a key under utilities.forwarded_mail in the locales
+    def ignore(reason, detail)
+      @account.add_activity([ { "kind" => "ignored", "reason" => reason, "detail" => detail } ])
+      :ignored
+    end
+
+    # The member's Gmail whose filter forwarded it, from the envelope sender Gmail uses for filter
+    # forwarding ("member+caf_=dest=gmail.com@gmail.com"), and only when Gmail's SPF check on arrival
+    # passed for it
+    def filter_forwarder
+      sender = header_values("Return-Path").first.to_s.delete("<> ").downcase
+      local = sender[/\A(.+?)\+caf_=.*@gmail\.com\z/, 1]
+      "#{local}@gmail.com" if local && google_results.match?(/\bspf=pass\b[^;]*smtp\.mailfrom="?#{Regexp.escape(sender)}"?/i)
+    end
+
+    def allowed?(email)
+      emails = @account.household.users.map(&:email_address) + @account.allowed_senders
       emails.map { canonical(it) }.include?(canonical(email))
     end
 
@@ -114,8 +134,8 @@ module Utilities
       @google_results ||= header_values("Authentication-Results").find { it.to_s.strip.start_with?("mx.google.com") }.to_s
     end
 
-    def authenticated?(dkim:)
-      google_results.scan(/\bdkim=pass\b[^;]*header\.(?:i|d)=@?([\w.-]+)/i).flatten.any? { it.match?(dkim) }
+    def signed_by?(domain)
+      google_results.scan(/\bdkim=pass\b[^;]*header\.(?:i|d)=@?([\w.-]+)/i).flatten.any? { it.match?(domain) }
     end
 
     def failed_authentication? = google_results.match?(/\b(dkim|dmarc)=fail\b/i)
@@ -123,10 +143,12 @@ module Utilities
     def header_values(name) = Array(@mail.header[name]).map { it.respond_to?(:value) ? it.value : it.to_s }
 
     def body_text
-      part = @mail.multipart? ? (@mail.text_part || @mail.html_part) : @mail
-      part&.decoded.to_s
-    rescue Mail::UnknownEncodingType, Encoding::Error
-      ""
+      @body_text ||= begin
+        part = @mail.multipart? ? (@mail.text_part || @mail.html_part) : @mail
+        part&.decoded.to_s.dup.force_encoding(Encoding::UTF_8).scrub
+      rescue Mail::UnknownEncodingType, Encoding::Error
+        ""
+      end
     end
   end
 end

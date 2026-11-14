@@ -78,15 +78,20 @@
                 <li class="flex items-start gap-2"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-bold text-white"><%= i + 1 %></span><span><%= step %></span></li>
               <% end %>
             </ol>
-            <% if account.pending_forwarding_code? %>
-              <div class="space-y-2 rounded-xl border-2 border-(--card-line) bg-blue-50 p-3" aria-labelledby="electricity-code">
-                <h3 id="electricity-code" class="font-semibold"><%= t(".code_title") %></h3>
-                <p class="text-sm text-gray-700"><%= t(".code_from", email: account.forwarding_from.presence || "?", time: l(account.forwarding_code_at, format: :short)) %></p>
-                <div class="flex flex-wrap items-center gap-2" data-controller="clipboard" data-clipboard-text-value="<%= account.forwarding_code %>" data-clipboard-done-value="<%= t(".copied") %>">
-                  <output class="rounded-xl border-2 border-(--card-line) bg-white px-3 py-1 text-3xl font-extrabold tracking-widest tabular-nums"><%= account.forwarding_code %></output>
-                  <button type="button" data-action="clipboard#copy" class="btn-press inline-flex items-center rounded-xl bg-blue-100 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><span data-clipboard-target="label"><%= t(".copy") %></span></button>
-                </div>
-                <p class="text-sm text-gray-700"><%= t(".code_next") %></p>
+            <% if account.pending_forwarding_confirmation? %>
+              <div class="space-y-2 rounded-xl border-2 border-(--card-line) bg-blue-50 p-3" aria-labelledby="electricity-confirm">
+                <h3 id="electricity-confirm" class="font-semibold"><%= t(".confirm_title") %></h3>
+                <p class="text-sm text-gray-700"><%= t(".confirm_from", email: account.forwarding_from, time: l(account.forwarding_code_at, format: :short)) %></p>
+                <% if account.forwarding_link.present? %>
+                  <%= link_to account.forwarding_link, target: "_blank", rel: "noopener noreferrer", class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-green-100 text-gray-900 px-3.5 py-2 font-medium" do %><%= image_tag "icons/paid.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".confirm_button") %></span><% end %>
+                  <p class="text-sm text-gray-700"><%= t(".confirm_next") %></p>
+                <% else %>
+                  <div class="flex flex-wrap items-center gap-2" data-controller="clipboard" data-clipboard-text-value="<%= account.forwarding_code %>" data-clipboard-done-value="<%= t(".copied") %>">
+                    <output class="rounded-xl border-2 border-(--card-line) bg-white px-3 py-1 text-3xl font-extrabold tracking-widest tabular-nums"><%= account.forwarding_code %></output>
+                    <button type="button" data-action="clipboard#copy" class="btn-press inline-flex items-center rounded-xl bg-blue-100 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><span data-clipboard-target="label"><%= t(".copy") %></span></button>
+                  </div>
+                  <p class="text-sm text-gray-700"><%= t(".code_next") %></p>
+                <% end %>
               </div>
             <% else %>
               <p class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"><%= t(".code_soon") %></p>
@@ -104,6 +109,9 @@
           <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
             <dt class="text-gray-600"><%= ElectricityAccount.human_attribute_name(:customer_code) %></dt><dd class="font-medium"><%= account.masked_code || t(".from_first_email") %></dd>
             <dt class="text-gray-600"><%= t(".last_email") %></dt><dd class="font-medium"><%= account.last_success_at ? l(account.last_success_at, format: :short) : t(".not_yet") %></dd>
+            <% today = Time.current.in_time_zone(household.time_zone).to_date %>
+            <dt class="text-gray-600"><%= t(".next_email") %></dt>
+            <dd class="font-medium <%= 'text-amber-800' if account.missing_mail_expected_on(today) %>"><%= t(".around", date: l(account.next_mail_expected_on)) %><%= " · #{t(".late")}" if account.missing_mail_expected_on(today) %></dd>
           </dl>
           <%= render "utility_accounts/activity", account:, scope: "electricity_accounts.show" %>
         </section>

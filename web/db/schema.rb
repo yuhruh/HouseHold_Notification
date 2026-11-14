@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_15_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -752,6 +752,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_020000) do
     t.string "forwarding_code"
     t.string "forwarding_from"
     t.datetime "forwarding_code_at"
+    t.text "forwarding_link"
+    t.date "missing_mail_warned_for"
     t.index ["category_id"], name: "index_utility_accounts_on_category_id"
     t.index ["household_id", "type"], name: "index_utility_accounts_on_household_id_and_type", unique: true
     t.index ["inbox_token"], name: "index_utility_accounts_on_inbox_token", unique: true

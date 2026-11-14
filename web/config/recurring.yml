@@ -28,6 +28,9 @@ production:
   poll_utility_mail:
     class: PollUtilityMailJob
     schedule: "*/5 * * * *"
+  warn_missing_utility_mail:
+    class: WarnMissingUtilityMailJob
+    schedule: "0 9 * * * Asia/Taipei"
   photo_backup_reminder:
     class: PhotoBackupReminderJob
     schedule: "0 9 1 * * Asia/Taipei"

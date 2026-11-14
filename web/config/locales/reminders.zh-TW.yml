@@ -67,22 +67,28 @@ zh-TW:
       soon: "30 天內到期"
       maintenance: "該保養了"
       no_due: "未設定到期日"
-      later: "之後到期"
-      scheduled: "已排定"
-      intro: "按「查看明細」查看帳單並記錄繳費。"
+      intro: "現在要處理的帳單。按「查看明細」查看帳單並記錄繳費。"
+      next_up: "下一筆：%{title} 會在 %{date} 移到這裡"
+      see_coming_up: "即將到來"
       hints:
         overdue: "已過到期日，請優先繳。"
         soon: "請在到期日前繳。"
         maintenance: "該保養了，完成後按「完成」。"
         no_due: "沒有設定期限，方便時再繳。"
-        later: "30 天後才到期，現在還不用處理。"
-        scheduled: "定期帳單即將到來的下一筆，尚未完成或繳費，會在顯示的日期加入待繳。"
       not_paid: "尚未繳費"
       left_to_pay: "還要繳 %{amount}"
-      scheduled_due: "%{date} 到期"
-      scheduled_starts: "%{date} 開始"
-      scheduled_creates: "%{date} 加入待繳"
-      scheduled_open: "定期帳單"
+    coming_up:
+      intro: "還沒到期的帳單，依日期排列。每筆會在顯示的日期移到待繳。"
+      empty: "目前沒有即將到來的帳單。"
+      month: "%{year} %{month}月"
+      due:
+        one: "%{date} 到期（明天）"
+        other: "%{date} 到期（%{count} 天後）"
+      starts:
+        one: "%{date} 開始（明天）"
+        other: "%{date} 開始（%{count} 天後）"
+      moves_on: "%{date} 移到待繳"
+      recurring_bills: "定期帳單"
   notifications:
     index:
       title: "通知"

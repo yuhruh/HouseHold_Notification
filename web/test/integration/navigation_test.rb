@@ -26,7 +26,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "header nav > a.bg-blue-100[href=?]", household_pending_path(@home), 0
   end
 
-  test "Bills is one page: To Pay and All switched at the top, To Pay with its count" do
+  test "Bills is one page: To Pay, Coming Up and All tabs under the title, each with its count" do
     bill(Date.current - 3)
     bill(Date.current + 5)
     bill(Date.current - 1, paid: true)
@@ -36,7 +36,8 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select "h1", /帳單/
     assert_select "main nav[aria-label='顯示']" do
       assert_select "a[aria-current=page][href=?]", household_pending_path(@home), text: /待繳\s*2/
-      assert_select "a[href=?]", household_records_path(@home), text: "全部"
+      assert_select "a[href=?]", household_coming_up_path(@home), text: /即將到來/
+      assert_select "a[href=?]", household_records_path(@home), text: /全部\s*3/
     end
     assert_select "title", /待繳帳單/
     get household_records_path(@home)

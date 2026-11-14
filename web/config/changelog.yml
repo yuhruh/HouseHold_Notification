@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.3.0"
+  date: 2026-11-14
+  en:
+    - "Bills has three tabs under the title: To Pay, Coming Up and All, each with its count. On a phone they're one full-width switch."
+    - "Coming Up lists what isn't due yet by month, soonest first: bills due more than 30 days from now, and each recurring bill's next one before it's created (in sky blue). Every card says the day it moves to To Pay."
+    - "To Pay shows only what needs doing now, with a Next up line naming what joins it next. All says when recurring bills are scheduled but not created yet, with a link to Coming Up."
+  zh-TW:
+    - "帳單標題下方改成三個分頁：待繳、即將到來、全部，各自顯示筆數。手機上是一整排的切換按鈕。"
+    - "「即將到來」依月份列出還沒到期的帳單：30 天後才到期的帳單，以及每個定期帳單尚未建立的下一筆（天藍色）。每張卡片都寫著哪一天會移到待繳。"
+    - "「待繳」只列出現在要處理的帳單，上方的「下一筆」會告訴你接下來是哪一筆。「全部」會提示有哪些定期帳單已排定但尚未建立，並連到「即將到來」。"
 - version: "1.2.1"
   date: 2026-11-14
   en:

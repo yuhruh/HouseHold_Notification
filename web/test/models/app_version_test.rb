@@ -23,7 +23,8 @@ class AppVersionTest < ActiveSupport::TestCase
   test "a date version saved before the 1.0.x numbers gets the entries after that date" do
     newest = AppVersion.entries.first
     assert_equal [], AppVersion.since(newest.date.strftime("%Y.%m.%d"))
-    assert_equal [ newest.version ], AppVersion.since((newest.date - 1).strftime("%Y.%m.%d.2")).map(&:version)
+    same_day = AppVersion.entries.select { it.date == newest.date }.map(&:version) # releases can share a day
+    assert_equal same_day, AppVersion.since((newest.date - 1).strftime("%Y.%m.%d.2")).map(&:version)
     assert_equal [], AppVersion.since("junk")
   end
 end

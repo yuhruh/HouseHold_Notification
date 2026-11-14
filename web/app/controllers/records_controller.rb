@@ -10,6 +10,7 @@ class RecordsController < ApplicationController
     authorize Record
     @filter = Records::Filter.new(Current.household, params.permit(*Records::Filter::KEYS))
     @filter.paginate(page: params[:page], per: per_page)
+    @to_pay = Records::ToPay.new(Current.household)
     respond_to do |format|
       format.html
       format.csv do

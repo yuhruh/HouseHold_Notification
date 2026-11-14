@@ -12,7 +12,14 @@
   <%# On a computer everything above the bills, column headings included, stays pinned under the header
       while the bills scroll under it (opaque, a little wider to hide the cards' shadow), 12px apart; a phone scrolls it all %>
   <div class="space-y-6 lg:space-y-3 lg:sticky lg:top-(--header-h) lg:z-20 lg:mb-0! lg:-mx-2 lg:bg-mauve-100 lg:px-2 lg:pt-4">
-  <%= render "bills_switch", current: :all %>
+  <%= render "bills_switch", current: :all, to_pay: @to_pay %>
+  <%# Recurring bills not created yet aren't records, so they're not listed here: say so, and where they are %>
+  <% if (scheduled = @to_pay.scheduled).any? %>
+    <%= link_to household_coming_up_path(Current.household), class: "flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border-2 border-sky-300 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-900 hover:bg-sky-100 dark:bg-sky-50/60" do %>
+      <span><%= t(".scheduled", count: scheduled.size, names: scheduled.first(3).map { "#{it.template.title} (#{it.period})" }.join("、") + (scheduled.size > 3 ? "…" : "")) %></span>
+      <span class="whitespace-nowrap"><%= t("pending.show.see_coming_up") %> ›</span>
+    <% end %>
+  <% end %>
 
   <div class="space-y-3">
   <details class="group">

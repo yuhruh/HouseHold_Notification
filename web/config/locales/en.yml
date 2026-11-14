@@ -347,9 +347,9 @@ en:
         other:
           one: "1 more unpaid"
           other: "%{count} more unpaid"
-        scheduled:
-          one: "1 recurring bill scheduled"
-          other: "%{count} recurring bills scheduled"
+        coming_up:
+          one: "1 coming up"
+          other: "%{count} coming up"
         days_overdue:
           one: "1 day overdue"
           other: "%{count} days overdue"
@@ -609,8 +609,10 @@ en:
     bills_switch:
       label: "Show"
       to_pay: "To Pay"
+      coming_up: "Coming Up"
       all: "All"
       to_pay_title: "Bills To Pay"
+      coming_up_title: "Bills Coming Up"
       all_title: "All Bills"
     pagination:
       showing: "%{from}–%{to} of %{total}"
@@ -654,6 +656,9 @@ en:
       template_updated: "Updated By Its Recurring Template"
       reminders_restarted: "Reminders Restarted"
     index:
+      scheduled:
+        one: "1 recurring bill is scheduled and not created yet: %{names}"
+        other: "%{count} recurring bills are scheduled and not created yet: %{names}"
       filters: "Filters"
       filters_on:
         one: "1 filter on"

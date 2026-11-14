@@ -16,7 +16,7 @@ class RemindersTest < ActionDispatch::IntegrationTest
     @home.records.create!({ record_type: "expense", category: @water, period: Period.parse(2026, "9月-10月"), amount_required: 580 }.merge(attrs))
   end
 
-  test "pending groups overdue, due soon, maintenance and no-due-date bills" do
+  test "To Pay groups overdue, due soon, maintenance and no-due-date bills; bills due later are on Coming Up" do
     bill(due_on: today - 2)
     bill(due_on: today + 5, details: "B")
     bill(details: "C")
@@ -26,8 +26,15 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "h2", /逾期 \(1\)/
     assert_select "h2", /30 天內到期 \(1\)/
     assert_select "h2", /未設定到期日 \(1\)/
-    assert_select "h2", /之後到期 \(1\)/
+    assert_select "li#record_#{later.id}", 0
+    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：水費 會在 #{(today + 6).strftime('%Y-%m-%d')} 移到這裡/
+    assert_select "main nav a[aria-current=page]", /待繳\s*3/, "bills due later aren't counted"
+
+    get household_coming_up_path(@home)
+    assert_response :success
+    assert_select "main nav a[aria-current=page][href=?]", household_coming_up_path(@home), /即將到來\s*1/
     assert_select "li#record_#{later.id} p.text-amber-900", /36 天後到期/
+    assert_select "li#record_#{later.id} p", /#{(today + 6).strftime('%Y-%m-%d')} 移到待繳/
   end
 
   test "pending cards say what each bill needs, link to it, and have no Mark Paid button" do
@@ -91,17 +98,24 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_equal today + 180, @home.records.order(:id).last.next_due_on
   end
 
-  test "To Pay and the dashboard show a recurring bill that isn't created yet as scheduled" do
+  test "a recurring bill that isn't created yet is on Coming Up, named on To Pay's Next up and above All" do
     ac = @home.categories.find_by!(name_zh: "冷氣清洗")
     start = today.next_month.beginning_of_month >> 1
     @home.recurring_templates.create!(category: ac, details: "客廳", interval_months: 2, starts_on: start, lead_days: 7)
-    get household_pending_path(@home)
-    assert_select "h2", /已排定/
-    assert_select "li", /冷氣清洗.*客廳/m
-    assert_select "li.bg-sky-50 p.text-sky-900", /尚未完成/, "reads like the not-done tasks above it, in sky"
+    moves = (start - 7).strftime("%Y-%m-%d")
+
+    get household_coming_up_path(@home)
+    assert_select "h2", /#{start.year} #{start.month}月/
+    assert_select "li.bg-sky-50 p.text-sky-900", /尚未完成/, "reads like a not-done task, in sky"
+    assert_select "li.bg-sky-50", /冷氣清洗.*客廳.*#{moves} 移到待繳.*每 2 個月/m
     assert_select "a[href=?]", household_recurring_templates_path(@home)
+
+    get household_pending_path(@home)
+    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：冷氣清洗 會在 #{moves} 移到這裡/
+    get household_records_path(@home)
+    assert_select "a[href=?]", household_coming_up_path(@home), /1 筆定期帳單已排定，尚未建立：冷氣清洗/
     get household_path(@home)
-    assert_select "span", /1 筆定期帳單已排定/
+    assert_select "span", /1 筆即將到來/
   end
 
   test "a recurring maintenance record drops its next-due date, so Done can't make an unlinked duplicate" do

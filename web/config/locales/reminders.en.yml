@@ -67,22 +67,28 @@ en:
       soon: "Due In The Next 30 Days"
       maintenance: "Maintenance Due"
       no_due: "No Due Date"
-      later: "Due Later"
-      scheduled: "Scheduled"
-      intro: "Open a bill's Details to see it and record what you paid."
+      intro: "What needs doing now. Open a bill's Details to see it and record what you paid."
+      next_up: "Next up: %{title} moves here on %{date}"
+      see_coming_up: "Coming Up"
       hints:
         overdue: "Past the due date. Pay these first."
         soon: "Pay these before their due date."
         maintenance: "Time for upkeep. Press Done when it's finished."
         no_due: "No deadline set. Pay when you can."
-        later: "Due more than 30 days from now. Nothing to do yet."
-        scheduled: "Coming up from your recurring bills, not done or paid yet. Each moves up to To Pay on the date shown."
       not_paid: "Not paid yet"
       left_to_pay: "%{amount} left to pay"
-      scheduled_due: "Due %{date}"
-      scheduled_starts: "Starts %{date}"
-      scheduled_creates: "added to To Pay on %{date}"
-      scheduled_open: "Recurring Bills"
+    coming_up:
+      intro: "Not due yet, soonest first. Each moves to To Pay on the date shown."
+      empty: "Nothing coming up."
+      month: "%{year} %{month}月"
+      due:
+        one: "Due %{date} (tomorrow)"
+        other: "Due %{date} (in %{count} days)"
+      starts:
+        one: "Starts %{date} (tomorrow)"
+        other: "Starts %{date} (in %{count} days)"
+      moves_on: "Moves to To Pay on %{date}"
+      recurring_bills: "Recurring Bills"
   notifications:
     index:
       title: "Inbox"

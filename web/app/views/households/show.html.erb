@@ -5,7 +5,7 @@
 <% today = @to_pay.today %>
 <% urgent = (@to_pay.overdue + @to_pay.soon).map { [ it, it.due_on ] } + @to_pay.maintenance.map { [ it, it.next_due_on ] } %>
 <% urgent = urgent.uniq(&:first).sort_by(&:last).first(2) %>
-<% others = @to_pay.later.size + @to_pay.no_due.size %>
+<% others = @to_pay.no_due.size %>
 <% row = "flex justify-between gap-3" %>
 <% heading = "text-xs font-bold tracking-wide uppercase" %>
 <div class="w-full mx-auto max-w-3xl space-y-6 py-4">
@@ -26,15 +26,15 @@
         <span class="<%= heading %> text-amber-800"><%= t(".bills.to_pay") %></span>
         <% if @to_pay.count.zero? %>
           <span class="flex items-center gap-2 text-lg font-bold text-green-800"><%= image_tag "icons/paid.png", alt: "", class: "h-6 w-6 object-contain" %><%= t(".bills.all_paid") %></span>
-          <% if @paid.none? && @to_pay.scheduled.none? %><span class="text-sm text-gray-700"><%= t(".bills.none_yet") %></span><% end %>
-          <% if @to_pay.scheduled.any? %><span class="text-sm text-gray-700"><%= t(".bills.scheduled", count: @to_pay.scheduled.size) %></span><% end %>
+          <% if @paid.none? && @to_pay.coming_up.none? %><span class="text-sm text-gray-700"><%= t(".bills.none_yet") %></span><% end %>
+          <% if @to_pay.coming_up.any? %><span class="text-sm text-gray-700"><%= t(".bills.coming_up", count: @to_pay.coming_up_count) %></span><% end %>
         <% else %>
           <span class="flex flex-wrap gap-2 text-sm font-bold">
             <% if @to_pay.overdue.any? %><span class="rounded-full bg-red-100 px-3 py-0.5 text-red-800"><%= t(".bills.overdue", count: @to_pay.overdue.size) %></span><% end %>
             <% if @to_pay.soon.any? %><span class="rounded-full bg-amber-100 px-3 py-0.5 text-amber-900"><%= t(".bills.soon", count: @to_pay.soon.size) %></span><% end %>
             <% if @to_pay.maintenance.any? %><span class="rounded-full bg-amber-100 px-3 py-0.5 text-amber-900"><%= t(".bills.maintenance", count: @to_pay.maintenance.size) %></span><% end %>
             <% if others.positive? %><span class="rounded-full bg-gray-100 px-3 py-0.5 text-gray-800"><%= t(".bills.other", count: others) %></span><% end %>
-            <% if @to_pay.scheduled.any? %><span class="rounded-full bg-gray-100 px-3 py-0.5 font-medium text-gray-700"><%= t(".bills.scheduled", count: @to_pay.scheduled.size) %></span><% end %>
+            <% if @to_pay.coming_up.any? %><span class="rounded-full bg-sky-100 px-3 py-0.5 text-sky-900"><%= t(".bills.coming_up", count: @to_pay.coming_up_count) %></span><% end %>
           </span>
           <span class="flex flex-col gap-1.5">
             <% urgent.each do |record, due| %>

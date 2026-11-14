@@ -112,19 +112,35 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_select "p", /還沒有設定 App 的信箱/
   end
 
-  test "Gmail's confirmation code shows for the co-owner until 台電 mail starts arriving" do
-    account = @home.create_electricity_account!(category: @power, forwarding_code: "123456789", forwarding_from: "co.owner@gmail.com", forwarding_code_at: 2.minutes.ago)
+  test "Gmail's confirmation shows as a Confirm button for the co-owner until 台電 mail starts arriving" do
+    link = "https://mail-settings.google.com/mail/vf-%5BANG%5D-abc"
+    account = @home.create_electricity_account!(category: @power, forwarding_link: link, forwarding_from: "co.owner@gmail.com", forwarding_code_at: 2.minutes.ago)
     memberships(:sam_home).update!(role: "co_owner")
     sign_in_as users(:google_only)
     get household_electricity_account_path(@home)
-    assert_select "h3#electricity-code", "Gmail 確認碼"
-    assert_select "output", "123456789"
-    assert_select "p", /由 co\.owner@gmail\.com 申請/
-    assert_select "[data-controller=clipboard][data-clipboard-text-value=?]", "123456789"
+    assert_select "h3#electricity-confirm", "確認轉寄"
+    assert_select "a[href=?][target=_blank][rel~=noopener]", link, /確認轉寄/
+    assert_select "p", /co\.owner@gmail\.com 要求 Gmail 轉寄到這本帳本/
 
     account.update!(last_success_at: Time.current)
     get household_electricity_account_path(@home)
-    assert_select "output", 0
+    assert_select "a[href=?]", link, 0
     assert_select "h2#electricity-status", /轉寄正常/
+  end
+
+  test "the page says when the next 台電 email is expected, and when it's late" do
+    sign_in_as users(:alex)
+    travel_to Time.zone.parse("2026-10-08 10:00") do
+      @home.create_electricity_account!(category: @power, last_success_at: Time.current)
+    end
+    travel_to Time.zone.parse("2026-11-15 10:00") do
+      get household_electricity_account_path(@home)
+      assert_select "dd", /2026-12-08 左右/
+      assert_select "dd", { text: /已逾期/, count: 0 }
+    end
+    travel_to Time.zone.parse("2026-12-16 10:00") do
+      get household_electricity_account_path(@home)
+      assert_select "dd.text-amber-800", /已逾期，已通知擁有者/
+    end
   end
 end

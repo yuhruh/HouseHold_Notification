@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.5.1"
+  date: 2026-11-15
+  en:
+    - "Electricity: Gmail now confirms forwarding with a link instead of a code, so the Electricity page shows a Confirm Forwarding button. It appears only when a member (or an email you allowed) asked."
+    - "A 台電 email forwarded by hand by a member is accepted too, so older bills can be sent in."
+    - "The Electricity page shows when the next 台電 email is expected. If it's a week late, the owner gets a notification to check the 台灣電力 App and the Gmail filter, once per missed bill."
+  zh-TW:
+    - "電費：Gmail 現在改用連結確認轉寄，不再寄確認碼，所以電費頁面會顯示「確認轉寄」按鈕。只有成員（或你允許的 Email）提出要求時才會出現。"
+    - "成員手動轉寄的台電 Email 也會被接受，可以把舊帳單寄進來。"
+    - "電費頁面會顯示下一封台電 Email 預計何時寄達。逾期一週還沒收到，會通知擁有者到台灣電力 App 確認帳單並檢查 Gmail 篩選器，每期只通知一次。"
 - version: "1.5.0"
   date: 2026-11-15
   en:

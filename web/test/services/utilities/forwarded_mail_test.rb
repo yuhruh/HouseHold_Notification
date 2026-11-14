@@ -39,10 +39,22 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     "#{headers.join("\r\n")}\r\n\r\n#{body.gsub("\n", "\r\n")}"
   end
 
-  def confirmation(auth: "dkim=pass header.i=@google.com header.s=20230601")
+  LINK = "https://mail-settings.google.com/mail/vf-%5BANGjdJ_abc%5D-aLp-ZWLp5C81DnQ0R".freeze
+
+  # Shaped like the one Gmail really sent (Nov 2026): a confirmation link, no code
+  def confirmation(requester: "co.owner@gmail.com", auth: "dkim=pass header.i=@google.com header.s=20260707")
     email(from: "Gmail Team <forwarding-noreply@google.com>", auth:,
-      subject: "(#123456789) Gmail Forwarding Confirmation - Receive Mail from co.owner@gmail.com",
-      body: "co.owner@gmail.com has requested to automatically forward mail to your email address\n#{@address}.\n\nConfirmation code: 123456789\n")
+      subject: "(Gmail Forwarding Confirmation - Receive Mail from #{requester}",
+      body: "#{requester} has requested to automatically forward mail to\nyour email\naddress #{@address}.\n\n" \
+        "To allow #{requester} to automatically forward mail to your address,\nplease click the link below to confirm the request:\n\n" \
+        "#{LINK}\n\nIf you click the link and it appears to be broken, please copy and paste it\n...\n" \
+        "click this link to cancel this verification:\nhttps://mail-settings.google.com/mail/uf-%5BANGjdJ_abc%5D-zzz\n")
+  end
+
+  # Forwarded by hand from a member's Gmail: From the member, signed by gmail.com, 台電's email quoted inside
+  def by_hand(from: "co.owner@gmail.com", quoted: "寄件者： 台灣電力公司 <ebill@taipower.com.tw>", signed: "gmail.com")
+    email(from:, subject: "Fwd: 台電電子帳單", auth: "dkim=pass header.i=@#{signed}; spf=pass smtp.mailfrom=#{from}",
+      body: "---------- Forwarded message ---------\n#{quoted}\nDate: 2026年10月7日\nSubject: 電子帳單\n\n電號 04-08-1234-56-7")
   end
 
   # A 台電 email as Gmail's filter forwarding delivers it: the envelope sender is the forwarder's
@@ -55,35 +67,54 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
 
   def read_mail(messages) = Utilities::ForwardedMail.call(inbox: FakeInbox.new(messages))
 
-  test "Gmail's confirmation code is kept for the page, with who asked for it" do
+  test "Gmail's confirmation link is kept for the page's Confirm button, with who asked for it" do
     inbox = FakeInbox.new("m1" => confirmation)
-    assert_equal [ :code ], Utilities::ForwardedMail.call(inbox:)
+    assert_equal [ :confirm ], Utilities::ForwardedMail.call(inbox:)
     assert_equal [ @address ], inbox.asked
     assert_equal({ "m1" => false }, inbox.done)
     @account.reload
-    assert_equal [ "123456789", "co.owner@gmail.com" ], [ @account.forwarding_code, @account.forwarding_from ]
-    assert @account.pending_forwarding_code?
-    assert_equal "forwarding_code", @account.activity.first["kind"]
+    assert_equal [ LINK, nil, "co.owner@gmail.com" ], [ @account.forwarding_link, @account.forwarding_code, @account.forwarding_from ]
+    assert @account.pending_forwarding_confirmation?
+    assert_equal({ "kind" => "forwarding_request", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
 
     travel 8.days do
-      assert_not @account.pending_forwarding_code?, "a week-old code isn't shown"
+      assert_not @account.pending_forwarding_confirmation?, "a week-old request isn't shown"
     end
   end
 
-  test "a confirmation Gmail didn't sign is ignored" do
-    assert_equal [ :ignored ], read_mail("m1" => confirmation(auth: "dkim=fail header.i=@google.com"))
-    assert_nil @account.reload.forwarding_code
+  test "a confirmation Google didn't sign, or from someone who isn't a member, is ignored and says why" do
+    read_mail("m1" => confirmation(auth: "dkim=fail header.i=@google.com"), "m2" => confirmation(requester: "stranger@gmail.com"),
+      "m3" => email(from: "forwarding-noreply@google.com", auth: "dkim=pass header.i=@google.com", body: "co.owner@gmail.com wants something"))
+    @account.reload
+    assert_nil @account.forwarding_link
+    assert_equal [ [ "not_authentic", "forwarding-noreply@google.com" ], [ "not_member", "stranger@gmail.com" ], [ "no_confirmation", nil ] ],
+      @account.activity.reverse.map { it.values_at("reason", "detail") }
+  end
+
+  test "a 台電 email forwarded by hand by a member is accepted for the bill reader, but doesn't count as the filter working" do
+    inbox = FakeInbox.new("m1" => by_hand, "m2" => by_hand(quoted: "From: 台灣電力公司 <ebill@taipower.com.tw>"))
+    assert_equal %i[bill bill], Utilities::ForwardedMail.call(inbox:)
+    assert_equal({ "m1" => true, "m2" => true }, inbox.done)
+    @account.reload
+    assert_equal({ "kind" => "received_by_hand", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
+    assert_nil @account.last_success_at
+  end
+
+  test "a hand-forward that isn't 台電's, or isn't really from the member, is ignored" do
+    assert_equal %i[ignored ignored], read_mail("m1" => by_hand(quoted: "From: Shop <news@shop.example>"), "m2" => by_hand(signed: "evil.example"))
+    assert_equal [ [ "not_taipower_forward", "co.owner@gmail.com" ], [ "not_authentic", "co.owner@gmail.com" ] ],
+      @account.reload.activity.reverse.map { it.values_at("reason", "detail") }
   end
 
   test "a 台電 email forwarded by an allowed Gmail is accepted (dots don't matter) and labelled for the bill reader" do
-    @account.update!(forwarding_code: "123456789", forwarding_code_at: 1.minute.ago)
+    @account.update!(forwarding_link: LINK, forwarding_code_at: 1.minute.ago)
     inbox = FakeInbox.new("m1" => taipower)
     assert_equal [ :bill ], Utilities::ForwardedMail.call(inbox:)
     assert_equal({ "m1" => true }, inbox.done)
     @account.reload
     assert @account.connected?
     assert_equal({ "kind" => "received", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
-    assert_not @account.pending_forwarding_code?, "once mail arrives the code has done its job"
+    assert_not @account.pending_forwarding_confirmation?, "once mail arrives the request has done its job"
   end
 
   test "a member's own Gmail is accepted too" do

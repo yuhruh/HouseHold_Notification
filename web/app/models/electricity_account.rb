@@ -5,6 +5,8 @@
 # that may forward to it.
 class ElectricityAccount < UtilityAccount
   EMAIL = URI::MailTo::EMAIL_REGEXP
+  BILLED_EVERY = 2.months
+  MISSING_AFTER = 7.days
 
   normalizes :allowed_senders, with: ->(emails) { Array(emails).map { it.to_s.strip.downcase }.compact_blank.uniq }
 
@@ -27,10 +29,27 @@ class ElectricityAccount < UtilityAccount
     "#{local}+h#{household_id}-#{inbox_token}@#{domain}"
   end
 
-  # Gmail's confirmation code, while it's still useful: under 7 days old and no 台電 email since
-  def pending_forwarding_code?
-    forwarding_code.present? && forwarding_code_at&.after?(Utilities::ForwardedMail::CODE_KEPT.ago) &&
+  # Gmail's request to confirm forwarding (a link, or a code from older Gmail), while it's still
+  # useful: under 7 days old and no 台電 email forwarded by a filter since
+  def pending_forwarding_confirmation?
+    (forwarding_link.present? || forwarding_code.present?) && forwarding_code_at&.after?(Utilities::ForwardedMail::LINK_KEPT.ago) &&
       !(last_success_at && last_success_at > forwarding_code_at)
+  end
+
+  # 台電 bills every 2 months, so its next email is due 2 months after the last one a filter
+  # forwarded (or after Electricity was turned on, before any)
+  def next_mail_expected_on
+    ((last_success_at || created_at)&.in_time_zone(household.time_zone)&.to_date)&.+(BILLED_EVERY)
+  end
+
+  # When 台電's email is a week late: the day it was expected (the latest such day, if several bills
+  # in a row were missed). nil while nothing is late.
+  def missing_mail_expected_on(today)
+    expected = next_mail_expected_on or return
+    return if today < expected + MISSING_AFTER
+
+    expected += BILLED_EVERY while today >= expected + BILLED_EVERY + MISSING_AFTER
+    expected
   end
 
   private

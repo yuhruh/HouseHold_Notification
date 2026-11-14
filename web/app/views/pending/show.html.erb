@@ -1,5 +1,6 @@
 <% content_for :title, t("records.bills_switch.to_pay_title") %>
-<%# Scheduled (recurring bills not created yet) is listed last but isn't counted: nothing to pay yet %>
+<%# Scheduled (recurring bills not created yet) is listed last but isn't counted: nothing to pay yet. Due in the
+    next 30 days is red like overdue (pay these now); scheduled is sky (not in To Pay yet) %>
 <% sections = @to_pay.sections + [ [ :scheduled, @to_pay.scheduled ] ] %>
 <%# On a computer the groups sit side by side: overdue | due soon and maintenance | due later and no due date
     (from 1280px; narrower, the third column wraps under the first so cards stay one line wide),
@@ -22,7 +23,7 @@
         <% column.each do |key, list| %>
         <section class="space-y-3 lg:space-y-2">
           <div>
-            <h2 class="text-lg font-semibold <%= 'text-red-700' if key == :overdue %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
+            <h2 class="text-lg font-semibold <%= { overdue: "text-red-700", soon: "text-red-700", scheduled: "text-sky-800" }[key] %>"><%= t(".#{key}") %> (<%= list.size %>)</h2>
             <p class="text-sm text-gray-600"><%= t(".hints.#{key}") %></p>
           </div>
           <%# Each card says what the bill needs, worked out from the record; paying happens on the record page %>
@@ -30,12 +31,17 @@
             <% list.each do |record| %>
               <% if key == :scheduled %>
                 <% scheduled = record %>
-                <li class="card-raised space-y-3 rounded-xl bg-white px-4 py-3 lg:space-y-2 lg:py-2.5">
+                <% template = scheduled.template %>
+                <%# Reads like the bills above (not done / not paid yet), with when it's due and when it joins them %>
+                <% amount = template.default_amount if template.amount_fixed? || template.maintenance? %>
+                <% status = if template.maintenance? then [ t("records.show.status_line.not_done"), (t("records.show.status_line.expected_cost", amount: money(amount, template.currency)) if amount) ]
+                            else [ t(".not_paid"), (t(".left_to_pay", amount: money(amount, template.currency)) if amount) ] end %>
+                <li class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 bg-sky-50 dark:bg-sky-50/60">
                   <div class="space-y-0.5">
-                    <p class="font-bold text-gray-700"><%= t(scheduled.due_on ? ".scheduled_due" : ".scheduled_starts", date: l(scheduled.date)) %></p>
-                    <p><span class="text-lg font-bold lg:text-base"><%= scheduled.template.title %></span>
-                      <span class="text-sm text-gray-600"><%= [ scheduled.template.details.presence, scheduled.period.to_s ].compact.join(" · ") %></span></p>
-                    <p class="text-sm text-gray-600"><%= t(".scheduled_creates", date: l(scheduled.creates_on)) %></p>
+                    <p class="font-bold text-sky-900"><%= status.compact.join(" · ") %></p>
+                    <p><span class="text-lg font-bold lg:text-base"><%= template.title %></span>
+                      <span class="text-sm text-gray-600"><%= [ template.details.presence, scheduled.period.to_s ].compact.join(" · ") %></span></p>
+                    <p class="text-sm text-gray-700"><%= t(scheduled.due_on ? ".scheduled_due" : ".scheduled_starts", date: l(scheduled.date)) %> · <%= t(".scheduled_creates", date: l(scheduled.creates_on)) %></p>
                   </div>
                   <%= link_to household_recurring_templates_path(Current.household), class: "btn-press inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/recurring.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t(".scheduled_open") %></span><% end %>
                 </li>
@@ -48,9 +54,9 @@
               <% left = if key == :maintenance then nil
                         elsif record.maintenance? then (t("records.show.status_line.expected_cost", amount: money(record.amount_required, record.currency)) if record.amount_required)
                         else (t(".left_to_pay", amount: Reminders::Wording.outstanding(record)) if record.amount_required) end %>
-              <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= key == :maintenance ? "bg-white" : record_card_class(record) %>">
+              <li id="<%= dom_id(record) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= case key when :maintenance then "bg-white" when :soon then RecordsHelper::CARD_CLASSES[:overdue] else record_card_class(record) end %>">
                 <div class="space-y-0.5">
-                  <p class="font-bold <%= key == :overdue ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
+                  <p class="font-bold <%= key.in?(%i[overdue soon]) ? "text-red-700" : "text-amber-900" %>"><%= status %><%= " · #{left}" if left %></p>
                   <p><span class="text-lg font-bold lg:text-base"><%= record.title %></span>
                     <span class="text-sm text-gray-600"><%= [ record.details.presence, record.period.to_s ].compact.join(" · ") %></span></p>
                 </div>

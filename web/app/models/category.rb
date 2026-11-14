@@ -7,6 +7,7 @@ class Category < ApplicationRecord
   has_many :records, dependent: :restrict_with_error
   has_many :category_aliases, dependent: :destroy
   has_many :biller_codes, dependent: :delete_all
+  has_one :gas_account, dependent: :restrict_with_error
 
   enum :record_type, RECORD_TYPES, validate: true
 

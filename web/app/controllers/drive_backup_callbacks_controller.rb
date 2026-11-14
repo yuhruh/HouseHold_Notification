@@ -7,7 +7,7 @@ class DriveBackupCallbacksController < ApplicationController
     household = Current.user.memberships.find_by(household_id: started["household_id"], role: "owner")&.household
     return redirect_to(root_path, alert: t(".failed")) unless household
 
-    settings = household_settings_path(household)
+    settings = backup_household_settings_path(household)
     return redirect_to(settings, alert: t(".failed")) if params[:code].blank?
 
     token = DriveBackups::Oauth.exchange(code: params[:code], redirect_uri: google_drive_callback_url)

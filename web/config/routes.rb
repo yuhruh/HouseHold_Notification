@@ -34,7 +34,14 @@ Rails.application.routes.draw do
     get "/" => "households#show"
     resources :members, only: :index
     resources :member_devices, only: :destroy
-    resource :settings, only: %i[show update], controller: "household_settings"
+    resource :settings, only: %i[show update], controller: "household_settings" do
+      get :backup
+      get :activity
+      get :danger
+    end
+    resource :gas_account, only: %i[show update destroy] do
+      post :check
+    end
     resource :drive_backup, only: %i[create destroy] do
       post :run
     end

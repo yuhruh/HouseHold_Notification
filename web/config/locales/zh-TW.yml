@@ -655,6 +655,8 @@ zh-TW:
       import_undone: "復原匯入"
       template_updated: "由定期帳單範本更新"
       reminders_restarted: "重新提醒"
+      gas_synced: "由欣桃天然氣新增或補上資料"
+      gas_paid: "由欣桃天然氣標示已付款"
     index:
       scheduled:
         one: "1 筆定期帳單已排定，尚未建立：%{names}"
@@ -797,6 +799,8 @@ zh-TW:
       delete_confirm: "要刪除這筆記錄嗎？刪除後無法復原。"
       activity: "活動記錄"
       former_member: "已離開的成員"
+      auto_sync: "欣桃天然氣自動同步"
+      synced: "由欣桃天然氣同步"
       past_records: "過去的記錄（%{count}）"
       past_hint: "同類別、同明細的較早記錄，由新到舊。"
       past_see_all: "在記錄頁看全部 ›"

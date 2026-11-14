@@ -5,6 +5,7 @@
   <div class="space-y-1">
     <h1 class="text-center text-3xl font-bold"><%= @record.title %></h1>
     <p class="text-center text-sm text-gray-600"><%= record_type_label(@record.record_type) %> · <%= @record.category.name %></p>
+    <% if @record.external_ref %><p class="text-center text-xs font-semibold text-orange-800"><%= t(".synced") %></p><% end %>
   </div>
   <%= render "status_line", record: @record %>
 
@@ -62,7 +63,7 @@
           <% if event.action.in?(%w[updated marked_paid]) && event.diff.any? %>
             <span class="block text-gray-600"><%= event.diff.keys.map { |k| Record.human_attribute_name(k) }.join("、") %></span>
           <% end %>
-          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %> · <%= event.user&.display_name.presence || event.user&.email_address || t(".former_member") %></span></li>
+          <span class="block text-gray-500"><%= l(event.created_at, format: :short) %> · <%= event.action.start_with?("gas_") ? t(".auto_sync") : event.user&.display_name.presence || event.user&.email_address || t(".former_member") %></span></li>
       <% end %>
     </ul>
   </details>

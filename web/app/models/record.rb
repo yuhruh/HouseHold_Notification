@@ -16,8 +16,9 @@ class Record < ApplicationRecord
 
   enum :record_type, Category::RECORD_TYPES, validate: true
   enum :reminder_frequency, REMINDER_FREQUENCIES.index_by(&:itself), prefix: :reminder, validate: true
-  # A field left empty in the form is stored as nil, as the sheet import does
-  normalizes :details, :payment_note, :bill_number, with: ->(text) { text.presence }
+  # A field left empty in the form is stored as nil, as the sheet import does. external_ref is set
+  # when the 欣桃天然氣 sync created or adopted the bill: "shintao:<用戶編號>:<限繳日>"
+  normalizes :details, :payment_note, :bill_number, :external_ref, with: ->(text) { text.presence }
 
   validates :title, presence: true, length: { maximum: 100 }
   validates :details, length: { maximum: 200 }

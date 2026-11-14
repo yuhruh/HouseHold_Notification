@@ -4,7 +4,7 @@ class DriveBackupsController < ApplicationController
   include Reauthentication
   before_action { authorize Current.household, :manage? }
   before_action -> { head :not_found unless DriveBackup.available? }
-  before_action -> { require_reauthentication("connect_drive_backup", return_to: household_settings_path(Current.household)) }, only: :create
+  before_action -> { require_reauthentication("connect_drive_backup", return_to: backup_household_settings_path(Current.household)) }, only: :create
 
   # Hands over to Google; DriveBackupCallbacksController takes it from there
   def create
@@ -16,12 +16,12 @@ class DriveBackupsController < ApplicationController
   def run
     backup = Current.household.drive_backup
     DriveBackupJob.perform_later(backup.id) if backup && !backup.running? && !backup.needs_reconnect?
-    redirect_to household_settings_path(Current.household), notice: t(".started")
+    redirect_to backup_household_settings_path(Current.household), notice: t(".started")
   end
 
   def destroy
     DriveBackups::Disconnect.call(Current.household, actor: Current.user)
-    redirect_to household_settings_path(Current.household), notice: t(".disconnected")
+    redirect_to backup_household_settings_path(Current.household), notice: t(".disconnected")
   end
 
   private

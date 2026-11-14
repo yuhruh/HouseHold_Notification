@@ -35,7 +35,7 @@ class DriveBackupJob < ApplicationJob
     I18n.with_locale(owner.locale.presence || I18n.default_locale) do
       title = I18n.t("drive_backups.notification.title", household: household.name)
       body = I18n.t("drive_backups.problems.#{problem}")
-      url = Rails.application.routes.url_helpers.household_settings_path(household)
+      url = Rails.application.routes.url_helpers.backup_household_settings_path(household)
       Notification.create!(household:, user: owner, kind: "drive_backup_failed", title:, body:, url:)
       WebPushNotifier.notify(owner, title:, body:, url:) if NotificationPreference.for(household.owner_membership).web_push
     end

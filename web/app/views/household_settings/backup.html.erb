@@ -1,0 +1,8 @@
+<% content_for :title, t("household_settings.drive_backup.title") %>
+<% content_for :settings_section do %>
+<div class="w-full mx-auto max-w-2xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <%= render "drive_backup" %>
+</div>
+<% end %>
+<%= render "household_settings/layout", current: :backup %>

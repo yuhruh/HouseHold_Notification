@@ -1,0 +1,47 @@
+<%# Ledger settings around each of its pages: the page goes in content_for :settings_section, then
+    this is rendered with `current`. From 768px a menu of every section sits at the left, the page
+    you're on tinted; on a phone the settings page lists the sections under its form, and each other
+    section links back to it. Owner-only sections are left out for everyone else %>
+<% household = Current.household %>
+<% owner = policy(household).manage? %>
+<% sections = [
+     [ :general, "settings.png", t("household_settings.layout.general"), household_settings_path(household) ],
+     [ :members, "members.png", t("households.show.members"), household_members_path(household) ],
+     ([ :reminder_deliveries, "reminder_delivery.png", t("reminder_deliveries.index.title"), household_reminder_deliveries_path(household) ] if owner),
+     [ :recurring_templates, "recurring.png", t("households.show.templates"), household_recurring_templates_path(household) ],
+     [ :categories, "categories.png", t("households.show.categories"), household_categories_path(household) ],
+     [ :payment_methods, "payment.png", t("households.show.payment_methods"), household_payment_methods_path(household) ],
+     ([ :gas_account, "expense.png", t("gas_accounts.show.title"), household_gas_account_path(household) ] if owner),
+     ([ :backup, "google_connect.png", t("household_settings.drive_backup.title"), backup_household_settings_path(household) ] if owner && DriveBackup.available?),
+     [ :activity, "details.png", t("household_settings.show.activity"), activity_household_settings_path(household) ],
+     ([ :danger, "delete.png", t("accounts.show.danger_zone"), danger_household_settings_path(household) ] if owner)
+   ].compact %>
+<% row = "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2" %>
+<div class="w-full mx-auto max-w-6xl md:flex md:items-start md:gap-8">
+  <nav aria-label="<%= t("household_settings.layout.label") %>" class="hidden w-56 shrink-0 flex-col gap-0.5 py-4 md:flex">
+    <p class="px-3 pb-1 text-xs font-bold tracking-wide text-gray-600 uppercase"><%= t("layouts.header.household_settings") %></p>
+    <% sections.each do |key, icon, label, path| %>
+      <% here = key == current %>
+      <%= link_to nav_label(icon, label), path, "aria-current": (here ? "page" : nil),
+            class: "#{row} #{here ? 'bg-blue-100 font-bold text-blue-900' : 'hover:bg-gray-50'} #{'text-red-700' if key == :danger && !here}" %>
+    <% end %>
+  </nav>
+
+  <div class="min-w-0 flex-1">
+    <% unless current == :general %>
+      <p class="pt-4 md:hidden"><%= link_to "‹ #{t("layouts.header.household_settings")}", household_settings_path(household), class: "text-sm text-blue-700" %></p>
+    <% end %>
+    <%= yield :settings_section %>
+    <% if current == :general %>
+      <nav aria-label="<%= t("household_settings.layout.label") %>" class="mx-auto max-w-2xl pb-4 md:hidden">
+        <ul class="divide-y rounded-xl border-2 border-(--card-line) bg-white">
+          <% sections.drop(1).each do |key, icon, label, path| %>
+            <li><%= link_to path, class: "#{row} justify-between #{'text-red-700' if key == :danger}" do %>
+              <span class="flex items-center gap-3"><%= nav_label(icon, label) %></span><span aria-hidden="true" class="text-gray-500">›</span>
+            <% end %></li>
+          <% end %>
+        </ul>
+      </nav>
+    <% end %>
+  </div>
+</div>

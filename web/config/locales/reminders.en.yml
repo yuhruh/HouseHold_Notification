@@ -76,12 +76,12 @@ en:
         maintenance: "Time for upkeep. Press Done when it's finished."
         no_due: "No deadline set. Pay when you can."
         later: "Due more than 30 days from now. Nothing to do yet."
-        scheduled: "The next bill of each recurring bill. It appears here as a bill on the date shown."
+        scheduled: "Coming up from your recurring bills, not done or paid yet. Each moves up to To Pay on the date shown."
       not_paid: "Not paid yet"
       left_to_pay: "%{amount} left to pay"
       scheduled_due: "Due %{date}"
       scheduled_starts: "Starts %{date}"
-      scheduled_creates: "Added to your bills on %{date}"
+      scheduled_creates: "added to To Pay on %{date}"
       scheduled_open: "Recurring Bills"
   notifications:
     index:

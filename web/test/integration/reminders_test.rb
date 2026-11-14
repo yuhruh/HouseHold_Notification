@@ -98,6 +98,7 @@ class RemindersTest < ActionDispatch::IntegrationTest
     get household_pending_path(@home)
     assert_select "h2", /已排定/
     assert_select "li", /冷氣清洗.*客廳/m
+    assert_select "li.bg-sky-50 p.text-sky-900", /尚未完成/, "reads like the not-done tasks above it, in sky"
     assert_select "a[href=?]", household_recurring_templates_path(@home)
     get household_path(@home)
     assert_select "span", /1 筆定期帳單已排定/

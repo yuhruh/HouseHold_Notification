@@ -1,4 +1,4 @@
-# The service worker confirms it showed a reminder (PRD §6). Unauthenticated and CSRF-exempt on
+# The service worker confirms it showed a reminder or a "bill paid" push (PRD §6). Unauthenticated and CSRF-exempt on
 # purpose (the session may have expired); the single-use token is the only credential.
 class PushReceiptsController < ApplicationController
   allow_unauthenticated_access
@@ -12,8 +12,8 @@ class PushReceiptsController < ApplicationController
     now = Time.current
     DeliveryAttempt.transaction do
       attempt.update!(status: "received", received_at: now)
-      delivery = attempt.reminder_delivery
-      delivery.update!(status: "sent", sent_at: now, error: nil) unless delivery.sent?
+      delivery = attempt.reminder_delivery # nil for a notification's push ("bill paid"): the attempt is enough
+      delivery.update!(status: "sent", sent_at: now, error: nil) if delivery && !delivery.sent?
       PushSubscription.where(id: attempt.push_subscription_id).update_all(last_receipt_at: now)
     end
     head :no_content

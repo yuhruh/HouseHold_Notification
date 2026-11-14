@@ -120,6 +120,8 @@ zh-TW:
         other: "到期前 %{count} 天提醒（由擁有者設定）"
       channel_email: "Email"
       channel_push: "推播"
+      bill_paid: "帳單已繳費"
+      bill_paid_hint: "瓦斯費或電費自動標示為已付款時通知：App 內與推播，推播沒送達時改寄 Email"
   account:
     notification_preferences:
       update:
@@ -170,3 +172,10 @@ zh-TW:
     index:
       remove_device: "移除裝置"
       remove_device_confirm: "要移除這個裝置嗎？除非對方在該裝置重新啟用通知，否則不會再收到提醒。"
+  bills_paid:
+    title:
+      one: "%{household}：1 筆帳單已繳費"
+      other: "%{household}：%{count} 筆帳單已繳費"
+    line: "%{bill}：已自動確認繳費（%{paid_on}）"
+    generic: "打開 App 查看已繳費的帳單。"
+    footer: "可在「我的帳戶 → 通知」變更這項設定。"

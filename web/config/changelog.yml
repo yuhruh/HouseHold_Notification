@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.6.0"
+  date: 2026-11-15
+  en:
+    - "Bill paid notifications: when a gas (or, later, electricity) bill is marked paid automatically, you get one message listing the bills, in the inbox and by push. If the push can't reach any of your devices, or none confirms it within an hour, it comes by email instead."
+    - "It's on for owners and co-owners. Turn it off with the new Bill paid checkbox under My Account → Notifications."
+  zh-TW:
+    - "帳單已繳費通知：瓦斯費（之後也包括電費）自動標示為已付款時，會發一則列出這些帳單的通知，出現在 App 內並以推播傳送。推播無法送到任何裝置，或一小時內沒有裝置確認收到時，改寄 Email。"
+    - "擁有者和共同擁有者預設開啟，可在「我的帳戶 → 通知」取消勾選新的「帳單已繳費」關閉。"
 - version: "1.5.1"
   date: 2026-11-15
   en:

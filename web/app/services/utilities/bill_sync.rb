@@ -29,6 +29,7 @@ module Utilities
         paid.sort_by(&:due_on).each { apply(it, paid: true) }
         finish!(error: nil)
       end
+      notify_paid
       @lines
     rescue StandardError => e
       fail!(e.message)
@@ -42,6 +43,12 @@ module Utilities
     end
 
     private
+
+    # Members hear about bills this sync marked paid, once the transaction has committed
+    def notify_paid
+      ids = @lines.select { it["kind"] == "paid" }.filter_map { it["record_id"] }
+      NotifyBillsPaidJob.perform_later(@household.id, ids) if ids.any?
+    end
 
     def finish!(error:)
       @account.last_checked_at = Time.current

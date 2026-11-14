@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_15_040000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -100,7 +100,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
   end
 
   create_table "delivery_attempts", force: :cascade do |t|
-    t.bigint "reminder_delivery_id", null: false
+    t.bigint "reminder_delivery_id"
     t.bigint "push_subscription_id"
     t.string "channel", null: false
     t.string "status", null: false
@@ -109,8 +109,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
     t.string "receipt_token_digest"
     t.datetime "attempted_at", null: false
     t.datetime "received_at"
+    t.bigint "notification_id"
+    t.index ["notification_id"], name: "index_delivery_attempts_on_notification_id"
     t.index ["receipt_token_digest"], name: "index_delivery_attempts_on_receipt_token_digest", unique: true, where: "(receipt_token_digest IS NOT NULL)"
     t.index ["reminder_delivery_id"], name: "index_delivery_attempts_on_reminder_delivery_id"
+    t.check_constraint "num_nonnulls(reminder_delivery_id, notification_id) = 1", name: "delivery_attempts_one_owner"
   end
 
   create_table "drive_backup_files", force: :cascade do |t|
@@ -274,6 +277,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
     t.boolean "email", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "bill_paid"
     t.index ["household_id"], name: "index_notification_preferences_on_household_id"
     t.index ["user_id", "household_id"], name: "index_notification_preferences_on_user_id_and_household_id", unique: true
   end
@@ -289,6 +293,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
     t.bigint "reminder_delivery_id"
     t.datetime "read_at"
     t.datetime "created_at", null: false
+    t.datetime "fallback_emailed_at"
     t.index ["household_id"], name: "index_notifications_on_household_id"
     t.index ["reminder_delivery_id"], name: "index_notifications_on_reminder_delivery_id"
     t.index ["user_id", "read_at", "created_at"], name: "index_notifications_on_user_id_and_read_at_and_created_at"
@@ -770,6 +775,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_030000) do
   add_foreign_key "categories", "households"
   add_foreign_key "category_aliases", "categories"
   add_foreign_key "category_aliases", "households"
+  add_foreign_key "delivery_attempts", "notifications", on_delete: :cascade
   add_foreign_key "delivery_attempts", "reminder_deliveries", on_delete: :cascade
   add_foreign_key "drive_backup_files", "drive_backups", on_delete: :cascade
   add_foreign_key "drive_backups", "households"

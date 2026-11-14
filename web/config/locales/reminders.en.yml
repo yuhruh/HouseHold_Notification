@@ -120,6 +120,8 @@ en:
         other: "Due-soon reminders %{count} days ahead (set by the owner)"
       channel_email: "Email"
       channel_push: "Push"
+      bill_paid: "Bill paid"
+      bill_paid_hint: "When gas or electricity is marked paid automatically: in the inbox and by push, or by email if the push doesn't arrive"
   account:
     notification_preferences:
       update:
@@ -170,3 +172,10 @@ en:
     index:
       remove_device: "Remove Device"
       remove_device_confirm: "Remove this device? It stops getting reminders until they enable notifications on it again."
+  bills_paid:
+    title:
+      one: "%{household}: 1 bill paid"
+      other: "%{household}: %{count} bills paid"
+    line: "%{bill}: marked paid automatically (%{paid_on})"
+    generic: "Open the app to see which bills were paid."
+    footer: "Change this under My Account → Notifications."

@@ -657,6 +657,8 @@ zh-TW:
       reminders_restarted: "重新提醒"
       gas_synced: "由欣桃天然氣新增或補上資料"
       gas_paid: "由欣桃天然氣標示已付款"
+      taipower_synced: "由台電 Email 新增或補上資料"
+      taipower_paid: "由台電 Email 標示已付款"
     index:
       scheduled:
         one: "1 筆定期帳單已排定，尚未建立：%{names}"
@@ -801,6 +803,8 @@ zh-TW:
       former_member: "已離開的成員"
       auto_sync: "欣桃天然氣自動同步"
       synced: "由欣桃天然氣同步"
+      auto_sync_taipower: "台電 Email"
+      synced_taipower: "由台電 Email 補上資料"
       past_records: "過去的記錄（%{count}）"
       past_hint: "同類別、同明細的較早記錄，由新到舊。"
       past_see_all: "在記錄頁看全部 ›"

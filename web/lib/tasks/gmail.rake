@@ -7,7 +7,8 @@ namespace :gmail do
     config = DeliveryMethods::GmailApi.config
     client_id = Google::Auth::ClientId.new(config.fetch(:client_id), config.fetch(:client_secret))
     store = Struct.new(:data) { def load(_) = nil; def store(_, v) = (self.data = v); def delete(_) = nil }.new
-    authorizer = Google::Auth::UserAuthorizer.new(client_id, DeliveryMethods::GmailApi::SCOPE, store, "http://localhost:1")
+    # Send reminders, and read + label the mail forwarded to the ledgers' addresses (Utilities::Inbox)
+    authorizer = Google::Auth::UserAuthorizer.new(client_id, DeliveryMethods::GmailApi::AUTHORIZE_SCOPES, store, "http://localhost:1")
 
     # googleauth always adds access_type=offline and approval_prompt=force (consent screen + refresh
     # token); also passing prompt=consent makes Google reject the request ("Conflict params").

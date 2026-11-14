@@ -1,0 +1,115 @@
+<% content_for :title, t(".title") %>
+<% household = Current.household %>
+<% account = @electricity_account %>
+<% owner = policy(account).manage? %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 disabled:bg-gray-100 disabled:text-gray-700" %>
+<% content_for :settings_section do %>
+<div class="w-full mx-auto max-w-4xl space-y-6 py-4">
+  <%= render "shared/flash" %>
+  <%= page_title("email.png", t(".title")) %>
+  <p class="text-gray-700"><%= t(".intro") %></p>
+
+  <div class="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+    <div class="space-y-6">
+      <section class="card-raised-sm space-y-4 rounded-xl bg-white p-4" aria-labelledby="electricity-settings">
+        <h2 id="electricity-settings" class="text-lg font-semibold"><%= t(".settings_title") %></h2>
+        <%= form_with model: account, url: household_electricity_account_path(household), method: :patch, class: "space-y-4" do |form| %>
+          <% if account.errors.any? %>
+            <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% account.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+          <% end %>
+          <fieldset class="space-y-4" <%= "disabled" unless owner %>>
+            <div class="space-y-1">
+              <%= form.label :customer_code, class: "block text-sm font-medium" do %><%= ElectricityAccount.human_attribute_name(:customer_code) %> <span class="font-normal text-gray-600"><%= t(".optional") %></span><% end %>
+              <%= form.text_field :customer_code, inputmode: "numeric", autocomplete: "off", maxlength: 14, class: field %>
+              <p class="text-sm text-gray-600"><%= t(".customer_code_hint") %></p>
+            </div>
+            <div class="space-y-1">
+              <%= form.label :category_id, class: "block text-sm font-medium" %>
+              <%= form.collection_select :category_id, household.categories.active.where(record_type: "expense").ordered, :id, :name, { prompt: account.category ? nil : t(".choose") }, required: true, class: field %>
+            </div>
+            <div class="space-y-1">
+              <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+              <%= form.collection_select :payment_method_id, household.payment_methods.active.order(:name), :id, :name, { include_blank: t(".no_payment_method") }, class: field %>
+              <p class="text-sm text-gray-600"><%= t(".payment_method_hint") %></p>
+            </div>
+            <div class="space-y-1">
+              <%= form.label :allowed_senders, class: "block text-sm font-medium" do %><%= ElectricityAccount.human_attribute_name(:allowed_senders) %> <span class="font-normal text-gray-600"><%= t(".optional") %></span><% end %>
+              <%= form.text_area :allowed_senders, value: account.allowed_senders.join("\n"), rows: 2, autocomplete: "off", class: field %>
+              <p class="text-sm text-gray-600"><%= t(".allowed_senders_hint") %></p>
+            </div>
+            <% if owner %>
+              <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= account.persisted? ? t(".save") : t(".turn_on") %></span><% end %>
+            <% end %>
+          </fieldset>
+        <% end %>
+        <% if owner && account.persisted? %>
+          <div class="border-t pt-4">
+            <%= button_to household_electricity_account_path(household), method: :delete, form: { data: { turbo_confirm: t(".disconnect_confirm") } }, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-red-700 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/disconnect.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".disconnect") %></span><% end %>
+          </div>
+        <% elsif !owner %>
+          <p class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"><%= t(".owner_only") %></p>
+        <% end %>
+      </section>
+    </div>
+
+    <div class="space-y-6">
+      <% if account.new_record? %>
+        <section class="card-raised-sm space-y-3 rounded-xl bg-white p-4" aria-labelledby="electricity-how">
+          <h2 id="electricity-how" class="text-lg font-semibold"><%= t(".how_title") %></h2>
+          <ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">
+            <% t(".how").each do |line| %><li><%= line %></li><% end %>
+          </ul>
+          <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900"><%= owner ? t(".turn_on_hint") : t(".not_on_yet") %></p>
+        </section>
+      <% else %>
+        <section class="card-raised-sm space-y-4 rounded-xl bg-white p-4" aria-labelledby="electricity-forwarding">
+          <h2 id="electricity-forwarding" class="text-lg font-semibold"><%= t(".forwarding_title") %></h2>
+          <% if (address = account.inbox_address) %>
+            <div class="space-y-1">
+              <label for="electricity-address" class="block text-sm font-medium"><%= t(".forward_to") %></label>
+              <div class="flex gap-2" data-controller="clipboard" data-clipboard-text-value="<%= address %>" data-clipboard-done-value="<%= t(".copied") %>">
+                <input id="electricity-address" type="text" value="<%= address %>" readonly class="<%= field %> min-w-0 flex-1 text-sm">
+                <button type="button" data-action="clipboard#copy" class="btn-press inline-flex shrink-0 items-center rounded-xl bg-blue-100 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><span data-clipboard-target="label"><%= t(".copy") %></span></button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700"><%= t(".who_sets_up") %></p>
+            <ol class="space-y-2 text-sm">
+              <% t(".steps").each_with_index do |step, i| %>
+                <li class="flex items-start gap-2"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-bold text-white"><%= i + 1 %></span><span><%= step %></span></li>
+              <% end %>
+            </ol>
+            <% if account.pending_forwarding_code? %>
+              <div class="space-y-2 rounded-xl border-2 border-(--card-line) bg-blue-50 p-3" aria-labelledby="electricity-code">
+                <h3 id="electricity-code" class="font-semibold"><%= t(".code_title") %></h3>
+                <p class="text-sm text-gray-700"><%= t(".code_from", email: account.forwarding_from.presence || "?", time: l(account.forwarding_code_at, format: :short)) %></p>
+                <div class="flex flex-wrap items-center gap-2" data-controller="clipboard" data-clipboard-text-value="<%= account.forwarding_code %>" data-clipboard-done-value="<%= t(".copied") %>">
+                  <output class="rounded-xl border-2 border-(--card-line) bg-white px-3 py-1 text-3xl font-extrabold tracking-widest tabular-nums"><%= account.forwarding_code %></output>
+                  <button type="button" data-action="clipboard#copy" class="btn-press inline-flex items-center rounded-xl bg-blue-100 text-gray-900 cursor-pointer px-3.5 py-2 font-medium"><span data-clipboard-target="label"><%= t(".copy") %></span></button>
+                </div>
+                <p class="text-sm text-gray-700"><%= t(".code_next") %></p>
+              </div>
+            <% else %>
+              <p class="rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"><%= t(".code_soon") %></p>
+            <% end %>
+          <% else %>
+            <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t(".no_mailbox") %></p>
+          <% end %>
+        </section>
+
+        <section class="card-raised-sm space-y-4 rounded-xl bg-white p-4" aria-labelledby="electricity-status">
+          <h2 id="electricity-status" class="flex items-center gap-2 text-lg font-semibold">
+            <span class="h-3 w-3 rounded-full <%= account.connected? ? 'bg-green-600' : 'bg-amber-500' %>" aria-hidden="true"></span>
+            <%= account.connected? ? t(".status.working") : t(".status.waiting") %>
+          </h2>
+          <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+            <dt class="text-gray-600"><%= ElectricityAccount.human_attribute_name(:customer_code) %></dt><dd class="font-medium"><%= account.masked_code || t(".from_first_email") %></dd>
+            <dt class="text-gray-600"><%= t(".last_email") %></dt><dd class="font-medium"><%= account.last_success_at ? l(account.last_success_at, format: :short) : t(".not_yet") %></dd>
+          </dl>
+          <%= render "utility_accounts/activity", account:, scope: "electricity_accounts.show" %>
+        </section>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% end %>
+<%= render "household_settings/layout", current: :electricity_account %>

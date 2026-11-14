@@ -11,8 +11,13 @@ module DeliveryMethods
   #     client_secret: ...
   #     refresh_token: ...   # from `bin/rails gmail:authorize`
   #     sender: household.bills@gmail.com
+  #
+  # The refresh token is granted both scopes: sending uses only gmail.send; Utilities::Inbox reads
+  # and labels forwarded mail (台電 emails, Gmail's forwarding confirmations) with gmail.modify.
   class GmailApi
     SCOPE = "https://www.googleapis.com/auth/gmail.send".freeze
+    READ_SCOPE = "https://www.googleapis.com/auth/gmail.modify".freeze
+    AUTHORIZE_SCOPES = [ SCOPE, READ_SCOPE ].freeze
 
     # Raised for a revoked/expired refresh token. Not retryable: someone has to re-run
     # `bin/rails gmail:authorize`.
@@ -40,12 +45,12 @@ module DeliveryMethods
         raise ArgumentError, "Missing `gmail` entry in Rails credentials"
     end
 
-    def self.credentials(config)
+    def self.credentials(config, scope: SCOPE)
       Google::Auth::UserRefreshCredentials.new(
         client_id: config.fetch(:client_id),
         client_secret: config.fetch(:client_secret),
         refresh_token: config.fetch(:refresh_token),
-        scope: SCOPE
+        scope:
       )
     end
   end

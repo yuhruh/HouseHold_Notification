@@ -31,9 +31,14 @@ module Recurring
     end
 
     def self.matching_bills(template, period)
-      template.household.records.where(recurring_template_id: nil, record_type: template.record_type, category_id: template.category_id,
-        period_year: period.start_year, period_start_month: period.start_month, period_end_year: period.end_year,
-        period_end_month: period.end_month).where("COALESCE(details, '') = ?", template.details.to_s)
+      unlinked_bills(template).where(period_year: period.start_year, period_start_month: period.start_month,
+        period_end_year: period.end_year, period_end_month: period.end_month)
+    end
+
+    # Bills without a template that this template would link (same type, category and details), any period
+    def self.unlinked_bills(template)
+      template.household.records.where(recurring_template_id: nil, record_type: template.record_type, category_id: template.category_id)
+        .where("COALESCE(details, '') = ?", template.details.to_s)
     end
 
     def create_bill(period)

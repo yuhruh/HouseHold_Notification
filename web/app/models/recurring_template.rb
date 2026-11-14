@@ -60,12 +60,15 @@ class RecurringTemplate < ApplicationRecord
 
   def next_period(today) = periods_from(today.beginning_of_month).first
 
-  # The first period without a bill whose generation date is still ahead: what To Pay shows as
-  # scheduled until the daily job creates it (periods already due but ambiguous are on the template page)
+  # The first period without a bill whose generation date is still ahead: what Coming Up shows as
+  # scheduled until the daily job creates it. A period that already has a bill counts as having one
+  # whether it's linked or still waiting to be linked (a matching bill the job will link, e.g. imported),
+  # so the same bill never shows twice. Periods already due but ambiguous are on the template page.
   def next_scheduled_period(today)
     existing = records.pluck(:period_year, :period_start_month).to_set
+    waiting = Recurring::Generator.unlinked_bills(self).pluck(:period_year, :period_start_month, :period_end_year, :period_end_month).to_set
     periods_from(starts_on).lazy.take(MAX_PERIODS_PER_RUN * 8)
-      .reject { |p| existing.include?([ p.start_year, p.start_month ]) }
+      .reject { |p| existing.include?([ p.start_year, p.start_month ]) || waiting.include?(p.deconstruct) }
       .find { |p| generation_date(p) > today }
   end
 

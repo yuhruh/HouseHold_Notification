@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.8.0"
+  date: 2026-11-15
+  en:
+    - "Electricity: the forwarding address and the Gmail steps are now part of the Settings card, above the bill settings, so everything to set up is in one place."
+    - "When the owner adds an email under Other Emails That Forward, that address gets an email with the ledger's forwarding address and the Gmail steps, so the person who receives 台電's emails can set it up themselves."
+  zh-TW:
+    - "電費：轉寄地址和 Gmail 設定步驟現在和帳單設定放在同一張「設定」卡片裡，所有設定都在同一個地方。"
+    - "擁有者在「其他會轉寄的 Email」新增 Email 時，那個地址會收到一封信，附上帳本的轉寄地址和 Gmail 設定步驟，讓收到台電 Email 的人可以自己設定。"
 - version: "1.7.1"
   date: 2026-11-15
   en:

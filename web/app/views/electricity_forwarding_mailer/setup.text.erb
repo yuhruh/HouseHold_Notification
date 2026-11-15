@@ -1,0 +1,13 @@
+<%= t(".intro", owner: @owner, household: @account.household.name) %>
+
+<%= t(".forward_to") %>
+<%= @address %>
+
+<%= t(".how") %>
+<% t(".steps", owner: @owner).each_with_index do |step, i| %>
+<%= i + 1 %>. <%= step %>
+<% end %>
+
+<%= t(".check") %>
+
+<%= t(".ignore") %>

@@ -36,6 +36,45 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_select "ol li", 3
   end
 
+  test "the forwarding address and steps sit in the settings card, above the bill settings" do
+    sign_in_as users(:alex)
+    @home.create_electricity_account!(category: @power)
+    get household_electricity_account_path(@home)
+    assert_select "section[aria-labelledby=electricity-settings]" do
+      assert_select "h3#electricity-forwarding", "轉寄台電的 Email"
+      assert_select "input#electricity-address"
+      assert_select "h3", "帳單設定"
+      assert_select "form textarea[name='electricity_account[allowed_senders]']"
+    end
+    assert_select "section[aria-labelledby=electricity-forwarding]", 0, "no separate forwarding card"
+  end
+
+  test "each newly added email that forwards gets the address and the Gmail steps, once" do
+    sign_in_as users(:alex)
+    account = @home.create_electricity_account!(category: @power, allowed_senders: [ "old@gmail.com" ])
+    assert_enqueued_emails 1 do
+      patch household_electricity_account_path(@home), params: { electricity_account: { allowed_senders: "old@gmail.com\nNew.One@gmail.com" } }
+    end
+    assert_equal "電費設定已儲存，已把轉寄地址和 Gmail 設定步驟寄給 new.one@gmail.com。", flash[:notice]
+
+    assert_no_enqueued_emails do
+      patch household_electricity_account_path(@home), params: { electricity_account: { allowed_senders: "old@gmail.com\nnew.one@gmail.com", customer_code: "" } }
+    end
+    assert_equal %w[old@gmail.com new.one@gmail.com], account.reload.allowed_senders
+  end
+
+  test "the setup email has the ledger's address, the steps and who added them" do
+    account = @home.create_electricity_account!(category: @power)
+    mail = ElectricityForwardingMailer.with(account:, email: "victor@gmail.com", added_by: users(:alex), locale: "en").setup
+    assert_equal [ "victor@gmail.com" ], mail.to
+    assert_equal "#{@home.name}: forward 台電's bill emails to Household Tracker", mail.subject
+    body = mail.body.encoded
+    assert_includes body, account.inbox_address
+    assert_match(/1\. .*Forwarding and POP\/IMAP/, body)
+    assert_match(/3\. .*from:taipower\.com\.tw/, body)
+    assert_match(/#{Regexp.escape(users(:alex).display_name.presence || users(:alex).email_address)} confirms it/, body)
+  end
+
   test "a 電號 must be 11 digits, a ledger can't take another's, and senders must be emails" do
     sign_in_as users(:alex)
     patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "0408-1234-567", category_id: @power.id } }
@@ -118,7 +157,7 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     memberships(:sam_home).update!(role: "co_owner")
     sign_in_as users(:google_only)
     get household_electricity_account_path(@home)
-    assert_select "h3#electricity-confirm", "確認轉寄"
+    assert_select "h4#electricity-confirm", "確認轉寄"
     assert_select "a[href=?][target=_blank][rel~=noopener]", link, /確認轉寄/
     assert_select "p", /co\.owner@gmail\.com 要求 Gmail 轉寄到這本帳本/
 

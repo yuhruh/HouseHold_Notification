@@ -26,13 +26,14 @@ zh-TW:
     show:
       title: "電費（台電）"
       intro: "新的電費帳單來自台電的電子帳單 Email，由收到的人自動轉寄。App 會補上帳單的金額和繳費期限，收到台電的已繳通知時標示已付款。"
-      settings_title: "帳單設定"
+      settings_title: "設定"
+      bill_settings_title: "帳單設定"
       optional: "（選填）"
       customer_code_hint: "會從第一封台電 Email 自動填入。之後其他電號的 Email 都會被略過。"
       choose: "選擇類別"
       no_payment_method: "不指定"
       payment_method_hint: "自動新增的帳單會用這個付款方式。每次刷不同的卡就留空。"
-      allowed_senders_hint: "成員隨時都可以轉寄。如果台電的信寄到成員沒用來登入的信箱，請把那個 Email 加在這裡，一行一個。"
+      allowed_senders_hint: "成員隨時都可以轉寄。如果台電的信寄到成員沒用來登入的信箱，請把那個 Email 加在這裡，一行一個。新加入的 Email 會收到一封信，附上這本帳本的轉寄地址和 Gmail 設定步驟。"
       save: "儲存"
       turn_on: "開啟"
       turn_on_hint: "選好類別後按「開啟」，就會產生這本帳本的轉寄地址。"
@@ -96,8 +97,21 @@ zh-TW:
       body_first: "開啟電費功能（%{since}）後還沒收到任何台電帳單 Email，原本預計在 %{expected} 左右寄達。請到台灣電力 App 確認帳單，並檢查 Gmail 轉寄是否已確認、篩選器是否已設定。"
     update:
       saved: "電費設定已儲存。"
+      emailed: "電費設定已儲存，已把轉寄地址和 Gmail 設定步驟寄給 %{emails}。"
     destroy:
       disconnected: "已取消連結電費，帳單仍保留。"
+  electricity_forwarding_mailer:
+    setup:
+      subject: "%{household}：把台電帳單 Email 轉寄到 Household Tracker"
+      intro: "%{owner} 在 Household Tracker 的 %{household} 把你設為收到台電帳單 Email 的人。在 Gmail 設定一次後，每期台電帳單都會自動進到帳本：補上金額和繳費期限，收到台電的已繳通知時標示已付款。"
+      forward_to: "轉寄到這個地址："
+      how: "請在電腦上的 Gmail（收到台電 Email 的那個帳號）操作："
+      steps:
+        - "⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址 › 貼上上面的地址 › 繼續 › 確定。轉寄功能本身維持關閉。"
+        - "Gmail 會請帳本確認。%{owner} 會在 Household Tracker 裡確認，通常幾分鐘內完成，你不需要做什麼。"
+        - "確認後：在 Gmail 搜尋框輸入 from:taipower.com.tw › 顯示搜尋選項 › 建立篩選器 › 勾選「轉寄給」 › 選擇上面的地址 › 建立篩選器。"
+      check: "想確認是否成功，可以手動轉寄一封台電帳單 Email 到這個地址，約 5 分鐘內會出現在帳本裡。"
+      ignore: "如果你不會收到台電的 Email，可以忽略這封信。"
   utilities:
     forwarded_mail:
       not_taipower: "不是台電寄的（寄件者 %{detail}）"

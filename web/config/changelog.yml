@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.10.1"
+  date: 2026-11-15
+  en:
+    - "Getting Started uses today's button names (Record Payment, Remind Me Later), explains To Pay and Coming Up and the Bill paid notification, and has a new step for whoever receives 台電 or 台水 bill emails."
+  zh-TW:
+    - "使用說明改用現在的按鈕名稱（記錄繳費、稍後提醒），說明「待繳」和「即將到來」以及「帳單已繳費」通知，並新增一步給會收到台電或台水帳單 Email 的人。"
 - version: "1.10.0"
   date: 2026-11-15
   en:

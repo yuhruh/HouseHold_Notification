@@ -258,8 +258,10 @@ en:
         items_html:
           - "At most one combined reminder a day: bills due soon, due today or overdue. It comes at 09:00 by default; change \"Reminder time\" in My Account."
           - "The same reminder also arrives by email and in the in-app inbox (the reminder picture at the top)."
-          - "After paying, tap \"Mark paid\" on the bill and nobody gets reminded about it again."
-          - "\"Snooze\" quiets one bill for a while, for you only."
+          - "Bills › To Pay lists what needs doing now; Coming Up shows what's due later and recurring bills not created yet."
+          - "After paying, tap \"Record Payment\" on the bill (\"Mark Done\" for maintenance) and nobody gets reminded about it again."
+          - "\"Remind Me Later\" quiets one bill for a while, for you only."
+          - "Gas, electricity and water bills the ledger has connected fill themselves in and are marked paid when the company says so; you get a \"Bill paid\" notification (turn it off in My Account → Notifications)."
           - "\"Add photos\" on a bill keeps a receipt. Location data is removed from photos."
       trouble:
         title: "6. If something goes wrong"
@@ -267,6 +269,12 @@ en:
           - "<strong>No notifications:</strong> open the app from the home screen and tap \"Enable notifications\" again in My Account. Email and the in-app inbox still have your reminders."
           - "<strong>Lost phone:</strong> sign in on a computer and remove it under My Account → Devices, or ask the ledger owner to."
           - "<strong>Anything else:</strong> ask the person who invited you."
+      forward:
+        title: "7. If you receive 台電 or 台水 bill emails"
+        items_html:
+          - "The ledger's owner may send you a setup email. Follow it once in Gmail on a computer: add the ledger's forwarding address (the <strong>Copy address</strong> button makes it easy), wait for the owner to confirm it, then create the Gmail filter the email shows."
+          - "After that each bill email reaches the ledger by itself: the amount and 繳費期限 are filled in, and the bill is marked paid when the paid notice comes."
+          - "To check it works, forward one bill email to the address by hand; it shows up in the ledger within about 5 minutes."
       privacy: "Privacy policy"
   roles:
     owner: "Owner"

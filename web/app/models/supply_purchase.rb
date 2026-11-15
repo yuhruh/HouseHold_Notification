@@ -19,6 +19,7 @@ class SupplyPurchase < ApplicationRecord
   validates :currency, inclusion: { in: Household::CURRENCIES }
   validates :store, length: { maximum: 60 }
   validate :whole_amount_for_whole_currency
+  validate :not_in_the_future
 
   def unit_price = total_price / quantity
 
@@ -31,6 +32,10 @@ class SupplyPurchase < ApplicationRecord
   end
 
   private
+
+  def not_in_the_future
+    errors.add(:purchased_on, :in_the_future) if purchased_on && household && purchased_on > household.today
+  end
 
   def whole_amount_for_whole_currency
     return unless total_price && Household::WHOLE_CURRENCIES.include?(currency)

@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.3"
+  date: 2026-11-15
+  en:
+    - "New supply item has \"I already bought these\": when you bought them, how many, the price and store. With how many you have now, the app knows right away how fast you use them and when they'll run out, instead of starting from \"Not enough data yet\"."
+    - "Edit on a supply item now shows its latest purchase, so you can correct the price, store, date or quantity (its Ledger expense is updated too), or add what you paid if you skipped it at first."
+  zh-TW:
+    - "新增日用品多了「這些是已經買好的」：購買日期、數量、價格和商店。加上現在還有幾個，App 馬上就知道你們用多快、什麼時候會用完，不必從「資料不足」開始。"
+    - "編輯日用品時會顯示上次購買，可以修改價格、商店、日期或數量（帳本支出也會一起更新）；一開始沒填的話，也可以在這裡補上。"
 - version: "1.11.2"
   date: 2026-11-15
   en:

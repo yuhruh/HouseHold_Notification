@@ -29,6 +29,8 @@ zh-TW:
           attributes:
             total_price:
               whole_number: "必須是整數元"
+            purchased_on:
+              in_the_future: "不能是未來的日期"
   layouts:
     header:
       supplies: "日用品"
@@ -210,8 +212,15 @@ zh-TW:
       lead_days_hint: "例如網購填 7。提醒會提早這麼多天。"
       alert_when_left: "也在只剩這麼多時提醒我"
       alert_when_left_hint: "0 表示只用日期提醒。"
-      log_purchase_title: "這些是剛買的"
-      log_purchase: "同時記錄這次購買（上面的數量就是買的數量）"
+      bought_title: "這些是已經買好的"
+      bought_hint: "之前就買了、也用掉一些？填上購買日期和買了幾個。加上現在還有幾個，App 馬上就能算出你們用多快、什麼時候會用完。"
+      bought_on: "購買日期"
+      bought_quantity: "買了幾個"
+      last_purchase_title: "上次購買（%{date}）"
+      last_purchase_hint: "可以修改價格、商店、日期或數量。這次購買的帳本支出也會一起更新。"
+      add_purchase_title: "補上購買資料"
+      add_purchase_hint: "購買日期、數量和價格。不填就略過。"
+      ledger_follows: "這次購買的帳本支出會一起更新。"
       found: "在 %{source} 找到條碼 %{code}。儲存前請確認名稱。"
       not_found: "商品資料庫找不到條碼 %{code}。請自己輸入名稱、類別和單位。這個條碼會被記住，下次掃描會直接到這個項目。"
       not_found_title: "找不到這個商品"

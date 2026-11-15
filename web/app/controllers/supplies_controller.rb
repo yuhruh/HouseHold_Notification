@@ -33,25 +33,27 @@ class SuppliesController < ApplicationController
     authorize Supply
     @supply = Current.household.supplies.new(prefill_params)
     @scan = scan_params
+    @purchase = SupplyPurchase.new(purchased_on: Current.household.today)
   end
 
+  # Already bought (the "I already bought these" section filled in): the purchase, then what's left
+  # now (Supplies::PurchaseDetails); otherwise just the count
   def create
     authorize Supply
     @supply = Current.household.supplies.new(supply_params.merge(created_by: Current.user, level_at: Time.current))
     @scan = scan_params
-    log_purchase = params[:log_purchase] == "1"
-    @purchase = SupplyPurchase.new(purchase_params) if log_purchase
+    attributes = purchase_params
+    bought = params[:log_purchase] == "1" || Supplies::PurchaseDetails.given?(attributes)
+    attributes[:quantity] = @supply.level if attributes[:quantity].blank?
+    attributes[:purchased_on] = Current.household.today if attributes[:purchased_on].blank?
+    @purchase = SupplyPurchase.new(attributes)
 
     saved = Supply.transaction do
       raise ActiveRecord::Rollback unless @supply.save
       @supply.barcodes.create!(household: Current.household, code: @scan[:barcode]) if @scan[:barcode].present? && !Current.household.supply_barcodes.exists?(code: @scan[:barcode])
-      if log_purchase
-        @purchase = Supplies::LogPurchase.call(@supply, purchase_params.merge(quantity: @supply.level, left_before: 0, purchased_on: Current.household.today),
-                                               user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
-        unless @purchase.persisted?
-          @supply.errors.add(:base, @purchase.errors.full_messages.to_sentence)
-          raise ActiveRecord::Rollback
-        end
+      if bought
+        @purchase = Supplies::PurchaseDetails.for_new(@supply, attributes, level: @supply.level, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
+        purchase_failed! unless @purchase.persisted?
       else
         Supplies::RecordCount.call(@supply, @supply.level, user: Current.user)
       end
@@ -61,20 +63,35 @@ class SuppliesController < ApplicationController
     if saved
       redirect_to household_supply_path(Current.household, @supply), notice: t(".created", item: @supply.name)
     else
+      @open_purchase = bought
       render :new, status: :unprocessable_content
     end
   end
 
   def edit
     authorize @supply
+    @purchase = @supply.latest_purchase || SupplyPurchase.new(purchased_on: Current.household.today)
   end
 
+  # The item's settings, and its latest purchase (price, store, date…), or the first one if none yet
   def update
     authorize @supply
-    if @supply.update(supply_params.except(:level))
+    attributes = purchase_params
+    @purchase = @supply.latest_purchase || SupplyPurchase.new(attributes)
+    saved = Supply.transaction do
+      raise ActiveRecord::Rollback unless @supply.update(supply_params.except(:level))
+      if @supply.latest_purchase || Supplies::PurchaseDetails.given?(attributes)
+        @purchase = Supplies::PurchaseDetails.for_edit(@supply, attributes, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
+        purchase_failed! unless @purchase.persisted? && @purchase.errors.empty?
+      end
       Supplies::StockChanged.call(@supply)
+      true
+    end
+
+    if saved
       redirect_to household_supply_path(Current.household, @supply), notice: t(".saved")
     else
+      @open_purchase = true
       render :edit, status: :unprocessable_content
     end
   end
@@ -95,7 +112,13 @@ class SuppliesController < ApplicationController
   def supply_params = params.expect(supply: %i[name kind unit level guess_days_per_unit lead_days alert_when_left])
 
   def purchase_params
-    params.fetch(:purchase, {}).permit(:total_price, :store).to_h.symbolize_keys
+    params.fetch(:purchase, {}).permit(*Supplies::PurchaseDetails::FIELDS).to_h.symbolize_keys
+  end
+
+  # The purchase's errors show at the top of the form, and nothing is saved
+  def purchase_failed!
+    @purchase.errors.full_messages.each { @supply.errors.add(:base, it) }
+    raise ActiveRecord::Rollback
   end
 
   # From a scan: the product name, kind and barcode a lookup found (supplies/scans#barcode)

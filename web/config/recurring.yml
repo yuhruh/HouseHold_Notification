@@ -31,6 +31,9 @@ production:
   warn_missing_utility_mail:
     class: WarnMissingUtilityMailJob
     schedule: "0 9 * * * Asia/Taipei"
+  supply_alerts:
+    class: SupplyAlertsJob
+    schedule: "0 9 * * * Asia/Taipei"
   photo_backup_reminder:
     class: PhotoBackupReminderJob
     schedule: "0 9 1 * * Asia/Taipei"

@@ -10,6 +10,8 @@ module Households
         ActiveStorage::Attachment.where(record_type: "Record", record_id: household.records.select(:id)).delete_all
         # Model-level deletes: delete_all on these associations would nullify (no dependent option)
         ImportBatchChange.where(import_batch_id: ImportBatch.where(household:).select(:id)).delete_all
+        SupplyCount.where(supply_id: Supply.where(household:).select(:id)).delete_all
+        [ ReceiptItemMatch, SupplyBarcode, SupplyPurchase, ReceiptImport, ReceiptSeller, Supply ].each { |model| model.where(household:).delete_all }
         [ Notification, ReminderDelivery, NotificationPreference, RecordEvent, ImportKey, ImportPreview, UtilityAccount, ForwardingInbox, Record, RecurringTemplate, ImportBatch, CategoryAlias, BillerCode, Category, PaymentKeyword, PaymentMethod ].each { |model| model.where(household:).delete_all }
         household.invitations.delete_all
         household.memberships.delete_all

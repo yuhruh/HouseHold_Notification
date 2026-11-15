@@ -1,0 +1,18 @@
+<%# The "+ New" choices (header menu on a computer, the tab bar's Add new sheet on a phone): Scan, Supply
+    item, Log a purchase… and Bill / record, the current page's own choice first and tinted %>
+<% items = [
+  [ :scan, "import.png", scan_household_supplies_path(household), t("layouts.new_menu.scan"), t("layouts.new_menu.scan_hint") ],
+  [ :supply, "add.png", new_household_supply_path(household), t("layouts.new_menu.supply"), t("layouts.new_menu.supply_hint") ],
+  [ :purchase, "expense.png", restock_household_supplies_path(household), t("layouts.new_menu.purchase"), t("layouts.new_menu.purchase_hint") ],
+  [ :record, "new_entry.png", new_household_record_path(household), t("layouts.new_menu.record"), t("layouts.new_menu.record_hint") ]
+] %>
+<% first = current == :supplies ? :supply : :record %>
+<% items = items.partition { it.first == :scan }.flatten(1) if large %>
+<% items = [ items.find { it.first == first } ] + items.reject { it.first == first } unless large %>
+<% items.each do |key, icon, path, label, hint| %>
+  <%= link_to path, class: "flex w-full items-center gap-3 rounded-xl text-left hover:bg-gray-50 #{large ? 'min-h-16 border-2 border-(--card-line) px-3 py-2.5' : 'min-h-11 px-3 py-2'} #{'bg-blue-100 font-bold text-blue-900' if key == first}",
+        data: (key == :purchase ? modal_link_data : nil) do %>
+    <%= image_tag "icons/#{icon}", alt: "", class: "#{large ? 'h-8 w-8' : 'h-5 w-5'} object-contain" %>
+    <span class="flex min-w-0 flex-col"><span class="font-semibold"><%= label %></span><% if large %><span class="text-xs font-normal text-gray-600"><%= hint %></span><% end %></span>
+  <% end %>
+<% end %>

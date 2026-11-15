@@ -1,0 +1,33 @@
+<%# The Forecast card: what's left now, how fast it goes, when it runs out and when the alert comes,
+    with −1 / Bought more at its top right and "I have __ left". Replaced in place after a count %>
+<% status = forecast.status %>
+<section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= SuppliesHelper::CARD.fetch(status) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <h2 id="<%= dom_id(supply, :forecast_title) %>" class="text-lg font-bold"><%= t("supplies.show.forecast") %></h2>
+      <%= supply_badge(status) %>
+    </div>
+    <%= render "supplies/actions", supply:, forecast: %>
+  </div>
+  <p class="text-2xl font-extrabold"><%= t("supplies.show.now", left: supply_left(supply, forecast)) %></p>
+  <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
+  <ul class="space-y-1 text-sm">
+    <% if forecast.enough_data? %>
+      <li><%= t("supplies.show.rate", rate: supply_rate(supply, forecast)) %></li>
+    <% end %>
+    <li class="<%= supply_line_class(forecast) %> font-semibold"><%= supply_line(supply, forecast) %></li>
+    <% if forecast.buy_by && !forecast.out? %>
+      <li><%= t("supplies.show.alert_on", date: l([ forecast.buy_by, forecast.today ].max, format: :short)) %></li>
+    <% end %>
+    <li class="text-gray-600"><%= forecast.samples.any? ? t("supplies.show.based_on", count: forecast.samples.size) : t("supplies.show.learning_hint") %></li>
+  </ul>
+  <% if policy(supply).update? && supply.archived_at.nil? %>
+    <%= form_with model: SupplyCount.new, url: household_supply_counts_path(Current.household, supply), data: { turbo_stream: true }, class: "flex flex-wrap items-center gap-2 border-t border-gray-200 pt-3" do |form| %>
+      <%= form.label :level, t("supplies.show.counted"), class: "text-sm font-semibold" %>
+      <span class="inline-flex items-center gap-1 text-sm"><%= t("supplies.show.i_have") %>
+        <%= form.number_field :level, min: 0, step: 1, required: true, inputmode: "numeric", class: "w-20 rounded-md border border-gray-400 px-2 py-1" %>
+        <%= t("supplies.show.left_unit", unit: t("supplies.units.#{supply.unit}_other")) %></span>
+      <%= form.button t("supplies.show.update_count"), type: "submit", name: nil, class: "btn-press cursor-pointer rounded-xl bg-blue-200 px-3 py-1.5 text-sm font-bold text-gray-900" %>
+    <% end %>
+  <% end %>
+</section>

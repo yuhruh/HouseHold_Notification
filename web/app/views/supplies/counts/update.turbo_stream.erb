@@ -1,0 +1,6 @@
+<%= turbo_stream.replace dom_id(@supply, :row) do %><%= render "supplies/row", supply: @supply, forecast: @forecast %><% end %>
+<%= turbo_stream.replace dom_id(@supply, :forecast) do %><%= render "supplies/forecast", supply: @supply, forecast: @forecast %><% end %>
+<%= turbo_stream.replace dom_id(@supply, :history) do %><%= render "supplies/history", supply: @supply, history: @supply.history %><% end %>
+<%= turbo_stream.update "supply_toast" do %>
+  <%= render "supplies/toast", text: toast_text, count: (@count if @toast != :undone), restock: @forecast.needs_buying? && @toast == :used_one %>
+<% end %>

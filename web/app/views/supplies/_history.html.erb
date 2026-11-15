@@ -1,0 +1,20 @@
+<%# History: purchases and counts, newest first; folded, its summary shows the latest entry %>
+<% latest = history.first %>
+<details id="<%= dom_id(supply, :history) %>" class="card-raised rounded-2xl bg-white">
+  <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+    <span class="font-bold"><%= t("supplies.show.history") %></span>
+    <span class="min-w-0 truncate text-sm text-gray-600"><%= latest ? supply_history_line(supply, latest) : t("supplies.show.no_history") %> ▾</span>
+  </summary>
+  <ul class="divide-y divide-gray-200 border-t border-gray-200 px-4">
+    <% history.each do |event| %>
+      <li class="flex flex-wrap items-baseline justify-between gap-2 py-2 text-sm">
+        <span><span class="font-semibold"><%= l(event.at.to_date, format: :short) %></span> · <%= supply_history_line(supply, event) %></span>
+        <span class="flex items-center gap-2 text-xs text-gray-600">
+          <% if event.is_a?(SupplyPurchase) && event.expires_on %><span><%= t("supplies.show.expires", date: l(event.expires_on, format: :short)) %></span><% end %>
+          <% if event.is_a?(SupplyPurchase) && event.record_id %><%= link_to t("supplies.show.in_ledger"), household_record_path(Current.household, event.record_id), class: "text-blue-700 hover:underline" %><% end %>
+          <% if event.is_a?(SupplyPurchase) && event.receipt_import_id %><span><%= t("supplies.show.from_receipt") %></span><% end %>
+        </span>
+      </li>
+    <% end %>
+  </ul>
+</details>

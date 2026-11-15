@@ -1,0 +1,58 @@
+<% content_for :title, t(".title") %>
+<% texts = t("supplies.scans.js").to_h %>
+<% tab = "inline-flex min-h-10 items-center rounded-full border-2 px-4 text-sm font-bold" %>
+<% receipt = @mode == "receipt" %>
+<div class="mx-auto w-full max-w-xl space-y-5 py-4" data-controller="supply-scan" data-supply-scan-mode-value="<%= @mode %>"
+     data-supply-scan-barcode-url-value="<%= scan_barcode_household_supplies_path(Current.household) %>" data-supply-scan-texts-value="<%= texts.to_json %>">
+  <%= page_title("import.png", t(".title")) %>
+  <%= render "shared/flash" %>
+  <nav aria-label="<%= t(".what") %>" class="flex justify-center gap-2">
+    <%= link_to t(".barcode_tab"), scan_household_supplies_path(Current.household), class: "#{tab} #{receipt ? 'border-(--card-line) bg-white' : 'border-blue-700 bg-blue-100 text-blue-900'}", "aria-current": (receipt ? nil : "page") %>
+    <%= link_to t(".receipt_tab"), scan_household_supplies_path(Current.household, mode: "receipt"), class: "#{tab} #{receipt ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}", "aria-current": (receipt ? "page" : nil) %>
+  </nav>
+  <p class="text-center text-sm text-gray-700"><%= receipt ? t(".receipt_intro") : t(".barcode_intro") %></p>
+
+  <% if receipt %>
+    <ul class="flex justify-center gap-6 text-sm font-semibold">
+      <li class="flex items-center gap-2"><span data-supply-scan-target="tickLeft" class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400"></span><%= t(".left_qr") %></li>
+      <li class="flex items-center gap-2"><span data-supply-scan-target="tickRight" class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400"></span><%= t(".right_qr") %></li>
+    </ul>
+    <%= form_with url: receipt_review_household_supplies_path(Current.household), method: :post, data: { supply_scan_target: "receiptForm", turbo: false }, html: { hidden: true } do %>
+      <%= hidden_field_tag :left, nil, data: { supply_scan_target: "left" } %>
+      <%= hidden_field_tag :right, nil, data: { supply_scan_target: "right" } %>
+    <% end %>
+  <% end %>
+
+  <p hidden role="status" aria-live="polite" data-supply-scan-target="message"></p>
+
+  <div hidden data-supply-scan-target="camera" class="space-y-2">
+    <video data-supply-scan-target="video" playsinline muted class="aspect-[4/3] w-full rounded-2xl bg-black object-cover"></video>
+    <div class="flex justify-center gap-2">
+      <button type="button" hidden data-supply-scan-target="light" data-action="supply-scan#toggleLight" class="btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900"><%= t(".light") %></button>
+      <button type="button" data-action="supply-scan#stop" class="btn-press cursor-pointer rounded-xl bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900"><%= t(".stop") %></button>
+    </div>
+  </div>
+
+  <div data-supply-scan-target="drop" data-action="dragover->supply-scan#dragOver dragleave->supply-scan#dragLeave drop->supply-scan#drop"
+       class="card-raised space-y-3 rounded-2xl border-2 border-dashed border-gray-400 bg-white p-6 text-center">
+    <button type="button" data-action="supply-scan#start" class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-4 py-2.5 font-bold text-gray-900 lg:hidden"><%= t(".use_camera") %></button>
+    <p class="hidden text-gray-700 lg:block"><%= t(".drop_here") %></p>
+    <div class="flex flex-wrap justify-center gap-2">
+      <button type="button" data-action="supply-scan#choose" class="btn-press cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900"><%= t(".choose_photo") %></button>
+      <button type="button" data-action="supply-scan#start" class="btn-press hidden cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 lg:inline-block"><%= t(".use_webcam") %></button>
+    </div>
+    <p class="text-xs text-gray-600"><%= t(".photo_private") %></p>
+    <input type="file" accept="image/*,.heic,.heif" hidden data-supply-scan-target="photo" data-action="change->supply-scan#readPhoto">
+  </div>
+
+  <% unless receipt %>
+    <details class="rounded-xl border border-gray-300 p-3">
+      <summary class="cursor-pointer text-sm font-semibold"><%= t(".type_number") %></summary>
+      <form class="mt-3 flex gap-2" data-action="submit->supply-scan#typed">
+        <label for="supply-scan-code" class="sr-only"><%= t(".number") %></label>
+        <input id="supply-scan-code" data-supply-scan-target="code" inputmode="numeric" pattern="[0-9 ]*" maxlength="16" required placeholder="4710000000000" class="min-w-0 flex-1 rounded-md border border-gray-400 px-3 py-2">
+        <button type="submit" class="btn-press cursor-pointer rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900"><%= t(".look_up") %></button>
+      </form>
+    </details>
+  <% end %>
+</div>

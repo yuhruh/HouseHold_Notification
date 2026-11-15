@@ -1,0 +1,91 @@
+<%# New item and Edit. The count is only asked for a new item; after that it changes through −1,
+    "I have N left" and Bought more, so the forecast learns. From a scan, fields the lookup filled in
+    are tinted green, and "I just bought these" logs the first purchase too %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% scan = local_assigns[:scan] || {} %>
+<% filled = ->(name) { scan[:filled].to_a.include?(name) ? "#{field} bg-green-50 border-green-700" : field } %>
+<%= form_with model: [ Current.household, supply ], class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
+  <% if supply.errors.any? %>
+    <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% supply.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+  <% end %>
+  <% if scan[:barcode] %>
+    <%= hidden_field_tag :barcode, scan[:barcode] %>
+    <% scan[:filled].to_a.each do |name| %><%= hidden_field_tag "filled[]", name, id: nil %><% end %>
+    <p class="rounded-lg <%= scan[:not_found] ? 'bg-amber-50 text-amber-900' : 'bg-green-50 text-green-900' %> px-3 py-2 text-sm">
+      <%= scan[:not_found] ? t("supplies.form.not_found", code: scan[:barcode]) : t("supplies.form.found", code: scan[:barcode], source: t("supplies.sources.#{scan[:source].presence || 'unknown'}")) %>
+    </p>
+  <% end %>
+  <div>
+    <%= form.label :name, class: "block text-sm font-medium" %>
+    <%= form.text_field :name, required: true, maxlength: 60, autofocus: supply.name.blank?, class: filled.("name") %>
+    <% if scan[:original_name].present? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.original_name", name: scan[:original_name]) %></p><% end %>
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <%= form.label :kind, class: "block text-sm font-medium" %>
+      <%= form.select :kind, Supply::KINDS.map { [ supply_kind(it), it ] }, {}, class: filled.("kind") %>
+    </div>
+    <div>
+      <%= form.label :unit, class: "block text-sm font-medium" %>
+      <%= form.select :unit, Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, class: filled.("unit") %>
+    </div>
+  </div>
+  <% if supply.new_record? %>
+    <div>
+      <%= form.label :level, t("supplies.form.level"), class: "block text-sm font-medium" %>
+      <%= form.number_field :level, min: 0, step: 1, required: true, inputmode: "numeric", class: field %>
+    </div>
+  <% end %>
+  <div>
+    <%= form.label :guess_days_per_unit, t("supplies.form.guess"), class: "block text-sm font-medium" %>
+    <span class="flex items-center gap-2 text-sm"><%= t("supplies.form.guess_before") %>
+      <%= form.number_field :guess_days_per_unit, min: 1, step: 1, inputmode: "numeric", class: "w-24 rounded-md border border-gray-400 px-3 py-2" %>
+      <%= t("supplies.form.guess_after") %></span>
+    <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.guess_hint") %></p>
+  </div>
+  <details class="rounded-xl border border-gray-300 p-3" <%= "open" if supply.errors[:lead_days].any? || supply.errors[:alert_when_left].any? %>>
+    <summary class="cursor-pointer text-sm font-semibold"><%= t("supplies.form.more", lead: supply.lead_days, left: supply.alert_when_left) %></summary>
+    <div class="mt-3 space-y-3">
+      <div>
+        <%= form.label :lead_days, t("supplies.form.lead_days"), class: "block text-sm font-medium" %>
+        <%= form.number_field :lead_days, min: 0, max: 30, step: 1, inputmode: "numeric", class: "w-24 rounded-md border border-gray-400 px-3 py-2" %>
+        <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.lead_days_hint") %></p>
+      </div>
+      <div>
+        <%= form.label :alert_when_left, t("supplies.form.alert_when_left"), class: "block text-sm font-medium" %>
+        <%= form.number_field :alert_when_left, min: 0, step: 1, inputmode: "numeric", class: "w-24 rounded-md border border-gray-400 px-3 py-2" %>
+        <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.alert_when_left_hint") %></p>
+      </div>
+    </div>
+  </details>
+  <% if supply.new_record? %>
+    <details class="rounded-xl border border-gray-300 p-3" <%= "open" if params[:log_purchase] == "1" %>>
+      <summary class="cursor-pointer text-sm font-semibold"><%= t("supplies.form.log_purchase_title") %></summary>
+      <div class="mt-3 space-y-3">
+        <label class="flex items-center gap-2 text-sm"><%= check_box_tag :log_purchase, "1", params[:log_purchase] == "1" %> <%= t("supplies.form.log_purchase") %></label>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <%= label_tag "purchase_total_price", t("supplies.purchases.form.total_price"), class: "block text-sm font-medium" %>
+            <%= number_field_tag "purchase[total_price]", params.dig(:purchase, :total_price), min: 0, step: (Current.household.default_currency == "USD" ? "0.01" : "1"), inputmode: "decimal", id: "purchase_total_price", class: field %>
+          </div>
+          <div>
+            <%= label_tag "purchase_store", t("supplies.purchases.form.store"), class: "block text-sm font-medium" %>
+            <%= text_field_tag "purchase[store]", params.dig(:purchase, :store), maxlength: 60, id: "purchase_store", class: field %>
+          </div>
+        </div>
+        <label class="flex items-center gap-2 text-sm"><%= check_box_tag :add_to_ledger, "1", params[:add_to_ledger] == "1" %> <%= t("supplies.purchases.form.add_to_ledger") %></label>
+      </div>
+    </details>
+  <% end %>
+  <div class="flex flex-wrap items-center gap-3">
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+    <%= modal_cancel(supply.new_record? ? household_supplies_path(Current.household) : household_supply_path(Current.household, supply)) %>
+  </div>
+<% end %>
+<% if supply.persisted? %>
+  <%= button_to archive_household_supply_path(Current.household, supply), form: { data: { turbo_frame: "_top", turbo_confirm: (supply.archived_at ? nil : t("supplies.form.archive_confirm")) } },
+        class: "btn-press mt-6 inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-sm font-medium text-gray-900" do %>
+    <%= image_tag "icons/archive.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= supply.archived_at ? t("supplies.form.restore") : t("supplies.form.archive") %></span>
+  <% end %>
+  <% unless supply.archived_at %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.archive_hint") %></p><% end %>
+<% end %>

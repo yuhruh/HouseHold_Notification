@@ -1,0 +1,131 @@
+en:
+  activerecord:
+    models:
+      forwarding_inbox: "Forwarding Address"
+    attributes:
+      forwarding_inbox:
+        allowed_senders: "Other Emails That Forward"
+    errors:
+      models:
+        forwarding_inbox:
+          attributes:
+            allowed_senders:
+              invalid: "aren't email addresses: %{emails}"
+  forwarding_inboxes:
+    setup_email:
+      sent: "Setup email sent to %{email}."
+      too_soon: "The setup email went to %{email} less than a minute ago."
+      unknown: "That email isn't in the list."
+    add_forwarder:
+      added: "Added %{email} and sent the setup email."
+      already: "%{email} is already in the list."
+    remove_forwarder:
+      removed: "Removed %{email}."
+  forwarding_setup_mailer:
+    setup:
+      subject: "%{household}: forward %{companies}'s bill emails to Household Tracker"
+      intro: "%{owner} added you to %{household} on Household Tracker as someone who receives %{companies}'s bill emails. Set up Gmail once, and each bill reaches the ledger by itself: the amount and 繳費期限 are filled in, and it's marked paid when the company's paid notice comes."
+      forward_to: "Forward to this address:"
+      copy_link: "Copy it on this page:"
+      copy_button: "Copy address"
+      or_long_press: "or long-press the address to select it"
+      how: "In Gmail on a computer (the Gmail that receives %{companies}'s emails):"
+      steps:
+        - "⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address above › Next › Proceed. Leave forwarding itself off."
+        - "Gmail asks the ledger to confirm. %{owner} confirms it in Household Tracker, usually within a few minutes; you don't need to do anything."
+        - "Once it's confirmed: in Gmail's search box type %{filter} › Show search options › Create filter › tick Forward it to › choose the address above › Create filter."
+      check: "To check it works, forward one %{companies} bill email to the address by hand; it shows up in the ledger within about 5 minutes."
+      ignore: "If you don't receive %{companies}'s emails, you can ignore this email."
+      and: " and "
+      already: "Already forwarding to this address? Skip steps 1 and 2. Just make sure a filter covers %{filter}: add one for the company that's new, the same way as step 3."
+  forwarding_addresses:
+    show:
+      title: "Forwarding address"
+      heading: "Forward bill emails to %{household}"
+      forward_to: "Forward to this address"
+      copy: "Copy address"
+      copied: "Copied"
+      next: "Now paste it in Gmail on a computer: ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address. The other steps are in the email."
+      only_this: "This page shows only the forwarding address."
+    missing:
+      title: "Address not found"
+      body: "This forwarding address no longer works. Ask the ledger's owner to send a new setup email."
+  utility_accounts:
+    activity:
+      latest: "latest %{time}"
+    forwarding:
+      bill_settings_title: "Bill settings"
+      optional: "(optional)"
+      choose: "Choose a category"
+      no_payment_method: "None"
+      payment_method_hint: "Given to bills the app adds. Leave it empty if you pay with different cards."
+      save: "Save"
+      turn_on: "Turn On"
+      turn_on_hint: "Choose the category and tap Turn On. 台電 and 台水 share the ledger's forwarding address."
+      not_on_yet: "The owner hasn't turned this on yet."
+      owner_only: "Only the owner can change these."
+      disconnect: "Disconnect"
+      how_title: "How it works"
+      forward_to: "Forward to this address"
+      copy: "Copy"
+      copied: "Copied"
+      steps:
+        - "Gmail ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address › Next › Proceed. Leave forwarding itself off. (Skip this if the Gmail already forwards 台電 or 台水 here.)"
+        - "Gmail asks this ledger to confirm. Within about 5 minutes the owner sees a Confirm Forwarding button in step 2: tap it."
+        - "In Gmail's search box type %{filter} › Show search options › Create filter › tick Forward it to › choose this address › Create filter."
+      confirm_title: "Confirm forwarding"
+      confirm_from: "%{email} asked Gmail to forward to this ledger, %{time}"
+      confirm_button: "Confirm Forwarding"
+      confirm_next: "Opens Gmail's confirmation page. Once confirmed, do step 3 in that Gmail."
+      code_next: "Type this code into Gmail's confirmation code box › Verify, then do step 3."
+      no_mailbox: "The app's mailbox isn't set up on this server, so there's no forwarding address yet."
+      issued: "issued %{date}"
+      next_email: "Next one expected"
+      around: "around %{date}"
+      late: "late: the owner has been notified"
+      not_yet: "Not yet"
+      setup_title: "Set up forwarding"
+      setup_owner_only: "Only the owner can send the setup email or change who forwards."
+      step1:
+        hint: "It has this ledger's forwarding address and the Gmail steps, so they don't need the app."
+        pill: "%{sent} of %{total} sent"
+      roles:
+        owner: "owner"
+        co_owner: "co-owner"
+        viewer: "viewer"
+        added: "added"
+      sent_at: "Setup email sent %{time}"
+      not_sent: "Setup email not sent yet"
+      send: "Send setup email"
+      resend: "Resend"
+      remove: "Remove %{email}"
+      remove_confirm: "Remove %{email}? Emails they forward will be ignored from now on."
+      add_label: "Add an email that forwards"
+      add_placeholder: "name@gmail.com"
+      add_button: "Add & send"
+      add_hint: "For a Gmail that isn't a member's sign-in email. Members are always allowed."
+      yourself: "Set it up yourself instead: address and steps"
+      step2:
+        title: "Confirm Gmail's request"
+        your_turn: "Your turn"
+        nothing: "Nothing to confirm"
+        hint: "Gmail's request shows up here within about 5 minutes of adding the address in Gmail. Reload the page to see it."
+        confirmed: "Confirmed"
+        confirmed_hint: "Gmail forwarding to this address is confirmed. A new forwarder's request will show up here."
+      step3:
+        waiting: "Waiting · around %{date}"
+        late: "Late · expected around %{date}"
+        working: "Working · last %{time}"
+  utilities:
+    forwarded_mail:
+      not_taipower: "not from 台電 or 台水 (from %{detail})"
+      not_authentic: "claims to be from %{detail} but failed Gmail's sender check"
+      unknown_forwarder: "couldn't tell whose Gmail forwarded it (only Gmail filter forwarding from a member is accepted)"
+      not_member: "from %{detail}, who isn't a member of this ledger (add them in Set up forwarding)"
+      no_confirmation: "a Gmail forwarding email without a confirmation link"
+      not_taipower_forward: "%{detail} sent an email with no forwarded 台電 or 台水 email inside"
+      other_customer_code: "a bill for 電號 %{detail}, not this ledger's"
+      other_ledger_code: "a bill for 電號 %{detail}, which another ledger already uses"
+      not_turned_on: "a %{detail} email, but %{detail} isn't turned on for this ledger"
+      water_other_customer_code: "a bill for 水號 %{detail}, not this ledger's"
+      water_other_ledger_code: "a bill for 水號 %{detail}, which another ledger already uses"

@@ -659,6 +659,8 @@ zh-TW:
       gas_paid: "由欣桃天然氣標示已付款"
       taipower_synced: "由台電 Email 新增或補上資料"
       taipower_paid: "由台電 Email 標示已付款"
+      water_synced: "由台水 Email 新增或補上資料"
+      water_paid: "由台水 Email 標示已付款"
     index:
       scheduled:
         one: "1 筆定期帳單已排定，尚未建立：%{names}"

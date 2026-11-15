@@ -1,0 +1,19 @@
+<%= t(".intro", owner: @owner, household: @inbox.household.name, companies: @companies) %>
+
+<%= t(".forward_to") %>
+<%= @address %>
+
+<%= t(".copy_link") %>
+<%= @copy_url %>
+
+<%= t(".how", companies: @companies) %>
+<% t(".steps", owner: @owner, filter: @filter).each_with_index do |step, i| %>
+<%= i + 1 %>. <%= step %>
+<% end %>
+<% if @several %>
+<%= t(".already", filter: @filter) %>
+<% end %>
+
+<%= t(".check", companies: @companies) %>
+
+<%= t(".ignore", companies: @companies) %>

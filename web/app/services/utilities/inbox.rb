@@ -1,12 +1,12 @@
 module Utilities
   # The app's own Gmail mailbox (the reminder sender, Rails credentials `gmail`), read through the
-  # Gmail API with gmail.modify. Members' Gmail forwards 台電's emails to plus-addresses of it (see
-  # ElectricityAccount#inbox_address). A message handled is labelled PROCESSED and marked read, so
-  # it isn't read twice; a 台電 email also gets BILLS, the ones Utilities::ForwardedMail hands on to
-  # the bill reader.
+  # Gmail API with gmail.modify. Members' Gmail forwards 台電's and 台水's emails to plus-addresses
+  # of it (see ForwardingInbox#address). A message handled is labelled PROCESSED and marked read, so
+  # it isn't read twice; a bill email also gets its company's BILLS label, the ones
+  # Utilities::ForwardedMail hands on to a bill reader.
   class Inbox
     PROCESSED = "Household Tracker/Processed".freeze
-    BILLS = "Household Tracker/台電".freeze
+    BILLS = { taipower: "Household Tracker/台電", water: "Household Tracker/台水" }.freeze
     PAGE = 100
 
     # Errors meaning the mailbox can't be read now (no read permission yet, revoked token, Gmail down)
@@ -44,8 +44,9 @@ module Utilities
     # The message as sent (RFC 822)
     def raw(id) = @service.get_user_message("me", id, format: "raw").raw
 
-    def done!(id, bill: false)
-      add = [ label_id(PROCESSED), (label_id(BILLS) if bill) ].compact
+    # bill: the company (a Utilities::ForwardedMail::COMPANIES key) of an accepted bill email
+    def done!(id, bill: nil)
+      add = [ label_id(PROCESSED), (label_id(BILLS.fetch(bill)) if bill) ].compact
       @service.modify_message("me", id, Google::Apis::GmailV1::ModifyMessageRequest.new(add_label_ids: add, remove_label_ids: [ "UNREAD" ]))
     end
 

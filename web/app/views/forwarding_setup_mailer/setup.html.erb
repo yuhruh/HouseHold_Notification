@@ -1,5 +1,5 @@
 <div style="max-width: 600px; font-family: -apple-system, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; color: #1f2937; font-size: 15px; line-height: 1.6">
-  <p style="margin: 0 0 16px"><%= t(".intro", owner: @owner, household: @account.household.name) %></p>
+  <p style="margin: 0 0 16px"><%= t(".intro", owner: @owner, household: @inbox.household.name, companies: @companies) %></p>
 
   <div style="border: 2px solid #1f2937; border-radius: 12px; background: #eff6ff; padding: 16px 18px; margin: 0 0 20px">
     <p style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #1e3a8a"><%= t(".forward_to") %></p>
@@ -8,12 +8,15 @@
     <span style="font-size: 13px; color: #4b5563; padding-left: 8px"><%= t(".or_long_press") %></span>
   </div>
 
-  <p style="margin: 0 0 8px"><%= t(".how") %></p>
+  <p style="margin: 0 0 8px"><%= t(".how", companies: @companies) %></p>
   <ol style="margin: 0 0 16px; padding-left: 22px">
-    <% t(".steps", owner: @owner).each do |step| %>
+    <% t(".steps", owner: @owner, filter: @filter).each do |step| %>
       <li style="margin: 0 0 8px"><%= step %></li>
     <% end %>
   </ol>
-  <p style="margin: 0 0 16px"><%= t(".check") %></p>
-  <p style="margin: 0; font-size: 14px; color: #4b5563"><%= t(".ignore") %></p>
+  <% if @several %>
+    <p style="margin: 0 0 16px; background: #fef3c7; border-radius: 8px; padding: 10px 12px"><%= t(".already", filter: @filter) %></p>
+  <% end %>
+  <p style="margin: 0 0 16px"><%= t(".check", companies: @companies) %></p>
+  <p style="margin: 0; font-size: 14px; color: #4b5563"><%= t(".ignore", companies: @companies) %></p>
 </div>

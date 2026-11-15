@@ -15,8 +15,10 @@ totals per type) and adds:
 
 - one daily reminder digest per member, by Web Push, email and an in-app inbox;
 - recurring bills that create themselves;
-- a To Pay list, bill barcode scanning, receipt photos, Expense Analysis charts and a one-time
-  import of the sheet history.
+- utility bills that fill themselves in: gas (欣桃天然氣) from the company's site, electricity (台電)
+  and water (台水) from their bill emails, each marked paid when the company says so;
+- a To Pay list, bill barcode scanning, receipt photos, Expense Analysis charts, a weekly backup to
+  the owner's Google Drive and a one-time import of the sheet history.
 
 It runs as one Rails 8 service on Railway with one Postgres database, and supports zh-TW and English.
 Desktop browsers and Android (installed PWA) are supported. iPhone is not a supported platform in v1
@@ -29,9 +31,12 @@ Home Screen.
 - Expense, Maintenance and Tax records: category, title, details, billing period (year + start/end
   month, e.g. Jan. - Feb., Full Year), TWD or USD, amount due and paid, Payable From and due dates,
   paid date, payment method, notes and photos.
-- One **Bills** page with two views switched at the top:
-  - **To Pay**: overdue, due in the next 30 days, maintenance coming up, due later and no due date,
-    most urgent first (side by side on a computer), with a count on the switch;
+- One **Bills** page with three tabs under the title, each with a count:
+  - **To Pay**: only what needs doing now (overdue, due in the next 30 days, maintenance coming up
+    and no due date), most urgent first, in two or three columns on a computer, with a **Next up**
+    line for what comes after;
+  - **Coming Up**: bills due after 30 days and recurring bills not created yet, by month, each
+    saying when it moves to To Pay;
   - **All**: every record as one compact row, with search and filters (year, month, type, category,
     status including Outstanding, payment method) folded behind a **Filters** button. The filters in
     use show as removable tags.
@@ -67,6 +72,26 @@ Home Screen.
 - Fixed amounts are filled in. For variable bills the last amount is shown as a hint.
 - Changing a template previews every affected unpaid bill (before → after) and applies the changes
   in one transaction.
+- A recurring bill's next period shows in To Pay or Coming Up before the daily job creates it, but
+  not when an imported bill for the same period is waiting to be linked. Recurring maintenance
+  without a due day gets one at the period start.
+
+**Utility bills** (Ledger Settings, each with its own page)
+- **Gas Account** (owner): one 欣桃天然氣 用戶編號 per ledger. Every working day at 11:30 the app
+  checks 欣桃's paid and unpaid bills, adds new gas bills (amount, 限繳日) and marks matching bills
+  paid. **Check Now** runs it at once.
+- **Electricity (台電)** and **Water (台水)**: whoever receives the company's e-bill emails has Gmail
+  forward them to the ledger's **forwarding address** (one per ledger, shared by both companies).
+  The bill notice fills in or adds the bill with its amount and 繳費期限; the paid notice marks it
+  paid. The first email sets the 電號 / 水號, and mail for any other number is ignored.
+- The Electricity / Water page shows the status (Setting up, Waiting, Forwarding works), the latest
+  bill and when the next email is expected, then the setup as 3 steps: the owner sends a setup
+  email to each person who forwards (it has a **Copy address** link to a public page showing only
+  the address), confirms Gmail's forwarding request with **Confirm Forwarding**, and the person adds
+  the Gmail filter. A bill email forwarded by hand also works.
+- In every case a bill already entered is matched by its period and filled in, never added twice;
+  bills already paid are never changed and nothing is deleted. Every email read or ignored is listed
+  under Recent activity, and the owner is told when a bill email is a week late.
 
 **Reminders**
 - At most one digest per member a day, at their chosen hour (default 09:00): due soon, due today,
@@ -75,6 +100,9 @@ Home Screen.
   Gmail API, and the in-app inbox.
 - The owner gets a daily summary of failed deliveries and can resend them from
   **Settings → Reminder delivery**.
+- **Bill paid**: when a utility bill is marked paid automatically, members with it on (owners and
+  co-owners by default; **My Account → Notifications**) get an inbox item and a push, or an email
+  when push is off or no device confirms it within an hour.
 - A red count on **Bills** (header and phone tab bar) shows the unpaid bills due today or earlier.
 
 **Ledgers and accounts**
@@ -86,24 +114,39 @@ Home Screen.
 - The **ledger menu** at the left of the header is named after the ledger you're in: switch ledgers,
   + New Ledger, Ledger Settings and Members.
 - **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
-  Started, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
+  Started, About This App, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
   holds Bills, Analysis and New Record.
-- The **ledger home** has one **Bills** card (what's to pay: overdue, due in 30 days and the most
-  urgent bills, beside the last 3 bills paid) and, under **Ledger Setup**, Recurring Bills,
+- The **ledger home** has one **Bills** card (what's to pay: overdue, due in 30 days, a count of
+  what's coming up and the most urgent bills, beside the last 3 bills paid) and, under **Ledger Setup**, Recurring Bills,
   Categories and Payment Methods.
 - **My Account**: profile photo, language, time zone (read-only until the pencil, then a dropdown
   grouped by region), reminder time and theme; change email; change the password, or for a
   Google-only account email a link to set one; connect or disconnect Google; leave a ledger;
   notification channels per ledger (Push, email); push devices; and the signed-in devices, folded,
   with **Sign Out All Other Devices**.
-- The app updates itself; **Ledger Settings → App Version** shows **What's New** (from
-  [`web/config/changelog.yml`](web/config/changelog.yml)).
+- **Ledger Settings** has a menu of its sections at the left on a computer (a list on a phone):
+  General, Members, Reminder delivery, Recurring Bills, Categories, Payment Methods, Gas Account,
+  Electricity, Water, Google Drive Backup, Activity and Danger zone. Owner-only sections are hidden
+  from everyone else.
+- The app updates itself and shows a card with the first change. **About This App** (your menu)
+  has the version (major.minor.patch), **Check For Updates** and **What's New** (from
+  [`web/config/changelog.yml`](web/config/changelog.yml)); it's marked **New** until you open it.
 - The activity log shows who did what.
 - Account deletion in the app or from a public page, with ownership transfer.
 - The owner can **delete all records** (re-authentication and the typed ledger name required),
   optionally keeping the recurring templates.
 - English and Traditional Chinese for signed-in and signed-out visitors; the theme is remembered on
   each device.
+
+**Google Drive Backup**
+- The owner connects their own Google Drive (the `drive.file` scope, so the app sees only files it
+  created). Every Sunday around 04:30 a CSV of all bills (named like `Home bills_20261101.csv`) and
+  every new bill photo, in one folder per year, are saved there. **Back Up Now** and **Open Folder**
+  are on the page.
+- An empty ledger that connects to a Drive holding an earlier backup can **restore** its bills and
+  photos, or start fresh.
+- Disconnecting stops the backups (files stay in Drive). It disconnects on ownership transfer, and
+  revokes Google's access only when no other ledger uses that Google account.
 
 **Photos**
 - Added in two steps (choose, then upload). Downscaled in the browser, then rotated, stripped of all
@@ -118,7 +161,8 @@ Home Screen.
   and a box plot of bill amounts.
 - Filter by year (or all years), currency and type, and count spending **By Paid Date** or **By
   Billing Period**. Totals show what's paid, unpaid and overdue; each opens the records behind it.
-- Clicking a chart element shows the records behind it.
+- Clicking a chart element shows the records behind it: period, item with details, paid, paid date
+  and payment method (cards on a phone). A bill split across periods shows its share.
 - On a computer the title, filters, count-by switch and totals stay pinned under the header while
   the charts scroll.
 
@@ -138,11 +182,16 @@ it alerts even when the app is down.
 |---|---|---|---|
 | `SendRemindersJob` | Hourly at :05 | Sends each member's digest at their reminder hour, then queues the owner's failure summary | `REMINDER_HEARTBEAT_URL` (grace 3 h) |
 | `OwnerFailureSummaryJob` | After each reminder run, once a day per ledger | One summary of failed deliveries for the owner | `DELIVERY_HEALTH_HEARTBEAT_URL` |
-| `ConfirmPushReceiptsJob` | Hourly at :35 | Marks a push no device confirmed within 24 h as failed | — |
+| `ConfirmPushReceiptsJob` | Hourly at :35 | Marks a push no device confirmed within 24 h as failed; emails a Bill paid push not confirmed within 1 h | — |
 | `GenerateRecurringRecordsJob` | Daily 00:10 | Creates due bills from every template, in the owner's time zone | `GENERATE_HEARTBEAT_URL` (grace 26 h) |
+| `SyncGasAccountsJob` | Weekdays 11:30 | Checks each 欣桃 用戶編號, adds new gas bills and marks paid ones | — |
+| `PollUtilityMailJob` | Every 5 min | Reads the app's Gmail: Gmail forwarding confirmations and forwarded 台電 / 台水 emails | — |
+| `WarnMissingUtilityMailJob` | Daily 09:00 | Tells the owner once per bill when a 台電 / 台水 email is a week late | — |
+| `NotifyBillsPaidJob` | After a utility sync marks bills paid | Bill paid inbox item + push (email fallback) | — |
 | `Auth::CleanupJob` | Daily 03:30 | Removes unconfirmed sign-ups older than 7 days, expired sessions and Google handoffs | — |
 | `DiskUsageJob` | Daily 03:45 | Checks the Railway volume and alerts (Sentry + `/fail`) at 80% use | `DISK_HEARTBEAT_URL` |
 | `BackupJob` | Sundays 04:00 | `pg_dump` to the volume (last 4 kept), plus an encrypted copy emailed off Railway | `BACKUP_HEARTBEAT_URL` (grace 8 days) |
+| `ScheduleDriveBackupsJob` | Sundays 04:30 | Queues each connected ledger's Google Drive backup | — |
 | `PhotoBackupReminderJob` | 1st of the month 09:00 | Reminds the owner to run `bin/download-photos` | — |
 | `clear_solid_queue_finished_jobs` | Hourly at :12 | Clears finished Solid Queue jobs | — |
 
@@ -163,7 +212,11 @@ Errors from requests and jobs go to Sentry.
   double run never sends twice. Push counts as delivered only after the service worker posts a
   receipt. Failures are surfaced to the owner, never re-sent in a flood.
 - **Email without a mail provider:** a custom Action Mailer delivery method calls the Gmail API
-  from a dedicated household Gmail account (`lib/delivery_methods/gmail_api.rb`).
+  from a dedicated household Gmail account (`lib/delivery_methods/gmail_api.rb`). The same mailbox
+  receives forwarded utility emails: each ledger's address is the mailbox plus `+h<id>-<token>`,
+  and mail is routed by sender domain to `Utilities::Taipower` or `Utilities::TaiwanWater`, then
+  `Utilities::BillSync`, which gas uses too (`records.external_ref` stops a synced bill being
+  added twice).
 - **No external object storage:** photos live on a Railway Volume through the Active Storage Disk
   service, and are sanitized before they are saved.
 - **Backups you can restore:** weekly encrypted `pg_dump` (AES-256, PBKDF2) emailed off Railway,
@@ -190,7 +243,14 @@ bin/dev            # later runs: Rails server + Tailwind watcher on http://local
 
 In development, email opens in the browser (letter_opener) and heartbeats are no-ops. Google
 sign-in, Gmail sending and Web Push need the keys in Rails credentials; see
-[docs/M0-SETUP.md](docs/M0-SETUP.md).
+[docs/M0-SETUP.md](docs/M0-SETUP.md). Two features need more setup:
+
+- **Reading 台電 / 台水 emails** needs the Gmail sender authorized with both `gmail.send` and
+  `gmail.modify` (run `bin/rails gmail:authorize` again if it was set up for sending only).
+- **Google Drive Backup** needs `GOOGLE_DRIVE_CLIENT_ID`, `GOOGLE_DRIVE_CLIENT_SECRET` (its own
+  OAuth client, redirect `/google_drive/callback`) and `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` /
+  `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` (the refresh token is stored encrypted;
+  `bin/rails db:encryption:init` generates them).
 
 **Tests**
 
@@ -204,7 +264,7 @@ bin/ci                   # RuboCop, security scans and tests (CI also runs the s
 
 ```sh
 bin/rails import:dry_run CSV=sheet.csv          # validate a sheet export without saving anything
-bin/rails gmail:authorize                       # one-time OAuth for the Gmail sender account
+bin/rails gmail:authorize                       # one-time OAuth for the Gmail sender (send + read forwarded bills)
 bin/rails backup:decrypt IN=household-….dump.enc
 bin/rails backup:restore_drill IN=household-….dump.enc PHOTOS=household-photos-….tgz
 bin/download-photos                             # tar of the photos on the Railway volume (needs the Railway CLI)
@@ -222,15 +282,18 @@ In short:
 2. **Invite people** from the ledger menu → **Members**: choose co-owner or viewer. They get an email with a link.
 3. **Set up the lists** from the ledger's page: categories, payment methods and recurring
    templates. Or **Import CSV** on **Bills › All** with the sheet's CSV export.
-4. **Install the app:** open your menu (your initial, top right) → **Install App** (or Chrome ⋮ →
+4. **Connect utilities** (optional), ledger menu → **Ledger Settings**: **Gas Account** with the
+   欣桃 用戶編號, and **Electricity** / **Water** where the owner sends the setup email to whoever
+   receives 台電's or 台水's e-bills. The owner can also connect **Google Drive Backup** there.
+5. **Install the app:** open your menu (your initial, top right) → **Install App** (or Chrome ⋮ →
    Install app on Android).
-5. **Turn on notifications:** your menu → **My Account**, tick **Push** and tap **Enable
+6. **Turn on notifications:** your menu → **My Account**, tick **Push** and tap **Enable
    notifications**. Choose your reminder time there too. On Android, set Chrome's battery use to
    Unrestricted so pushes arrive on time.
-6. **Add bills:** **New Record**, and **Scan the Bill's Barcodes** to fill it from a paper bill.
-7. **Every day:** check **Bills › To Pay**, tap **Record Payment** after paying, and **Add photos**
+7. **Add bills:** **New Record**, and **Scan the Bill's Barcodes** to fill it from a paper bill.
+8. **Every day:** check **Bills › To Pay** (and **Coming Up** for later), tap **Record Payment** after paying, and **Add photos**
    for receipts. **Expense Analysis** shows where the money goes.
-8. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
+9. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
    ledger menu → **Ledger Settings → Reminder delivery**.
 
 ## Documentation

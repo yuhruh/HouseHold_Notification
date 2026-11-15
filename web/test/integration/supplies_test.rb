@@ -153,7 +153,11 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     ProductLookup.create!(code: "4710000000024", fetched_at: Time.current)
     get scan_barcode_household_supplies_path(@home, code: "4710000000024")
     follow_redirect!
-    assert_match "輸入一次名稱", response.body
+    assert_select "dialog[data-controller=notice][data-notice-focus-value='#supply_name']" do
+      assert_select "h2", "找不到這個商品"
+      assert_select "p", /請自己輸入名稱、類別和單位/
+    end
+    assert_select "input[type=hidden][name=not_found][value='1']"
   end
 
   test "a Taiwan e-invoice: review, save once with one Ledger expense, remembered next time, refused twice" do
@@ -165,6 +169,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "select[name='lines[0][choice]'] option[selected][value=?]", supply.id.to_s
     assert_select "span", text: "建議"
+    assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
+    assert_select "details[open] input[name='lines[1][name]'][value=鮮奶]"
+    assert_select "span", text: "找不到"
 
     assert_difference -> { @home.records.count } => 1, -> { @home.supply_purchases.count } => 2 do
       post receipt_household_supplies_path(@home), params: { left:, store: "全聯", add_to_ledger: "1",
@@ -181,6 +188,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     other = left.sub("AB12345678", "AB12345679")
     post receipt_review_household_supplies_path(@home), params: { left: other }
     assert_select "span", text: "已記住"
+    assert_select "dialog[data-controller=notice]", 0, "every line is remembered"
     assert_select "input[name=store][value=全聯]"
     assert_select "input[name='lines[0][units_per_line]'][value='12']"
 

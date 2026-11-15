@@ -1,0 +1,9 @@
+<%# A pop-up message shown when the page opens (notice_controller); OK moves to the field in `focus` %>
+<dialog data-controller="notice" data-notice-focus-value="<%= local_assigns[:focus] %>" aria-labelledby="notice-title"
+        class="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border-2 border-(--card-line) bg-white p-5 text-gray-900 backdrop:bg-slate-900/40">
+  <h2 id="notice-title" class="text-lg font-bold"><%= title %></h2>
+  <p class="mt-2 text-gray-700"><%= body %></p>
+  <div class="mt-4 flex justify-end">
+    <button type="button" data-action="notice#close" autofocus class="btn-press cursor-pointer rounded-xl bg-blue-200 px-4 py-2 font-bold text-gray-900"><%= t("supplies.notice.ok") %></button>
+  </div>
+</dialog>

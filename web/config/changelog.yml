@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.2"
+  date: 2026-11-15
+  en:
+    - "When a scanned barcode isn't in any product database, a message pops up asking you to type the name, kind and unit yourself; the barcode is remembered for next time. Receipt lines that match none of your supplies are flagged the same way, with their name fields open."
+    - "Read the name from a photo has been removed: it needed very sharp photos and often found nothing."
+  zh-TW:
+    - "掃描的條碼在商品資料庫查不到時，會跳出訊息請你自己輸入名稱、類別和單位；這個條碼會被記住，下次直接使用。發票上對不到任何日用品的品項也會同樣提示，並打開名稱欄位。"
+    - "已移除「從照片讀取名稱」：它需要非常清楚的照片，常常讀不到。"
 - version: "1.11.1"
   date: 2026-11-15
   en:

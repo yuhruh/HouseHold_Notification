@@ -103,6 +103,8 @@ en:
       runs_out: "Runs out ~%{date}"
       at_alert_level: "Down to your alert level (%{count} left)"
       not_enough_data: "Not enough data yet · tap −1 or update the count"
+    notice:
+      ok: "OK"
     price_line: "%{total} for %{quantity} · %{unit_price}/%{unit}"
     sources:
       open_food_facts: "Open Food Facts"
@@ -211,21 +213,14 @@ en:
       log_purchase_title: "I just bought these"
       log_purchase: "Log the purchase too (the count above is what you bought)"
       found: "Found barcode %{code} in %{source}. Check the name before saving."
-      not_found: "No product database knows barcode %{code}. Type the name (or read it from a photo of the package) once and we'll remember it."
+      not_found: "No product database knows barcode %{code}. Type the name, kind and unit yourself. We'll remember this barcode, so next time it goes straight to this item."
+      not_found_title: "Product not found"
+      not_found_short: "Barcode %{code} · not found, typed in by hand"
       original_name: "Original name: %{name}"
       archive: "Archive item"
       restore: "Put back on the list"
       archive_confirm: "Archive this item? Its alerts stop; its history and Ledger entries are kept."
       archive_hint: "Hides it and stops its alerts. History and Ledger entries are kept."
-      photo_name:
-        button: "Read the name from a photo"
-        hint: "Take a photo of the front of the package. It's read on your device and never uploaded."
-        js:
-          first_time: "Getting the text reader ready (about 6 MB, only the first time)…"
-          reading: "Reading the text…"
-          pick: "Tap the product name (you can edit it after):"
-          nothing: "No readable text found. Try a closer, sharper photo of the front, or type the name."
-          failed: "Couldn't read the photo. Try again, or type the name."
     purchases:
       pick:
         title: "What did you buy?"
@@ -301,6 +296,13 @@ en:
           remembered: "Remembered"
           suggested: "Suggested"
           skipped: "Skipped"
+          not_found: "Not found"
+        unmatched_title:
+          one: "1 item not found"
+          other: "%{count} items not found"
+        unmatched:
+          one: "1 line on this receipt doesn't match any of your supplies. Choose one for it, or choose \"Add as new supply…\" and type its name."
+          other: "%{count} lines on this receipt don't match any of your supplies. For each, choose one, or choose \"Add as new supply…\" and type its name."
         is: "This line is"
         choose: "Choose…"
         add_new: "Add as new supply…"

@@ -1,8 +1,13 @@
 <% content_for :title, t(".title") %>
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-<% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700" } %>
+<% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900" } %>
+<% unmatched = @rows.select { it.choice.blank? } %>
 <div class="mx-auto w-full max-w-2xl space-y-5 py-4">
   <%= page_title("import.png", t(".title")) %>
+  <%# Lines that match none of the household's supplies: a pop-up asks for them, their name fields open %>
+  <% if unmatched.any? %>
+    <%= render "shared/notice", title: t(".unmatched_title", count: unmatched.size), body: t(".unmatched", count: unmatched.size), focus: "#line_#{unmatched.first.index}_choice" %>
+  <% end %>
   <%= form_with url: receipt_household_supplies_path(Current.household), method: :post, class: "space-y-5" do |form| %>
     <%= hidden_field_tag :left, @codes[0] %>
     <%= hidden_field_tag :right, @codes[1] %>
@@ -30,13 +35,14 @@
               <span class="text-sm text-gray-700"><%= t(".line", quantity: row.item.quantity.to_s("F").delete_suffix(".0"), amount: money(row.item.amount, Current.household.default_currency)) %></span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <% if row.tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold <%= tags[row.tag] %>"><%= t(".tags.#{row.tag}") %></span><% end %>
+              <% tag = row.tag || (:not_found if row.choice.blank?) %>
+              <% if tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold <%= tags[tag] %>"><%= t(".tags.#{tag}") %></span><% end %>
               <label class="sr-only" for="line_<%= row.index %>_choice"><%= t(".is") %></label>
               <%= select_tag "#{name}[choice]", options_for_select([ [ t(".choose"), "" ] ] + @supplies.map { [ it.name, it.id.to_s ] } + [ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], row.choice),
                     id: "line_#{row.index}_choice", class: "min-w-0 flex-1 rounded-md border border-gray-400 px-2 py-1.5" %>
               <label class="flex items-center gap-1 text-sm">× <%= number_field_tag "#{name}[units_per_line]", row.units_per_line, min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
             </div>
-            <details class="text-sm">
+            <details class="text-sm" <%= "open" if row.choice.blank? %>>
               <summary class="cursor-pointer text-gray-700"><%= t(".new_details") %></summary>
               <div class="mt-2 grid grid-cols-3 gap-2">
                 <%= text_field_tag "#{name}[name]", row.item.text.truncate(60, omission: ""), maxlength: 60, "aria-label": t(".new_name"), class: "col-span-3 rounded-md border border-gray-400 px-2 py-1" %>

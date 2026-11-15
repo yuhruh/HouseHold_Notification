@@ -50,7 +50,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supply_path(@home, supply)
     assert_select "details summary", /去哪買/
     assert_match "NT$289 買 12 · 每捲 NT$24.1", response.body
-    get household_supplies_path(@home)
+    get household_supplies_path(@home, tab: "all")
     assert_select "li##{ActionView::RecordIdentifier.dom_id(supply, :row)}", /Toilet paper/
     assert_select "main details summary", /新增日用品/
     assert_select "main details a[href=?]", scan_household_supplies_path(@home)
@@ -87,6 +87,38 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supplies_path(@home)
     assert_select "li##{ActionView::RecordIdentifier.dom_id(supply, :row)}", 0
     assert_select "a[href=?]", household_supplies_path(@home, archived: 1)
+  end
+
+  test "To Buy, Stocked and All tabs, like Bills" do
+    out = create_item(name: "Out", level: 0, guess_days_per_unit: 3)
+    out.purchases.create!(household: @home, purchased_on: 10.days.ago.to_date, quantity: 1, total_price: 10, left_before: 0)
+    create_item(name: "Soon", level: 3, guess_days_per_unit: 3)
+    create_item(name: "Plenty", level: 50, guess_days_per_unit: 3)
+    create_item(name: "Unknown", level: 5, guess_days_per_unit: nil)
+
+    get household_supplies_path(@home)
+    assert_select "nav a[aria-current=page]", /該買了/
+    assert_select "section", text: /用完或現在就買/ do
+      assert_select "li[id^=card_]", text: /Out/
+    end
+    assert_select "section", text: /7 天內要買/ do
+      assert_select "li", text: /Soon/
+    end
+    assert_select "li", text: /Plenty/, count: 0
+    assert_select "a[href=?]", household_supplies_path(@home, tab: "stocked"), text: /下一個：Plenty/
+
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "li", text: /Plenty/
+    assert_select "li", text: /移到「該買了」/
+    assert_select "section", text: /資料不足/ do
+      assert_select "li", text: /Unknown/
+    end
+    assert_select "li", text: /Soon/, count: 0
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "main li", 4
+    get household_supplies_path(@home, q: "Plen")
+    assert_select "nav a[aria-current=page]", /全部/
   end
 
   test "filters: Buy soon and Expiring" do

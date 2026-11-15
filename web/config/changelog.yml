@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.12.0"
+  date: 2026-11-15
+  en:
+    - "Supplies now works like Bills: To Buy (opens first) shows what to buy now in three groups, Out Or Buy Now, Buy In The Next 7 Days and Expiring, with a Next up line; Stocked shows what's enough for now by the month it moves to To Buy; All is the full list with filters and search."
+    - "Each group has its own colour (red, amber, violet, and grey for Not Enough Data Yet), softer in dark mode and easier to tell apart."
+  zh-TW:
+    - "日用品改成和帳單一樣：「該買了」（最先打開）把現在要買的分成三組：用完或現在就買、7 天內要買、快過期，並顯示「下一個」；「還夠用」依移到「該買了」的月份排列；「全部」是完整清單，可以篩選和搜尋。"
+    - "每組有自己的顏色（紅、琥珀、紫，資料不足是灰色），深色模式下更柔和、更好分辨。"
 - version: "1.11.5"
   date: 2026-11-15
   en:

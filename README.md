@@ -182,9 +182,11 @@ Home Screen.
   the app estimates what's left today ("~2 rolls"), the run-out date and a **buy-by** date (run-out −
   days it takes to buy − 2 days, or 4 while there are fewer than 3 readings). With no guess and no
   readings an item says **Not enough data yet**.
-- The list has **Buy soon**, **Expiring** and an estimated monthly spend at the top, then the items
-  most urgent first: cards on a phone, a table on a computer (from 1024px, with category chips and a
-  search box).
+- The page has three tabs, like Bills: **To Buy** (opens first) groups what to buy now into **Out
+  Or Buy Now**, **Buy In The Next 7 Days** and **Expiring**, each in its own colour (softer in dark
+  mode), with a **Next up** line; **Stocked** lists what's enough for now by the month it moves to To
+  Buy, then **Not Enough Data Yet**; **All** is every item with filters, the estimated monthly spend
+  and, on a computer, a table with category chips and a search box.
 - An item's page has the Forecast card with **−1 Used one** (updates in place, with Undo) and
   **Bought more**, **I have __ left** to correct the count, **Where to buy** (each store's cheapest
   price per unit, and the total spent) and **History**, both folded. **Edit** (a dialog on a

@@ -211,12 +211,21 @@ zh-TW:
       log_purchase_title: "這些是剛買的"
       log_purchase: "同時記錄這次購買（上面的數量就是買的數量）"
       found: "在 %{source} 找到條碼 %{code}。儲存前請確認名稱。"
-      not_found: "商品資料庫找不到條碼 %{code}。輸入一次名稱，下次就會記得。"
+      not_found: "商品資料庫找不到條碼 %{code}。輸入一次名稱（或從包裝照片讀取），下次就會記得。"
       original_name: "原始名稱：%{name}"
       archive: "封存此項目"
       restore: "放回清單"
       archive_confirm: "要封存這個項目嗎？提醒會停止，記錄和帳本項目都會保留。"
       archive_hint: "隱藏並停止提醒。記錄和帳本項目都會保留。"
+      photo_name:
+        button: "從照片讀取名稱"
+        hint: "拍包裝正面的照片。照片在你的裝置上讀取，不會上傳。"
+        js:
+          first_time: "正在準備文字辨識（約 6 MB，只有第一次需要）…"
+          reading: "正在讀取文字…"
+          pick: "點選商品名稱（之後可以修改）："
+          nothing: "沒有找到可辨識的文字。請拍更近、更清楚的包裝正面，或直接輸入名稱。"
+          failed: "無法讀取照片。請再試一次，或直接輸入名稱。"
     purchases:
       pick:
         title: "買了什麼？"

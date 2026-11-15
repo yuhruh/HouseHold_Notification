@@ -13,7 +13,14 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
   test "add an item, use one, undo it, then log a purchase with Also add to Ledger" do
     get household_supplies_path(@home)
-    assert_select "a[href=?]", new_household_supply_path(@home), text: /新增第一項日用品/
+    assert_select "main div.text-center details summary", /新增第一項日用品/
+    assert_select "main div.text-center details" do
+      assert_select "a", 3
+      assert_select "a:first-child[href=?]", new_household_supply_path(@home), text: /日用品項目/
+      assert_select "a[href=?]", scan_household_supplies_path(@home), text: /上傳或掃描/
+      assert_select "a[href=?]", restock_household_supplies_path(@home), text: /記錄購買/
+      assert_select "a[href=?]", new_household_record_path(@home), 0
+    end
 
     post household_supplies_path(@home), params: { supply: { name: "Toilet paper", kind: "toiletries", unit: "roll", level: 4, guess_days_per_unit: 3, lead_days: 3, alert_when_left: 0 } }
     supply = @home.supplies.sole
@@ -45,6 +52,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_match "NT$289 買 12 · 每捲 NT$24.1", response.body
     get household_supplies_path(@home)
     assert_select "li##{ActionView::RecordIdentifier.dom_id(supply, :row)}", /Toilet paper/
+    assert_select "main details summary", /新增日用品/
+    assert_select "main details a[href=?]", scan_household_supplies_path(@home)
   end
 
   test "−1 at 0 stays at 0, and the button is off" do

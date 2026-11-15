@@ -15,10 +15,22 @@
       <%= scan[:not_found] ? t("supplies.form.not_found", code: scan[:barcode]) : t("supplies.form.found", code: scan[:barcode], source: t("supplies.sources.#{scan[:source].presence || 'unknown'}")) %>
     </p>
   <% end %>
-  <div>
+  <%# New items: "Read the name from a photo" (photo_name_controller), read on the device, never uploaded %>
+  <div <%= tag.attributes(data: { controller: "photo-name", photo_name_texts_value: t("supplies.form.photo_name.js").to_json }) if supply.new_record? %>>
     <%= form.label :name, class: "block text-sm font-medium" %>
-    <%= form.text_field :name, required: true, maxlength: 60, autofocus: supply.name.blank?, class: filled.("name") %>
+    <%= form.text_field :name, required: true, maxlength: 60, autofocus: supply.name.blank?, class: filled.("name"), data: { photo_name_target: "name" } %>
     <% if scan[:original_name].present? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.original_name", name: scan[:original_name]) %></p><% end %>
+    <% if supply.new_record? %>
+      <div class="mt-2 space-y-2">
+        <button type="button" data-action="photo-name#choose" class="btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+          <%= image_tag "icons/add_photo.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("supplies.form.photo_name.button") %></span>
+        </button>
+        <input type="file" accept="image/*" hidden data-photo-name-target="photo" data-action="change->photo-name#read">
+        <p hidden role="status" aria-live="polite" data-photo-name-target="status"></p>
+        <div class="flex flex-wrap gap-2" data-photo-name-target="choices"></div>
+        <p class="text-xs text-gray-600"><%= t("supplies.form.photo_name.hint") %></p>
+      </div>
+    <% end %>
   </div>
   <div class="grid grid-cols-2 gap-3">
     <div>

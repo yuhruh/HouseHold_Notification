@@ -31,7 +31,7 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select "input#electricity-address[value=?]", account.inbox_address
     assert_select "[data-controller=clipboard][data-clipboard-text-value=?]", account.inbox_address
-    assert_select "h2#electricity-status", /還沒收到台電 Email/
+    assert_select "h2#electricity-status", /等待 Gmail 篩選器轉寄第一封台電 Email/
     assert_select "dd", "從第一封台電 Email 取得"
     assert_select "ol li", 3
   end

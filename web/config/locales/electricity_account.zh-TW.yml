@@ -65,9 +65,11 @@ zh-TW:
       no_mailbox: "這台伺服器還沒有設定 App 的信箱，所以還沒有轉寄地址。"
       status:
         working: "轉寄正常"
-        waiting: "還沒收到台電 Email"
+        waiting: "等待 Gmail 篩選器轉寄第一封台電 Email"
       from_first_email: "從第一封台電 Email 取得"
-      last_email: "最近一封台電 Email"
+      last_email: "篩選器最近一次轉寄"
+      last_bill: "最近一期台電帳單"
+      issued: "%{date} 開立"
       next_email: "下一封預計"
       around: "%{date} 左右"
       late: "已逾期，已通知擁有者"

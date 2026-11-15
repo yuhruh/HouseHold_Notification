@@ -41,6 +41,13 @@ class WarnMissingUtilityMailJobTest < ActiveJob::TestCase
     assert_equal 2, warnings.count
   end
 
+  test "it counts from the last bill's 收費日 once one has been read, whoever forwarded it" do
+    @account.update!(last_success_at: nil, created_at: Time.zone.parse("2026-11-15 10:00"), last_bill_on: Date.new(2026, 10, 8))
+    assert_equal Date.new(2026, 12, 8), @account.next_mail_expected_on
+    travel_to(Time.zone.parse("2026-12-15 10:00")) { WarnMissingUtilityMailJob.perform_now }
+    assert_match(/上一封 2026-10-08/, warnings.sole.body)
+  end
+
   test "before any email it counts from the day Electricity was turned on" do
     @account.update!(last_success_at: nil, created_at: Time.zone.parse("2026-11-15 10:00"))
     travel_to(Time.zone.parse("2027-01-22 10:00")) { WarnMissingUtilityMailJob.perform_now }

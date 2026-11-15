@@ -109,6 +109,9 @@
           <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
             <dt class="text-gray-600"><%= ElectricityAccount.human_attribute_name(:customer_code) %></dt><dd class="font-medium"><%= account.masked_code || t(".from_first_email") %></dd>
             <dt class="text-gray-600"><%= t(".last_email") %></dt><dd class="font-medium"><%= account.last_success_at ? l(account.last_success_at, format: :short) : t(".not_yet") %></dd>
+            <% if account.last_bill_on %>
+              <dt class="text-gray-600"><%= t(".last_bill") %></dt><dd class="font-medium"><%= t(".issued", date: l(account.last_bill_on)) %></dd>
+            <% end %>
             <% today = Time.current.in_time_zone(household.time_zone).to_date %>
             <dt class="text-gray-600"><%= t(".next_email") %></dt>
             <dd class="font-medium <%= 'text-amber-800' if account.missing_mail_expected_on(today) %>"><%= t(".around", date: l(account.next_mail_expected_on)) %><%= " · #{t(".late")}" if account.missing_mail_expected_on(today) %></dd>

@@ -36,10 +36,14 @@ class ElectricityAccount < UtilityAccount
       !(last_success_at && last_success_at > forwarding_code_at)
   end
 
-  # 台電 bills every 2 months, so its next email is due 2 months after the last one a filter
-  # forwarded (or after Electricity was turned on, before any)
+  # The day the last 台電 bill was issued (its 收費日, from any email that brought it in), or else
+  # the day a filter last forwarded a 台電 email
+  def last_mail_on = last_bill_on || last_success_at&.in_time_zone(household.time_zone)&.to_date
+
+  # 台電 bills every 2 months, so its next email is due 2 months after the last bill (or after
+  # Electricity was turned on, before any)
   def next_mail_expected_on
-    ((last_success_at || created_at)&.in_time_zone(household.time_zone)&.to_date)&.+(BILLED_EVERY)
+    (last_mail_on || created_at&.in_time_zone(household.time_zone)&.to_date)&.+(BILLED_EVERY)
   end
 
   # When 台電's email is a week late: the day it was expected (the latest such day, if several bills

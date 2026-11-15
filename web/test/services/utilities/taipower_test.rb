@@ -52,6 +52,16 @@ class Utilities::TaipowerTest < ActiveSupport::TestCase
     assert_equal notice.ref("12345678901"), paid.ref("12345678901")
   end
 
+  test "the bill's 收費日 is kept, the latest one wins, and the next bill is expected 2 months after it" do
+    assert_equal Date.new(2026, 10, 8), Taipower::Parser.call(paid_notice).issued_on, "both notices carry it"
+    read(bill_notice)
+    assert_equal Date.new(2026, 10, 8), @account.reload.last_bill_on
+    assert_equal Date.new(2026, 12, 8), @account.next_mail_expected_on
+
+    read(bill_notice(subject: "台電e-Bill115年8月電費通知(電號:12345678901)", swap: { "115/10/8" => "115/8/7" }))
+    assert_equal Date.new(2026, 10, 8), @account.reload.last_bill_on, "an older bill forwarded later doesn't move it back"
+  end
+
   test "periods across the year boundary" do
     jan = Taipower::Parser.call(bill_notice(subject: "台電e-Bill116年1月電費通知(電號:12345678901)"))
     feb = Taipower::Parser.call(bill_notice(subject: "台電e-Bill116年2月電費通知(電號:12345678901)"))

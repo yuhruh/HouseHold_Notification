@@ -3,6 +3,20 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.0"
+  date: 2026-11-15
+  en:
+    - "New Supplies page: keep track of the things your household keeps in stock (toilet paper, shampoo, oat milk). Each item shows how many are left, when it should run out and when to buy more. The app learns how fast you use it from your purchases and counts."
+    - "−1 Used one updates the count in place with an Undo; Bought more logs a restock with its price, store and expiry date, and can also add it to the Ledger as an expense. Each item shows the price per unit, the cheapest store and how much you've spent on it."
+    - "Supply alerts at 9:00 each morning, on for owners and co-owners: when it's time to buy, when something has probably run out, and when some of it will expire before you use it. If the push doesn't reach any device, it comes by email. Turn it off in My Account → Notifications."
+    - "Scan a product barcode to add an item or log a purchase (names come from Open Food Facts and other product databases; only the number is sent), or scan both QR codes on a Taiwan e-invoice (發票) to log every line at once, with one Ledger expense for the whole receipt. Photos are read on your device and never uploaded."
+    - "One + New menu in the header (and New in the tab bar) for Upload or scan, Supply item, Log a purchase… and Bill / record."
+  zh-TW:
+    - "新增「日用品」頁面：追蹤家裡常備的東西（衛生紙、洗髮精、燕麥奶）。每一項都會顯示還剩多少、預計何時用完、該在何時補貨。App 會從你的購買和數量記錄學會你們用多快。"
+    - "按「−1 用掉一個」會直接更新數量，並可復原；「又買了」記錄補貨的價格、商店和到期日，也可以同時加入帳本記為支出。每一項都會顯示單價、最便宜的商店，以及在這項花了多少錢。"
+    - "日用品提醒每天早上 9 點發送，擁有者和共同擁有者預設開啟：該買了、可能用完了、有些會在用完前過期時都會通知。推播沒送達任何裝置時改寄 Email。可在「我的帳戶 → 通知」關閉。"
+    - "掃描商品條碼就能新增項目或記錄購買（名稱來自 Open Food Facts 等商品資料庫，只會送出條碼號碼）；也可以掃描電子發票的兩個 QR Code，一次記錄每一行，整張發票在帳本記一筆支出。照片在你的裝置上讀取，不會上傳。"
+    - "頁首的「+ 新增」選單（以及下方的「新增」）整合了上傳或掃描、日用品項目、記錄購買…和帳單／記錄。"
 - version: "1.10.1"
   date: 2026-11-15
   en:

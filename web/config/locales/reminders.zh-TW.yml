@@ -122,6 +122,8 @@ zh-TW:
       channel_push: "推播"
       bill_paid: "帳單已繳費"
       bill_paid_hint: "瓦斯費或電費自動標示為已付款時通知：App 內與推播，推播沒送達時改寄 Email"
+      supply_alert: "日用品快用完或快過期"
+      supply_alert_hint: "每天早上 9 點，有東西該補貨或快過期時通知：App 內與推播，推播沒送達時改寄 Email"
   account:
     notification_preferences:
       update:

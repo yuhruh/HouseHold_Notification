@@ -11,19 +11,25 @@ class NavigationTest < ActionDispatch::IntegrationTest
                           due_on:, amount_required: 580, **(paid ? { amount_paid: 580, paid_on: Date.current } : {}))
   end
 
-  test "computer: Bills and Expense Analysis in the bar, Bills tinted on both its views, New Record only in the bar" do
+  test "computer: Bills, Expense Analysis and Supplies in the bar, Bills tinted on both its views, + New ▾ only in the bar" do
     sign_in_as users(:alex)
     get household_records_path(@home)
 
     assert_select "header nav details summary", text: /帳單/, count: 0
     assert_select "header nav > a.bg-blue-100[aria-current=page][href=?]", household_pending_path(@home), text: /帳單/
     assert_select "header nav > a[href=?]", household_dashboard_path(@home), text: /支出分析/
-    assert_select "header a.btn-new[href=?]", new_household_record_path(@home), 1
+    assert_select "header nav > a[href=?]", household_supplies_path(@home), text: /日用品/
+    assert_select "header details summary.btn-new", /新增/
+    assert_select "header details a[href=?]", new_household_record_path(@home), 1
+    assert_select "header details a:first-child.bg-blue-100[href=?]", new_household_record_path(@home), 1, "on Bills, Bill / record comes first"
     get household_pending_path(@home)
     assert_select "header nav > a.bg-blue-100[href=?]", household_pending_path(@home)
     get household_dashboard_path(@home)
     assert_select "header nav > a.bg-blue-100[href=?]", household_dashboard_path(@home)
     assert_select "header nav > a.bg-blue-100[href=?]", household_pending_path(@home), 0
+    get household_supplies_path(@home)
+    assert_select "header nav > a.bg-blue-100[aria-current=page][href=?]", household_supplies_path(@home)
+    assert_select "header details a:first-child.bg-blue-100[href=?]", new_household_supply_path(@home), 1, "on Supplies, Supply item comes first"
   end
 
   test "Bills is one page: To Pay, Coming Up and All tabs under the title, each with its count" do
@@ -77,14 +83,21 @@ class NavigationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "phone: the tab bar has Bills, Analysis and New Record; the header menus leave them out" do
+  test "phone: the tab bar has Bills, Analysis, Supplies and New (an Add new sheet, Scan first); the header menus leave them out" do
     sign_in_as users(:alex)
     get household_records_path(@home)
 
     assert_select "nav[aria-label='主要頁面']" do
       assert_select "a[aria-current=page][href=?]", household_pending_path(@home), text: /帳單/
       assert_select "a[href=?]", household_dashboard_path(@home)
-      assert_select "a[href=?] .btn-new", new_household_record_path(@home)
+      assert_select "a[href=?]", household_supplies_path(@home), text: /日用品/
+      assert_select "button[aria-haspopup=dialog] .btn-new"
+      assert_select "dialog[aria-label=新增]" do
+        assert_select "a:first-of-type[href=?]", scan_household_supplies_path(@home)
+        assert_select "a[href=?]", new_household_supply_path(@home)
+        assert_select "a[href=?]", restock_household_supplies_path(@home)
+        assert_select "a[href=?]", new_household_record_path(@home)
+      end
     end
     assert_select "header details a[href=?]", household_pending_path(@home), 0
   end
@@ -107,7 +120,8 @@ class NavigationTest < ActionDispatch::IntegrationTest
     get household_records_path(@home)
 
     assert_select "a[href=?]", new_household_record_path(@home), 0
-    assert_select "nav[aria-label='主要頁面'] a", 2
+    assert_select "nav[aria-label='主要頁面'] a", 3
+    assert_select "nav[aria-label='主要頁面'] dialog", 0
     assert_select "main a[href=?]", household_records_path(@home, format: :csv), 1
     assert_select "a[href=?]", new_household_import_path(@home), 0
   end

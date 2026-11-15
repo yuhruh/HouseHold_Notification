@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -293,6 +293,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "bill_paid"
+    t.boolean "supply_alert"
     t.index ["household_id"], name: "index_notification_preferences_on_household_id"
     t.index ["user_id", "household_id"], name: "index_notification_preferences_on_user_id_and_household_id", unique: true
   end
@@ -338,6 +339,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
     t.check_constraint "kind::text = ANY (ARRAY['card'::character varying, 'bank'::character varying, 'e_wallet'::character varying, 'cash'::character varying, 'other'::character varying]::text[])", name: "payment_methods_kind"
   end
 
+  create_table "product_lookups", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "source"
+    t.string "name"
+    t.string "original_name"
+    t.string "brand"
+    t.string "kind_guess"
+    t.jsonb "raw", default: {}, null: false
+    t.datetime "fetched_at", null: false
+    t.index ["code"], name: "index_product_lookups_on_code", unique: true
+  end
+
   create_table "push_subscriptions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "session_id"
@@ -365,6 +378,46 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_reauth_codes_on_user_id"
+  end
+
+  create_table "receipt_imports", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "invoice_no", null: false
+    t.string "seller_tax_id"
+    t.date "issued_on", null: false
+    t.decimal "total", precision: 12, scale: 2, null: false
+    t.bigint "record_id"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_receipt_imports_on_created_by_id"
+    t.index ["household_id", "invoice_no"], name: "index_receipt_imports_on_household_id_and_invoice_no", unique: true
+    t.index ["household_id"], name: "index_receipt_imports_on_household_id"
+    t.index ["record_id"], name: "index_receipt_imports_on_record_id"
+  end
+
+  create_table "receipt_item_matches", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "seller_tax_id", default: "", null: false
+    t.string "receipt_text", null: false
+    t.bigint "supply_id"
+    t.integer "units_per_line", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "seller_tax_id", "receipt_text"], name: "index_receipt_item_matches_unique", unique: true
+    t.index ["household_id"], name: "index_receipt_item_matches_on_household_id"
+    t.index ["supply_id"], name: "index_receipt_item_matches_on_supply_id"
+    t.check_constraint "units_per_line >= 1", name: "receipt_item_matches_units_positive"
+  end
+
+  create_table "receipt_sellers", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "tax_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "tax_id"], name: "index_receipt_sellers_on_household_id_and_tax_id", unique: true
+    t.index ["household_id"], name: "index_receipt_sellers_on_household_id"
   end
 
   create_table "record_events", force: :cascade do |t|
@@ -737,6 +790,82 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
     t.index ["endpoint"], name: "index_spike_push_subscriptions_on_endpoint", unique: true
   end
 
+  create_table "supplies", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", null: false
+    t.string "kind", default: "other", null: false
+    t.string "unit", default: "piece", null: false
+    t.integer "level", default: 0, null: false
+    t.datetime "level_at", null: false
+    t.decimal "usage_per_day", precision: 10, scale: 4
+    t.integer "guess_days_per_unit"
+    t.integer "lead_days", default: 3, null: false
+    t.integer "alert_when_left", default: 0, null: false
+    t.string "alert_state", default: "ok", null: false
+    t.datetime "alerted_at"
+    t.datetime "archived_at"
+    t.bigint "created_by_id"
+    t.integer "lock_version", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
+    t.index ["household_id"], name: "index_supplies_on_household_id"
+    t.check_constraint "alert_state::text = ANY (ARRAY['ok'::character varying, 'low'::character varying, 'out'::character varying]::text[])", name: "supplies_alert_state"
+    t.check_constraint "alert_when_left >= 0", name: "supplies_alert_when_left_not_negative"
+    t.check_constraint "guess_days_per_unit IS NULL OR guess_days_per_unit >= 1", name: "supplies_guess_days"
+    t.check_constraint "kind::text = ANY (ARRAY['toiletries'::character varying, 'cleaning'::character varying, 'kitchen'::character varying, 'food_drink'::character varying, 'health'::character varying, 'other'::character varying]::text[])", name: "supplies_kind"
+    t.check_constraint "lead_days >= 0 AND lead_days <= 30", name: "supplies_lead_days"
+    t.check_constraint "level >= 0", name: "supplies_level_not_negative"
+    t.check_constraint "unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying, 'pack'::character varying, 'box'::character varying, 'bag'::character varying]::text[])", name: "supplies_unit"
+  end
+
+  create_table "supply_barcodes", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "supply_id", null: false
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.index ["household_id", "code"], name: "index_supply_barcodes_on_household_id_and_code", unique: true
+    t.index ["household_id"], name: "index_supply_barcodes_on_household_id"
+    t.index ["supply_id"], name: "index_supply_barcodes_on_supply_id"
+  end
+
+  create_table "supply_counts", force: :cascade do |t|
+    t.bigint "supply_id", null: false
+    t.datetime "counted_at", null: false
+    t.integer "level", null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.index ["created_by_id"], name: "index_supply_counts_on_created_by_id"
+    t.index ["supply_id"], name: "index_supply_counts_on_supply_id"
+    t.check_constraint "level >= 0", name: "supply_counts_level_not_negative"
+  end
+
+  create_table "supply_purchases", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "supply_id", null: false
+    t.date "purchased_on", null: false
+    t.integer "quantity", null: false
+    t.decimal "total_price", precision: 12, scale: 2, null: false
+    t.string "currency", default: "TWD", null: false
+    t.string "store"
+    t.date "expires_on"
+    t.integer "left_before", null: false
+    t.bigint "record_id"
+    t.bigint "receipt_import_id"
+    t.datetime "expiry_alerted_at"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_supply_purchases_on_created_by_id"
+    t.index ["household_id"], name: "index_supply_purchases_on_household_id"
+    t.index ["receipt_import_id"], name: "index_supply_purchases_on_receipt_import_id"
+    t.index ["record_id"], name: "index_supply_purchases_on_record_id"
+    t.index ["supply_id"], name: "index_supply_purchases_on_supply_id"
+    t.check_constraint "left_before >= 0", name: "supply_purchases_left_before_not_negative"
+    t.check_constraint "quantity > 0", name: "supply_purchases_quantity_positive"
+    t.check_constraint "total_price >= 0::numeric", name: "supply_purchases_total_not_negative"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email_address"
     t.string "unconfirmed_email"
@@ -814,6 +943,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
   add_foreign_key "push_subscriptions", "sessions", on_delete: :nullify
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reauth_codes", "users", on_delete: :cascade
+  add_foreign_key "receipt_imports", "households"
+  add_foreign_key "receipt_imports", "records", on_delete: :nullify
+  add_foreign_key "receipt_imports", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "receipt_item_matches", "households"
+  add_foreign_key "receipt_item_matches", "supplies", on_delete: :nullify
+  add_foreign_key "receipt_sellers", "households"
   add_foreign_key "record_events", "households"
   add_foreign_key "record_events", "users", on_delete: :nullify
   add_foreign_key "records", "categories"
@@ -843,6 +978,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spike_push_sends", "spike_push_subscriptions", on_delete: :cascade
+  add_foreign_key "supplies", "households"
+  add_foreign_key "supplies", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "supply_barcodes", "households"
+  add_foreign_key "supply_barcodes", "supplies"
+  add_foreign_key "supply_counts", "supplies"
+  add_foreign_key "supply_counts", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "supply_purchases", "households"
+  add_foreign_key "supply_purchases", "receipt_imports", on_delete: :nullify
+  add_foreign_key "supply_purchases", "records", on_delete: :nullify
+  add_foreign_key "supply_purchases", "supplies"
+  add_foreign_key "supply_purchases", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "users", "households", column: "last_household_id", on_delete: :nullify
   add_foreign_key "utility_accounts", "categories"
   add_foreign_key "utility_accounts", "households"

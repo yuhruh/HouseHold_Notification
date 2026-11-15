@@ -1,0 +1,36 @@
+<% content_for :title, @supply.name %>
+<div class="mx-auto w-full max-w-3xl space-y-5 py-4">
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h1 class="text-3xl font-bold"><%= @supply.name %></h1>
+      <p class="text-sm text-gray-600"><%= t("supplies.show.subtitle", unit: t("supplies.units.#{@supply.unit}_one"), kind: supply_kind(@supply.kind)) %><% if @supply.archived_at %> · <%= t("supplies.show.archived") %><% end %></p>
+    </div>
+    <% if policy(@supply).edit? %>
+      <%= link_to nav_label("edit.png", t("supplies.actions.edit")), edit_household_supply_path(Current.household, @supply), data: modal_link_data,
+            class: "btn-press inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
+    <% end %>
+  </div>
+  <%= render "shared/flash" %>
+  <%= render "supplies/forecast", supply: @supply, forecast: @forecast %>
+
+  <details class="card-raised rounded-2xl bg-white">
+    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+      <span class="font-bold"><%= t("supplies.show.where_to_buy") %></span>
+      <span class="min-w-0 truncate text-sm text-gray-600"><%= @stores.any? ? t("supplies.show.cheapest_at", store: @stores.first[:store], price: supply_unit_price(@stores.first[:best]), unit: t("supplies.units.#{@supply.unit}_one")) : t("supplies.show.no_purchases") %> ▾</span>
+    </summary>
+    <% if @stores.any? %>
+      <ul class="divide-y divide-gray-200 border-t border-gray-200 px-4">
+        <% @stores.each_with_index do |store, index| %>
+          <li class="flex flex-wrap items-baseline justify-between gap-2 py-2 text-sm">
+            <span class="font-semibold"><%= store[:store] %><% if index.zero? && @stores.size > 1 %> <span class="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">★ <%= t("supplies.show.cheapest") %></span><% end %></span>
+            <span><%= supply_price_line(store[:best]) %> <span class="text-gray-600">(<%= t("supplies.show.times", count: store[:times]) %>)</span></span>
+          </li>
+        <% end %>
+        <li class="py-2 text-sm font-semibold"><%= supply_spending(@supply) %></li>
+      </ul>
+    <% end %>
+  </details>
+
+  <%= render "supplies/history", supply: @supply, history: @history %>
+  <div id="supply_toast"></div>
+</div>

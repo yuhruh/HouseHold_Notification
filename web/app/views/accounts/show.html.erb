@@ -163,10 +163,12 @@
         <label class="flex items-center gap-1"><%= f.check_box :email %> <%= t(".channel_email") %></label>
         <label class="flex items-center gap-1"><%= f.check_box :web_push %> <%= t(".channel_push") %></label>
         <label class="flex items-center gap-1"><%= f.check_box :bill_paid %> <%= t(".bill_paid") %></label>
+        <label class="flex items-center gap-1"><%= f.check_box :supply_alert %> <%= t(".supply_alert") %></label>
         <%= f.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-white text-gray-900 cursor-pointer px-3 py-1" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
       <% end %>
     <% end %>
     <p class="text-xs text-gray-500"><%= t(".bill_paid") %>: <%= t(".bill_paid_hint") %></p>
+    <p class="text-xs text-gray-500"><%= t(".supply_alert") %>: <%= t(".supply_alert_hint") %></p>
     <div class="space-y-2 rounded-lg border px-4 py-3 text-sm" data-controller="push" data-push-vapid-public-key-value="<%= Vapid.public_key %>"
          data-push-labels-value="<%= { enabled: t(".push_enabled"), disabled: t(".push_disabled"), denied: t(".push_denied"), unsupported: t(".push_unsupported"), failed: t(".push_failed") }.to_json %>">
       <p class="font-medium"><%= t(".this_browser") %>: <span data-push-target="status">…</span></p>

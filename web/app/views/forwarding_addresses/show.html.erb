@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <div class="mx-auto w-full max-w-md space-y-4 py-6">
   <section class="card-raised-sm space-y-4 rounded-xl bg-white p-5" aria-labelledby="forward-title">
-    <h1 id="forward-title" class="text-2xl font-bold"><%= t(".heading", household: @account.household.name) %></h1>
+    <h1 id="forward-title" class="text-2xl font-bold"><%= t(".heading", household: @inbox.household.name) %></h1>
     <div class="space-y-2" data-controller="clipboard" data-clipboard-text-value="<%= @address %>" data-clipboard-done-value="<%= t(".copied") %>">
       <label for="forward-address" class="block text-sm font-medium"><%= t(".forward_to") %></label>
       <input id="forward-address" type="text" value="<%= @address %>" readonly class="block w-full rounded-md border border-gray-400 px-3 py-3 font-mono text-base shadow-sm">

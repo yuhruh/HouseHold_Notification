@@ -13,7 +13,7 @@
 <%# The other links' page, tinted like the Bills page you're on: Settings covers the pages it opens %>
 <% nav_page = case controller_path
    when "household_settings", "members", "memberships", "household_invitations", "invitation_links", "reminder_deliveries",
-        "ownership_transfers", "household_deletions", "record_purges", "gas_accounts", "electricity_accounts" then :settings
+        "ownership_transfers", "household_deletions", "record_purges", "gas_accounts", "electricity_accounts", "water_accounts" then :settings
    when "accounts", %r{\Aaccount/} then :account
    when "notifications" then :inbox
    when "pages" then (:guide if action_name == "guide")

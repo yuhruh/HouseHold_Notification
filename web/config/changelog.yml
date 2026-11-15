@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.10.0"
+  date: 2026-11-15
+  en:
+    - "Ledger settings has a new Water (台水) page: each 台灣自來水 帳單通知 email fills in the 水費 bill with its amount and 繳費期限 (or adds it), and the 繳費成功通知 email marks it paid, with a Bill paid notification. The 115年10月 bill is the 7月-8月 bill."
+    - "台水's emails go to the same forwarding address as 台電's, so whoever already forwards 台電 only adds one Gmail filter (from:water.gov.tw). The setup email now names every company that's turned on, with one filter for all of them."
+    - "If 台水's bill email is a week late, the owner is told, the same as for 台電."
+  zh-TW:
+    - "帳本設定新增「水費（台水）」頁面：台灣自來水的帳單通知 Email 會補上水費帳單的金額和繳費期限（沒有就新增），繳費成功通知 Email 會把帳單標示已付款，並發出帳單已繳費通知。115年10月的帳單就是 7月-8月 的帳單。"
+    - "台水的 Email 和台電共用同一個轉寄地址，已經在轉寄台電的人只要再加一個 Gmail 篩選器（from:water.gov.tw）。設定信現在會列出所有已開啟的公司，用一個篩選器涵蓋全部。"
+    - "台水的帳單 Email 逾期一週沒收到時，會像台電一樣通知擁有者。"
 - version: "1.9.0"
   date: 2026-11-15
   en:

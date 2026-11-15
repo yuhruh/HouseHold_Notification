@@ -22,6 +22,8 @@ class Household < ApplicationRecord
   has_one :drive_backup
   has_one :gas_account
   has_one :electricity_account
+  has_one :water_account
+  has_one :forwarding_inbox
   has_one :owner_membership, -> { where(role: "owner") }, class_name: "Membership"
   has_one :owner, through: :owner_membership, source: :user
 

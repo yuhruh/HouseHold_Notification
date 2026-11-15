@@ -16,18 +16,20 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     end
 
     def raw(id) = @messages.fetch(id)
-    def done!(id, bill: false) = @done[id] = bill
+    def done!(id, bill: nil) = @done[id] = bill
   end
 
   setup do
     @home = households(:home)
     Categories::Seed.call(@home)
-    ElectricityAccount.define_singleton_method(:mailbox) { "household.bills@gmail.com" }
-    @account = @home.create_electricity_account!(category: @home.categories.find_by!(name_zh: "電費"), allowed_senders: [ "coowner@gmail.com" ])
-    @address = @account.inbox_address
+    ForwardingInbox.define_singleton_method(:mailbox) { "household.bills@gmail.com" }
+    @account = @home.create_electricity_account!(category: @home.categories.find_by!(name_zh: "電費"))
+    @inbox = @home.reload.forwarding_inbox
+    @inbox.update!(allowed_senders: [ "coowner@gmail.com" ])
+    @address = @inbox.address
   end
 
-  teardown { ElectricityAccount.singleton_class.send(:remove_method, :mailbox) }
+  teardown { ForwardingInbox.singleton_class.send(:remove_method, :mailbox) }
 
   def email(from:, subject: "Hello", body: "Hi", to: @address, return_path: nil, auth: nil, content_type: "text/plain")
     caf = "#{to.sub("@", "=")}@gmail.com"
@@ -72,30 +74,29 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     inbox = FakeInbox.new("m1" => confirmation)
     assert_equal [ :confirm ], Utilities::ForwardedMail.call(inbox:)
     assert_equal [ @address ], inbox.asked
-    assert_equal({ "m1" => false }, inbox.done)
-    @account.reload
-    assert_equal [ LINK, nil, "co.owner@gmail.com" ], [ @account.forwarding_link, @account.forwarding_code, @account.forwarding_from ]
-    assert @account.pending_forwarding_confirmation?
-    assert_equal({ "kind" => "forwarding_request", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
+    assert_equal({ "m1" => nil }, inbox.done)
+    @inbox.reload
+    assert_equal [ LINK, nil, "co.owner@gmail.com" ], [ @inbox.forwarding_link, @inbox.forwarding_code, @inbox.forwarding_from ]
+    assert @inbox.pending_confirmation?
+    assert_equal({ "kind" => "forwarding_request", "detail" => "co.owner@gmail.com" }, @account.reload.activity.first.except("at"))
 
     travel 8.days do
-      assert_not @account.pending_forwarding_confirmation?, "a week-old request isn't shown"
+      assert_not @inbox.pending_confirmation?, "a week-old request isn't shown"
     end
   end
 
   test "a confirmation Google didn't sign, or from someone who isn't a member, is ignored and says why" do
     read_mail("m1" => confirmation(auth: "dkim=fail header.i=@google.com"), "m2" => confirmation(requester: "stranger@gmail.com"),
       "m3" => email(from: "forwarding-noreply@google.com", auth: "dkim=pass header.i=@google.com", body: "co.owner@gmail.com wants something"))
-    @account.reload
-    assert_nil @account.forwarding_link
+    assert_nil @inbox.reload.forwarding_link
     assert_equal [ [ "not_authentic", "forwarding-noreply@google.com" ], [ "not_member", "stranger@gmail.com" ], [ "no_confirmation", nil ] ],
-      @account.activity.reverse.map { it.values_at("reason", "detail") }
+      @account.reload.activity.reverse.map { it.values_at("reason", "detail") }
   end
 
   test "a 台電 email forwarded by hand by a member is accepted for the bill reader, but doesn't count as the filter working" do
     inbox = FakeInbox.new("m1" => by_hand, "m2" => by_hand(quoted: "From: 台灣電力公司 <ebill@taipower.com.tw>"))
     assert_equal %i[bill bill], Utilities::ForwardedMail.call(inbox:)
-    assert_equal({ "m1" => true, "m2" => true }, inbox.done)
+    assert_equal({ "m1" => :taipower, "m2" => :taipower }, inbox.done)
     @account.reload
     assert_equal [ { "kind" => "received_by_hand", "detail" => "co.owner@gmail.com" }, { "kind" => "unreadable", "detail" => "Fwd: 台電電子帳單" } ],
       @account.activity.first(2).reverse.map { it.except("at") }, "no bill table in it, so the reader says so"
@@ -109,14 +110,15 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
   end
 
   test "a 台電 email forwarded by an allowed Gmail is accepted (dots don't matter) and labelled for the bill reader" do
-    @account.update!(forwarding_link: LINK, forwarding_code_at: 1.minute.ago)
+    @inbox.update!(forwarding_link: LINK, forwarding_code_at: 1.minute.ago)
     inbox = FakeInbox.new("m1" => taipower)
     assert_equal [ :bill ], Utilities::ForwardedMail.call(inbox:)
-    assert_equal({ "m1" => true }, inbox.done)
+    assert_equal({ "m1" => :taipower }, inbox.done)
     @account.reload
     assert @account.connected?
     assert_equal({ "kind" => "received", "detail" => "co.owner@gmail.com" }, @account.activity.second.except("at"))
-    assert_not @account.pending_forwarding_confirmation?, "once mail arrives the request has done its job"
+    assert_not @inbox.reload.pending_confirmation?, "once mail arrives the request has done its job"
+    assert @inbox.confirmed?
   end
 
   def taipower_html(name) = File.read(Rails.root.join("test/fixtures/files/taipower/#{name}.html"))
@@ -148,7 +150,7 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
   end
 
   test "a member's own Gmail is accepted too" do
-    @account.update!(allowed_senders: [])
+    @inbox.update!(allowed_senders: [])
     users(:alex).update!(email_address: "alex.home@gmail.com")
     assert_equal [ :bill ], read_mail("m1" => taipower(forwarder: "alexhome"))
   end
@@ -171,16 +173,64 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     wrong = @address.sub("+h#{@home.id}-", "+h#{@home.id + 1}-")
     inbox = FakeInbox.new("m1" => email(from: "ebill@taipower.com.tw", to: wrong))
     assert_equal [ :unknown ], Utilities::ForwardedMail.call(inbox:)
-    assert_equal({ "m1" => false }, inbox.done)
+    assert_equal({ "m1" => nil }, inbox.done)
     assert_empty @account.reload.activity
   end
 
-  test "nothing is read without the app's Gmail, or without an electricity account" do
+  test "nothing is read without the app's Gmail, or once neither Electricity nor Water is on" do
     assert_empty Utilities::ForwardedMail.call(inbox: nil)
     @account.destroy!
+    assert_nil @home.reload.forwarding_inbox, "the address stops working"
     inbox = FakeInbox.new("m1" => taipower)
     assert_empty Utilities::ForwardedMail.call(inbox:)
     assert_nil inbox.asked
+  end
+
+  def water_html(name) = File.read(Rails.root.join("test/fixtures/files/twwater/#{name}.html"))
+
+  # 台水's email as a Gmail filter delivers it to the same address as 台電's
+  def water(subject:, name:, forwarder: "co.owner")
+    email(from: "台灣自來水公司 <service@ebillserver.water.gov.tw>", subject:, content_type: "text/html", body: water_html(name),
+      return_path: "#{forwarder}+caf_=CAF",
+      auth: "dkim=pass header.i=@ebillserver.water.gov.tw; spf=pass (google.com: domain of #{forwarder}+caf_=CAF designates 1.2.3.4) smtp.mailfrom=\"#{forwarder}+caf_=CAF\"; dmarc=pass")
+  end
+
+  test "台水's bill and paid notice reach Water through the same address, labelled for 台水" do
+    water_category = @home.categories.find_by!(name_zh: "水費")
+    water_account = @home.create_water_account!(category: water_category)
+    assert_equal @inbox, @home.reload.forwarding_inbox, "Water shares Electricity's address"
+    open_bill = @home.records.create!(record_type: "expense", category: water_category, details: "水費", period: Period.parse(2026, "7月-8月"))
+
+    inbox = FakeInbox.new("m1" => water(subject: "台灣自來水公司115年10月帳單通知", name: "bill_notice"),
+      "m2" => water(subject: "台灣自來水公司繳費成功通知", name: "paid_notice"))
+    assert_equal %i[bill bill], Utilities::ForwardedMail.call(inbox:)
+    assert_equal({ "m1" => :water, "m2" => :water }, inbox.done)
+    assert_equal [ 680, Date.new(2026, 10, 21), true ], open_bill.reload.values_at(:amount_required, :due_on, :settled)
+
+    water_account.reload
+    assert water_account.connected?
+    assert_equal "12345678901", water_account.customer_code
+    assert_equal Date.new(2026, 10, 1), water_account.last_bill_on
+    assert_equal Date.new(2026, 12, 1), water_account.next_mail_expected_on
+    assert_nil @account.reload.last_success_at, "Electricity's filter status is its own"
+    assert_empty @account.activity
+  end
+
+  test "a 台水 email is ignored while Water isn't on, and Electricity's activity says so" do
+    assert_equal [ :ignored ], read_mail("m1" => water(subject: "台灣自來水公司115年10月帳單通知", name: "bill_notice"))
+    assert_equal [ "not_turned_on", "台水" ], @account.reload.activity.first.values_at("reason", "detail")
+    assert_equal 0, @home.records.count
+  end
+
+  test "a 台水 bill forwarded by hand is read too" do
+    water_account = @home.create_water_account!(category: @home.categories.find_by!(name_zh: "水費"))
+    body = "<div>---------- Forwarded message ---------<br>\nFrom: 台灣自來水公司 &lt;service@ebillserver.water.gov.tw&gt;<br>" \
+      "Subject: 台灣自來水公司115年10月帳單通知</div>#{water_html("bill_notice")}"
+    mail = email(from: "co.owner@gmail.com", subject: "Fwd: 台灣自來水公司115年10月帳單通知", content_type: "text/html",
+      auth: "dkim=pass header.i=@gmail.com; spf=pass smtp.mailfrom=co.owner@gmail.com", body:)
+    assert_equal [ :bill ], read_mail("m1" => mail)
+    assert_equal [ "2026 7月-8月", 680 ], @home.records.last.then { [ it.period.to_s, it.amount_required ] }
+    assert_nil water_account.reload.last_success_at
   end
 
   test "the job only logs when Gmail can't be read yet" do

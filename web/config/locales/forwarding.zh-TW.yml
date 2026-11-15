@@ -1,0 +1,131 @@
+zh-TW:
+  activerecord:
+    models:
+      forwarding_inbox: "轉寄地址"
+    attributes:
+      forwarding_inbox:
+        allowed_senders: "其他會轉寄的 Email"
+    errors:
+      models:
+        forwarding_inbox:
+          attributes:
+            allowed_senders:
+              invalid: "不是 Email 地址：%{emails}"
+  forwarding_inboxes:
+    setup_email:
+      sent: "已寄設定信給 %{email}。"
+      too_soon: "設定信不到一分鐘前才寄給 %{email}。"
+      unknown: "名單裡沒有這個 Email。"
+    add_forwarder:
+      added: "已新增 %{email} 並寄出設定信。"
+      already: "%{email} 已經在名單裡。"
+    remove_forwarder:
+      removed: "已移除 %{email}。"
+  forwarding_setup_mailer:
+    setup:
+      subject: "%{household}：把%{companies}的帳單 Email 轉寄到 Household Tracker"
+      intro: "%{owner} 在 Household Tracker 把你加入 %{household}，作為收到%{companies}帳單 Email 的人。在 Gmail 設定一次，之後每期帳單都會自動進到帳本：補上金額和繳費期限，收到已繳通知時標示已付款。"
+      forward_to: "轉寄到這個地址："
+      copy_link: "在這個頁面複製："
+      copy_button: "複製地址"
+      or_long_press: "或長按地址選取"
+      how: "在電腦上的 Gmail（收到%{companies} Email 的那個 Gmail）："
+      steps:
+        - "⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址 › 貼上上面的地址 › 繼續 › 確定。轉寄功能本身保持關閉。"
+        - "Gmail 會請帳本確認。%{owner} 會在 Household Tracker 確認，通常幾分鐘內完成；你不需要做任何事。"
+        - "確認後：在 Gmail 搜尋框輸入 %{filter} › 顯示搜尋選項 › 建立篩選器 › 勾選「轉寄給」› 選擇上面的地址 › 建立篩選器。"
+      check: "想確認是否成功，可以手動轉寄一封%{companies}帳單 Email 到這個地址，約 5 分鐘內會出現在帳本。"
+      ignore: "如果你沒有收到%{companies}的 Email，可以忽略這封信。"
+      and: "和"
+      already: "已經在轉寄到這個地址了嗎？略過步驟 1 和 2，只要確認有篩選器涵蓋 %{filter}：照步驟 3 為新的公司再加一個篩選器。"
+  forwarding_addresses:
+    show:
+      title: "轉寄地址"
+      heading: "把帳單 Email 轉寄到 %{household}"
+      forward_to: "轉寄到這個地址"
+      copy: "複製地址"
+      copied: "已複製"
+      next: "接著在電腦上的 Gmail 貼上：⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址。其他步驟在信裡。"
+      only_this: "這個頁面只顯示轉寄地址。"
+    missing:
+      title: "找不到地址"
+      body: "這個轉寄地址已經失效，請帳本擁有者重新寄一封設定信。"
+  utility_accounts:
+    activity:
+      latest: "最近 %{time}"
+    forwarding:
+      bill_settings_title: "帳單設定"
+      optional: "（選填）"
+      choose: "選擇類別"
+      no_payment_method: "不指定"
+      payment_method_hint: "自動新增的帳單會用這個付款方式。每次刷不同的卡就留空。"
+      save: "儲存"
+      turn_on: "開啟"
+      turn_on_hint: "選好類別後點「開啟」。台電和台水共用這本帳本的轉寄地址。"
+      not_on_yet: "擁有者還沒有開啟這個功能。"
+      owner_only: "只有擁有者可以更改這些設定。"
+      disconnect: "取消連結"
+      how_title: "運作方式"
+      forward_to: "轉寄到這個地址"
+      copy: "複製"
+      copied: "已複製"
+      steps:
+        - "Gmail ⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址 › 貼上地址 › 繼續 › 確定。轉寄功能本身保持關閉。（這個 Gmail 已經在轉寄台電或台水到這裡的話，略過這步。）"
+        - "Gmail 會請這本帳本確認。約 5 分鐘內，擁有者會在步驟 2 看到「確認轉寄」按鈕：點一下即可。"
+        - "在 Gmail 搜尋框輸入 %{filter} › 顯示搜尋選項 › 建立篩選器 › 勾選「轉寄給」› 選擇這個地址 › 建立篩選器。"
+      confirm_title: "確認轉寄"
+      confirm_from: "%{email} 要求 Gmail 轉寄到這本帳本，%{time}"
+      confirm_button: "確認轉寄"
+      confirm_next: "會開啟 Gmail 的確認頁面。確認後，再到那個 Gmail 做第 3 步。"
+      code_next: "把這個確認碼輸入 Gmail 的確認碼欄位 › 驗證，然後做第 3 步。"
+      no_mailbox: "這台伺服器還沒有設定 App 的信箱，所以還沒有轉寄地址。"
+      issued: "%{date} 開立"
+      next_email: "下一封預計"
+      around: "%{date} 左右"
+      late: "已逾期，已通知擁有者"
+      not_yet: "尚未"
+      setup_title: "設定轉寄"
+      setup_owner_only: "只有擁有者可以寄送設定信或更改轉寄名單。"
+      step1:
+        hint: "信裡有這本帳本的轉寄地址和 Gmail 設定步驟，對方不需要打開 App。"
+        pill: "已寄 %{sent} / %{total}"
+      roles:
+        owner: "擁有者"
+        co_owner: "共同擁有者"
+        viewer: "檢視者"
+        added: "已加入"
+      sent_at: "設定信已於 %{time} 寄出"
+      not_sent: "還沒寄設定信"
+      send: "寄設定信"
+      resend: "重寄"
+      remove: "移除 %{email}"
+      remove_confirm: "要移除 %{email} 嗎？之後這個地址轉寄的 Email 都會被略過。"
+      add_label: "新增會轉寄的 Email"
+      add_placeholder: "name@gmail.com"
+      add_button: "新增並寄出"
+      add_hint: "用於不是成員登入信箱的 Gmail。成員隨時都可以轉寄。"
+      yourself: "改成自己設定：地址和步驟"
+      step2:
+        title: "確認 Gmail 的要求"
+        your_turn: "輪到你"
+        nothing: "目前沒有要確認的"
+        hint: "在 Gmail 新增地址後約 5 分鐘內，要求會出現在這裡。請重新整理頁面查看。"
+        confirmed: "已確認"
+        confirmed_hint: "Gmail 轉寄到這個地址已確認。新的轉寄者提出要求時會出現在這裡。"
+      step3:
+        waiting: "等待中 · 約 %{date}"
+        late: "逾期 · 原本預計約 %{date}"
+        working: "運作中 · 最近 %{time}"
+  utilities:
+    forwarded_mail:
+      not_taipower: "不是台電或台水寄的（寄件者 %{detail}）"
+      not_authentic: "自稱是 %{detail}，但沒有通過 Gmail 的寄件者驗證"
+      unknown_forwarder: "無法確認是誰的 Gmail 轉寄的（只接受成員用 Gmail 篩選器轉寄的信）"
+      not_member: "來自 %{detail}，不是這本帳本的成員（請在「設定轉寄」新增）"
+      no_confirmation: "Gmail 的轉寄通知裡沒有確認連結"
+      not_taipower_forward: "%{detail} 寄來的信裡沒有轉寄的台電或台水 Email"
+      other_customer_code: "電號 %{detail} 的帳單，不是這本帳本的電號"
+      other_ledger_code: "電號 %{detail} 的帳單，這個電號已被其他帳本使用"
+      not_turned_on: "一封%{detail} Email，但這本帳本沒有開啟%{detail}"
+      water_other_customer_code: "水號 %{detail} 的帳單，不是這本帳本的"
+      water_other_ledger_code: "水號 %{detail} 的帳單，已被另一本帳本使用"

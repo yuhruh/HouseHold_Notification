@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_15_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_15_070000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -150,6 +150,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_060000) do
     t.index ["household_id"], name: "index_drive_backups_on_household_id", unique: true
     t.check_constraint "problem::text = ANY (ARRAY['reconnect'::character varying, 'storage_full'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_problem"
     t.check_constraint "restore_state::text = ANY (ARRAY['running'::character varying, 'finished'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_restore_state"
+  end
+
+  create_table "forwarding_inboxes", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "inbox_token", null: false
+    t.string "allowed_senders", default: [], null: false, array: true
+    t.jsonb "setup_emails_sent", default: {}, null: false
+    t.text "forwarding_link"
+    t.string "forwarding_code"
+    t.string "forwarding_from"
+    t.datetime "forwarding_code_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_forwarding_inboxes_on_household_id", unique: true
+    t.index ["inbox_token"], name: "index_forwarding_inboxes_on_inbox_token", unique: true
   end
 
   create_table "households", force: :cascade do |t|
@@ -363,7 +378,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_060000) do
     t.index ["household_id", "created_at"], name: "index_record_events_on_household_id_and_created_at"
     t.index ["record_id", "created_at"], name: "index_record_events_on_record_id_and_created_at"
     t.index ["user_id"], name: "index_record_events_on_user_id"
-    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying, 'deleted'::character varying, 'marked_paid'::character varying, 'import_created'::character varying, 'import_updated'::character varying, 'import_undone'::character varying, 'template_updated'::character varying, 'reminders_restarted'::character varying, 'gas_synced'::character varying, 'gas_paid'::character varying, 'taipower_synced'::character varying, 'taipower_paid'::character varying]::text[])", name: "record_events_action"
+    t.check_constraint "action::text = ANY (ARRAY['created'::character varying, 'updated'::character varying, 'deleted'::character varying, 'marked_paid'::character varying, 'import_created'::character varying, 'import_updated'::character varying, 'import_undone'::character varying, 'template_updated'::character varying, 'reminders_restarted'::character varying, 'gas_synced'::character varying, 'gas_paid'::character varying, 'taipower_synced'::character varying, 'taipower_paid'::character varying, 'water_synced'::character varying, 'water_paid'::character varying]::text[])", name: "record_events_action"
   end
 
   create_table "records", force: :cascade do |t|
@@ -752,21 +767,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_060000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "type", null: false
-    t.string "inbox_token"
-    t.string "allowed_senders", default: [], null: false, array: true
-    t.string "forwarding_code"
-    t.string "forwarding_from"
-    t.datetime "forwarding_code_at"
-    t.text "forwarding_link"
     t.date "missing_mail_warned_for"
     t.date "last_bill_on"
-    t.jsonb "setup_emails_sent", default: {}, null: false
     t.index ["category_id"], name: "index_utility_accounts_on_category_id"
     t.index ["household_id", "type"], name: "index_utility_accounts_on_household_id_and_type", unique: true
-    t.index ["inbox_token"], name: "index_utility_accounts_on_inbox_token", unique: true
     t.index ["payment_method_id"], name: "index_utility_accounts_on_payment_method_id"
     t.index ["type", "customer_code"], name: "index_utility_accounts_on_type_and_customer_code", unique: true, where: "(customer_code IS NOT NULL)"
-    t.check_constraint "type::text = ANY (ARRAY['GasAccount'::character varying, 'ElectricityAccount'::character varying]::text[])", name: "utility_accounts_type"
+    t.check_constraint "type::text = ANY (ARRAY['GasAccount'::character varying, 'ElectricityAccount'::character varying, 'WaterAccount'::character varying]::text[])", name: "utility_accounts_type"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -782,6 +789,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_15_060000) do
   add_foreign_key "drive_backup_files", "drive_backups", on_delete: :cascade
   add_foreign_key "drive_backups", "households"
   add_foreign_key "drive_backups", "users", column: "connected_by_id"
+  add_foreign_key "forwarding_inboxes", "households"
   add_foreign_key "identities", "users"
   add_foreign_key "import_batch_changes", "import_batches"
   add_foreign_key "import_batches", "households"

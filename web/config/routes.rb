@@ -42,7 +42,9 @@ Rails.application.routes.draw do
     resource :gas_account, only: %i[show update destroy] do
       post :check
     end
-    resource :electricity_account, only: %i[show update destroy] do
+    resource :electricity_account, only: %i[show update destroy]
+    resource :water_account, only: %i[show update destroy]
+    resource :forwarding_inbox, only: [] do
       post :setup_email
       post :forwarder, action: :add_forwarder
       delete :forwarder, action: :remove_forwarder

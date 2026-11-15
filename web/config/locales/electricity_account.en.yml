@@ -9,7 +9,6 @@ en:
         category: "Category"
         payment_method_id: "Payment Method For New Bills"
         payment_method: "Payment Method"
-        allowed_senders: "Other Emails That Forward"
         household_id: "Ledger"
     errors:
       models:
@@ -18,47 +17,20 @@ en:
             customer_code:
               invalid: "must be the 11 digits of the 電號 on your bill"
               taken: "is already used by another ledger"
-            allowed_senders:
-              invalid: "aren't email addresses: %{emails}"
             household_id:
               taken: "already has an electricity account"
   electricity_accounts:
     show:
       title: "Electricity (台電)"
       intro: "New 電費 bills come from 台電's 電子帳單 emails, forwarded by whoever receives them. The app fills in the bill's amount and 繳費期限, and marks it paid when 台電's paid notice arrives."
-      bill_settings_title: "Bill settings"
-      optional: "(optional)"
       customer_code_hint: "Filled in from the first 台電 email. After that, emails for any other 電號 are ignored."
-      choose: "Choose a category"
-      no_payment_method: "None"
-      payment_method_hint: "Given to bills the app adds. Leave it empty if you pay with different cards."
-      save: "Save"
-      turn_on: "Turn On"
-      turn_on_hint: "Choose the category and tap Turn On to get this ledger's forwarding address."
-      not_on_yet: "The owner hasn't turned this on yet."
-      owner_only: "Only the owner can change these."
-      disconnect: "Disconnect"
-      disconnect_confirm: "Disconnect electricity? The forwarding address stops working. Bills it added stay in Bills."
-      how_title: "How it works"
+      disconnect_confirm: "Disconnect electricity? 台電's emails are ignored from now on. Bills it added stay in Bills."
       how:
         - "Whoever gets 台電's emails sets up Gmail once to forward them to this ledger's address."
         - "Each 電費通知 email fills in the 電費 bill with its amount and 繳費期限, or adds it."
         - "Each 電費已繳通知 email marks that bill paid, on the day it arrives."
         - "A bill you already entered is matched by its period and filled in, never added twice."
         - "Bills already marked paid are never changed, and nothing is ever deleted."
-      forward_to: "Forward to this address"
-      copy: "Copy"
-      copied: "Copied"
-      steps:
-        - "Gmail ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address › Next › Proceed. Leave forwarding itself off."
-        - "Gmail asks this ledger to confirm. Within about 5 minutes the owner sees a Confirm Forwarding button in step 2: tap it."
-        - "In Gmail's search box type from:taipower.com.tw › Show search options › Create filter › tick Forward it to › choose this address › Create filter."
-      confirm_title: "Confirm forwarding"
-      confirm_from: "%{email} asked Gmail to forward to this ledger, %{time}"
-      confirm_button: "Confirm Forwarding"
-      confirm_next: "Opens Gmail's confirmation page. Once confirmed, do step 3 in that Gmail."
-      code_next: "Type this code into Gmail's confirmation code box › Verify, then do step 3."
-      no_mailbox: "The app's mailbox isn't set up on this server, so there's no forwarding address yet."
       status:
         working: "Forwarding works"
         working_hint: "台電 bills fill in by themselves."
@@ -68,43 +40,10 @@ en:
         waiting_hint: "Bills fill in by themselves once the Gmail filter forwards its first 台電 email."
       from_first_email: "From the first 台電 email"
       last_bill: "Latest 台電 bill"
-      issued: "issued %{date}"
-      next_email: "Next one expected"
-      around: "around %{date}"
-      late: "late: the owner has been notified"
-      not_yet: "Not yet"
-      setup_title: "Set up forwarding"
-      setup_owner_only: "Only the owner can send the setup email or change who forwards."
       step1:
         title: "Send the setup email to whoever gets 台電's emails"
-        hint: "It has this ledger's forwarding address and the Gmail steps, so they don't need the app."
-        pill: "%{sent} of %{total} sent"
-      roles:
-        owner: "owner"
-        co_owner: "co-owner"
-        viewer: "viewer"
-        added: "added"
-      sent_at: "Setup email sent %{time}"
-      not_sent: "Setup email not sent yet"
-      send: "Send setup email"
-      resend: "Resend"
-      remove: "Remove %{email}"
-      remove_confirm: "Remove %{email}? Their 台電 emails will be ignored from now on."
-      add_label: "Add an email that forwards"
-      add_placeholder: "name@gmail.com"
-      add_button: "Add & send"
-      add_hint: "For a Gmail that isn't a member's sign-in email. Members are always allowed."
-      yourself: "Set it up yourself instead: address and steps"
-      step2:
-        title: "Confirm Gmail's request"
-        your_turn: "Your turn"
-        nothing: "Nothing to confirm"
-        hint: "Gmail's request shows up here within about 5 minutes of adding the address in Gmail. Reload the page to see it."
       step3:
         title: "Gmail filter forwards 台電's emails"
-        waiting: "Waiting · around %{date}"
-        late: "Late · expected around %{date}"
-        working: "Working · last %{time}"
         hint: "The forwarder creates a filter for from:taipower.com.tw (it's in the setup email). This turns green when the first 台電 email comes through it."
       activity: "Recent activity"
       no_activity: "Nothing yet."
@@ -128,54 +67,5 @@ en:
       body_first: "No 台電 bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in the 台灣電力 App, and that Gmail forwarding was confirmed and the filter is set up."
     update:
       saved: "Electricity saved."
-    setup_email:
-      sent: "Setup email sent to %{email}."
-      too_soon: "The setup email went to %{email} less than a minute ago."
-      unknown: "That email isn't in the list."
-    add_forwarder:
-      added: "Added %{email} and sent the setup email."
-      already: "%{email} is already in the list."
-    remove_forwarder:
-      removed: "Removed %{email}."
     destroy:
       disconnected: "Electricity disconnected. Its bills stay in Bills."
-  electricity_forwarding_mailer:
-    setup:
-      subject: "%{household}: forward 台電's bill emails to Household Tracker"
-      intro: "%{owner} added you to %{household} on Household Tracker as someone who receives 台電's bill emails. Set up Gmail once, and each 台電 bill reaches the ledger by itself: the amount and 繳費期限 are filled in, and it's marked paid when 台電's paid notice comes."
-      forward_to: "Forward to this address:"
-      copy_link: "Copy it on this page:"
-      copy_button: "Copy address"
-      or_long_press: "or long-press the address to select it"
-      how: "In Gmail on a computer (the Gmail that receives 台電's emails):"
-      steps:
-        - "⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address above › Next › Proceed. Leave forwarding itself off."
-        - "Gmail asks the ledger to confirm. %{owner} confirms it in Household Tracker, usually within a few minutes; you don't need to do anything."
-        - "Once it's confirmed: in Gmail's search box type from:taipower.com.tw › Show search options › Create filter › tick Forward it to › choose the address above › Create filter."
-      check: "To check it works, forward one 台電 bill email to the address by hand; it shows up in the ledger within about 5 minutes."
-      ignore: "If you don't receive 台電's emails, you can ignore this email."
-  forwarding_addresses:
-    show:
-      title: "Forwarding address"
-      heading: "Forward 台電's emails to %{household}"
-      forward_to: "Forward to this address"
-      copy: "Copy address"
-      copied: "Copied"
-      next: "Now paste it in Gmail on a computer: ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address. The other steps are in the email."
-      only_this: "This page shows only the forwarding address."
-    missing:
-      title: "Address not found"
-      body: "This forwarding address no longer works. Ask the ledger's owner to send a new setup email."
-  utility_accounts:
-    activity:
-      latest: "latest %{time}"
-  utilities:
-    forwarded_mail:
-      not_taipower: "not from 台電 (from %{detail})"
-      not_authentic: "claims to be from %{detail} but failed Gmail's sender check"
-      unknown_forwarder: "couldn't tell whose Gmail forwarded it (only Gmail filter forwarding from a member is accepted)"
-      not_member: "from %{detail}, who isn't a member of this ledger (add them under Other Emails That Forward)"
-      no_confirmation: "a Gmail forwarding email without a confirmation link"
-      not_taipower_forward: "%{detail} sent an email with no forwarded 台電 email inside"
-      other_customer_code: "a bill for 電號 %{detail}, not this ledger's"
-      other_ledger_code: "a bill for 電號 %{detail}, which another ledger already uses"

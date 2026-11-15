@@ -659,6 +659,8 @@ en:
       gas_paid: "Marked Paid From 欣桃天然氣"
       taipower_synced: "Added Or Filled In From A 台電 Email"
       taipower_paid: "Marked Paid From A 台電 Email"
+      water_synced: "Added Or Filled In From A 台水 Email"
+      water_paid: "Marked Paid From A 台水 Email"
     index:
       scheduled:
         one: "1 recurring bill is scheduled and not created yet: %{names}"

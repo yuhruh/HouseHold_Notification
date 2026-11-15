@@ -1,7 +1,7 @@
 # A ledger's link to a utility company, one per kind (single-table inheritance on `type`):
-# GasAccount (欣桃天然氣, checked every working day) and ElectricityAccount (台電, from forwarded
-# emails). Bills go in `category`; Utilities::BillSync adds and fills them in and marks them paid,
-# and `activity` keeps the last lines it reported.
+# GasAccount (欣桃天然氣, checked every working day), and ElectricityAccount (台電) and WaterAccount
+# (台水), from forwarded emails. Bills go in `category`; Utilities::BillSync adds and fills them in
+# and marks them paid, and `activity` keeps the last lines it reported.
 class UtilityAccount < ApplicationRecord
   ACTIVITY_KEPT = 20
 

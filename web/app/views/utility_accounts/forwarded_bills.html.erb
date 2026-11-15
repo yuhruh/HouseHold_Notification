@@ -4,7 +4,7 @@
 <% kind = account.model_name.singular.delete_suffix("_account") %>
 <% s = "#{account.model_name.plural}.show" %>
 <% f = "utility_accounts.forwarding" %>
-<% icon = { "electricity" => "electricity.png", "water" => "water.svg" }.fetch(kind) %>
+<% icon = { "electricity" => "electricity.png", "water" => "water.png" }.fetch(kind) %>
 <% filter = { "electricity" => "from:taipower.com.tw", "water" => "from:water.gov.tw" }.fetch(kind) %>
 <% inbox = account.inbox if account.persisted? %>
 <% page_path = public_send("household_#{account.model_name.singular}_path", Current.household) %>

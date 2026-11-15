@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.5"
+  date: 2026-11-15
+  en:
+    - "On a computer, Edit, Bought more and Log a purchase on Supplies open their window on the first click (it sometimes needed a second click)."
+  zh-TW:
+    - "在電腦上，日用品的「編輯」、「又買了」和「記錄購買」第一次點就會打開視窗（之前有時要點第二次）。"
 - version: "1.11.4"
   date: 2026-11-15
   en:

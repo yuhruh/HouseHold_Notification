@@ -122,6 +122,8 @@ en:
       channel_push: "Push"
       bill_paid: "Bill paid"
       bill_paid_hint: "When gas or electricity is marked paid automatically: in the inbox and by push, or by email if the push doesn't arrive"
+      supply_alert: "Supplies low or expiring"
+      supply_alert_hint: "At 9:00 each morning, when something needs restocking or is about to expire: in the inbox and by push, or by email if the push doesn't arrive"
   account:
     notification_preferences:
       update:

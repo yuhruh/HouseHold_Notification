@@ -92,6 +92,18 @@ Rails.application.routes.draw do
       post :archive, on: :member
       delete "aliases/:alias_id" => "categories#destroy_alias", on: :collection, as: :destroy_alias
     end
+    resources :supplies, except: :destroy do
+      collection do
+        get :restock, to: "supplies/purchases#pick"
+        get :scan, to: "supplies/scans#show"
+        get "scan/barcode", to: "supplies/scans#barcode", as: :scan_barcode
+        post :receipt, to: "supplies/receipts#new", as: :receipt_review
+        post "receipt/save", to: "supplies/receipts#create", as: :receipt
+      end
+      post :archive, on: :member
+      resources :purchases, only: %i[new create], controller: "supplies/purchases"
+      resources :counts, only: %i[create destroy], controller: "supplies/counts"
+    end
     resources :payment_methods, except: %i[show destroy] do
       post :archive, on: :member
       get :from_notes, on: :collection

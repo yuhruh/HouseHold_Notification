@@ -1,0 +1,4 @@
+<% content_for :title, t(".title") %>
+<%= render layout: "shared/modal_or_page", locals: { title: t(".title"), icon: "add.png" } do %>
+  <%= render "form", supply: @supply, scan: @scan %>
+<% end %>

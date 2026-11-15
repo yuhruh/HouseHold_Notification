@@ -1,6 +1,6 @@
 # Channel toggles per member and household (PRD §6, §13). Without a row the role decides:
-# owners and co-owners default on, viewers off. bill_paid ("a utility bill was marked paid") also
-# follows the role until the member changes it.
+# owners and co-owners default on, viewers off. bill_paid ("a utility bill was marked paid") and
+# supply_alert ("supplies running low or expiring") also follow the role until the member changes them.
 class NotificationPreference < ApplicationRecord
   belongs_to :user
   belongs_to :household
@@ -12,6 +12,7 @@ class NotificationPreference < ApplicationRecord
       new_pref.web_push = new_pref.email = membership.can_write?
     end
     pref.bill_paid = membership.can_write? if pref.bill_paid.nil?
+    pref.supply_alert = membership.can_write? if pref.supply_alert.nil?
     pref
   end
 end

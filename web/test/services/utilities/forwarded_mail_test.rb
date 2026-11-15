@@ -29,13 +29,13 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
 
   teardown { ElectricityAccount.singleton_class.send(:remove_method, :mailbox) }
 
-  def email(from:, subject: "Hello", body: "Hi", to: @address, return_path: nil, auth: nil)
+  def email(from:, subject: "Hello", body: "Hi", to: @address, return_path: nil, auth: nil, content_type: "text/plain")
     caf = "#{to.sub("@", "=")}@gmail.com"
     headers = [ "Delivered-To: #{to}",
       ("Return-Path: <#{return_path.sub("CAF", caf)}>" if return_path),
       ("Authentication-Results: mx.google.com; #{auth.gsub("CAF", caf)}" if auth),
       "Authentication-Results: spoofed.example; spf=pass smtp.mailfrom=nobody@example.com",
-      "From: #{from}", "To: someone@gmail.com", "Subject: #{subject}", "Content-Type: text/plain; charset=UTF-8" ].compact
+      "From: #{from}", "To: someone@gmail.com", "Subject: #{Mail::Encodings.b_value_encode(subject, "UTF-8")}", "Content-Type: #{content_type}; charset=UTF-8" ].compact
     "#{headers.join("\r\n")}\r\n\r\n#{body.gsub("\n", "\r\n")}"
   end
 
@@ -59,8 +59,9 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
 
   # A 台電 email as Gmail's filter forwarding delivers it: the envelope sender is the forwarder's
   # "+caf_=" address, and Gmail's SPF check on arrival passed for it
-  def taipower(forwarder: "co.owner", spf: "pass", from: "台灣電力公司 <ebill@taipower.com.tw>", dkim: "pass")
-    email(from:, subject: "Taipower e-bill", body: "電號 04-08-1234-56-7",
+  def taipower(forwarder: "co.owner", spf: "pass", from: "台灣電力公司 <ebill@taipower.com.tw>", dkim: "pass",
+    subject: "Taipower e-bill", body: "電號 04-08-1234-56-7", content_type: "text/plain")
+    email(from:, subject:, body:, content_type:,
       return_path: "#{forwarder}+caf_=CAF",
       auth: "dkim=#{dkim} header.i=@taipower.com.tw; spf=#{spf} (google.com: domain of #{forwarder}+caf_=CAF designates 1.2.3.4) smtp.mailfrom=\"#{forwarder}+caf_=CAF\"; dmarc=#{dkim == "pass" ? "pass" : "fail"}")
   end
@@ -96,7 +97,8 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     assert_equal %i[bill bill], Utilities::ForwardedMail.call(inbox:)
     assert_equal({ "m1" => true, "m2" => true }, inbox.done)
     @account.reload
-    assert_equal({ "kind" => "received_by_hand", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
+    assert_equal [ { "kind" => "received_by_hand", "detail" => "co.owner@gmail.com" }, { "kind" => "unreadable", "detail" => "Fwd: 台電電子帳單" } ],
+      @account.activity.first(2).reverse.map { it.except("at") }, "no bill table in it, so the reader says so"
     assert_nil @account.last_success_at
   end
 
@@ -113,8 +115,36 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     assert_equal({ "m1" => true }, inbox.done)
     @account.reload
     assert @account.connected?
-    assert_equal({ "kind" => "received", "detail" => "co.owner@gmail.com" }, @account.activity.first.except("at"))
+    assert_equal({ "kind" => "received", "detail" => "co.owner@gmail.com" }, @account.activity.second.except("at"))
     assert_not @account.pending_forwarding_confirmation?, "once mail arrives the request has done its job"
+  end
+
+  def taipower_html(name) = File.read(Rails.root.join("test/fixtures/files/taipower/#{name}.html"))
+
+  test "a 台電 bill and paid notice forwarded by the filter are written into the ledger" do
+    power = @account.category
+    open_bill = @home.records.create!(record_type: "expense", category: power, details: "電費", period: Period.parse(2026, "7月-8月"))
+    read_mail("m1" => taipower(from: "台電電子帳單服務系統 <ebill@ebppsmtp.taipower.com.tw>", content_type: "text/html",
+      subject: "台電e-Bill115年10月電費通知(電號:12345678901)", body: taipower_html("bill_notice")))
+    assert_equal [ 1234, Date.new(2026, 10, 28), false ], open_bill.reload.values_at(:amount_required, :due_on, :settled)
+    @account.reload
+    assert_equal "12345678901", @account.customer_code
+    assert @account.connected?
+    assert_equal %w[received customer_code_set matched], @account.activity.map { it["kind"] }.reverse
+
+    read_mail("m2" => taipower(from: "台電電子帳單服務系統 <ebill@ebppsmtp.taipower.com.tw>", content_type: "text/html",
+      subject: "台電e-Bill 115年10月電費已繳通知(電號：12345678901)", body: taipower_html("paid_notice")))
+    assert open_bill.reload.settled
+  end
+
+  test "a 台電 bill forwarded by hand is written too, without counting as the filter working" do
+    body = "<div>---------- Forwarded message ---------<br>\nFrom: 台電電子帳單服務系統 &lt;ebill@ebppsmtp.taipower.com.tw&gt;<br>" \
+      "Subject: 台電e-Bill115年10月電費通知(電號:12345678901)</div>#{taipower_html("bill_notice")}"
+    mail = email(from: "co.owner@gmail.com", subject: "Fwd: 台電e-Bill115年10月電費通知(電號:12345678901)", content_type: "text/html",
+      auth: "dkim=pass header.i=@gmail.com; spf=pass smtp.mailfrom=co.owner@gmail.com", body:)
+    assert_difference(-> { @home.records.count }, 1) { assert_equal [ :bill ], read_mail("m1" => mail) }
+    assert_equal [ "2026 7月-8月", 1234 ], @home.records.last.then { [ it.period.to_s, it.amount_required ] }
+    assert_nil @account.reload.last_success_at
   end
 
   test "a member's own Gmail is accepted too" do

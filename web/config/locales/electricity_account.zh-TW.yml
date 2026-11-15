@@ -25,7 +25,7 @@ zh-TW:
   electricity_accounts:
     show:
       title: "電費（台電）"
-      intro: "新的電費帳單來自台電的電子帳單 Email，由收到的人自動轉寄。App 會補上帳單的金額和繳費期限。"
+      intro: "新的電費帳單來自台電的電子帳單 Email，由收到的人自動轉寄。App 會補上帳單的金額和繳費期限，收到台電的已繳通知時標示已付款。"
       settings_title: "帳單設定"
       optional: "（選填）"
       customer_code_hint: "會從第一封台電 Email 自動填入。之後其他電號的 Email 都會被略過。"
@@ -43,7 +43,8 @@ zh-TW:
       how_title: "運作方式"
       how:
         - "收到台電 Email 的人，在 Gmail 設定一次，把信自動轉寄到這本帳本的地址。"
-        - "每封電子帳單 Email 會補上電費帳單的金額和繳費期限，沒有的話就新增。"
+        - "每封電費通知 Email 會補上電費帳單的金額和繳費期限，沒有的話就新增。"
+        - "每封電費已繳通知 Email 會在收到當天把那期帳單標示已付款。"
         - "你已經輸入的帳單會依期間比對並補上資料，不會重複新增。"
         - "已付款的帳單不會被更改，也不會刪除任何資料。"
       forwarding_title: "轉寄台電的 Email"
@@ -76,6 +77,7 @@ zh-TW:
       open_bill: "查看"
       lines:
         added: "新增 %{period}：NT$%{amount}，繳費期限 %{due}"
+        added_paid: "新增 %{period}（已付款）：NT$%{amount}"
         matched: "補上你的 %{period} 帳單：NT$%{amount}，繳費期限 %{due}"
         paid: "標示已付款：%{period}，NT$%{amount}"
         amount_differs: "%{period} 金額不同：你記錄 NT$%{recorded}，台電帳單 NT$%{amount}。沒有更動。"
@@ -84,6 +86,8 @@ zh-TW:
         received: "收到由 %{detail} 的 Gmail 篩選器轉寄的台電 Email"
         received_by_hand: "收到 %{detail} 手動轉寄的台電 Email"
         forwarding_request: "%{detail} 要求 Gmail 轉寄到這裡：請在上方確認"
+        customer_code_set: "從第一封台電帳單 Email 設定電號為 %{detail}"
+        unreadable: "無法讀取台電 Email 裡的帳單（%{detail}），沒有更動。"
     missing_mail:
       title: "%{household}：還沒收到台電帳單 Email"
       body: "台電帳單 Email 預計在 %{expected} 左右寄達（上一封 %{last} 的 2 個月後），但還沒收到。請到台灣電力 App 確認帳單，並檢查 Gmail 篩選器是否仍會轉寄台電的信。"
@@ -100,3 +104,5 @@ zh-TW:
       not_member: "來自 %{detail}，但這個人不是這本帳本的成員（可加到「其他會轉寄的 Email」）"
       no_confirmation: "Gmail 的轉寄通知裡沒有確認連結"
       not_taipower_forward: "%{detail} 寄來的信裡沒有轉寄的台電 Email"
+      other_customer_code: "電號 %{detail} 的帳單，不是這本帳本的電號"
+      other_ledger_code: "電號 %{detail} 的帳單，這個電號已被其他帳本使用"

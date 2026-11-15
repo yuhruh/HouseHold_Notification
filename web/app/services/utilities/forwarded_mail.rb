@@ -11,7 +11,8 @@ module Utilities
   #        "<member>+caf_=…@gmail.com", which Gmail's own SPF check on arrival passed
   #     b. forwarded by hand: From a member (signed by their mail provider), with a forwarded
   #        message from @taipower.com.tw inside
-  #   Accepted ones are labelled for the bill reader. Only (a) counts as "the filter works".
+  #   Accepted ones are labelled BILLS and read by Utilities::Taipower::Reader, which writes the bill
+  #   into the ledger. Only (a) counts as "the filter works".
   class ForwardedMail
     TOKEN = /\+h(\d+)-([a-z0-9]{10})@/i
     GOOGLE_FORWARDING = "forwarding-noreply@google.com".freeze
@@ -44,6 +45,7 @@ module Utilities
       @account = find_account or return :unknown
       result = from == GOOGLE_FORWARDING ? confirmation : forwarded_bill
       @account.save!
+      Taipower::Reader.call(@account, @mail) if result == :bill
       result
     end
 

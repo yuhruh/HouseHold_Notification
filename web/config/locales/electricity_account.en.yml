@@ -25,7 +25,7 @@ en:
   electricity_accounts:
     show:
       title: "Electricity (台電)"
-      intro: "New 電費 bills come from 台電's 電子帳單 email, forwarded by whoever receives it. The app fills in the bill's amount and 繳費期限."
+      intro: "New 電費 bills come from 台電's 電子帳單 emails, forwarded by whoever receives them. The app fills in the bill's amount and 繳費期限, and marks it paid when 台電's paid notice arrives."
       settings_title: "Bill settings"
       optional: "(optional)"
       customer_code_hint: "Filled in from the first 台電 email. After that, emails for any other 電號 are ignored."
@@ -43,7 +43,8 @@ en:
       how_title: "How it works"
       how:
         - "Whoever gets 台電's emails sets up Gmail once to forward them to this ledger's address."
-        - "Each 電子帳單 email fills in the 電費 bill with its amount and 繳費期限, or adds it."
+        - "Each 電費通知 email fills in the 電費 bill with its amount and 繳費期限, or adds it."
+        - "Each 電費已繳通知 email marks that bill paid, on the day it arrives."
         - "A bill you already entered is matched by its period and filled in, never added twice."
         - "Bills already marked paid are never changed, and nothing is ever deleted."
       forwarding_title: "Forward 台電's emails"
@@ -76,6 +77,7 @@ en:
       open_bill: "Open"
       lines:
         added: "Added %{period}: NT$%{amount}, 繳費期限 %{due}"
+        added_paid: "Added %{period}, already paid: NT$%{amount}"
         matched: "Filled in your %{period} bill: NT$%{amount}, 繳費期限 %{due}"
         paid: "Marked paid: %{period}, NT$%{amount}"
         amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, 台電 billed NT$%{amount}. Not changed."
@@ -84,6 +86,8 @@ en:
         received: "Received a 台電 email forwarded by %{detail}'s Gmail filter"
         received_by_hand: "Received a 台電 email %{detail} forwarded by hand"
         forwarding_request: "%{detail} asked Gmail to forward here: confirm it above"
+        customer_code_set: "電號 set to %{detail} from the first 台電 bill email"
+        unreadable: "Couldn't read a bill in a 台電 email (%{detail}). Nothing was changed."
     missing_mail:
       title: "%{household}: no 台電 bill email yet"
       body: "台電's bill email was expected around %{expected}, 2 months after the last one (%{last}), and hasn't arrived. Check the bill in the 台灣電力 App, and that the Gmail filter still forwards 台電's emails."
@@ -100,3 +104,5 @@ en:
       not_member: "from %{detail}, who isn't a member of this ledger (add them under Other Emails That Forward)"
       no_confirmation: "a Gmail forwarding email without a confirmation link"
       not_taipower_forward: "%{detail} sent an email with no forwarded 台電 email inside"
+      other_customer_code: "a bill for 電號 %{detail}, not this ledger's"
+      other_ledger_code: "a bill for 電號 %{detail}, which another ledger already uses"

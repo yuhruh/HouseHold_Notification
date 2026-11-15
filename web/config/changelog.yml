@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.7.0"
+  date: 2026-11-15
+  en:
+    - "Electricity bills now look after themselves: each 台電 電費通知 email that reaches the ledger fills in the 電費 bill with its amount and 繳費期限 (or adds it), and the 電費已繳通知 email marks it paid, with a Bill paid notification."
+    - "A bill you entered ahead is matched by its period (the 115年10月 bill is 7月-8月) and filled in, never added twice. Bills already paid are never changed, and an amount that differs from 台電's is only listed for you to check."
+    - "The first bill email sets the ledger's 電號; emails for any other 電號 are then ignored. Recent activity on the Electricity page shows what each email did."
+  zh-TW:
+    - "電費帳單現在會自動處理：轉寄到帳本的台電電費通知 Email 會補上電費帳單的金額和繳費期限（沒有就新增），電費已繳通知 Email 會把帳單標示已付款，並發出帳單已繳費通知。"
+    - "你事先輸入的帳單會依期間比對並補上資料（115年10月的帳單就是 7月-8月），不會重複新增。已付款的帳單不會被更改；金額和台電不同時只會列出讓你確認。"
+    - "第一封帳單 Email 會設定帳本的電號，之後其他電號的 Email 都會被略過。電費頁面的最近紀錄會顯示每封 Email 做了什麼。"
 - version: "1.6.0"
   date: 2026-11-15
   en:

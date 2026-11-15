@@ -1100,6 +1100,92 @@ Execution order: **M0 → M1 → M2 → M4 → M5 → M3 → M6 → M7**. Remind
 - **Manual:** real Android phone (Chrome, installed PWA): install, Google sign-in, open a confirmation/invite email link from Gmail and land signed in, photo upload, enable push and receive a reminder (app closed, screen off), zh-TW/EN switch. Desktop Chrome: same flows except install.
 - CI: `bin/rubocop`, `bin/brakeman`, `bundle audit`, `bin/rails test test:system`. Railway deploys `main` after CI passes.
 
+## Added after v1: Supplies (2026-11-15)
+
+Households run out of everyday things (toilet paper, shampoo, drinks) without warning, and lose
+track of what they paid and where. **Supplies** tracks each consumable's count, price, store and
+expiry, learns how fast the household uses it, predicts the run-out date, and alerts in time to buy
+more. Decisions made with the owner: an **Also add to Ledger** box (off by default) turns a purchase
+into a paid expense; stock comes from purchases plus quick counts (**−1** or "I have N left"), with
+estimates in between, so nothing needs daily logging; alerts go to owners and co-owners by default,
+each can opt out (same as Bill paid).
+
+**Rules**
+- **Counts are whole numbers and never negative** (DB check constraints and validations); a purchase
+  quantity is > 0 and its total ≥ 0. Only the internal usage rate is fractional; the UI rounds it
+  ("~2 rolls").
+- **Price per unit is calculated, never typed**: total ÷ quantity, 1 decimal (none from NT$100 up),
+  always shown with the total ("NT$289 for 12 · NT$24.1/roll").
+- **Forecast** (`Supplies::Forecast`, a pure function of the timeline and today in the household's
+  time zone):
+  1. Samples: between a known count *a* and a later one *b* at least a day apart,
+     consumed = *a* − *b* + units bought in between. Negative samples (miscounts) are skipped.
+  2. Rate = (prior × 14 + Σconsumed) ÷ (14 + Σdays) over the last 120 days, where prior =
+     1 ÷ "one lasts about N days" (no guess → no prior). No guess and no samples → **Not enough data
+     yet**.
+  3. On hand now = max(0, last count − rate × days since); run-out = today + ⌊on hand ÷ rate⌋.
+  4. Expiry, oldest batch first: left at expiry = on hand − rate × days to expiry; if > 0 the item
+     is **Expiring**, and a stock that all expires first runs out on the expiry date.
+  - Buy by = run-out − lead days (default 3) − buffer (2 days with 3+ samples, else 4).
+- **Alerts** (`Supplies::Alerts` + `SupplyAlertsJob`, daily 09:00 Asia/Taipei, one message per
+  member per ledger): **low** once on the buy-by date or when the rounded count ≤ "alert me when only
+  N are left"; **out** once on the run-out date (also a prompt to correct the count); **expiry** once
+  per batch, 7 days ahead for food & drink and health and 30 for everything else, only if stock is
+  predicted to be left. A purchase or a count above the threshold resets the state to ok. Delivery:
+  inbox always, push, and email when push is off, no device accepts it, or none confirms within 1 h.
+- **New item → I already bought these**: the purchase is saved with nothing left before it, then
+  today's count, so it is a usage sample at once. **Edit** corrects the latest purchase (date,
+  quantity, total, store, expiry) and its linked Ledger expense, or adds the first purchase (placed
+  before the first count when bought on or before that day).
+- **Archive** hides an item and stops its alerts; purchases and Ledger expenses stay.
+- Ledger expenses from purchases use the category 日用品 / Household supplies, created on first use.
+- Viewers see Supplies; owners and co-owners write (`SupplyPolicy`).
+
+**Scanning** (read in the browser with `BarcodeDetector` or ZXing; camera, still photo, pasted
+screenshot or typed number; photos are never uploaded)
+- **Product barcode** (EAN-13/JAN, EAN-8, UPC), `Supplies::BarcodeLookup`: the household's
+  `supply_barcodes` → `product_lookups` cache (found 30 days, not found 1 day; public facts only,
+  shared) → Open Food Facts → Open Beauty Facts → Open Products Facts → Yahoo! JAPAN Shopping for
+  45/49 codes when `yahoo_japan.client_id` is set. Only the number leaves the app, User-Agent
+  `HouseholdTracker/1.0`, 3 s timeout, any failure = not found. Not found → New item form with a
+  **Product not found** pop-up; the barcode is saved with the item.
+- **Taiwan e-invoice** (電子發票證明聯), `Supplies::EInvoiceParser`: left QR (invoice number, ROC
+  date, amounts in hex, seller tax ID, then `name:qty:price` items in Big5 / UTF-8 / Base64) and the
+  right `**` QR, in either order. Review: each line → a matched item, Add as new, or Skip (tags
+  Remembered / Suggested / Not found); the seller's name is confirmed once per tax ID
+  (`receipt_sellers`) and line choices are remembered per seller (`receipt_item_matches`, with units
+  per line). `Supplies::ImportReceipt` saves everything in one transaction, optionally one Ledger
+  expense for the receipt total. Invoice numbers are unique per ledger.
+- **Out of scope:** Japanese receipts (no item QR code); reading text from photos (Tesseract OCR was
+  tried and removed as unreliable; outside vision services were declined).
+
+**Data model**
+- `supplies (household_id, name, kind toiletries|cleaning|kitchen|food_drink|health|other, unit
+  piece|roll|bottle|can|pack|box|bag, level ≥ 0, level_at, usage_per_day decimal(10,4) null,
+  guess_days_per_unit ≥ 1 null, lead_days 0..30 default 3, alert_when_left ≥ 0 default 0,
+  alert_state ok|low|out, alerted_at, archived_at, created_by_id null, lock_version)`
+- `supply_purchases (household_id, supply_id, purchased_on, quantity > 0, total_price decimal(12,2)
+  ≥ 0, currency, store, expires_on null, left_before ≥ 0, record_id null, receipt_import_id null,
+  expiry_alerted_at, created_by_id null)`
+- `supply_counts (supply_id, counted_at, level ≥ 0, created_by_id null)`
+- `supply_barcodes (household_id, supply_id, code)` unique(household_id, code)
+- `product_lookups (code unique, source, name, original_name, brand, kind_guess, raw jsonb,
+  fetched_at)`: not household data
+- `receipt_imports (household_id, invoice_no, seller_tax_id, issued_on, total, record_id null,
+  created_by_id null)` unique(household_id, invoice_no)
+- `receipt_sellers (household_id, tax_id, name)` unique(household_id, tax_id)
+- `receipt_item_matches (household_id, seller_tax_id, receipt_text, supply_id null = skip,
+  units_per_line ≥ 1)`
+- `notification_preferences.supply_alert boolean null` (null = role default)
+- `Households::Purge` deletes all of these with the ledger.
+
+**Screens:** Supplies list (`/h/:id/supplies`; Buy soon / Expiring / ~monthly cards, cards on a
+phone, a table from 1024px with category chips and search), item page (Forecast with −1 Used one and
+Bought more, I have __ left, Where to buy and History folded), New item, Edit (dialog on a
+computer), Log a purchase (picker, Buy soon first), Scan, Receipt review. The header's **+ New ▾**
+menu and the phone tab bar's **New** sheet offer Upload or scan barcode / receipt, Supply item, Log a
+purchase… and Bill / record.
+
 ## First step after approval
 **Immediately (requested by the owner):**
 1. Write this full plan to `~/HouseHold_Notification/docs/PRD.md`.

@@ -99,6 +99,24 @@ Railway Hobby can't create volume backups (X3). `BackupJob` runs every Sunday 04
    reports a Sentry warning and pings `DISK_HEARTBEAT_URL`'s `/fail` (optional Healthchecks.io check,
    period 1 day, grace 2 hours). Fix by deleting old photos or growing the volume in Railway.
 
+## 8. Yahoo! JAPAN Client ID for Supplies (optional, not set yet)
+
+Scanning a Japanese product barcode (JAN starting 45 or 49) asks Yahoo! JAPAN Shopping's item search
+for the name, after Open Food / Beauty / Products Facts. It needs a free Client ID:
+
+1. Sign in at the Yahoo! JAPAN developer network and register an application (client-side type is
+   enough; the app sends only the JAN code).
+2. `cd web && EDITOR=nano bin/rails credentials:edit` → add
+
+       yahoo_japan:
+         client_id: <the Client ID>
+
+3. Commit `config/credentials.yml.enc` and deploy.
+
+Without it nothing breaks: Japanese codes are looked up only in the Open Facts databases, and a code
+nobody knows opens the New item form with "Product not found". Every request uses the generic
+User-Agent `HouseholdTracker/1.0` and sends nothing about the user.
+
 ### Manual deploy
 The `web` service is linked to `<owner>/HouseHold_Notification` with Root Directory `/web`, so a manual
 upload must contain the whole repo. Run from `web/` (where the CLI link lives):

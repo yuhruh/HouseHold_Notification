@@ -3,7 +3,8 @@
 A shared, installable web app (PWA) for bills: expenses, maintenance and taxes, kept in shared
 **ledgers** (帳本), one for a home, another for a company or anything else. It started as the
 replacement for a family Google Sheet of household expenses, and reminds everyone before things are
-due.
+due. It also keeps track of household **supplies** (toilet paper, shampoo, drinks…) and says when to
+buy more.
 
 **Live:** https://household-tracker.up.railway.app
 
@@ -18,7 +19,10 @@ totals per type) and adds:
 - utility bills that fill themselves in: gas (欣桃天然氣) from the company's site, electricity (台電)
   and water (台水) from their bill emails, each marked paid when the company says so;
 - a To Pay list, bill barcode scanning, receipt photos, Expense Analysis charts, a weekly backup to
-  the owner's Google Drive and a one-time import of the sheet history.
+  the owner's Google Drive and a one-time import of the sheet history;
+- **Supplies**: what the household keeps in stock, what it paid and where, a predicted run-out date
+  for each item and a restock alert in time to buy more, with product barcodes and Taiwan e-invoice
+  (發票) QR codes to fill things in.
 
 It runs as one Rails 8 service on Railway with one Postgres database, and supports zh-TW and English.
 Desktop browsers and Android (installed PWA) are supported. iPhone is not a supported platform in v1
@@ -115,7 +119,8 @@ Home Screen.
   + New Ledger, Ledger Settings and Members.
 - **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
   Started, About This App, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
-  holds Bills, Analysis and New Record.
+  holds Bills, Analysis, Supplies and New. The header's **+ New ▾** menu adds a bill, a supply item
+  or a purchase, or scans a barcode or receipt.
 - The **ledger home** has one **Bills** card (what's to pay: overdue, due in 30 days, a count of
   what's coming up and the most urgent bills, beside the last 3 bills paid) and, under **Ledger Setup**, Recurring Bills,
   Categories and Payment Methods.
@@ -166,6 +171,49 @@ Home Screen.
 - On a computer the title, filters, count-by switch and totals stay pinned under the header while
   the charts scroll.
 
+**Supplies** (`/h/:id/supplies`)
+- Each item has a name, kind (toiletries, cleaning, kitchen, food & drink, health, other), unit
+  (piece, roll, bottle…) and a whole-number count. Purchases record the date, how many, the total
+  price, the store and an optional expiry date. The price per unit is worked out from the total
+  (NT$289 for 12 · NT$24.1/roll), never typed in.
+- **Run-out forecast** (`Supplies::Forecast`): purchases and counts form a timeline of known stock,
+  and the usage between them gives a rate per day (the last 120 days count). An optional guess ("one
+  lasts about N days") counts as 14 days of evidence, so the first numbers aren't wild. From the rate
+  the app estimates what's left today ("~2 rolls"), the run-out date and a **buy-by** date (run-out −
+  days it takes to buy − 2 days, or 4 while there are fewer than 3 readings). With no guess and no
+  readings an item says **Not enough data yet**.
+- The list has **Buy soon**, **Expiring** and an estimated monthly spend at the top, then the items
+  most urgent first: cards on a phone, a table on a computer (from 1024px, with category chips and a
+  search box).
+- An item's page has the Forecast card with **−1 Used one** (updates in place, with Undo) and
+  **Bought more**, **I have __ left** to correct the count, **Where to buy** (each store's cheapest
+  price per unit, and the total spent) and **History**, both folded. **Edit** (a dialog on a
+  computer) changes the item's settings and corrects its last purchase; **Archive** hides it and
+  stops its alerts.
+- **New item** can include **I already bought these** (date, how many, price, store, expiry), so an
+  item bought a while ago has a usage rate from the first day. **Also add to Ledger** on any purchase
+  creates a paid expense in the 日用品 category.
+- **Add**: **+ New ▾** in the header (and **New** in the phone tab bar) offers Upload or scan
+  barcode / receipt, Supply item, Log a purchase… and Bill / record. **Log a purchase** lists the
+  Buy soon items first.
+- **Scanning**, read in the browser (camera, a photo, a pasted screenshot or the typed number):
+  - a **product barcode** (EAN-13/JAN, EAN-8, UPC) goes to the item it was saved with, or is looked
+    up in Open Food / Beauty / Products Facts and, for Japanese codes, Yahoo! JAPAN Shopping. A code
+    no database knows opens the New item form with a **Product not found** note, and the barcode is
+    remembered once the item is saved.
+  - a **Taiwan e-invoice** (both QR codes of 電子發票證明聯) lists each line to match to an item, add
+    as new or skip; choices are remembered per store. Lines that match nothing are tagged **Not
+    found**. The same invoice can't be added twice, and the whole receipt can become one Ledger
+    expense. Japanese receipts (レシート) have no item QR code and aren't supported.
+  - Only the barcode number leaves the app (with a generic User-Agent); photos aren't uploaded.
+- **Alerts** (`SupplyAlertsJob`, 09:00 Taipei): one message per person listing what to buy (on the
+  buy-by date, or when the count reaches "alert me when only N are left"), what's probably out, and
+  what will expire before it's used (7 days ahead for food & drink and health, 30 for the rest). Each
+  is sent once and resets after a purchase or a higher count. Owners and co-owners get them by
+  default (**My Account → Notifications → Supplies low or expiring**): inbox and push, or email when
+  push is off or no device confirms it within an hour.
+- Everyone in the ledger can see Supplies; owners and co-owners add, edit and archive.
+
 **Sheet import**
 - Upload the sheet's CSV export, review a preview of new / changed / unchanged / error rows, then
   commit.
@@ -182,11 +230,12 @@ it alerts even when the app is down.
 |---|---|---|---|
 | `SendRemindersJob` | Hourly at :05 | Sends each member's digest at their reminder hour, then queues the owner's failure summary | `REMINDER_HEARTBEAT_URL` (grace 3 h) |
 | `OwnerFailureSummaryJob` | After each reminder run, once a day per ledger | One summary of failed deliveries for the owner | `DELIVERY_HEALTH_HEARTBEAT_URL` |
-| `ConfirmPushReceiptsJob` | Hourly at :35 | Marks a push no device confirmed within 24 h as failed; emails a Bill paid push not confirmed within 1 h | — |
+| `ConfirmPushReceiptsJob` | Hourly at :35 | Marks a push no device confirmed within 24 h as failed; emails a Bill paid or Supplies push not confirmed within 1 h | — |
 | `GenerateRecurringRecordsJob` | Daily 00:10 | Creates due bills from every template, in the owner's time zone | `GENERATE_HEARTBEAT_URL` (grace 26 h) |
 | `SyncGasAccountsJob` | Weekdays 11:30 | Checks each 欣桃 用戶編號, adds new gas bills and marks paid ones | — |
 | `PollUtilityMailJob` | Every 5 min | Reads the app's Gmail: Gmail forwarding confirmations and forwarded 台電 / 台水 emails | — |
 | `WarnMissingUtilityMailJob` | Daily 09:00 | Tells the owner once per bill when a 台電 / 台水 email is a week late | — |
+| `SupplyAlertsJob` | Daily 09:00 | Supplies to buy, probably out or expiring: one inbox item + push per person (email fallback) | — |
 | `NotifyBillsPaidJob` | After a utility sync marks bills paid | Bill paid inbox item + push (email fallback) | — |
 | `Auth::CleanupJob` | Daily 03:30 | Removes unconfirmed sign-ups older than 7 days, expired sessions and Google handoffs | — |
 | `DiskUsageJob` | Daily 03:45 | Checks the Railway volume and alerts (Sentry + `/fail`) at 80% use | `DISK_HEARTBEAT_URL` |
@@ -227,6 +276,11 @@ Errors from requests and jobs go to Sentry.
 - **Bill barcodes on the device:** Code 39 is read in the browser (`BarcodeDetector`, or a vendored
   ZXing build in `public/vendor/`); the server (`Records::BillBarcode`) is the authority on what the
   three barcodes mean.
+- **Supplies scanning on the device:** product barcodes and e-invoice QR codes are read the same way
+  (`BarcodeDetector` or ZXing, on the live camera or a still photo). `Supplies::EInvoiceParser`
+  decodes the two QR codes (Big5, UTF-8 or Base64 item names); `Supplies::BarcodeLookup` checks the
+  household's own barcodes, then a 30-day shared cache of public product facts, then the outside
+  databases, each with a 3-second timeout that falls back to an empty form.
 - **CI** (GitHub Actions, [`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Brakeman,
   bundler-audit, importmap audit, RuboCop, unit/integration tests and system tests. Railway
   deploys `main` automatically.
@@ -251,6 +305,9 @@ sign-in, Gmail sending and Web Push need the keys in Rails credentials; see
   OAuth client, redirect `/google_drive/callback`) and `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY` /
   `ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT` (the refresh token is stored encrypted;
   `bin/rails db:encryption:init` generates them).
+- **Japanese product names** (Supplies barcodes starting 45 / 49) need a free Yahoo! JAPAN
+  developer Client ID in credentials as `yahoo_japan: client_id:`. Without it those codes use only
+  Open Food Facts and the rest.
 
 **Tests**
 
@@ -293,7 +350,11 @@ In short:
 7. **Add bills:** **New Record**, and **Scan the Bill's Barcodes** to fill it from a paper bill.
 8. **Every day:** check **Bills › To Pay** (and **Coming Up** for later), tap **Record Payment** after paying, and **Add photos**
    for receipts. **Expense Analysis** shows where the money goes.
-9. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
+9. **Supplies:** **+ New ▾ → Supply item** (or scan its barcode), say how many you have, and fill in
+   **I already bought these** if you know when. Tap **−1 Used one** now and then, or **I have __
+   left**, and **Log a purchase** (or scan the 發票) after shopping. The app learns how fast each item
+   goes and sends a restock alert in time.
+10. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
    ledger menu → **Ledger Settings → Reminder delivery**.
 
 ## Documentation

@@ -23,6 +23,19 @@ class BackLinkTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", household_path(home), text: "‹ 回到首頁"
   end
 
+  test "Supplies pages lead back to the Supplies list; the list itself back to the household home" do
+    home = households(:home)
+    supply = home.supplies.create!(name: "Toilet paper", unit: "roll", level: 4, level_at: Time.current)
+    [ household_supply_path(home, supply), edit_household_supply_path(home, supply), new_household_supply_path(home),
+      scan_household_supplies_path(home), restock_household_supplies_path(home) ].each do |path|
+      get path
+      assert_select "a[href=?]", household_supplies_path(home), { text: "‹ 回到日用品" }, path
+      assert_select "a", { text: "‹ 回到首頁", count: 0 }, path
+    end
+    get household_supplies_path(home)
+    assert_select "a[href=?]", household_path(home), text: "‹ 回到首頁"
+  end
+
   test "the household home itself has none" do
     get household_path(households(:home))
     assert_select "a", text: "‹ 回到首頁", count: 0

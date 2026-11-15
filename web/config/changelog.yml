@@ -3,6 +3,18 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.9.0"
+  date: 2026-11-15
+  en:
+    - "Electricity has a clearer page: a status at the top (Setting up, Waiting or Forwarding works, with the latest bill and when the next 台電 email is expected), then Set up forwarding as 3 steps, each showing what's done and what needs you."
+    - "Step 1 lists everyone who can forward 台電's emails. The owner sends each one the setup email with one tap (Send or Resend) and sees when it went; Add & send adds another Gmail and emails it straight away."
+    - "The setup email now has a Copy address button that opens a page with just the forwarding address, so it's easy to copy on a phone."
+    - "Recent activity is folded away until you open it."
+  zh-TW:
+    - "電費頁面更清楚了：最上方顯示狀態（設定中、等待中或轉寄正常，加上最近一期帳單和下一封台電 Email 預計何時寄達），下面是分成 3 個步驟的「設定轉寄」，每一步都標出已完成或需要你處理。"
+    - "步驟 1 列出所有可以轉寄台電 Email 的人。擁有者點一下就能寄設定信（寄設定信或重寄），也看得到寄出時間；「新增並寄出」會加入另一個 Gmail 並馬上寄信。"
+    - "設定信裡多了「複製地址」按鈕，會打開只顯示轉寄地址的頁面，在手機上也很好複製。"
+    - "最近紀錄預設收合，點開才會顯示。"
 - version: "1.8.0"
   date: 2026-11-15
   en:

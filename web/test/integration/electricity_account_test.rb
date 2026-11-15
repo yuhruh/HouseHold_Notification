@@ -19,12 +19,10 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_select "button", /開啟/
     assert_select "input#electricity-address", 0, "no address before it's turned on"
 
-    patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "", category_id: @power.id,
-      allowed_senders: "Other@Example.com, other@example.com\n" } }
+    patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "", category_id: @power.id } }
     assert_redirected_to household_electricity_account_path(@home)
     account = @home.reload.electricity_account
     assert_nil account.customer_code
-    assert_equal [ "other@example.com" ], account.allowed_senders
     assert_match(/\A[a-z0-9]{10}\z/, account.inbox_token)
     assert_equal "household.bills+h#{@home.id}-#{account.inbox_token}@gmail.com", account.inbox_address
 
@@ -33,34 +31,90 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=clipboard][data-clipboard-text-value=?]", account.inbox_address
     assert_select "h2#electricity-status", /等待 Gmail 篩選器轉寄第一封台電 Email/
     assert_select "dd", "從第一封台電 Email 取得"
-    assert_select "ol li", 3
+    assert_select "#electricity-setup > ol > li", 3
+    assert_select "#electricity-setup li", /alex@example\.com · 擁有者/
+    assert_select "#electricity-setup li", /還沒寄設定信/
   end
 
-  test "the forwarding address and steps sit in the settings card, above the bill settings" do
+  test "the setup checklist sits beside the bill settings; activity is folded" do
     sign_in_as users(:alex)
-    @home.create_electricity_account!(category: @power)
+    @home.create_electricity_account!(category: @power, activity: [ { "at" => Time.current.iso8601, "kind" => "unreadable", "detail" => "x" } ])
     get household_electricity_account_path(@home)
-    assert_select "section[aria-labelledby=electricity-settings]" do
-      assert_select "h3#electricity-forwarding", "轉寄台電的 Email"
-      assert_select "input#electricity-address"
-      assert_select "h3", "帳單設定"
-      assert_select "form textarea[name='electricity_account[allowed_senders]']"
+    assert_select "section#electricity-setup" do
+      assert_select "h2", "設定轉寄"
+      assert_select "h3", "寄設定信給收到台電 Email 的人"
+      assert_select "h3", "確認 Gmail 的要求"
+      assert_select "span", "目前沒有要確認的"
+      assert_select "details input#electricity-address"
     end
-    assert_select "section[aria-labelledby=electricity-forwarding]", 0, "no separate forwarding card"
+    assert_select "section[aria-labelledby=electricity-settings] h2", "帳單設定"
+    assert_select "textarea", 0, "forwarders aren't a text box any more"
+    assert_select "details summary h3", "最近紀錄"
   end
 
-  test "each newly added email that forwards gets the address and the Gmail steps, once" do
+  test "the owner sends the setup email, but not twice within a minute" do
     sign_in_as users(:alex)
-    account = @home.create_electricity_account!(category: @power, allowed_senders: [ "old@gmail.com" ])
+    account = @home.create_electricity_account!(category: @power)
     assert_enqueued_emails 1 do
-      patch household_electricity_account_path(@home), params: { electricity_account: { allowed_senders: "old@gmail.com\nNew.One@gmail.com" } }
+      post setup_email_household_electricity_account_path(@home), params: { email: "Sam@example.com" }
     end
-    assert_equal "電費設定已儲存，已把轉寄地址和 Gmail 設定步驟寄給 new.one@gmail.com。", flash[:notice]
+    assert_redirected_to household_electricity_account_path(@home, anchor: "electricity-setup")
+    assert_equal "已寄設定信給 sam@example.com。", flash[:notice]
+    assert account.reload.setup_sent_at("sam@example.com")
 
     assert_no_enqueued_emails do
-      patch household_electricity_account_path(@home), params: { electricity_account: { allowed_senders: "old@gmail.com\nnew.one@gmail.com", customer_code: "" } }
+      post setup_email_household_electricity_account_path(@home), params: { email: "sam@example.com" }
     end
-    assert_equal %w[old@gmail.com new.one@gmail.com], account.reload.allowed_senders
+    assert_match(/不到一分鐘前/, flash[:alert])
+
+    travel 2.minutes do
+      assert_enqueued_emails 1 do
+        post setup_email_household_electricity_account_path(@home), params: { email: "sam@example.com" }
+      end
+      follow_redirect!
+      assert_select "button", /重寄/
+    end
+
+    assert_no_enqueued_emails do
+      post setup_email_household_electricity_account_path(@home), params: { email: "stranger@gmail.com" }
+    end
+    assert_equal "名單裡沒有這個 Email。", flash[:alert]
+  end
+
+  test "the owner adds an email that forwards, which gets the setup email, and removes it" do
+    sign_in_as users(:alex)
+    account = @home.create_electricity_account!(category: @power)
+    assert_enqueued_emails 1 do
+      post forwarder_household_electricity_account_path(@home), params: { email: " New.One@Gmail.com " }
+    end
+    assert_equal "已新增 new.one@gmail.com 並寄出設定信。", flash[:notice]
+    assert_equal [ "new.one@gmail.com" ], account.reload.allowed_senders
+    assert account.setup_sent_at("new.one@gmail.com")
+
+    assert_no_enqueued_emails do
+      post forwarder_household_electricity_account_path(@home), params: { email: "new.one@gmail.com" }
+    end
+    assert_equal "new.one@gmail.com 已經在名單裡。", flash[:alert]
+
+    follow_redirect!
+    assert_select "button[aria-label=?]", "移除 new.one@gmail.com"
+    assert_select "button[aria-label=?]", "移除 alex@example.com", 0, "members can't be removed"
+
+    delete forwarder_household_electricity_account_path(@home), params: { email: "new.one@gmail.com" }
+    assert_equal [], account.reload.allowed_senders
+    assert_nil account.setup_sent_at("new.one@gmail.com")
+
+    post forwarder_household_electricity_account_path(@home), params: { email: "not-an-email" }
+    assert_response :unprocessable_content
+    assert_select "li", /not-an-email/
+  end
+
+  test "nothing to send before it's turned on" do
+    sign_in_as users(:alex)
+    assert_no_enqueued_emails do
+      post setup_email_household_electricity_account_path(@home), params: { email: "alex@example.com" }
+    end
+    assert_nil @home.reload.electricity_account
   end
 
   test "the setup email has the ledger's address, the steps and who added them" do
@@ -68,22 +122,23 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     mail = ElectricityForwardingMailer.with(account:, email: "victor@gmail.com", added_by: users(:alex), locale: "en").setup
     assert_equal [ "victor@gmail.com" ], mail.to
     assert_equal "#{@home.name}: forward 台電's bill emails to Household Tracker", mail.subject
-    body = mail.body.encoded
+    body = mail.text_part.decoded
     assert_includes body, account.inbox_address
+    assert_includes body, "http://example.com/forward/#{account.inbox_token}"
+    html = mail.html_part.decoded
+    assert_includes html, account.inbox_address
+    assert_match(%r{<a href="http://example.com/forward/#{account.inbox_token}"[^>]*>Copy address</a>}, html)
     assert_match(/1\. .*Forwarding and POP\/IMAP/, body)
     assert_match(/3\. .*from:taipower\.com\.tw/, body)
     assert_match(/#{Regexp.escape(users(:alex).display_name.presence || users(:alex).email_address)} confirms it/, body)
   end
 
-  test "a 電號 must be 11 digits, a ledger can't take another's, and senders must be emails" do
+  test "a 電號 must be 11 digits, and a ledger can't take another's" do
     sign_in_as users(:alex)
     patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "0408-1234-567", category_id: @power.id } }
     assert_equal "04081234567", @home.reload.electricity_account.customer_code
     patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "123" } }
     assert_response :unprocessable_content
-    patch household_electricity_account_path(@home), params: { electricity_account: { allowed_senders: "not-an-email" } }
-    assert_response :unprocessable_content
-    assert_select "li", /not-an-email/
 
     parents = households(:parents)
     Categories::Seed.call(parents)
@@ -112,9 +167,18 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_select "input#electricity-address[value=?]", account.inbox_address
     assert_select "fieldset[disabled]"
     assert_select "p", /只有擁有者可以更改/
+    assert_select "p", /只有擁有者可以寄送設定信/
+    assert_select "#electricity-setup form", 0
+    assert_select "#electricity-setup li", /alex@example\.com/
     patch household_electricity_account_path(@home), params: { electricity_account: { customer_code: "04081234567" } }
     assert_response :forbidden
     delete household_electricity_account_path(@home)
+    assert_response :forbidden
+    post setup_email_household_electricity_account_path(@home), params: { email: "alex@example.com" }
+    assert_response :forbidden
+    post forwarder_household_electricity_account_path(@home), params: { email: "x@gmail.com" }
+    assert_response :forbidden
+    delete forwarder_household_electricity_account_path(@home), params: { email: "x@gmail.com" }
     assert_response :forbidden
     get household_settings_path(@home)
     assert_select "a[href=?]", household_electricity_account_path(@home)
@@ -176,10 +240,25 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
       get household_electricity_account_path(@home)
       assert_select "dd", /2026-12-08 左右/
       assert_select "dd", { text: /已逾期/, count: 0 }
+      assert_select "span", /運作中 · 最近/
     end
     travel_to Time.zone.parse("2026-12-16 10:00") do
       get household_electricity_account_path(@home)
       assert_select "dd.text-amber-800", /已逾期，已通知擁有者/
+      assert_select "span", /逾期 · 原本預計約/
     end
+  end
+
+  test "the setup email's copy page shows only the address, without signing in" do
+    account = @home.create_electricity_account!(category: @power)
+    get forwarding_address_path(token: account.inbox_token)
+    assert_response :success
+    assert_select "h1", /#{@home.name}/
+    assert_select "[data-clipboard-text-value=?]", account.inbox_address
+    assert_select "a[href^='/households']", 0
+
+    get forwarding_address_path(token: "zzzzzzzzzz")
+    assert_response :not_found
+    assert_select "p", /轉寄地址已經失效|no longer works/
   end
 end

@@ -3,6 +3,9 @@
 <%= t(".forward_to") %>
 <%= @address %>
 
+<%= t(".copy_link") %>
+<%= @copy_url %>
+
 <%= t(".how") %>
 <% t(".steps", owner: @owner).each_with_index do |step, i| %>
 <%= i + 1 %>. <%= step %>

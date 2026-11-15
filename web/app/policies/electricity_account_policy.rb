@@ -5,4 +5,7 @@ class ElectricityAccountPolicy < ApplicationPolicy
   def manage? = membership&.owner? || false
   alias_method :update?, :manage?
   alias_method :destroy?, :manage?
+  alias_method :setup_email?, :manage?
+  alias_method :add_forwarder?, :manage?
+  alias_method :remove_forwarder?, :manage?
 end

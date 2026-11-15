@@ -1,0 +1,19 @@
+<div style="max-width: 600px; font-family: -apple-system, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; color: #1f2937; font-size: 15px; line-height: 1.6">
+  <p style="margin: 0 0 16px"><%= t(".intro", owner: @owner, household: @account.household.name) %></p>
+
+  <div style="border: 2px solid #1f2937; border-radius: 12px; background: #eff6ff; padding: 16px 18px; margin: 0 0 20px">
+    <p style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #1e3a8a"><%= t(".forward_to") %></p>
+    <p style="margin: 0 0 12px; font-size: 18px; font-weight: 700; font-family: Menlo, Consolas, monospace; background: #ffffff; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px 14px; word-break: break-all"><%= @address %></p>
+    <a href="<%= @copy_url %>" style="display: inline-block; text-decoration: none; color: #111827; border: 3px solid #1f2937; border-radius: 12px; background: #bfdbfe; padding: 10px 18px; font-size: 15px; font-weight: 600"><%= t(".copy_button") %></a>
+    <span style="font-size: 13px; color: #4b5563; padding-left: 8px"><%= t(".or_long_press") %></span>
+  </div>
+
+  <p style="margin: 0 0 8px"><%= t(".how") %></p>
+  <ol style="margin: 0 0 16px; padding-left: 22px">
+    <% t(".steps", owner: @owner).each do |step| %>
+      <li style="margin: 0 0 8px"><%= step %></li>
+    <% end %>
+  </ol>
+  <p style="margin: 0 0 16px"><%= t(".check") %></p>
+  <p style="margin: 0; font-size: 14px; color: #4b5563"><%= t(".ignore") %></p>
+</div>

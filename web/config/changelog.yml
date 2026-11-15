@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.12.2"
+  date: 2026-11-15
+  en:
+    - "When you use the last one of a supply (or the app estimates none are left), −1 turns off and a pop-up says it's time to restock, with Bought more, Undo and Later. Still have some? Update the count and −1 comes back."
+  zh-TW:
+    - "日用品用掉最後一個（或 App 估計已經沒有了）時，「−1」會停用，並跳出提醒該補貨，可以按「又買了」、「復原」或「稍後」。其實還有剩的話，更新數量後「−1」就會恢復。"
 - version: "1.12.1"
   date: 2026-11-15
   en:

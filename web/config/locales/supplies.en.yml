@@ -115,11 +115,18 @@ en:
       yahoo_japan: "Yahoo! JAPAN Shopping"
       unknown: "a product database"
     actions:
+      used_up_hint: "Nothing left: log a purchase with Bought more, or update the count if you still have some"
       used_one: "Used one"
       used_one_label: "Used one %{item}"
       bought: "Bought"
       bought_more: "Bought more"
       edit: "Edit"
+    restock_prompt:
+      title: "%{item} is used up"
+      title_estimate: "%{item} is probably used up"
+      body: "Time to restock. Tap Bought more after you buy some, so the app keeps learning how fast it goes."
+      later: "Later"
+      still_have: "Still have some? Update the count"
     toast:
       used_one: "Used 1 · %{left} left"
       counted: "Count saved · %{left} left"

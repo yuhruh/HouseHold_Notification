@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.7.1"
+  date: 2026-11-15
+  en:
+    - "Electricity: the next 台電 email is now expected 2 months after the latest bill's 收費日 (shown as Latest 台電 bill), so a missed bill is noticed on time, whoever forwarded the last one."
+    - "Until the Gmail filter forwards its first 台電 email the page says so (Waiting for the Gmail filter's first 台電 email), even when bills have been forwarded by hand."
+  zh-TW:
+    - "電費：下一封台電 Email 現在預計在最近一期帳單收費日的 2 個月後寄達（顯示為「最近一期台電帳單」），不論上一封是誰轉寄的，漏收時都能及時發現。"
+    - "Gmail 篩選器轉寄第一封台電 Email 之前，頁面會顯示「等待 Gmail 篩選器轉寄第一封台電 Email」，即使已有手動轉寄的帳單。"
 - version: "1.7.0"
   date: 2026-11-15
   en:

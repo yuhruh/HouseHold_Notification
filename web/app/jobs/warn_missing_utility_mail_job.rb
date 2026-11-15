@@ -25,7 +25,7 @@ class WarnMissingUtilityMailJob < ApplicationJob
     return unless owner
 
     I18n.with_locale(owner.locale.presence || I18n.default_locale) do
-      last = account.last_success_at&.in_time_zone(household.time_zone)&.to_date
+      last = account.last_mail_on
       title = I18n.t("electricity_accounts.missing_mail.title", household: household.name)
       body = I18n.t(last ? "electricity_accounts.missing_mail.body" : "electricity_accounts.missing_mail.body_first",
         expected: I18n.l(expected), last: last && I18n.l(last), since: I18n.l(account.created_at.in_time_zone(household.time_zone).to_date))

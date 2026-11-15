@@ -11,8 +11,9 @@ module Utilities
   # bill was issued in both, not a payment date. Anything else from 台電 (or a table it can't read)
   # changes nothing and is listed as unreadable.
   module Taipower
-    # One bill from one email. `month` is the first of the billing month; due_on is nil on a paid notice.
-    Bill = Data.define(:customer_code, :month, :amount, :due_on, :paid) do
+    # One bill from one email. `month` is the first of the billing month; issued_on its 收費日;
+    # due_on is nil on a paid notice.
+    Bill = Data.define(:customer_code, :month, :amount, :due_on, :paid, :issued_on) do
       # The ledger's label for it: the two months ending two months before the billing month, so the
       # 115年10月 bill is "7月-8月" (how the bills were always entered)
       def period
@@ -46,7 +47,7 @@ module Utilities
         due_on = roc_date(row["繳費期限"]) unless paid
         return unless code.match?(/\A\d{11}\z/) && amount.match?(AMOUNT) && (paid || due_on)
 
-        Bill.new(customer_code: code, month:, amount: BigDecimal(amount.delete(",")), due_on:, paid:)
+        Bill.new(customer_code: code, month:, amount: BigDecimal(amount.delete(",")), due_on:, paid:, issued_on: roc_date(row["收費日"]))
       end
 
       # {column name => value} from the HTML table: the row of known column headers and the row after it
@@ -113,6 +114,9 @@ module Utilities
       def call
         bill = Parser.call(@mail) or return note!("unreadable", @mail.subject.to_s.truncate(100))
         return unless customer_code_fits?(bill)
+
+        # When the next bill is expected (ElectricityAccount#next_mail_expected_on); saved with the sync
+        @account.last_bill_on = [ @account.last_bill_on, bill.issued_on ].compact.max
 
         # Only a filter-forwarded email counts as "the filter works" (ForwardedMail sets that)
         BillSync.new(@account, today: @today, note: NOTE, events: EVENTS, add_paid: true, touch_success: false)

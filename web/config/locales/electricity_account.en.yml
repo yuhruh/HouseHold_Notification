@@ -65,9 +65,11 @@ en:
       no_mailbox: "The app's mailbox isn't set up on this server, so there's no forwarding address yet."
       status:
         working: "Forwarding works"
-        waiting: "No 台電 email yet"
+        waiting: "Waiting for the Gmail filter's first 台電 email"
       from_first_email: "From the first 台電 email"
-      last_email: "Last 台電 email"
+      last_email: "Last forwarded by the filter"
+      last_bill: "Latest 台電 bill"
+      issued: "issued %{date}"
       next_email: "Next one expected"
       around: "around %{date}"
       late: "late: the owner has been notified"

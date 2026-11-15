@@ -64,6 +64,36 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "button[disabled][aria-label*='用掉一個']"
   end
 
+  test "using the last one turns −1 off and asks to restock" do
+    supply = create_item(level: 1)
+    Supplies::RecordCount.call(supply, 1, user: users(:alex))
+    post household_supply_counts_path(@home, supply), params: { used_one: 1 }, as: :turbo_stream
+    assert_equal 0, supply.reload.level
+    assert_match "dialog data-controller=\"modal\"", response.body
+    assert_match "Toilet paper 用完了", response.body
+    assert_match new_household_supply_purchase_path(@home, supply), response.body
+    assert_match household_supply_count_path(@home, supply, supply.counts.order(:id).last), response.body
+    assert_match(/<button[^>]*disabled[^>]*aria-label="Toilet paper 用掉一個"/, response.body)
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "div[title*='已經用完了'] button[disabled]"
+
+    # Undo brings back the toast and −1
+    delete household_supply_count_path(@home, supply, supply.counts.order(:id).last), as: :turbo_stream
+    assert_no_match "dialog data-controller", response.body
+    assert_equal 1, supply.reload.level
+  end
+
+  test "an estimate of nothing left also turns −1 off, and says to update the count if some are left" do
+    supply = create_item(level: 2, guess_days_per_unit: 1, level_at: 3.days.ago)
+    get household_supply_path(@home, supply)
+    assert_select "button[disabled][aria-label*='用掉一個']"
+    post household_supply_counts_path(@home, supply), params: { supply_count: { level: 1 } }, as: :turbo_stream
+    assert_no_match "dialog data-controller", response.body
+    get household_supply_path(@home, supply)
+    assert_select "button[disabled][aria-label*='用掉一個']", 0
+  end
+
   test "negative or decimal counts and quantities are refused" do
     supply = create_item
     post household_supply_counts_path(@home, supply), params: { supply_count: { level: "2.5" } }, as: :turbo_stream

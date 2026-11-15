@@ -3,5 +3,9 @@
 <%= turbo_stream.replace dom_id(@supply, :forecast) do %><%= render "supplies/forecast", supply: @supply, forecast: @forecast %><% end %>
 <%= turbo_stream.replace dom_id(@supply, :history) do %><%= render "supplies/history", supply: @supply, history: @supply.history %><% end %>
 <%= turbo_stream.update "supply_toast" do %>
-  <%= render "supplies/toast", text: toast_text, count: (@count if @toast != :undone), restock: @forecast.needs_buying? && @toast == :used_one %>
+  <% if @toast != :undone && supply_used_up?(@forecast) %>
+    <%= render "supplies/restock_prompt", count: @count %>
+  <% else %>
+    <%= render "supplies/toast", text: toast_text, count: (@count if @toast != :undone), restock: @forecast.needs_buying? && @toast == :used_one %>
+  <% end %>
 <% end %>

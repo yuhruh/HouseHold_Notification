@@ -1,0 +1,25 @@
+<%# After −1 (or a count) leaves nothing: a pop-up saying it's time to restock, with Bought more, Undo (deletes
+    that count) and Later. −1 is off from now on (supplies/_actions) until a purchase or a higher count %>
+<% supply = count.supply %>
+<dialog data-controller="modal" aria-labelledby="restock_prompt_title" aria-describedby="restock_prompt_body"
+        class="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border-2 border-(--card-line) bg-white p-6 text-gray-900 backdrop:bg-slate-900/40">
+  <div class="space-y-4">
+    <div class="space-y-1">
+      <h2 id="restock_prompt_title" class="text-xl font-bold <%= supply_tone(:out, :ink) %>">
+        <%= t(supply.level.zero? ? "supplies.restock_prompt.title" : "supplies.restock_prompt.title_estimate", item: supply.name) %>
+      </h2>
+      <p id="restock_prompt_body" class="text-gray-700"><%= t("supplies.restock_prompt.body") %></p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= link_to t("supplies.actions.bought_more"), new_household_supply_purchase_path(Current.household, supply),
+            data: { controller: "modal-link", action: "click->modal-link#route click->modal#close" },
+            class: "btn-press rounded-xl bg-green-100 px-3.5 py-2 font-bold text-green-900" %>
+      <%= button_to t("supplies.toast.undo"), household_supply_count_path(Current.household, supply, count), method: :delete,
+            class: "btn-press cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900", form: { data: { turbo_stream: true } } %>
+      <button type="button" data-action="modal#close" class="btn-press cursor-pointer rounded-xl bg-amber-100 px-3.5 py-2 font-medium text-amber-900"><%= t("supplies.restock_prompt.later") %></button>
+    </div>
+    <% unless supply.level.zero? %>
+      <p class="text-sm text-gray-600"><%= link_to t("supplies.restock_prompt.still_have"), household_supply_path(Current.household, supply, anchor: dom_id(supply, :forecast)), class: "text-blue-700 underline" %></p>
+    <% end %>
+  </div>
+</dialog>

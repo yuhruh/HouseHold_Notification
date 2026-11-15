@@ -115,11 +115,18 @@ zh-TW:
       yahoo_japan: "Yahoo! JAPAN 購物"
       unknown: "商品資料庫"
     actions:
+      used_up_hint: "已經用完了：買了之後按「又買了」，或還有剩的話更新數量"
       used_one: "用掉一個"
       used_one_label: "%{item} 用掉一個"
       bought: "買了"
       bought_more: "又買了"
       edit: "編輯"
+    restock_prompt:
+      title: "%{item} 用完了"
+      title_estimate: "%{item} 可能用完了"
+      body: "該補貨了。買了之後按「又買了」，App 才能繼續學會用得多快。"
+      later: "稍後"
+      still_have: "還有剩？更新數量"
     toast:
       used_one: "用掉 1 · 剩 %{left}"
       counted: "已更新數量 · 剩 %{left}"

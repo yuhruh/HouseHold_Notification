@@ -14,6 +14,10 @@ module SuppliesHelper
   TONE_OF = { out: :now, buy_now: :now, buy_soon: :soon, expiring: :expiring, not_enough_data: :no_data, ok: :ok }.freeze
   BAR = { out: "bg-red-600", buy_now: "bg-red-600", buy_soon: "bg-amber-500", expiring: "bg-violet-500", ok: "bg-green-600", not_enough_data: "bg-gray-400" }.freeze
 
+  # Nothing left as far as the app knows (the count, or the estimate shown, is 0): −1 is off and a
+  # pop-up says to restock. A purchase or "I have N left" turns −1 back on
+  def supply_used_up?(forecast) = forecast.on_hand_rounded.zero?
+
   def supply_tone(status, part) = TONE.fetch(TONE_OF.fetch(status)).fetch(part)
 
   # "3 rolls", "1 bottle" ("~2 rolls" when it's an estimate between counts)

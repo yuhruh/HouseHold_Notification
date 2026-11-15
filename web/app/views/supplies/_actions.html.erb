@@ -1,7 +1,9 @@
-<%# −1 Used one (in place, with a toast; off at 0) and Bought more (a dialog on a computer) %>
+<%# −1 Used one (in place, with a toast; off once nothing is left, saying why) and Bought more (a dialog on a
+    computer) %>
 <% if policy(supply).update? && supply.archived_at.nil? %>
-  <div class="flex shrink-0 items-center gap-2">
-    <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1 }, disabled: supply.level.zero?,
+  <% used_up = supply_used_up?(forecast) %>
+  <div class="flex shrink-0 items-center gap-2" title="<%= t("supplies.actions.used_up_hint") if used_up %>">
+    <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1 }, disabled: used_up,
           form: { data: { turbo_stream: true } }, "aria-label": t("supplies.actions.used_one_label", item: supply.name),
           class: "btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900 disabled:cursor-not-allowed disabled:opacity-50" do %>
       −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>

@@ -12,9 +12,12 @@ class ElectricityAccountsController < ApplicationController
     attributes = params.expect(electricity_account: [ :customer_code, :category_id, :payment_method_id, :allowed_senders ])
     # One email per line (or comma) in the form; the column is an array
     attributes[:allowed_senders] = attributes[:allowed_senders].to_s.split(/[\s,]+/) if attributes.key?(:allowed_senders)
+    before = @electricity_account.allowed_senders.dup
     @electricity_account.assign_attributes(attributes)
     if @electricity_account.save
-      redirect_to household_electricity_account_path(Current.household), notice: t(".saved")
+      emailed = email_setup(@electricity_account.allowed_senders - before)
+      redirect_to household_electricity_account_path(Current.household),
+        notice: emailed.any? ? t(".emailed", emails: emailed.to_sentence) : t(".saved")
     else
       render :show, status: :unprocessable_content
     end
@@ -27,6 +30,15 @@ class ElectricityAccountsController < ApplicationController
   end
 
   private
+
+  # Each email newly added under Other Emails That Forward gets the address and the Gmail steps
+  def email_setup(emails)
+    return [] unless @electricity_account.inbox_address
+
+    emails.each do |email|
+      ElectricityForwardingMailer.with(account: @electricity_account, email:, added_by: Current.user, locale: I18n.locale.to_s).setup.deliver_later
+    end
+  end
 
   def set_electricity_account
     @electricity_account = Current.household.electricity_account ||

@@ -26,13 +26,14 @@ en:
     show:
       title: "Electricity (台電)"
       intro: "New 電費 bills come from 台電's 電子帳單 emails, forwarded by whoever receives them. The app fills in the bill's amount and 繳費期限, and marks it paid when 台電's paid notice arrives."
-      settings_title: "Bill settings"
+      settings_title: "Settings"
+      bill_settings_title: "Bill settings"
       optional: "(optional)"
       customer_code_hint: "Filled in from the first 台電 email. After that, emails for any other 電號 are ignored."
       choose: "Choose a category"
       no_payment_method: "None"
       payment_method_hint: "Given to bills the app adds. Leave it empty if you pay with different cards."
-      allowed_senders_hint: "Members can always forward. Add a member's other email here if 台電's mail goes to an address they don't sign in with. One per line."
+      allowed_senders_hint: "Members can always forward. Add a member's other email here if 台電's mail goes to an address they don't sign in with. One per line. Each new one gets an email with this ledger's forwarding address and the Gmail steps."
       save: "Save"
       turn_on: "Turn On"
       turn_on_hint: "Choose the category and tap Turn On to get this ledger's forwarding address."
@@ -96,8 +97,21 @@ en:
       body_first: "No 台電 bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in the 台灣電力 App, and that Gmail forwarding was confirmed and the filter is set up."
     update:
       saved: "Electricity saved."
+      emailed: "Electricity saved. The forwarding address and Gmail steps were emailed to %{emails}."
     destroy:
       disconnected: "Electricity disconnected. Its bills stay in Bills."
+  electricity_forwarding_mailer:
+    setup:
+      subject: "%{household}: forward 台電's bill emails to Household Tracker"
+      intro: "%{owner} added you to %{household} on Household Tracker as someone who receives 台電's bill emails. Set up Gmail once, and each 台電 bill reaches the ledger by itself: the amount and 繳費期限 are filled in, and it's marked paid when 台電's paid notice comes."
+      forward_to: "Forward to this address:"
+      how: "In Gmail on a computer (the Gmail that receives 台電's emails):"
+      steps:
+        - "⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address above › Next › Proceed. Leave forwarding itself off."
+        - "Gmail asks the ledger to confirm. %{owner} confirms it in Household Tracker, usually within a few minutes; you don't need to do anything."
+        - "Once it's confirmed: in Gmail's search box type from:taipower.com.tw › Show search options › Create filter › tick Forward it to › choose the address above › Create filter."
+      check: "To check it works, forward one 台電 bill email to the address by hand; it shows up in the ledger within about 5 minutes."
+      ignore: "If you don't receive 台電's emails, you can ignore this email."
   utilities:
     forwarded_mail:
       not_taipower: "not from 台電 (from %{detail})"

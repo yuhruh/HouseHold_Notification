@@ -104,6 +104,20 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Remove the M0 spike pages and jobs | ◐ | `Spike::GmailDurabilityJob` removed 2026-10-26 after X8 passed; the rest after X9 (`/spike/push` on family phones) |
 | M7 exit: family uses it for one billing cycle | ☐ | starts once M0 and M5 close |
 
+## After v1: Supplies
+
+| Task | Status | Notes |
+|---|---|---|
+| Supplies: items, purchases, counts, run-out forecast, restock / out / expiry alerts | ☑ | 2026-11-15, PR #2 (e2395bd), deployed; migration `CreateSupplies` ran on Railway. `Supplies::Forecast` (14-day prior, 120-day window, buffer 2 / 4 days), `SupplyAlertsJob` daily 09:00 with push → email fallback, `supply_alert` preference (owners / co-owners on). Changelog 1.11.0 |
+| Scanning: product barcodes (Open Food / Beauty / Products Facts, Yahoo! JAPAN) and Taiwan e-invoice QR | ☑ | read in the browser; only the barcode number leaves the app. Duplicate invoices refused; Japanese receipts unsupported (no item QR) |
+| + New ▾ menu (header) and Add new sheet (phone tab bar); Supplies tab | ☑ | 1.11.0; the Supplies page's Add supply menu in 1.11.1 (8b2bbec) |
+| Product name from a photo (Tesseract OCR) | ➖ | added in 8b2bbec, removed in 5232496 at the owner's request: unreliable on packaging. Claude vision / Cloud Vision declined; names are typed once and remembered with the barcode |
+| "Product not found" / "N items not found" pop-ups | ☑ | 1.11.2 (5232496) |
+| New item → "I already bought these"; Edit corrects the last purchase (Ledger expense follows) | ☑ | 1.11.3 (13cbfab) |
+| Yahoo! JAPAN Client ID in credentials | ☐ | optional, see M0-SETUP §8 |
+| Mock-up PNG `docs/mockups/supplies.png` | ☐ | the mock-up exists only as an artifact |
+| Check on a real phone over HTTPS: a Taiwan product, a Japanese product, a real 發票 | ☐ | |
+
 ## Pending decisions
 
 ### Payment methods from notes (proposed 2026-10-19, decided and built 2026-10-20)

@@ -17,6 +17,24 @@ reminders arrive once a day at their reminder hour (default 08:00, in My account
 digest per household and channel. Lock-screen privacy: "Show bill names and amounts in
 notifications" (My account → 通知) makes the push text generic when off.
 
+## Other notifications
+
+Besides the daily bill digest, two kinds of notification go to owners and co-owners by default
+(viewers off), each with its own switch in My account → 通知:
+
+| Notification | When | Switch |
+|---|---|---|
+| **Bill paid** (帳單已繳費) | a gas, electricity or water bill was marked paid automatically by a utility sync | Bill paid |
+| **Supplies** (日用品) | `SupplyAlertsJob`, daily 09:00 Taipei: items to buy (the buy-by date, or the count is at "alert me when only N are left"), items probably out, and stock that will expire before it's used (7 days ahead for food & drink and health, 30 for the rest) | Supplies low or expiring |
+
+Each is one inbox item plus a push (generic text when lock-screen amounts are off). **Email is sent
+instead**, if the member's email channel is on, when they have push off, have no
+device with notifications enabled, every device rejects the push, or no device confirms it within
+**1 hour** (`ConfirmPushReceiptsJob`). A member never gets both a confirmed push and the email.
+A supply alert is sent once per state (low, then out; once per batch for expiry) and resets after a
+purchase or a count above the alert level, so the same item isn't repeated every morning. These
+notifications aren't part of 提醒送達狀態 or the owner's failure summary.
+
 ## When a reminder isn't delivered
 
 - The household owner gets **one summary a day** naming each member and channel that failed (in-app

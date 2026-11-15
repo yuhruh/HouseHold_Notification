@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.4"
+  date: 2026-11-15
+  en:
+    - "Getting Started now explains Supplies: tap \"−1 Used one\" now and then, log what you buy, and get a reminder to restock before something runs out."
+    - "A supply item's page (and New, Edit, Scan and Log a purchase) now has ‹ Back to Supplies at the top, to the Supplies list, instead of Back to Dashboard."
+  zh-TW:
+    - "使用說明加入「日用品」：偶爾按「用掉一個」、記錄購買，東西用完前就會收到補貨提醒。"
+    - "日用品項目頁（以及新增、編輯、掃描和記錄購買）上方改為「‹ 回到日用品」，回到日用品清單，不再是「回到首頁」。"
 - version: "1.11.3"
   date: 2026-11-15
   en:

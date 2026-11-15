@@ -1,0 +1,19 @@
+<%# Bought more, Edit, Log a purchase…: a dialog on a computer when loaded into the "modal" frame
+    (supplies_helper#in_modal?), else a page of its own with the same content %>
+<% if in_modal? %>
+  <%= turbo_frame_tag "modal" do %>
+    <dialog data-controller="modal" aria-labelledby="modal-title" class="m-auto w-[min(40rem,calc(100vw-2rem))] max-h-[90dvh] overflow-y-auto rounded-2xl border-2 border-(--card-line) bg-white p-6 text-gray-900 backdrop:bg-slate-900/40">
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <h2 id="modal-title" class="text-xl font-bold"><%= title %></h2>
+        <button type="button" data-action="modal#close" aria-label="<%= t("records.form.cancel") %>" class="-mr-2 -mt-2 h-11 w-11 shrink-0 cursor-pointer text-2xl text-gray-600">×</button>
+      </div>
+      <%= yield %>
+    </dialog>
+  <% end %>
+<% else %>
+  <div class="mx-auto w-full max-w-xl space-y-6 py-4">
+    <%= page_title(icon, title) %>
+    <%= render "shared/flash" %>
+    <%= yield %>
+  </div>
+<% end %>

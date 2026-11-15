@@ -1,11 +1,12 @@
-<%# Phone and tablet tab bar (under 1550px): Bills (To Pay and All) and Expense Analysis one tap away at
-    the bottom of every page, and New Record for owners and co-owners. The layout leaves room for it %>
+<%# Phone and tablet tab bar (under 1550px): Bills (To Pay and All), Expense Analysis and Supplies one tap
+    away at the bottom of every page, and New (the Add new sheet) for owners and co-owners. The layout leaves room for it %>
 <% tabs = [
   [ "records.png", t("layouts.header.bills"), household_pending_path(household), current == :bills ],
-  [ "dashboard.png", t("layouts.header.analysis"), household_dashboard_path(household), current == :dashboard ]
+  [ "dashboard.png", t("layouts.header.analysis"), household_dashboard_path(household), current == :dashboard ],
+  [ "ledger.png", t("layouts.header.supplies"), household_supplies_path(household), current == :supplies ]
 ] %>
 <nav id="tab-bar" aria-label="<%= t("layouts.header.main_tabs") %>" class="fixed inset-x-0 bottom-0 z-40 border-t-2 border-(--card-line) bg-white pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 min-[1550px]:hidden">
-  <ul class="mx-auto grid max-w-md items-end px-2 <%= writer ? 'grid-cols-3' : 'grid-cols-2' %>">
+  <ul class="mx-auto grid max-w-md items-end px-2 <%= writer ? 'grid-cols-4' : 'grid-cols-3' %>">
     <% tabs.each_with_index do |(icon, label, path, here), index| %>
       <li><%= link_to path, class: "relative flex flex-col items-center gap-0.5 text-xs #{here ? 'font-extrabold text-blue-900' : 'font-semibold text-gray-700'}", "aria-current": (here ? "page" : nil) do %>
         <span class="rounded-full px-4 py-1 <%= 'bg-blue-100' if here %>"><%= image_tag "icons/#{icon}", alt: "", class: "h-6 w-6 object-contain" %></span>
@@ -14,10 +15,17 @@
       <% end %></li>
     <% end %>
     <% if writer %>
-      <li><%= link_to new_household_record_path(household), class: "flex flex-col items-center gap-0.5 text-xs font-bold text-cyan-900" do %>
+      <%# New opens the Add new sheet: Scan first, then Supply item, Log a purchase… and Bill / record %>
+      <li data-controller="menu"><button type="button" data-action="menu#open" aria-haspopup="dialog" class="flex w-full cursor-pointer flex-col items-center gap-0.5 text-xs font-bold text-cyan-900">
         <span class="btn-press btn-new press-sm flex h-10 w-12 items-center justify-center rounded-xl"><%= image_tag "icons/new_entry.png", alt: "", class: "h-6 w-6 object-contain" %></span>
-        <span><%= t("layouts.header.new_record") %></span>
-      <% end %></li>
+        <span><%= t("layouts.new_menu.tab") %></span>
+      </button>
+      <dialog data-menu-target="dialog" aria-label="<%= t("layouts.new_menu.sheet_title") %>" class="m-0 mt-auto w-full max-w-none rounded-t-2xl border-t-2 border-(--card-line) bg-white p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-gray-900 backdrop:bg-slate-900/35">
+        <span aria-hidden="true" class="mx-auto mb-3 block h-1.5 w-11 rounded-full bg-gray-300"></span>
+        <h2 class="mb-3 text-lg font-bold"><%= t("layouts.new_menu.sheet_title") %></h2>
+        <div class="flex flex-col gap-2"><%= render "layouts/new_items", household:, current:, large: true %></div>
+        <button type="button" data-action="menu#close" class="btn-press mt-3 w-full cursor-pointer rounded-xl bg-amber-100 px-3.5 py-2 font-medium text-amber-900"><%= t("records.form.cancel") %></button>
+      </dialog></li>
     <% end %>
   </ul>
 </nav>

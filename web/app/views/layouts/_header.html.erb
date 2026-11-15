@@ -1,5 +1,5 @@
 <%# Signed-in header (PRD §12a): the logo and the household menu (switch households, its Settings and
-    Members) on the left, then Bills and Expense Analysis from 1550px; the inbox, New Record (from 1550px)
+    Members) on the left, then Bills, Expense Analysis and Supplies from 1550px; the inbox, + New ▾ (from 1550px)
     and your menu (My Account, theme, language, Getting Started, Sign Out) on the right. Under 1550px the
     tab bar at the bottom has Bills, Analysis and New Record, and the two menus open as sheets on a phone %>
 <% households = Current.user.households.order(:name).to_a %>
@@ -10,6 +10,7 @@
 <%# Bills (To Pay and All) or Expense Analysis: the page you're on, the unpaid bills due today or earlier
     for the red count, and New Record for owners and co-owners %>
 <% bills_page = { "pending" => :bills, "records" => (:bills if action_name == "index"), "dashboards" => :dashboard }[controller_name] %>
+<% bills_page = :supplies if controller_path == "supplies" || controller_path.start_with?("supplies/") %>
 <%# The other links' page, tinted like the Bills page you're on: Settings covers the pages it opens %>
 <% nav_page = case controller_path
    when "household_settings", "members", "memberships", "household_invitations", "invitation_links", "reminder_deliveries",
@@ -40,6 +41,7 @@
             <% if due.positive? %><span class="rounded-full bg-red-600 px-1.5 text-xs text-white" aria-label="<%= t("layouts.header.due_count", count: due) %>"><%= due %></span><% end %>
           <% end %>
           <%= link_to nav_label("dashboard.png", t("layouts.header.dashboard")), household_dashboard_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-100 font-bold text-blue-900' if bills_page == :dashboard}", "aria-current": (bills_page == :dashboard ? "page" : nil) %>
+          <%= link_to nav_label("ledger.png", t("layouts.header.supplies")), household_supplies_path(nav_household), class: "inline-flex items-center gap-1 rounded-lg px-2 py-1 hover:underline hover:font-bold #{'bg-blue-100 font-bold text-blue-900' if bills_page == :supplies}", "aria-current": (bills_page == :supplies ? "page" : nil) %>
         </nav>
       <% elsif pending.positive? %>
         <%= link_to t("layouts.header.invitations", count: pending), invitations_path, class: "rounded-md bg-amber-100 px-2 py-1 text-amber-900" %>
@@ -48,7 +50,15 @@
     <div class="flex shrink-0 items-center gap-2">
       <%= inbox %>
       <% if writer %>
-        <%= link_to nav_label("new_entry.png", t("layouts.header.new_record")), new_household_record_path(nav_household), class: "btn-press btn-new press-sm hidden items-center gap-1 rounded-xl px-3 py-1.5 font-bold min-[1550px]:inline-flex" %>
+        <%# + New ▾: Supply item, Log a purchase…, Bill / record and Upload or scan, the page's own choice first %>
+        <details class="relative hidden min-[1550px]:block" data-controller="dropdown">
+          <summary class="btn-press btn-new press-sm flex cursor-pointer list-none items-center gap-1 rounded-xl px-3 py-1.5 font-bold [&::-webkit-details-marker]:hidden" aria-label="<%= t("layouts.new_menu.title") %>">
+            <%= nav_label("new_entry.png", t("layouts.new_menu.button")) %><span aria-hidden="true">▾</span>
+          </summary>
+          <div class="card-raised absolute right-0 top-full z-50 mt-2 flex w-72 flex-col gap-0.5 rounded-2xl bg-white p-2 text-gray-900">
+            <%= render "layouts/new_items", household: nav_household, current: bills_page, large: false %>
+          </div>
+        </details>
       <% end %>
       <%= render "layouts/you_menu", nav_page:, here: %i[account guide about].include?(nav_page) %>
     </div>

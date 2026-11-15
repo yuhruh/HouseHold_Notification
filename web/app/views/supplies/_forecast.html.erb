@@ -1,7 +1,7 @@
 <%# The Forecast card: what's left now, how fast it goes, when it runs out and when the alert comes,
     with −1 / Bought more at its top right and "I have __ left". Replaced in place after a count %>
 <% status = forecast.status %>
-<section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= SuppliesHelper::CARD.fetch(status) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
+<section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= supply_tone(status, :card) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
   <div class="flex flex-wrap items-start justify-between gap-3">
     <div class="flex items-center gap-2">
       <h2 id="<%= dom_id(supply, :forecast_title) %>" class="text-lg font-bold"><%= t("supplies.show.forecast") %></h2>

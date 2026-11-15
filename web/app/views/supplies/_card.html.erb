@@ -1,0 +1,31 @@
+<%# One item on To Buy or Stocked, like a bill card on Bills › To Pay: what it needs in its group's colour,
+    the item, then Details, −1 Used one and Bought more. Replaced in place after −1 (counts/update) %>
+<% status = forecast.status %>
+<% left = supply_left(supply, forecast) %>
+<% headline = case status
+              when :out then forecast.enough_data? ? t("supplies.card.out") : t("supplies.card.buy_now", left:)
+              when :buy_now then forecast.buy_by ? t("supplies.card.buy_now", left:) : t("supplies.card.at_alert_level", left:)
+              when :buy_soon then t("supplies.card.buy_by", date: l(forecast.buy_by, format: :short), left:)
+              when :expiring then supply_line(supply, forecast)
+              when :not_enough_data then t("supplies.card.not_enough_data", left:)
+              else t("supplies.card.ok", left:, date: l(forecast.run_out_on, format: :short))
+              end %>
+<% last = supply.latest_purchase %>
+<% details = [ supply_kind(supply.kind),
+               (t("supplies.card.runs_out", date: l(forecast.run_out_on, format: :short)) if forecast.run_out_on && status.in?(%i[buy_now buy_soon])),
+               (last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase")) ].compact %>
+<li id="<%= dom_id(supply, :card) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= supply_tone(status, :card) %>">
+  <div class="space-y-0.5">
+    <p class="font-bold <%= supply_tone(status, :ink) %>"><%= headline %></p>
+    <p><%= link_to supply.name, household_supply_path(Current.household, supply), class: "text-lg font-bold hover:underline lg:text-base" %>
+      <span class="text-sm text-gray-600"><%= safe_join(details, " · ") %></span></p>
+    <% if status == :ok %>
+      <% if forecast.to_buy_on %><p class="text-sm text-gray-700"><%= t("supplies.card.moves_on", date: l(forecast.to_buy_on, format: :short)) %></p><% end %>
+      <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
+    <% end %>
+  </div>
+  <div class="flex flex-wrap items-center gap-3 lg:gap-2">
+    <%= link_to household_supply_path(Current.household, supply), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+    <%= render "supplies/actions", supply:, forecast: %>
+  </div>
+</li>

@@ -5,7 +5,13 @@ class SuppliesController < ApplicationController
   before_action :set_supply, only: %i[show edit update archive]
 
   FILTERS = %w[buy_soon expiring].freeze
+  TABS = %w[to_buy stocked all].freeze
+  # To Buy's columns (like Bills › To Pay): out or past the buy-by date | buy within 7 days | expiring
+  TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
+  # Three tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
+  # month each moves to To Buy) and All (every item, with filters and search). A filter, category,
+  # search or the archived list is always All
   def index
     authorize Supply
     supplies = Current.household.supplies.includes(:purchases, :counts)
@@ -16,10 +22,12 @@ class SuppliesController < ApplicationController
     @filter = params[:filter].presence_in(FILTERS)
     @kind = params[:kind].presence_in(Supply::KINDS)
     @query = params[:q].to_s.strip
+    all_only = @filter || @kind || @query.present? || params[:archived].present?
+    @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || "to_buy")
     @kinds_in_use = all.map { it.first.kind }.uniq
     @archived_count = Current.household.supplies.where.not(archived_at: nil).count
-    @items = all.select { |supply, forecast| shown?(supply, forecast) }
-                .sort_by { |supply, forecast| [ SuppliesHelper::STATUS_ORDER.index(forecast.status), forecast.buy_by || forecast.run_out_on || Date.new(9999), supply.name ] }
+    @items = all.select { |supply, forecast| shown?(supply, forecast) }.sort_by { |supply, forecast| urgency(supply, forecast) }
+    to_buy_and_stocked(all)
   end
 
   def show
@@ -142,6 +150,22 @@ class SuppliesController < ApplicationController
     return false if @kind && supply.kind != @kind
     return false if @query.present? && !(supply.name.downcase.include?(@query.downcase) || supply.purchases.any? { it.store.to_s.downcase.include?(@query.downcase) })
     true
+  end
+
+  def urgency(supply, forecast)
+    [ SuppliesHelper::STATUS_ORDER.index(forecast.status), forecast.buy_by || forecast.run_out_on || Date.new(9999), supply.name ]
+  end
+
+  # To Buy's three groups, Stocked's months (by the day each item moves to To Buy) and Not enough
+  # data yet, and Next up: the stocked item that moves to To Buy first
+  def to_buy_and_stocked(all)
+    sorted = all.sort_by { |supply, forecast| urgency(supply, forecast) }
+    @to_buy = TO_BUY.transform_values { |statuses| sorted.select { statuses.include?(it.last.status) } }
+    ok = sorted.select { it.last.status == :ok }.sort_by { |supply, forecast| [ forecast.to_buy_on || Date.new(9999), supply.name ] }
+    @stocked = ok.group_by { it.last.to_buy_on&.beginning_of_month }
+    @no_data = sorted.select { it.last.status == :not_enough_data }
+    @next_up = ok.find { it.last.to_buy_on }
+    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, all: all.size }
   end
 
   # Buy soon, Expiring, an estimated monthly spend (usage × the last price per unit) and the count

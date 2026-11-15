@@ -100,6 +100,9 @@ module Supplies
 
     def needs_buying? = buy_now? || buy_soon?
 
+    # The day it becomes "buy soon" (Supplies › Stocked: "Moves to To Buy on …")
+    def to_buy_on = buy_by && buy_by - SOON_DAYS
+
     # The earliest unexpired batch, when some of it should still be left on its expiry date
     def expiring
       return @expiring if defined?(@expiring)

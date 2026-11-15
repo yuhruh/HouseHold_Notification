@@ -1,13 +1,20 @@
 module SuppliesHelper
   STATUS_ORDER = %i[out buy_now buy_soon expiring ok not_enough_data].freeze
-  # Badge colours: red to buy, orange expiring, green fine, grey still learning (each also has a word)
-  BADGE = {
-    out: "border-red-800 bg-red-100 text-red-800", buy_now: "border-red-800 bg-red-100 text-red-800",
-    buy_soon: "border-red-800 bg-red-50 text-red-800", expiring: "border-orange-800 bg-orange-100 text-orange-800",
-    ok: "border-green-800 bg-green-100 text-green-800", not_enough_data: "border-gray-700 bg-gray-100 text-gray-700"
+  # Each group has its own colour, soft in dark mode and told apart by lightness as well as hue: red
+  # out or buy now, amber buy within 7 days, violet expiring, grey not enough data yet. Fixed hex values
+  # with dark: variants, so dark.css's mirrored palette (which turns red-100 and amber-100 into two
+  # loud, look-alike browns) doesn't touch them
+  TONE = {
+    now: { card: "bg-[#fee2e2] dark:bg-[#4b1d1b]", ink: "text-[#991b1b] dark:text-[#ffb4b0]", line: "border-[#991b1b] dark:border-[#ffb4b0]" },
+    soon: { card: "bg-[#fef3c7] dark:bg-[#443617]", ink: "text-[#92400e] dark:text-[#f2d995]", line: "border-[#92400e] dark:border-[#f2d995]" },
+    expiring: { card: "bg-[#ede9fe] dark:bg-[#302749]", ink: "text-[#5b21b6] dark:text-[#d1c5fa]", line: "border-[#5b21b6] dark:border-[#d1c5fa]" },
+    no_data: { card: "bg-[#f3f4f6] dark:bg-[#27292d]", ink: "text-[#374151] dark:text-[#cdd1d8]", line: "border-[#374151] dark:border-[#cdd1d8]" },
+    ok: { card: "bg-white dark:bg-[#282228]", ink: "text-[#166534] dark:text-[#9fdcb0]", line: "border-[#166534] dark:border-[#9fdcb0]" }
   }.freeze
-  BAR = { out: "bg-red-600", buy_now: "bg-red-600", buy_soon: "bg-red-500", expiring: "bg-orange-500", ok: "bg-green-600", not_enough_data: "bg-gray-400" }.freeze
-  CARD = { out: "bg-red-50", buy_now: "bg-red-50", buy_soon: "bg-red-50", expiring: "bg-orange-50", ok: "bg-white", not_enough_data: "bg-white" }.freeze
+  TONE_OF = { out: :now, buy_now: :now, buy_soon: :soon, expiring: :expiring, not_enough_data: :no_data, ok: :ok }.freeze
+  BAR = { out: "bg-red-600", buy_now: "bg-red-600", buy_soon: "bg-amber-500", expiring: "bg-violet-500", ok: "bg-green-600", not_enough_data: "bg-gray-400" }.freeze
+
+  def supply_tone(status, part) = TONE.fetch(TONE_OF.fetch(status)).fetch(part)
 
   # "3 rolls", "1 bottle" ("~2 rolls" when it's an estimate between counts)
   def supply_count(supply, count, estimate: false)
@@ -18,7 +25,7 @@ module SuppliesHelper
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
   def supply_badge(status)
-    tag.span(t("supplies.status.#{status}"), class: "whitespace-nowrap rounded-full border-[1.5px] px-2 py-0.5 text-[11px] font-bold #{BADGE.fetch(status)}")
+    tag.span(t("supplies.status.#{status}"), class: "whitespace-nowrap rounded-full border-[1.5px] px-2 py-0.5 text-[11px] font-bold #{supply_tone(status, :card)} #{supply_tone(status, :ink)} #{supply_tone(status, :line)}")
   end
 
   # Price per unit, worked out from the total: 1 decimal, none from 100 up
@@ -53,14 +60,7 @@ module SuppliesHelper
     end
   end
 
-  def supply_line_class(forecast)
-    case forecast.status
-    when :out, :buy_now, :buy_soon then "text-red-800"
-    when :expiring then "text-orange-800"
-    when :not_enough_data then "text-gray-600"
-    else "text-gray-700"
-    end
-  end
+  def supply_line_class(forecast) = forecast.status == :ok ? "text-gray-700" : supply_tone(forecast.status, :ink)
 
   # Opens in a dialog on a computer, as its own page on a phone (modal_link_controller)
   def modal_link_data = { controller: "modal-link", action: "click->modal-link#route" }

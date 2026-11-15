@@ -103,6 +103,8 @@ zh-TW:
       runs_out: "約 %{date} 用完"
       at_alert_level: "已到提醒數量（剩 %{count}）"
       not_enough_data: "資料不足 · 按 −1 或更新數量"
+    notice:
+      ok: "好"
     price_line: "%{total} 買 %{quantity} · 每%{unit} %{unit_price}"
     sources:
       open_food_facts: "Open Food Facts"
@@ -211,21 +213,14 @@ zh-TW:
       log_purchase_title: "這些是剛買的"
       log_purchase: "同時記錄這次購買（上面的數量就是買的數量）"
       found: "在 %{source} 找到條碼 %{code}。儲存前請確認名稱。"
-      not_found: "商品資料庫找不到條碼 %{code}。輸入一次名稱（或從包裝照片讀取），下次就會記得。"
+      not_found: "商品資料庫找不到條碼 %{code}。請自己輸入名稱、類別和單位。這個條碼會被記住，下次掃描會直接到這個項目。"
+      not_found_title: "找不到這個商品"
+      not_found_short: "條碼 %{code} · 查不到，請手動輸入"
       original_name: "原始名稱：%{name}"
       archive: "封存此項目"
       restore: "放回清單"
       archive_confirm: "要封存這個項目嗎？提醒會停止，記錄和帳本項目都會保留。"
       archive_hint: "隱藏並停止提醒。記錄和帳本項目都會保留。"
-      photo_name:
-        button: "從照片讀取名稱"
-        hint: "拍包裝正面的照片。照片在你的裝置上讀取，不會上傳。"
-        js:
-          first_time: "正在準備文字辨識（約 6 MB，只有第一次需要）…"
-          reading: "正在讀取文字…"
-          pick: "點選商品名稱（之後可以修改）："
-          nothing: "沒有找到可辨識的文字。請拍更近、更清楚的包裝正面，或直接輸入名稱。"
-          failed: "無法讀取照片。請再試一次，或直接輸入名稱。"
     purchases:
       pick:
         title: "買了什麼？"
@@ -301,6 +296,13 @@ zh-TW:
           remembered: "已記住"
           suggested: "建議"
           skipped: "略過"
+          not_found: "找不到"
+        unmatched_title:
+          one: "1 項找不到"
+          other: "%{count} 項找不到"
+        unmatched:
+          one: "這張發票有 1 行對不到你的日用品。請為它選一項，或選「新增為日用品…」並輸入名稱。"
+          other: "這張發票有 %{count} 行對不到你的日用品。請為每一行選一項，或選「新增為日用品…」並輸入名稱。"
         is: "這一行是"
         choose: "請選擇…"
         add_new: "新增為日用品…"

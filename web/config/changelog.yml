@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.11.1"
+  date: 2026-11-15
+  en:
+    - "New supply item has Read the name from a photo: take a photo of the front of the package and tap the product name from the text it finds. The photo is read on your device and never uploaded, handy for products whose barcode no database knows."
+    - "On Supplies, Add supply and Add your first supply open a menu: Supply item, Upload or scan barcode / receipt, and Log a purchase…"
+  zh-TW:
+    - "新增日用品多了「從照片讀取名稱」：拍包裝正面，從辨識出的文字點選商品名稱。照片在你的裝置上讀取，不會上傳，適合條碼查不到的商品。"
+    - "日用品頁的「新增日用品」和「新增第一項日用品」會打開選單：日用品項目、上傳或掃描條碼／發票、記錄購買…"
 - version: "1.11.0"
   date: 2026-11-15
   en:

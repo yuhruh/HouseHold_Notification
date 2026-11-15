@@ -5,7 +5,7 @@
   <div class="flex items-center justify-between gap-3">
     <%= page_title("ledger.png", t(".title")) %>
     <% if writer %>
-      <%= link_to nav_label("add.png", t(".add")), new_household_supply_path(Current.household), class: "btn-press hidden items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-bold text-gray-900 lg:inline-flex" %>
+      <%= render "supplies/add_menu", label: t(".add"), menu_class: "hidden lg:block", align: :right %>
     <% end %>
   </div>
   <%= render "shared/flash" %>
@@ -15,7 +15,7 @@
       <p class="text-lg font-bold"><%= t(".empty_title") %></p>
       <p class="text-gray-700"><%= t(".empty_body") %></p>
       <% if writer %>
-        <%= link_to nav_label("add.png", t(".add_first")), new_household_supply_path(Current.household), class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 px-4 py-2.5 font-bold text-gray-900" %>
+        <%= render "supplies/add_menu", label: t(".add_first"), menu_class: "inline-block", align: :center %>
       <% end %>
     </div>
   <% else %>

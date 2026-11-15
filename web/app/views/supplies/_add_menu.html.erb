@@ -1,0 +1,11 @@
+<%# Add supply (top right, computer) and Add your first supply (empty list): a menu of Supply item,
+    Upload or scan barcode / receipt and Log a purchase…, not straight to the New item form %>
+<% panel = align == :right ? "right-0" : "left-1/2 -translate-x-1/2" %>
+<details class="relative <%= menu_class %>" data-controller="dropdown">
+  <summary class="btn-press flex cursor-pointer list-none items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-bold text-gray-900 [&::-webkit-details-marker]:hidden">
+    <%= nav_label("add.png", label) %><span aria-hidden="true">▾</span>
+  </summary>
+  <div class="card-raised absolute top-full z-30 mt-2 flex w-72 flex-col gap-0.5 rounded-2xl bg-white p-2 text-left text-sm text-gray-900 <%= panel %>">
+    <%= render "layouts/new_items", household: Current.household, current: :supplies, large: false, only: %i[supply scan purchase] %>
+  </div>
+</details>

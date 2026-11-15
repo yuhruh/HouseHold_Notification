@@ -211,12 +211,21 @@ en:
       log_purchase_title: "I just bought these"
       log_purchase: "Log the purchase too (the count above is what you bought)"
       found: "Found barcode %{code} in %{source}. Check the name before saving."
-      not_found: "No product database knows barcode %{code}. Type the name once and we'll remember it."
+      not_found: "No product database knows barcode %{code}. Type the name (or read it from a photo of the package) once and we'll remember it."
       original_name: "Original name: %{name}"
       archive: "Archive item"
       restore: "Put back on the list"
       archive_confirm: "Archive this item? Its alerts stop; its history and Ledger entries are kept."
       archive_hint: "Hides it and stops its alerts. History and Ledger entries are kept."
+      photo_name:
+        button: "Read the name from a photo"
+        hint: "Take a photo of the front of the package. It's read on your device and never uploaded."
+        js:
+          first_time: "Getting the text reader ready (about 6 MB, only the first time)…"
+          reading: "Reading the text…"
+          pick: "Tap the product name (you can edit it after):"
+          nothing: "No readable text found. Try a closer, sharper photo of the front, or type the name."
+          failed: "Couldn't read the photo. Try again, or type the name."
     purchases:
       pick:
         title: "What did you buy?"

@@ -7,6 +7,13 @@ class ElectricityAccount < UtilityAccount
   EMAIL = URI::MailTo::EMAIL_REGEXP
   BILLED_EVERY = 2.months
   MISSING_AFTER = 7.days
+  SETUP_RESEND_AFTER = 1.minute
+
+  # Someone who may forward 台電's emails here: a member (role "owner", "co_owner" or "viewer") or
+  # an email the owner added ("added"), and when they were last sent the setup email
+  Forwarder = Data.define(:email, :role, :setup_sent_at) do
+    def added? = role == "added"
+  end
 
   normalizes :allowed_senders, with: ->(emails) { Array(emails).map { it.to_s.strip.downcase }.compact_blank.uniq }
 
@@ -27,6 +34,24 @@ class ElectricityAccount < UtilityAccount
 
     local, domain = mailbox.split("@", 2)
     "#{local}+h#{household_id}-#{inbox_token}@#{domain}"
+  end
+
+  # Members first (owner, co-owners, viewers), then the emails the owner added
+  def forwarders
+    members = household.memberships.includes(:user).sort_by { Membership.roles.keys.index(it.role) }
+      .filter_map { |m| [ m.user.email_address.to_s.downcase, m.role ] if m.user.email_address.present? }
+    (members + allowed_senders.map { [ it, "added" ] }).uniq(&:first)
+      .map { |email, role| Forwarder.new(email:, role:, setup_sent_at: setup_sent_at(email)) }
+  end
+
+  def forwarder?(email) = forwarders.any? { it.email == email.to_s.downcase }
+
+  def setup_sent_at(email) = setup_emails_sent[email.to_s.downcase]&.then { Time.zone.parse(it) }
+
+  def setup_sent_recently?(email) = setup_sent_at(email)&.after?(SETUP_RESEND_AFTER.ago) || false
+
+  def setup_sent!(email)
+    update!(setup_emails_sent: setup_emails_sent.merge(email.to_s.downcase => Time.current.iso8601))
   end
 
   # Gmail's request to confirm forwarding (a link, or a code from older Gmail), while it's still

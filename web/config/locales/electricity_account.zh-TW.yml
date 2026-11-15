@@ -26,14 +26,12 @@ zh-TW:
     show:
       title: "電費（台電）"
       intro: "新的電費帳單來自台電的電子帳單 Email，由收到的人自動轉寄。App 會補上帳單的金額和繳費期限，收到台電的已繳通知時標示已付款。"
-      settings_title: "設定"
       bill_settings_title: "帳單設定"
       optional: "（選填）"
       customer_code_hint: "會從第一封台電 Email 自動填入。之後其他電號的 Email 都會被略過。"
       choose: "選擇類別"
       no_payment_method: "不指定"
       payment_method_hint: "自動新增的帳單會用這個付款方式。每次刷不同的卡就留空。"
-      allowed_senders_hint: "成員隨時都可以轉寄。如果台電的信寄到成員沒用來登入的信箱，請把那個 Email 加在這裡，一行一個。新加入的 Email 會收到一封信，附上這本帳本的轉寄地址和 Gmail 設定步驟。"
       save: "儲存"
       turn_on: "開啟"
       turn_on_hint: "選好類別後按「開啟」，就會產生這本帳本的轉寄地址。"
@@ -48,16 +46,13 @@ zh-TW:
         - "每封電費已繳通知 Email 會在收到當天把那期帳單標示已付款。"
         - "你已經輸入的帳單會依期間比對並補上資料，不會重複新增。"
         - "已付款的帳單不會被更改，也不會刪除任何資料。"
-      forwarding_title: "轉寄台電的 Email"
       forward_to: "轉寄到這個地址"
       copy: "複製"
       copied: "已複製"
-      who_sets_up: "收到台電 Email 的人，在電腦版 Gmail 設定一次："
       steps:
         - "Gmail ⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址 › 貼上地址 › 繼續 › 繼續。轉寄功能本身保持關閉。"
-        - "Gmail 會請這本帳本確認。約 5 分鐘內下方會出現「確認轉寄」按鈕，點一下即可（重新整理頁面才會看到）。"
+        - "Gmail 會請這本帳本確認。約 5 分鐘內，擁有者會在步驟 2 看到「確認轉寄」按鈕：點一下即可。"
         - "在 Gmail 搜尋框輸入 from:taipower.com.tw › 顯示搜尋選項 › 建立篩選器 › 勾選「轉寄給」› 選這個地址 › 建立篩選器。"
-      code_soon: "完成第 1 步後約 5 分鐘內，Gmail 的確認要求會顯示在這裡。重新整理頁面即可看到。"
       confirm_title: "確認轉寄"
       confirm_from: "%{email} 要求 Gmail 轉寄到這本帳本，%{time}"
       confirm_button: "確認轉寄"
@@ -66,15 +61,51 @@ zh-TW:
       no_mailbox: "這台伺服器還沒有設定 App 的信箱，所以還沒有轉寄地址。"
       status:
         working: "轉寄正常"
+        working_hint: "台電帳單會自動補上。"
+        confirm: "設定中：步驟 2 需要你處理"
+        confirm_hint: "Gmail 要求把台電的 Email 轉寄到這裡，請在步驟 2 確認。"
         waiting: "等待 Gmail 篩選器轉寄第一封台電 Email"
+        waiting_hint: "Gmail 篩選器轉寄第一封台電 Email 後，帳單就會自動補上。"
       from_first_email: "從第一封台電 Email 取得"
-      last_email: "篩選器最近一次轉寄"
       last_bill: "最近一期台電帳單"
       issued: "%{date} 開立"
       next_email: "下一封預計"
       around: "%{date} 左右"
       late: "已逾期，已通知擁有者"
       not_yet: "尚未"
+      setup_title: "設定轉寄"
+      setup_owner_only: "只有擁有者可以寄送設定信或更改轉寄名單。"
+      step1:
+        title: "寄設定信給收到台電 Email 的人"
+        hint: "信裡有這本帳本的轉寄地址和 Gmail 設定步驟，對方不需要打開 App。"
+        pill: "已寄 %{sent} / %{total}"
+      roles:
+        owner: "擁有者"
+        co_owner: "共同擁有者"
+        viewer: "檢視者"
+        added: "已加入"
+      sent_at: "設定信已於 %{time} 寄出"
+      not_sent: "還沒寄設定信"
+      send: "寄設定信"
+      resend: "重寄"
+      remove: "移除 %{email}"
+      remove_confirm: "要移除 %{email} 嗎？之後這個地址轉寄的台電 Email 都會被略過。"
+      add_label: "新增會轉寄的 Email"
+      add_placeholder: "name@gmail.com"
+      add_button: "新增並寄出"
+      add_hint: "用於不是成員登入信箱的 Gmail。成員隨時都可以轉寄。"
+      yourself: "改成自己設定：地址和步驟"
+      step2:
+        title: "確認 Gmail 的要求"
+        your_turn: "輪到你"
+        nothing: "目前沒有要確認的"
+        hint: "在 Gmail 新增地址後約 5 分鐘內，要求會出現在這裡。請重新整理頁面查看。"
+      step3:
+        title: "Gmail 篩選器轉寄台電 Email"
+        waiting: "等待中 · 約 %{date}"
+        late: "逾期 · 原本預計約 %{date}"
+        working: "運作中 · 最近 %{time}"
+        hint: "轉寄的人要建立 from:taipower.com.tw 的篩選器（設定信裡有步驟）。第一封台電 Email 經篩選器轉寄進來後會變成綠色。"
       activity: "最近紀錄"
       no_activity: "目前沒有紀錄。"
       open_bill: "查看"
@@ -97,7 +128,15 @@ zh-TW:
       body_first: "開啟電費功能（%{since}）後還沒收到任何台電帳單 Email，原本預計在 %{expected} 左右寄達。請到台灣電力 App 確認帳單，並檢查 Gmail 轉寄是否已確認、篩選器是否已設定。"
     update:
       saved: "電費設定已儲存。"
-      emailed: "電費設定已儲存，已把轉寄地址和 Gmail 設定步驟寄給 %{emails}。"
+    setup_email:
+      sent: "已寄設定信給 %{email}。"
+      too_soon: "設定信不到一分鐘前才寄給 %{email}。"
+      unknown: "名單裡沒有這個 Email。"
+    add_forwarder:
+      added: "已新增 %{email} 並寄出設定信。"
+      already: "%{email} 已經在名單裡。"
+    remove_forwarder:
+      removed: "已移除 %{email}。"
     destroy:
       disconnected: "已取消連結電費，帳單仍保留。"
   electricity_forwarding_mailer:
@@ -105,6 +144,9 @@ zh-TW:
       subject: "%{household}：把台電帳單 Email 轉寄到 Household Tracker"
       intro: "%{owner} 在 Household Tracker 的 %{household} 把你設為收到台電帳單 Email 的人。在 Gmail 設定一次後，每期台電帳單都會自動進到帳本：補上金額和繳費期限，收到台電的已繳通知時標示已付款。"
       forward_to: "轉寄到這個地址："
+      copy_link: "在這個頁面複製："
+      copy_button: "複製地址"
+      or_long_press: "或長按地址選取"
       how: "請在電腦上的 Gmail（收到台電 Email 的那個帳號）操作："
       steps:
         - "⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址 › 貼上上面的地址 › 繼續 › 確定。轉寄功能本身維持關閉。"
@@ -112,6 +154,21 @@ zh-TW:
         - "確認後：在 Gmail 搜尋框輸入 from:taipower.com.tw › 顯示搜尋選項 › 建立篩選器 › 勾選「轉寄給」 › 選擇上面的地址 › 建立篩選器。"
       check: "想確認是否成功，可以手動轉寄一封台電帳單 Email 到這個地址，約 5 分鐘內會出現在帳本裡。"
       ignore: "如果你不會收到台電的 Email，可以忽略這封信。"
+  forwarding_addresses:
+    show:
+      title: "轉寄地址"
+      heading: "把台電的 Email 轉寄到 %{household}"
+      forward_to: "轉寄到這個地址"
+      copy: "複製地址"
+      copied: "已複製"
+      next: "接著在電腦上的 Gmail 貼上：⚙️ › 查看所有設定 › 轉寄和 POP/IMAP › 新增轉寄地址。其他步驟在信裡。"
+      only_this: "這個頁面只顯示轉寄地址。"
+    missing:
+      title: "找不到地址"
+      body: "這個轉寄地址已經失效，請帳本擁有者重新寄一封設定信。"
+  utility_accounts:
+    activity:
+      latest: "最近 %{time}"
   utilities:
     forwarded_mail:
       not_taipower: "不是台電寄的（寄件者 %{detail}）"

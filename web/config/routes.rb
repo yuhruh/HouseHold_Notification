@@ -42,7 +42,11 @@ Rails.application.routes.draw do
     resource :gas_account, only: %i[show update destroy] do
       post :check
     end
-    resource :electricity_account, only: %i[show update destroy]
+    resource :electricity_account, only: %i[show update destroy] do
+      post :setup_email
+      post :forwarder, action: :add_forwarder
+      delete :forwarder, action: :remove_forwarder
+    end
     resource :drive_backup, only: %i[create destroy] do
       post :run
     end
@@ -121,6 +125,8 @@ Rails.application.routes.draw do
   # PWA
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   get "version" => "app_versions#show", as: :app_version
+  # From the setup email: the ledger's forwarding address with a Copy button, no sign-in
+  get "forward/:token" => "forwarding_addresses#show", as: :forwarding_address, constraints: { token: /[a-z0-9]{10}/ }
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # M0 spike (basic auth; removed after M5)

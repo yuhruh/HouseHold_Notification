@@ -29,6 +29,8 @@ en:
           attributes:
             total_price:
               whole_number: "must be a whole number of dollars"
+            purchased_on:
+              in_the_future: "can't be in the future"
   layouts:
     header:
       supplies: "Supplies"
@@ -210,8 +212,15 @@ en:
       lead_days_hint: "For example 7 for online orders. Alerts come this much earlier."
       alert_when_left: "Also alert me when only this many are left"
       alert_when_left_hint: "0 means only the date-based alert."
-      log_purchase_title: "I just bought these"
-      log_purchase: "Log the purchase too (the count above is what you bought)"
+      bought_title: "I already bought these"
+      bought_hint: "Bought them a while ago and used some since? Enter when you bought them and how many. With how many you have now, the app can tell right away how fast you use them and when they'll run out."
+      bought_on: "Bought on"
+      bought_quantity: "How many you bought"
+      last_purchase_title: "Last purchase (%{date})"
+      last_purchase_hint: "Correct the price, store, date or quantity. A Ledger expense from this purchase is updated too."
+      add_purchase_title: "Add what you paid"
+      add_purchase_hint: "When you bought them, how many and the price. Leave empty to skip."
+      ledger_follows: "The Ledger expense from this purchase is updated with it."
       found: "Found barcode %{code} in %{source}. Check the name before saving."
       not_found: "No product database knows barcode %{code}. Type the name, kind and unit yourself. We'll remember this barcode, so next time it goes straight to this item."
       not_found_title: "Product not found"

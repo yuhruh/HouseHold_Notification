@@ -195,4 +195,63 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     post receipt_review_household_supplies_path(@home), params: { left: "https://example.com" }
     assert_match "不像台灣電子發票", flash[:alert]
   end
+
+  test "a new item bought a while ago with some used: the forecast has a usage rate straight away" do
+    bought_on = @home.today - 10
+    post household_supplies_path(@home), params: { supply: { name: "Toilet paper", kind: "toiletries", unit: "roll", level: 5 },
+                                                   purchase: { purchased_on: bought_on, quantity: 12, total_price: 289, store: "Costco" } }
+    supply = @home.supplies.sole
+    assert_equal [ [ bought_on, 12, 0 ] ], supply.purchases.map { [ it.purchased_on, it.quantity, it.left_before ] }
+    assert_equal 5, supply.reload.level
+    forecast = supply.forecast
+    assert forecast.enough_data?, "7 used in 10 days"
+    assert_in_delta 0.7, forecast.rate, 0.05
+    assert_equal @home.today + 7, forecast.run_out_on
+
+    get household_supply_path(@home, supply)
+    assert_select "section", /Uses about 5 rolls a week|大約每週 5 捲/
+  end
+
+  test "bought today with none used: just the purchase; a future date is refused" do
+    post household_supplies_path(@home), params: { supply: { name: "Soap", kind: "cleaning", unit: "bottle", level: 3 },
+                                                   purchase: { quantity: 3, total_price: 150 } }
+    supply = @home.supplies.sole
+    assert_equal [ 3 ], supply.purchases.map(&:quantity)
+    assert_empty supply.counts
+
+    post household_supplies_path(@home), params: { supply: { name: "Rice", kind: "food_drink", unit: "bag", level: 1 },
+                                                   purchase: { purchased_on: @home.today + 1, quantity: 1, total_price: 300 } }
+    assert_response :unprocessable_content
+    assert_select "li", /不能是未來的日期/
+    assert_nil @home.supplies.find_by(name: "Rice")
+  end
+
+  test "edit: the latest purchase's price and store can be corrected, and its Ledger expense follows" do
+    supply = create_item
+    purchase = Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 289, store: "Costco", purchased_on: @home.today }, user: users(:alex), add_to_ledger: true)
+    get edit_household_supply_path(@home, supply)
+    assert_select "details[open] input[name='purchase[total_price]'][value='289']"
+
+    patch household_supply_path(@home, supply), params: { supply: { name: supply.name },
+      purchase: { purchased_on: @home.today, quantity: 12, total_price: 259, store: "家樂福" } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal [ 259, "家樂福" ], purchase.reload.values_at(:total_price, :store)
+    assert_equal 259, purchase.record.reload.amount_paid
+    assert_equal 1, supply.purchases.count
+  end
+
+  test "edit: an item added without a purchase can get one afterwards, before its first count" do
+    post household_supplies_path(@home), params: { supply: { name: "Shampoo", kind: "toiletries", unit: "bottle", level: 2 } }
+    supply = @home.supplies.sole
+    patch household_supply_path(@home, supply), params: { supply: { name: "Shampoo" },
+      purchase: { purchased_on: @home.today - 20, quantity: 3, total_price: 597, store: "屈臣氏" } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal [ 0 ], supply.purchases.map(&:left_before)
+    assert_equal 2, supply.reload.level, "the count after it still says how many are left"
+    assert supply.forecast.enough_data?, "1 used in 20 days"
+
+    patch household_supply_path(@home, supply), params: { supply: { name: "Shampoo" }, purchase: { purchased_on: @home.today, quantity: 3, total_price: "1.5" } }
+    assert_response :unprocessable_content
+    assert_equal 597, supply.purchases.sole.reload.total_price
+  end
 end

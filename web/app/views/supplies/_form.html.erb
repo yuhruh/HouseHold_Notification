@@ -41,6 +41,7 @@
       <%= form.number_field :level, min: 0, step: 1, required: true, inputmode: "numeric", class: field %>
     </div>
   <% end %>
+  <%= render "supplies/purchase_fields", supply:, purchase: local_assigns[:purchase] || SupplyPurchase.new(purchased_on: Current.household.today) %>
   <div>
     <%= form.label :guess_days_per_unit, t("supplies.form.guess"), class: "block text-sm font-medium" %>
     <span class="flex items-center gap-2 text-sm"><%= t("supplies.form.guess_before") %>
@@ -63,25 +64,6 @@
       </div>
     </div>
   </details>
-  <% if supply.new_record? %>
-    <details class="rounded-xl border border-gray-300 p-3" <%= "open" if params[:log_purchase] == "1" %>>
-      <summary class="cursor-pointer text-sm font-semibold"><%= t("supplies.form.log_purchase_title") %></summary>
-      <div class="mt-3 space-y-3">
-        <label class="flex items-center gap-2 text-sm"><%= check_box_tag :log_purchase, "1", params[:log_purchase] == "1" %> <%= t("supplies.form.log_purchase") %></label>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <%= label_tag "purchase_total_price", t("supplies.purchases.form.total_price"), class: "block text-sm font-medium" %>
-            <%= number_field_tag "purchase[total_price]", params.dig(:purchase, :total_price), min: 0, step: (Current.household.default_currency == "USD" ? "0.01" : "1"), inputmode: "decimal", id: "purchase_total_price", class: field %>
-          </div>
-          <div>
-            <%= label_tag "purchase_store", t("supplies.purchases.form.store"), class: "block text-sm font-medium" %>
-            <%= text_field_tag "purchase[store]", params.dig(:purchase, :store), maxlength: 60, id: "purchase_store", class: field %>
-          </div>
-        </div>
-        <label class="flex items-center gap-2 text-sm"><%= check_box_tag :add_to_ledger, "1", params[:add_to_ledger] == "1" %> <%= t("supplies.purchases.form.add_to_ledger") %></label>
-      </div>
-    </details>
-  <% end %>
   <div class="flex flex-wrap items-center gap-3">
     <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
     <%= modal_cancel(supply.new_record? ? household_supplies_path(Current.household) : household_supply_path(Current.household, supply)) %>

@@ -1,0 +1,47 @@
+<%# The purchase on the item forms (Supplies::PurchaseDetails). New item: "I already bought these",
+    when, how many and the price, so with "how many now" the forecast has a usage rate from day one.
+    Edit: the latest purchase to correct (its Ledger expense follows), or "Add what you paid" when
+    there is none yet %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% editing = purchase.persisted? %>
+<% title = if supply.new_record? then t("supplies.form.bought_title")
+           elsif editing then t("supplies.form.last_purchase_title", date: l(purchase.purchased_on, format: :long))
+           else t("supplies.form.add_purchase_title") end %>
+<% open = @open_purchase || editing || params[:log_purchase] == "1" %>
+<details class="rounded-xl border border-gray-300 p-3" <%= "open" if open %>>
+  <summary class="cursor-pointer text-sm font-semibold"><%= title %></summary>
+  <div class="mt-3 space-y-3">
+    <p class="text-xs text-gray-600"><%= supply.new_record? ? t("supplies.form.bought_hint") : editing ? t("supplies.form.last_purchase_hint") : t("supplies.form.add_purchase_hint") %></p>
+    <%= fields_for :purchase, purchase do |p| %>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= p.label :purchased_on, t("supplies.form.bought_on"), class: "block text-sm font-medium" %>
+          <%= p.date_field :purchased_on, max: Current.household.today, class: field %>
+        </div>
+        <div>
+          <%= p.label :quantity, t("supplies.form.bought_quantity"), class: "block text-sm font-medium" %>
+          <%= p.number_field :quantity, min: 1, step: 1, inputmode: "numeric", class: field %>
+        </div>
+        <div>
+          <%= p.label :total_price, t("supplies.purchases.form.total_price"), class: "block text-sm font-medium" %>
+          <% price = purchase.total_price %>
+          <%= p.number_field :total_price, value: (price && Household::WHOLE_CURRENCIES.include?(purchase.currency || Current.household.default_currency) && price == price.round ? price.to_i : price),
+                min: 0, step: (Current.household.default_currency == "USD" ? "0.01" : "1"), inputmode: "decimal", class: field %>
+        </div>
+        <div>
+          <%= p.label :store, t("supplies.purchases.form.store"), class: "block text-sm font-medium" %>
+          <%= p.text_field :store, maxlength: 60, class: field %>
+        </div>
+        <div class="col-span-2">
+          <%= p.label :expires_on, t("supplies.purchases.form.expires_on"), class: "block text-sm font-medium" %>
+          <%= p.date_field :expires_on, class: field %>
+        </div>
+      </div>
+    <% end %>
+    <% if purchase.record_id %>
+      <p class="text-xs text-gray-600"><%= t("supplies.form.ledger_follows") %></p>
+    <% else %>
+      <label class="flex items-center gap-2 text-sm"><%= check_box_tag :add_to_ledger, "1", params[:add_to_ledger] == "1" %> <%= t("supplies.purchases.form.add_to_ledger") %></label>
+    <% end %>
+  </div>
+</details>

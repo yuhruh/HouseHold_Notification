@@ -17,10 +17,38 @@
     </div>
   <% else %>
     <%= render "shared/flash" %>
-    <%# The title, tabs and intro stay pinned under the header while the items scroll under them, as on Bills %>
-    <div class="sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3 lg:py-2">
+    <%# The title, tabs and intro stay pinned under the header while the items scroll under them, as on Bills.
+        On All, as on Bills › All, a computer also pins the filters and the table's column headings (the
+        top of the table card, so the rows scroll under it) and a phone scrolls the whole page %>
+    <% pinned = @tab == "all" ? "space-y-3 lg:sticky lg:top-(--header-h) lg:z-20 lg:mb-0! lg:-mx-2 lg:bg-mauve-100 lg:px-2 lg:pt-2" : "sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3 lg:py-2" %>
+    <div class="<%= pinned %>">
       <%= render "supplies/switch", current: @tab, counts: @counts %>
       <p class="text-sm text-gray-700"><%= t(".intro.#{@tab}") %></p>
+      <% if @tab == "all" %>
+        <div class="flex flex-wrap items-center gap-2">
+          <nav aria-label="<%= t(".filters") %>" class="flex flex-wrap gap-2">
+            <% [ [ nil, t(".all"), @summary[:total] ], [ "buy_soon", t(".buy_soon"), @summary[:buy_soon] ], [ "expiring", t(".expiring"), @summary[:expiring] ] ].each do |filter, label, count| %>
+              <% here = @filter == filter && @kind.nil? && params[:archived].blank? %>
+              <%= link_to household_supplies_path(Current.household, tab: "all", filter:), class: "#{chip} #{here ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}", "aria-current": (here ? "page" : nil) do %>
+                <%= label %> <span class="font-extrabold"><%= count %></span>
+              <% end %>
+            <% end %>
+            <% @kinds_in_use.each do |kind| %>
+              <%= link_to supply_kind(kind), household_supplies_path(Current.household, kind:), class: "#{chip.sub('inline-flex ', '')} hidden lg:inline-flex #{@kind == kind ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}" %>
+            <% end %>
+          </nav>
+          <p class="text-sm font-semibold text-gray-700 lg:ml-2"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
+          <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
+            <%= form.hidden_field :tab, value: "all", id: nil %>
+            <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-64 rounded-xl border border-gray-400 px-3 py-1.5" %>
+          <% end %>
+        </div>
+        <% if @items.any? %>
+          <div aria-hidden="true" class="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1.6fr)_10rem] gap-4 rounded-t-2xl border-x-2 border-t-2 border-b-2 border-(--card-line) bg-gray-50 px-4 py-2 text-xs font-bold text-gray-700 shadow-[4px_0_0_var(--card-line)] lg:grid">
+            <span><%= t(".col_item") %></span><span><%= t(".col_left") %></span><span><%= t(".col_status") %></span><span><%= t(".col_last") %></span><span></span>
+          </div>
+        <% end %>
+      <% end %>
     </div>
 
     <% case @tab %>
@@ -78,32 +106,10 @@
       <% end %>
 
     <% else %>
-      <div class="flex flex-wrap items-center gap-2">
-        <nav aria-label="<%= t(".filters") %>" class="flex flex-wrap gap-2">
-          <% [ [ nil, t(".all"), @summary[:total] ], [ "buy_soon", t(".buy_soon"), @summary[:buy_soon] ], [ "expiring", t(".expiring"), @summary[:expiring] ] ].each do |filter, label, count| %>
-            <% here = @filter == filter && @kind.nil? && params[:archived].blank? %>
-            <%= link_to household_supplies_path(Current.household, tab: "all", filter:), class: "#{chip} #{here ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}", "aria-current": (here ? "page" : nil) do %>
-              <%= label %> <span class="font-extrabold"><%= count %></span>
-            <% end %>
-          <% end %>
-          <% @kinds_in_use.each do |kind| %>
-            <%= link_to supply_kind(kind), household_supplies_path(Current.household, kind:), class: "#{chip.sub('inline-flex ', '')} hidden lg:inline-flex #{@kind == kind ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}" %>
-          <% end %>
-        </nav>
-        <p class="text-sm font-semibold text-gray-700 lg:ml-2"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
-        <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
-          <%= form.hidden_field :tab, value: "all", id: nil %>
-          <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-64 rounded-xl border border-gray-400 px-3 py-1.5" %>
-        <% end %>
-      </div>
-
       <% if @items.empty? %>
         <p class="rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center text-gray-600"><%= t(".none_match") %></p>
       <% else %>
-        <div class="lg:card-raised lg:overflow-hidden lg:rounded-2xl lg:bg-white">
-          <div class="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,2fr)_minmax(0,1.6fr)_auto] gap-4 border-b-2 border-(--card-line) bg-gray-50 px-4 py-2 text-xs font-bold text-gray-700 lg:grid">
-            <span><%= t(".col_item") %></span><span><%= t(".col_left") %></span><span><%= t(".col_status") %></span><span><%= t(".col_last") %></span><span class="sr-only"><%= t(".col_actions") %></span>
-          </div>
+        <div class="lg:card-raised lg:overflow-hidden lg:rounded-b-2xl lg:border-t-0! lg:bg-white">
           <ul class="space-y-3 lg:space-y-0">
             <% @items.each do |supply, forecast| %>
               <%= render "supplies/row", supply:, forecast: %>

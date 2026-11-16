@@ -103,6 +103,7 @@ Rails.application.routes.draw do
       post :archive, on: :member
       resources :purchases, only: %i[new create], controller: "supplies/purchases"
       resources :counts, only: %i[create destroy], controller: "supplies/counts"
+      resources :prices, only: %i[new create destroy], controller: "supplies/prices"
     end
     resources :payment_methods, except: %i[show destroy] do
       post :archive, on: :member

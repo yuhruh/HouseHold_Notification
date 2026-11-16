@@ -13,6 +13,7 @@ class Supply < ApplicationRecord
   belongs_to :household
   belongs_to :created_by, class_name: "User", optional: true
   has_many :purchases, class_name: "SupplyPurchase", dependent: :destroy
+  has_many :prices, class_name: "SupplyPrice", dependent: :delete_all
   has_many :counts, class_name: "SupplyCount", dependent: :delete_all
   has_many :barcodes, class_name: "SupplyBarcode", dependent: :delete_all
 
@@ -38,4 +39,8 @@ class Supply < ApplicationRecord
 
   # Purchases and counts, newest first (the item page's History)
   def history = (purchases.to_a + counts.to_a).sort_by { -it.at.to_f }
+
+  # Purchases and old prices, newest first (the item page's Price history and Where to buy)
+  def priced = purchases.to_a + prices.to_a
+  def price_history = priced.sort_by { [ -it.purchased_on.jd, -(it.created_at || Time.current).to_f ] }
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -841,6 +841,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_090000) do
     t.check_constraint "level >= 0", name: "supply_counts_level_not_negative"
   end
 
+  create_table "supply_prices", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "supply_id", null: false
+    t.string "product_name"
+    t.string "store"
+    t.integer "quantity", null: false
+    t.decimal "total_price", precision: 12, scale: 2, null: false
+    t.string "currency", default: "TWD", null: false
+    t.date "purchased_on", null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_supply_prices_on_created_by_id"
+    t.index ["household_id"], name: "index_supply_prices_on_household_id"
+    t.index ["supply_id"], name: "index_supply_prices_on_supply_id"
+    t.check_constraint "quantity > 0", name: "supply_prices_quantity_positive"
+    t.check_constraint "total_price >= 0::numeric", name: "supply_prices_total_not_negative"
+  end
+
   create_table "supply_purchases", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "supply_id", null: false
@@ -985,6 +1004,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_090000) do
   add_foreign_key "supply_barcodes", "supplies"
   add_foreign_key "supply_counts", "supplies"
   add_foreign_key "supply_counts", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "supply_prices", "households"
+  add_foreign_key "supply_prices", "supplies"
+  add_foreign_key "supply_prices", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "supply_purchases", "households"
   add_foreign_key "supply_purchases", "receipt_imports", on_delete: :nullify
   add_foreign_key "supply_purchases", "records", on_delete: :nullify

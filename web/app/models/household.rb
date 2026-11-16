@@ -21,6 +21,7 @@ class Household < ApplicationRecord
   has_many :reminder_deliveries
   has_many :supplies
   has_many :supply_purchases
+  has_many :supply_prices
   has_many :supply_barcodes
   has_many :receipt_imports
   has_many :receipt_sellers

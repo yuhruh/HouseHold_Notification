@@ -21,11 +21,23 @@ zh-TW:
         purchased_on: "日期"
         expires_on: "到期日"
         left_before: "買之前還剩"
+      supply_price:
+        product_name: "品名"
+        quantity: "數量"
+        total_price: "價格"
+        store: "商店"
+        purchased_on: "購買日期"
       supply_count:
         level: "數量"
     errors:
       models:
         supply_purchase:
+          attributes:
+            total_price:
+              whole_number: "必須是整數元"
+            purchased_on:
+              in_the_future: "不能是未來的日期"
+        supply_price:
           attributes:
             total_price:
               whole_number: "必須是整數元"
@@ -231,6 +243,17 @@ zh-TW:
       expires: "%{date} 到期"
       in_ledger: "已記帳"
       from_receipt: "來自發票"
+      price_history: "價格記錄"
+      lowest_price: "最低每%{unit} %{price}"
+      lowest: "最低"
+      old_price: "舊價格"
+      add_old_price: "新增舊價格"
+      delete_old_price: "刪除這筆舊價格"
+      delete_old_price_confirm: "要刪除這筆舊價格嗎？"
+      price_date: "日期"
+      price_product: "品名"
+      price_amount: "數量"
+      price_price: "價格"
     new:
       title: "新增日用品"
     edit:
@@ -294,6 +317,19 @@ zh-TW:
         left_before_hint: "已填入 App 的估計。如果你知道實際數量請修正，App 就是這樣學習的。"
         add_to_ledger: "同時加入帳本，記為支出"
         add_to_ledger_hint: "記在「%{category}」的已付支出"
+    prices:
+      new:
+        title: "新增舊價格：%{item}"
+        product_name: "品名"
+        product_name_hint: "包裝不同時可以改，例如「舒潔三層 6 捲」。"
+        quantity: "數量（%{unit}）"
+        total_price: "價格"
+        purchased_on: "購買日期"
+        hint: "只用來比價，不會改變你還有多少。"
+      create:
+        saved: "已記錄 %{item} 的舊價格。"
+      destroy:
+        deleted: "已刪除這筆舊價格。"
     scans:
       show:
         title: "掃描商品條碼"

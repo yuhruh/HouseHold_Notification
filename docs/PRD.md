@@ -1138,6 +1138,11 @@ each can opt out (same as Bill paid).
   quantity, total, store, expiry) and its linked Ledger expense, or adds the first purchase (placed
   before the first count when bought on or before that day).
 - **Archive** hides an item and stops its alerts; purchases and Ledger expenses stay.
+- **Price history** (item page, under History): purchases and **old prices** together, newest
+  first, with product name, store, amount, price, price per unit and date; ★ on the lowest price per
+  unit. Two-line rows on a phone, a table from `sm`. **Add an old price** saves what something cost
+  before (even when used up) as a `SupplyPrice`: it counts in Where to buy but never in the count,
+  forecast, total spent or the Ledger; an old price can be deleted.
 - Ledger expenses from purchases use the category 日用品 / Household supplies, created on first use.
 - Viewers see Supplies; owners and co-owners write (`SupplyPolicy`).
 
@@ -1179,6 +1184,8 @@ screenshot or typed number; photos are never uploaded)
 - `supply_purchases (household_id, supply_id, purchased_on, quantity > 0, total_price decimal(12,2)
   ≥ 0, currency, store, expires_on null, left_before ≥ 0, record_id null, receipt_import_id null,
   expiry_alerted_at, created_by_id null)`
+- `supply_prices (household_id, supply_id, product_name null = the item's name, store, quantity > 0,
+  total_price decimal(12,2) ≥ 0, currency, purchased_on, created_by_id null)`: old prices, comparing only
 - `supply_counts (supply_id, counted_at, level ≥ 0, created_by_id null)`
 - `supply_barcodes (household_id, supply_id, code)` unique(household_id, code)
 - `product_lookups (code unique, source, name, original_name, brand, kind_guess, raw jsonb,
@@ -1193,7 +1200,7 @@ screenshot or typed number; photos are never uploaded)
 
 **Screens:** Supplies list (`/h/:id/supplies`; Buy soon / Expiring / ~monthly cards, cards on a
 phone, a table from 1024px with category chips and search), item page (Forecast with −1 Used one and
-Bought more, I have __ left, Where to buy and History folded), New item, Edit (dialog on a
+Bought more, I have __ left, Where to buy, History and Price history folded; Add an old price), New item, Edit (dialog on a
 computer), Log a purchase (picker, Buy soon first), Scan, Receipt review. The header's **+ New ▾**
 menu and the phone tab bar's **New** sheet offer Upload or scan barcode / receipt, Supply item, Log a
 purchase… and Bill / record.

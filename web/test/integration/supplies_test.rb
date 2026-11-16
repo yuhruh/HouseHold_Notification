@@ -184,6 +184,75 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "an old price: listed in Price history and Where to buy, with no change to the count or forecast" do
+    supply = create_item(level: 0)
+    supply.purchases.create!(household: @home, purchased_on: Date.current - 3, quantity: 12, total_price: 289, store: "Costco", left_before: 0)
+    supply.update!(level: 0)
+    forecast_before = supply.reload.forecast.status
+
+    get household_supply_path(@home, supply)
+    assert_select "details##{ActionView::RecordIdentifier.dom_id(supply, :price_history)}" do
+      assert_select "summary", /價格記錄/
+      assert_select "a[href=?]", new_household_supply_price_path(@home, supply), /新增舊價格/
+    end
+
+    get new_household_supply_price_path(@home, supply)
+    assert_select "input[name='supply_price[product_name]'][value=?]", "Toilet paper"
+    assert_select "input[name='supply_price[store]'][value=?]", "Costco"
+
+    assert_no_difference -> { supply.counts.count } do
+      assert_no_difference -> { @home.records.count } do
+        post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Kleenex 3-ply 6 rolls", store: "PX Mart", quantity: 6, total_price: 119, purchased_on: Date.current - 100 } }
+      end
+    end
+    assert_redirected_to household_supply_path(@home, supply)
+    price = supply.prices.sole
+    assert_equal "Kleenex 3-ply 6 rolls", price.display_name
+    supply.reload
+    assert_equal 0, supply.level
+    assert_equal 1, supply.purchases.count
+    assert_equal forecast_before, supply.forecast.status
+
+    # Same name as the item: stored blank, shown as the item's name
+    post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Toilet paper", store: "Carrefour", quantity: 6, total_price: 60, purchased_on: Date.current - 200 } }
+    assert_nil supply.prices.find_by(store: "Carrefour").product_name
+
+    get household_supply_path(@home, supply)
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :price_history)} ul li", 3
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :price_history)} ul li:first-child", /Toilet paper.*Costco/m
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :price_history)} ul li", text: /舊價格/, count: 2
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :price_history)} ul li:last-child", /最低/
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :price_history)} table tbody tr", 3
+    assert_match "最低每捲 NT$10", response.body
+    # Where to buy counts the old price: Carrefour (NT$10/roll) beats Costco (NT$24.1/roll)
+    assert_match "Carrefour 最便宜：每捲 NT$10", response.body
+    # Total spent is still the real purchase only
+    assert_match "NT$289", response.body.match(/總花費：[^<]*/).to_s
+
+    delete household_supply_price_path(@home, supply, price)
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal 1, supply.prices.count
+  end
+
+  test "an old price can't be in the future, and a viewer can't add or delete one" do
+    supply = create_item
+    post household_supply_prices_path(@home, supply), params: { supply_price: { store: "Costco", quantity: 6, total_price: 99, purchased_on: Date.current + 1 } }
+    assert_response :unprocessable_content
+    assert_equal 0, supply.prices.count
+    price = supply.prices.create!(household: @home, quantity: 6, total_price: 99, purchased_on: Date.current)
+
+    sign_in_as users(:google_only)
+    get household_supply_path(@home, supply)
+    assert_select "a[href=?]", new_household_supply_price_path(@home, supply), 0
+    get new_household_supply_price_path(@home, supply)
+    assert_response :forbidden
+    post household_supply_prices_path(@home, supply), params: { supply_price: { quantity: 6, total_price: 99, purchased_on: Date.current } }
+    assert_response :forbidden
+    delete household_supply_price_path(@home, supply, price)
+    assert_response :forbidden
+    assert_equal 1, supply.prices.count
+  end
+
   test "dialog on a computer: Bought more loads into the modal frame with a dialog" do
     supply = create_item
     get new_household_supply_purchase_path(@home, supply), headers: { "Turbo-Frame" => "modal" }

@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.2"
+  date: 2026-11-16
+  en:
+    - "Supplies on a computer: the To Buy, Stocked and All tabs round their top corners and fill lightly under the pointer, the current tab in its own colour."
+  zh-TW:
+    - "電腦上的日用品頁：滑鼠移到「該買了」「還夠用」「全部」分頁時，上方會變圓角並淡淡上色；目前所在的分頁用它自己的顏色。"
 - version: "1.14.1"
   date: 2026-11-16
   en:

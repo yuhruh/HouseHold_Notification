@@ -1,4 +1,22 @@
 <% content_for :title, t(".title", item: @supply.name) %>
 <%= render layout: "shared/modal_or_page", locals: { title: t(".title", item: @supply.name), icon: "edit.png" } do %>
   <%= render "form", supply: @supply, purchase: @purchase %>
+  <%# The barcodes saved on this item (one per brand or size scanned): a scan of one opens the item.
+      Outside the form above, since each Remove is a form of its own %>
+  <% if @supply.barcodes.any? %>
+    <section class="mt-4 space-y-2 rounded-xl border border-gray-300 p-3" aria-labelledby="supply-barcodes">
+      <h3 id="supply-barcodes" class="text-sm font-semibold"><%= t("supplies.edit.barcodes.title") %></h3>
+      <p class="text-xs text-gray-600"><%= t("supplies.edit.barcodes.hint", item: @supply.name) %></p>
+      <ul class="divide-y divide-gray-200">
+        <% @supply.barcodes.sort_by(&:created_at).each do |barcode| %>
+          <li class="flex items-center justify-between gap-3 py-2">
+            <span class="min-w-0 text-sm"><span class="block font-semibold [overflow-wrap:anywhere]"><%= barcode.product_name || @supply.name %></span><span class="text-xs text-gray-600"><%= barcode.code %></span></span>
+            <%= button_to t("supplies.edit.barcodes.remove"), household_supply_barcode_path(Current.household, @supply, barcode), method: :delete,
+                  form: { data: { turbo_frame: "_top", turbo_confirm: t("supplies.edit.barcodes.confirm", code: barcode.code) } }, "aria-label": t("supplies.edit.barcodes.remove_label", code: barcode.code),
+                  class: "btn-press min-h-11 cursor-pointer rounded-xl bg-red-100 px-3 py-1.5 text-sm font-bold text-red-800" %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
 <% end %>

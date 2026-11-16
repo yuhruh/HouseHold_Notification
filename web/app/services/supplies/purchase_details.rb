@@ -8,7 +8,7 @@ module Supplies
   # Edit: corrects the latest purchase (its price, store, date, quantity or expiry, and the Ledger
   # expense linked to it), or, when there is none yet, adds the purchase the item started from.
   class PurchaseDetails
-    FIELDS = %i[purchased_on quantity total_price store expires_on].freeze
+    FIELDS = %i[purchased_on quantity total_price store expires_on product_name].freeze
 
     # The person filled in a purchase (the date alone, prefilled with today, doesn't count)
     def self.given?(attributes) = attributes.values_at(:quantity, :total_price).any?(&:present?)

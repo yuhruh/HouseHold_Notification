@@ -51,7 +51,7 @@
             <%= form.hidden_field :tab, value: "all", id: nil %>
             <% if @expiring %><%= form.hidden_field :filter, value: "expiring", id: nil %><% end %>
             <% @kinds.each do |kind| %><%= hidden_field_tag "kind[]", kind, id: nil %><% end %>
-            <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-64 rounded-xl border border-gray-400 px-3 py-1.5" %>
+            <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-72 rounded-xl border border-gray-400 px-3 py-1.5" %>
           <% end %>
         </div>
         <% if @items.any? %>

@@ -1109,7 +1109,7 @@ Households run out of everyday things (toilet paper, shampoo, drinks) without wa
 track of what they paid and where. **Supplies** tracks each consumable's count, price, store and
 expiry, learns how fast the household uses it, predicts the run-out date, and alerts in time to buy
 more. Decisions made with the owner: an **Also add to Ledger** box (off by default) turns a purchase
-into a paid expense; stock comes from purchases plus quick counts (**−1** or "I have N left"), with
+into a paid expense; stock comes from purchases plus quick counts (**−1** or **Inventory:**), with
 estimates in between, so nothing needs daily logging; alerts go to owners and co-owners by default,
 each can opt out (same as Bill paid).
 
@@ -1147,6 +1147,36 @@ each can opt out (same as Bill paid).
   before (even when used up) as a `SupplyPrice`: it counts in Where to buy but never in the count,
   forecast, total spent or the Ledger; an old price can be deleted.
 - Ledger expenses from purchases use the category 日用品 / Household supplies, created on first use.
+- **Views** (tabs 1.12.0, Favorites 1.15.0): four tabs, **To Buy** (opens first: Out Or Buy Now, Buy In The Next
+  7 Days, Expiring, and a Next up line), **Stocked** (by the month each item moves to To Buy, then
+  Not Enough Data Yet), **Favorites** and **All**. To Buy, Stocked and Favorites are one centred
+  column of cards at every width; All is cards on a phone and a table from 1024px. A filter, a
+  search or the archived list always opens All.
+- **Favorites** (1.15.0): `supplies.favorite` is one flag per item, shared by the ledger (not per
+  user). Owners and co-owners star and unstar (`Supplies::FavoritesController`, the item's `update?`
+  policy; the star, the card or row and the tab's count update in place); viewers see the star.
+  Archived items can't be starred. The tab lists the starred items, most urgent first.
+- **All's filters** (1.15.1) are switches, any number at once: `kind[]=…` for categories (items in
+  any of the chosen ones) and `filter=expiring` (only the expiring ones among them), combined with
+  the search `q`. Expiring shows only while something is expiring. There is no All chip and no Buy
+  soon chip: the All tab and the To Buy tab are those lists, and an old `filter=buy_soon` link opens
+  To Buy. While the list is narrowed, "Showing N of M" and Clear all replace the monthly estimate.
+- **Stock bar Total** (1.14.7): `Supplies::Forecast#full_stock`, the most there has been right
+  after a restock and never less than the last count, is the bar's 100% and is printed over its
+  right end.
+- **Back to Supplies** (1.14.7) returns to the list view the item was opened from (tab, filters,
+  search), kept in `sessionStorage` per browser tab; any other page forgets it.
+- **One item, several brands** (1.16.0): stock is per item, never per brand. One count, one usage
+  rate and one alert cover every brand bought as the item. `supply_purchases.product_name` (≤ 80,
+  nil when empty or equal to the item's name; rules shared with old prices in `Priced`) is a label
+  for comparing prices: shown in History, Price history, Where to buy and Last bought, and matched
+  by the All search. Sources: a scan (`supply_barcodes.product_name`), a receipt line's text, or
+  typed. A scanned barcode no item has opens New item, which offers **It's one of my items** →
+  `supplies/purchases#pick` → the Restocked form; saving it calls `SupplyBarcode.remember` (new
+  code, or moved from an archived item; a code on another item in use stays there). The form is
+  prefilled from the last purchase of that product, so another brand's price isn't offered. Edit
+  lists the barcodes with Remove (`Supplies::BarcodesController`). Not done: merging two items, and
+  size-aware usage (a 500 ml and a 1 L bottle both count as one).
 - Viewers see Supplies; owners and co-owners write (`SupplyPolicy`).
 
 **Scanning** (read in the browser with `BarcodeDetector` or ZXing; camera, still photo, pasted
@@ -1183,14 +1213,15 @@ screenshot or typed number; photos are never uploaded)
 - `supplies (household_id, name, kind toiletries|cleaning|kitchen|food_drink|health|other, unit
   piece|roll|bottle|can|pack|box|bag, level ≥ 0, level_at, usage_per_day decimal(10,4) null,
   guess_days_per_unit ≥ 1 null, lead_days 0..30 default 3, alert_when_left ≥ 0 default 0,
-  alert_state ok|low|out, alerted_at, archived_at, created_by_id null, lock_version)`
+  alert_state ok|low|out, alerted_at, archived_at, favorite boolean default false, created_by_id
+  null, lock_version)`
 - `supply_purchases (household_id, supply_id, purchased_on, quantity > 0, total_price decimal(12,2)
-  ≥ 0, currency, store, expires_on null, left_before ≥ 0, record_id null, receipt_import_id null,
-  expiry_alerted_at, created_by_id null)`
+  ≥ 0, currency, store, product_name null, expires_on null, left_before ≥ 0, record_id null,
+  receipt_import_id null, expiry_alerted_at, created_by_id null)`
 - `supply_prices (household_id, supply_id, product_name null = the item's name, store, quantity > 0,
   total_price decimal(12,2) ≥ 0, currency, purchased_on, created_by_id null)`: old prices, comparing only
 - `supply_counts (supply_id, counted_at, level ≥ 0, created_by_id null)`
-- `supply_barcodes (household_id, supply_id, code)` unique(household_id, code)
+- `supply_barcodes (household_id, supply_id, code, product_name null)` unique(household_id, code)
 - `product_lookups (code unique, source, name, original_name, brand, kind_guess, raw jsonb,
   fetched_at)`: not household data
 - `receipt_imports (household_id, invoice_no, seller_tax_id, issued_on, total, record_id null,
@@ -1201,12 +1232,15 @@ screenshot or typed number; photos are never uploaded)
 - `notification_preferences.supply_alert boolean null` (null = role default)
 - `Households::Purge` deletes all of these with the ledger.
 
-**Screens:** Supplies list (`/h/:id/supplies`; Buy soon / Expiring / ~monthly cards, cards on a
-phone, a table from 1024px with category chips and search), item page (Forecast with −1 Used one and
-Bought more, I have __ left, Where to buy, History and Price history folded; Add an old price), New item, Edit (dialog on a
-computer), Log a purchase (picker, Buy soon first), Scan, Receipt review. The header's **+ New ▾**
-menu and the phone tab bar's **New** sheet offer Upload or scan barcode / receipt, Supply item, Log a
-purchase… and Bill / record.
+**Screens:** Supplies list (`/h/:id/supplies`; the To Buy, Stocked, Favorites and All tabs; on All
+the Expiring and category filter switches, the ~monthly estimate, cards on a phone and a table from
+1024px with search), item page (Stock Forecast with −1 Used one and Restocked, the stock bar's
+Total, Inventory:, Favorite beside Edit, Where to buy, History and Price history folded; Add an old
+price), New item (after a scan: It's one of my items), Edit (dialog on a computer; the item's
+barcodes with Remove), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned
+barcode), Restocked (Product or brand), Scan, Receipt review. The header's **+ New ▾** menu and the phone tab bar's **New** sheet (closed by Cancel or a
+tap outside it) offer Upload or scan barcode / receipt, Supply item, Log a purchase… and Bill /
+record.
 
 ## First step after approval
 **Immediately (requested by the owner):**

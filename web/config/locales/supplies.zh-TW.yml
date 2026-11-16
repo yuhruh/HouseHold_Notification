@@ -211,7 +211,7 @@ zh-TW:
       chosen: "已選取，再點一次取消"
       showing: "顯示 %{total} 項中的 %{shown} 項"
       clear_all: "全部清除"
-      search: "搜尋品項或商店"
+      search: "搜尋品項、品牌或商店"
       none_match: "沒有符合的項目。"
       details_label: "查看「%{item}」的明細"
       no_purchase: "還沒有購買記錄"
@@ -269,6 +269,12 @@ zh-TW:
       title: "新增日用品"
     edit:
       title: "編輯 %{item}"
+      barcodes:
+        title: "條碼"
+        hint: "掃描這些條碼會打開「%{item}」。連結錯的可以移除。"
+        remove: "移除"
+        remove_label: "移除條碼 %{code}"
+        confirm: "要從這個項目移除條碼 %{code} 嗎？下次掃描時會當成新的條碼。"
     create:
       created: "已新增 %{item}。"
     update:
@@ -301,6 +307,10 @@ zh-TW:
       not_found_title: "找不到這個商品"
       not_found_short: "條碼 %{code} · 查不到，請手動輸入"
       original_name: "原始名稱：%{name}"
+      existing_question_html: "<strong>已經有記錄這個東西了嗎？</strong>只是換了品牌或名稱。"
+      existing_link: "這是我已有的項目"
+      existing_hint: "在這裡儲存會建立另一個項目，有自己的數量和補貨日期。"
+      product_name_hint: "這次買的品牌或包裝，和平常不一樣時再填。"
       archive: "封存此項目"
       restore: "放回清單"
       archive_confirm: "要封存這個項目嗎？提醒會停止，記錄和帳本項目都會保留。"
@@ -312,6 +322,10 @@ zh-TW:
         buy_soon: "準備補貨"
         all: "所有品項"
         not_listed: "清單裡沒有這個項目？新增日用品項目"
+        link_title: "這是哪個項目？"
+        link_note_html: "條碼 %{code} 會記在你選的項目上，下次掃描就會直接到那個項目。"
+        link_note_product_html: "條碼 %{code}（<strong>%{product}</strong>）會記在你選的項目上，下次掃描就會直接到那個項目。"
+        link_taken: "條碼 %{code} 已經屬於你的某個項目。請選你買的東西。"
       new:
         title: "已補貨：%{item}"
       create:
@@ -328,6 +342,13 @@ zh-TW:
         left_before_hint: "已填入 App 的估計。如果你知道實際數量請修正，App 才能正確計算。"
         add_to_ledger: "同時加入帳本，記為支出"
         add_to_ledger_hint: "記在「%{category}」的已付支出"
+        product_name: "品名或品牌（選填）"
+        product_name_hint: "這次買的是什麼，例如品牌和容量。會顯示在價格記錄，方便比較各品牌；所有品牌共用這個項目的數量。留空就是「%{item}」。"
+        product_name_scanned: "已從你掃描的條碼填入。所有品牌共用這個項目的數量。"
+        barcode_note_html: "儲存後，條碼 %{code} 會記在<strong>「%{item}」</strong>上。"
+    barcodes:
+      destroy:
+        removed: "已從「%{item}」移除條碼 %{code}。"
     prices:
       new:
         title: "新增舊價格：%{item}"

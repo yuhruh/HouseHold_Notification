@@ -8,10 +8,5 @@ class SupplyPrice < ApplicationRecord
   belongs_to :supply
   belongs_to :created_by, class_name: "User", optional: true
 
-  normalizes :product_name, with: ->(name) { name.to_s.squish.presence }
-
-  validates :product_name, length: { maximum: 80 }
-
   def old_price? = true
-  def display_name = product_name || supply.name
 end

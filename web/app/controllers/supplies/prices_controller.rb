@@ -13,7 +13,6 @@ class Supplies::PricesController < ApplicationController
   def create
     authorize @supply, :update?
     @price = @supply.prices.new(price_params.merge(household: Current.household, currency: Current.household.default_currency, created_by: Current.user))
-    @price.product_name = nil if @price.product_name.to_s.squish == @supply.name
     if @price.save
       redirect_to household_supply_path(Current.household, @supply), notice: t(".saved", item: @price.display_name), status: :see_other
     else

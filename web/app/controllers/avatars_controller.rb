@@ -17,7 +17,7 @@ class AvatarsController < ApplicationController
   def update
     file = params.require(:avatar)
     raise Photos::Upload::Error, t("photos.errors.too_large", name: file.original_filename, max: 10) if file.size > Photos::Upload::MAX_BYTES
-    raise Photos::Upload::Error, t("photos.errors.type", name: file.original_filename) unless Photos::Upload::TYPES.include?(Marcel::MimeType.for(file.tempfile, name: file.original_filename))
+    raise Photos::Upload::Error, t("photos.errors.type", name: file.original_filename) unless Photos::Upload.photo?(file)
 
     clean = Photos::Sanitizer.call(file.tempfile.path, avatar: true)
     Current.user.avatar.attach(io: File.open(clean.path), filename: "avatar.jpg", content_type: "image/jpeg")

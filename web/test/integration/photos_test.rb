@@ -92,6 +92,9 @@ class PhotosTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
     upload(photo_upload(file_fixture("sheet_sample.csv").to_s, type: "text/csv", name: "x.csv"))
     assert_equal I18n.t("photos.errors.type", name: "x.csv", locale: "zh-TW"), flash[:alert]
+    upload(photo_upload(file_fixture("sheet_sample.csv").to_s, type: "image/jpeg", name: "photo.jpg"))
+    assert_equal I18n.t("photos.errors.type", name: "photo.jpg", locale: "zh-TW"), flash[:alert], "judged by what it holds, not by its name"
+    assert Photos::Upload.photo?(photo_upload(file_fixture("sample.heic").to_s, type: "application/octet-stream", name: "IMG_0001")), "a HEIC is known without its name"
     10.times { @record.photos.attach(io: File.open(jpeg_fixture(with_metadata: false)), filename: "a.jpg", content_type: "image/jpeg") }
     upload(photo_upload)
     assert_equal I18n.t("photos.errors.too_many", max: 10, locale: "zh-TW"), flash[:alert]
@@ -145,7 +148,7 @@ class PhotosTest < ActionDispatch::IntegrationTest
   test "My Account: one Choose Photo button that uploads when a photo is picked; a new photo gets a new address" do
     sign_in_as users(:alex)
     get account_path
-    assert_select "form[action=?] input[type=file][onchange*=requestSubmit]", avatar_path
+    assert_select "form[action=?][data-controller=auto-submit] input[type=file][data-action='auto-submit#submit']", avatar_path
     assert_select "form[action=?] input[type=submit]", avatar_path, 0
     assert_select "label[for=avatar_input]", /選擇照片/
 

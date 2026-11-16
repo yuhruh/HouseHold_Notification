@@ -14,7 +14,7 @@ module Photos
     module_function
 
     def call(path)
-      require "vips"
+      Sanitizer.only_photo_loaders
       image = Vips::Image.thumbnail(path, 72, height: 64, size: :force).colourspace(:srgb)
       grey = image.to_a.map { |row| row.map { |r, g, b| 0.2126 * r + 0.7152 * g + 0.0722 * b } }
       rows = (0...8).map { |by| (0...9).map { |bx| grey[by * 8, 8].sum { it[bx * 8, 8].sum } / 64.0 } }

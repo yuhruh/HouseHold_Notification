@@ -305,7 +305,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     post receipt_review_household_supplies_path(@home), params: { source: "qr", left:, right: "" }
     assert_response :success
-    assert_select "select[name='invoices[0][lines][0][choice]'] option[selected][value=?]", supply.id.to_s
+    assert_select "select[name='invoices[0][lines][0][choice]'] optgroup[label=盥洗用品] option[selected][value=?]", supply.id.to_s
+    assert_select "select[name='invoices[0][lines][0][choice]'] optgroup", 2, "one category in use, then Add as new / Skip"
+    assert_select "select[name='invoices[0][lines][0][choice]'] optgroup option[value=new]"
     assert_select "span", text: "建議"
     assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
     assert_select "details[open] input[name='invoices[0][lines][1][name]'][value=鮮奶]"

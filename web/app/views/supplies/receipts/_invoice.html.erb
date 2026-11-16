@@ -7,6 +7,8 @@
 <% base = "invoices[#{entry.key}]" %>
 <% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700",
             fee: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900" } %>
+<%# Add to: the household's supplies under their category (the same kinds as the item form), empty ones left out %>
+<% groups = supplies.group_by(&:kind).sort_by { |kind, _| Supply::KINDS.index(kind) || Supply::KINDS.size }.map { |kind, list| [ supply_kind(kind), list.map { [ it.name, it.id.to_s ] } ] } %>
 <% cols = "lg:grid lg:grid-cols-[minmax(0,2.2fr)_5rem_6rem_6rem_minmax(0,2.4fr)] lg:items-start lg:gap-3" %>
 <section id="invoice_<%= entry.key %>" class="group card-raised overflow-hidden rounded-2xl bg-white has-[.receipt-exclude:checked]:opacity-60" aria-labelledby="invoice_<%= entry.key %>_title">
   <div class="flex flex-wrap items-end justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
@@ -51,7 +53,8 @@
         <div class="space-y-2">
           <div class="flex flex-wrap items-center gap-2">
             <label class="sr-only" for="<%= id %>_choice"><%= t(".is") %></label>
-            <%= select_tag "#{name}[choice]", options_for_select([ [ t(".choose"), "" ] ] + supplies.map { [ it.name, it.id.to_s ] } + [ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], row.choice),
+            <%= select_tag "#{name}[choice]", safe_join([ options_for_select([ [ t(".choose"), "" ] ], row.choice), grouped_options_for_select(groups, row.choice),
+                                                          content_tag(:optgroup, options_for_select([ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], row.choice), label: "—") ]),
                   id: "#{id}_choice", class: "min-w-0 flex-1 rounded-md border border-gray-400 px-2 py-1.5" %>
             <% if tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold whitespace-nowrap <%= tags[tag] %>"><%= t(".tags.#{tag}") %></span><% end %>
           </div>

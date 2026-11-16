@@ -130,7 +130,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     create_item(name: "Unknown", level: 5, guess_days_per_unit: nil)
 
     get household_supplies_path(@home)
-    assert_select "nav a[aria-current=page]", /該買了/
+    assert_select "nav a[aria-current=page]", /該補貨/
     get household_supplies_path(@home, tab: "all")
     soon = @home.supplies.find_by!(name: "Soon")
     assert_select "li#row_supply_#{soon.id} a.btn-press[href=?]", household_supply_path(@home, soon), text: /查看明細/
@@ -148,7 +148,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home, tab: "stocked")
     assert_select "li", text: /Plenty/
-    assert_select "li", text: /移到「該買了」/
+    assert_select "li", text: /移到「該補貨了」/
     assert_select "section", text: /資料不足/ do
       assert_select "li", text: /Unknown/
     end
@@ -265,14 +265,14 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#modal dialog[data-controller=modal] form[data-turbo-frame=_top]"
     get new_household_supply_purchase_path(@home, supply)
     assert_select "dialog[data-controller=modal]", 0
-    assert_select "h1", /又買了/
+    assert_select "h1", /已補貨/
   end
 
   test "Log a purchase: buy-soon items first, then the rest" do
     create_item(name: "Plenty", level: 50)
     create_item(name: "Soon", level: 1)
     get restock_household_supplies_path(@home)
-    assert_select "section:first-of-type h3", /快要買/
+    assert_select "section:first-of-type h3", /快補貨/
     assert_select "section:first-of-type li", text: /Soon/
   end
 

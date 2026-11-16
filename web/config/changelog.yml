@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.6"
+  date: 2026-11-16
+  en:
+    - "Supplies wording: \"Buy now\" and \"Buy soon\" are now \"Restock now\" and \"Restock soon\", \"Bought more\" is \"Restocked\" and \"Forecast\" is \"Stock Forecast\". Several hints are reworded to be clearer."
+    - "Electricity settings in English: the 電號 field is now labelled \"Electricity Account Number\". In Traditional Chinese, reminders say 電子郵件 instead of Email and 保養維修 for maintenance."
+  zh-TW:
+    - "日用品用詞調整：「該買了」改為「該補貨」、「快要買」改為「快補貨」、「又買了」改為「已補貨」、「預測」改為「庫存預測」，幾段說明文字也改得更清楚。"
+    - "提醒與通知的用詞調整：「Email」改稱「電子郵件」，「該保養」改為「該保養維修」。英文介面的「電號」改為「Electricity Account Number」。"
 - version: "1.14.5"
   date: 2026-11-16
   en:

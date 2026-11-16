@@ -58,7 +58,7 @@ en:
       supply: "Supply item"
       supply_hint: "Something the household keeps in stock"
       purchase: "Log a purchase…"
-      purchase_hint: "You bought more of something"
+      purchase_hint: "Restock something you already bought"
       record: "Bill / record"
       record_hint: "A bill, expense or income for the Ledger"
   supplies:
@@ -107,8 +107,8 @@ en:
       bag_other: "bags"
     status:
       out: "Out"
-      buy_now: "Buy now"
-      buy_soon: "Buy soon"
+      buy_now: "Restock now"
+      buy_soon: "Restock soon"
       expiring: "Expiring"
       ok: "OK"
       not_enough_data: "Not enough data yet"
@@ -129,16 +129,16 @@ en:
       yahoo_japan: "Yahoo! JAPAN Shopping"
       unknown: "a product database"
     actions:
-      used_up_hint: "Nothing left: log a purchase with Bought more, or update the count if you still have some"
+      used_up_hint: "Nothing left: log a purchase with Restocked, or update the count if you still have some"
       used_one: "Used one"
       used_one_label: "Used one %{item}"
-      bought: "Bought"
-      bought_more: "Bought more"
+      bought: "Updated"
+      bought_more: "Restocked"
       edit: "Edit"
     restock_prompt:
       title: "%{item} is used up"
       title_estimate: "%{item} is probably used up"
-      body: "Time to restock. Tap Bought more after you buy some, so the app keeps learning how fast it goes."
+      body: "Time to restock. Tap Restocked after you buy some, so the app keeps learning how fast it goes."
       later: "Later"
       still_have: "Still have some? Update the count"
     toast:
@@ -163,8 +163,8 @@ en:
       stocked: "Stocked"
       all: "All"
     card:
-      out: "Probably out · buy today"
-      buy_now: "Buy now · %{left} left"
+      out: "Probably out · restock today"
+      buy_now: "Restock now · %{left} left"
       at_alert_level: "Down to your alert level · %{left} left"
       buy_by: "Buy by %{date} · %{left} left"
       not_enough_data: "%{left} · not enough data yet"
@@ -216,7 +216,7 @@ en:
     show:
       subtitle: "%{unit} · %{kind}"
       archived: "Archived"
-      forecast: "Forecast"
+      forecast: "Stock Forecast"
       now: "%{left} now"
       rate: "Uses %{rate}"
       rate_week: "about %{amount} a week"
@@ -225,8 +225,8 @@ en:
       based_on:
         one: "Based on 1 usage reading"
         other: "Based on %{count} usage readings"
-      learning_hint: "Tap −1 when you open a new one, or update the count now and then."
-      counted: "Counted them?"
+      learning_hint: "Tap −1 when you open a new one, or update the count regularly."
+      counted: "Confirmed Amount?"
       i_have: "I have"
       left_unit: "%{unit} left"
       update_count: "Update"
@@ -271,10 +271,10 @@ en:
       guess: "How long does one last? (optional)"
       guess_before: "One lasts about"
       guess_after: "days"
-      guess_hint: "A starting guess. The app replaces it with what you actually use."
+      guess_hint: "Start with a rough estimate. The app replaces it with what you actually use."
       more: "More settings (buy %{lead} days ahead · alert at %{left} left)"
       lead_days: "Days it takes to buy more"
-      lead_days_hint: "For example 7 for online orders. Alerts come this much earlier."
+      lead_days_hint: "For example 7 for online orders. Alerts come 7 days earlier."
       alert_when_left: "Also alert me when only this many are left"
       alert_when_left_hint: "0 means only the date-based alert."
       bought_title: "I already bought these"
@@ -303,7 +303,7 @@ en:
         all: "All items"
         not_listed: "Not listed? Add a new supply item"
       new:
-        title: "Bought more: %{item}"
+        title: "Restocked: %{item}"
       create:
         saved: "Saved %{unit} of %{item}."
         saved_with_ledger: "Saved %{unit} of %{item}, and added it to the Ledger."
@@ -315,7 +315,7 @@ en:
         purchased_on: "Date"
         expires_on: "Expires (optional)"
         left_before: "How many were left before this?"
-        left_before_hint: "Filled in with the app's estimate. Correct it if you know better; that's how it learns."
+        left_before_hint: "Filled in with the app's estimate. Correct it if you know better; that's how it calculates."
         add_to_ledger: "Also add to Ledger as an expense"
         add_to_ledger_hint: "A paid expense in %{category}"
     prices:

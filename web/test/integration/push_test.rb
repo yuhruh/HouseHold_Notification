@@ -167,7 +167,7 @@ class PushTest < ActionDispatch::IntegrationTest
 
     sign_in_as @alex
     get household_reminder_deliveries_path(@home)
-    assert_select "button", "改用 Email 傳送"
+    assert_select "button", "改用電子郵件傳送"
     assert_enqueued_emails 1 do
       post send_by_email_household_reminder_delivery_path(@home, delivery)
     end

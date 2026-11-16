@@ -19,7 +19,7 @@ class AppVersionFlowTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
     get household_settings_path(households(:home))
     assert_select "meta[name=app-build][content=?][data-turbo-track=reload]", AppVersion.build
-    assert_select "body[data-controller=app-update][data-app-update-build-value=?]", AppVersion.build
+    assert_select "body[data-controller~=app-update][data-app-update-build-value=?]", AppVersion.build
     assert_select "[data-app-update-target=card][hidden] a[href=?]", about_path
     assert_select "header details a[href=?]", about_path, text: /#{Regexp.escape(AppVersion.current)}/ do
       assert_select "[data-app-update-target=newBadge][hidden]"

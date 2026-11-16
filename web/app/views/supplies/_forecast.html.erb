@@ -1,5 +1,6 @@
-<%# The Forecast card: what's left now, how fast it goes, when it runs out and when the alert comes,
-    with −1 / Bought more at its top right and "I have __ left". Replaced in place after a count %>
+<%# The Forecast card: what's left now and the bar's Total over its right end, how fast it goes, when it
+    runs out and when the alert comes, with −1 / Bought more at its top right and "I have __ left".
+    Replaced in place after a count %>
 <% status = forecast.status %>
 <section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= supply_tone(status, :card) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
   <div class="flex flex-wrap items-start justify-between gap-3">
@@ -9,7 +10,7 @@
     </div>
     <%= render "supplies/actions", supply:, forecast: %>
   </div>
-  <p class="text-2xl font-extrabold"><%= t("supplies.show.now", left: supply_left(supply, forecast)) %></p>
+  <p class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><span class="text-2xl font-extrabold"><%= t("supplies.show.now", left: supply_left(supply, forecast)) %></span><%= supply_total(supply, forecast) %></p>
   <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
   <ul class="space-y-1 text-sm">
     <% if forecast.enough_data? %>

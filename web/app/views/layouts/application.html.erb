@@ -24,7 +24,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body data-controller="app-update" data-app-update-url-value="<%= app_version_path %>" data-app-update-version-value="<%= AppVersion.current %>"
+  <body data-controller="app-update supplies-view" data-supplies-view-list-value="<%= household_supplies_path(Current.household) if Current.household %>" data-app-update-url-value="<%= app_version_path %>" data-app-update-version-value="<%= AppVersion.current %>"
         data-app-update-build-value="<%= AppVersion.build %>" data-app-update-strings-value="<%= t("app_update").slice(:updated, :updated_short, :ready, :checking, :latest, :updating, :failed).to_json %>">
     <% if authenticated? %>
       <%= render "layouts/header" %>

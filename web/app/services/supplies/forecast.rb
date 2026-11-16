@@ -129,11 +129,12 @@ module Supplies
       end
     end
 
-    # 0–100 for the stock bar: what's left against the last restock's peak
-    def fill_percent
-      peak = [ supply.purchases.map { it.left_before + it.quantity }.max || 0, supply.level, 1 ].max
-      ((on_hand / peak) * 100).clamp(0, 100).round
-    end
+    # The stock bar's full length, shown as its Total: the most there has been right after a restock,
+    # never less than the last count. 0 for an empty item nobody has bought yet
+    def full_stock = [ supply.purchases.map { it.left_before + it.quantity }.max || 0, supply.level ].max
+
+    # 0–100 for the stock bar: what's left against its Total
+    def fill_percent = ((on_hand / [ full_stock, 1 ].max) * 100).clamp(0, 100).round
 
     private
 

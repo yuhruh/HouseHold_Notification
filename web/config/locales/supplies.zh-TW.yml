@@ -62,6 +62,7 @@ zh-TW:
       record: "帳單／記錄"
       record_hint: "帳本裡的帳單、支出或收入"
   supplies:
+    total: "總數：%{total}"
     kinds:
       toiletries: "盥洗用品"
       cleaning: "清潔用品"

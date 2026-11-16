@@ -4,14 +4,15 @@ class SuppliesController < ApplicationController
   include HouseholdScoped
   before_action :set_supply, only: %i[show edit update archive]
 
-  FILTERS = %w[buy_soon expiring].freeze
   TABS = %w[to_buy stocked favorites all].freeze
   # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
   # Four tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
   # month each moves to To Buy), Favorites (the household's starred items) and All (every item, with
-  # filters and search). A filter, category, search or the archived list is always All
+  # filters and search). A filter, category, search or the archived list is always All. All's filters
+  # are switches, any number at once: several categories show the items in any of them, and Expiring
+  # keeps only the expiring ones among them
   def index
     authorize Supply
     supplies = Current.household.supplies.includes(:purchases, :counts)
@@ -19,10 +20,11 @@ class SuppliesController < ApplicationController
     @today = Current.household.today
     all = supplies.order(:name).map { [ it, it.forecast(today: @today) ] }
     @summary = summary(all)
-    @filter = params[:filter].presence_in(FILTERS)
-    @kind = params[:kind].presence_in(Supply::KINDS)
+    @expiring = params[:filter] == "expiring"
+    @kinds = Supply::KINDS & Array(params[:kind]).map(&:to_s)
     @query = params[:q].to_s.strip
-    all_only = @filter || @kind || @query.present? || params[:archived].present?
+    @narrowed = @expiring || @kinds.any? || @query.present?
+    all_only = @narrowed || params[:archived].present?
     @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || "to_buy")
     @kinds_in_use = all.map { it.first.kind }.uniq
     @archived_count = Current.household.supplies.where.not(archived_at: nil).count
@@ -146,9 +148,8 @@ class SuppliesController < ApplicationController
   end
 
   def shown?(supply, forecast)
-    return false if @filter == "buy_soon" && !forecast.needs_buying?
-    return false if @filter == "expiring" && !forecast.expiring?
-    return false if @kind && supply.kind != @kind
+    return false if @expiring && !forecast.expiring?
+    return false if @kinds.any? && @kinds.exclude?(supply.kind)
     return false if @query.present? && !(supply.name.downcase.include?(@query.downcase) || supply.purchases.any? { it.store.to_s.downcase.include?(@query.downcase) })
     true
   end
@@ -171,13 +172,13 @@ class SuppliesController < ApplicationController
     @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, favorites: @favorites.size, all: all.size }
   end
 
-  # Buy soon, Expiring, an estimated monthly spend (usage × the last price per unit) and the count
+  # Expiring, an estimated monthly spend (usage × the last price per unit) and the count
   def summary(all)
     monthly = all.sum do |supply, forecast|
       last = supply.latest_purchase
       forecast.enough_data? && last ? forecast.rate * 30 * last.unit_price : 0
     end
-    { buy_soon: all.count { it.last.needs_buying? }, expiring: all.count { it.last.expiring? }, monthly:, total: all.size }
+    { expiring: all.count { it.last.expiring? }, monthly:, total: all.size }
   end
 
   # Where to buy: each store's cheapest price per unit (purchases and old prices) and how often it

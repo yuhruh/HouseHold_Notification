@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.15.1"
+  date: 2026-11-16
+  en:
+    - "Supplies › All: the filters are switches now, and you can choose as many as you like. Several categories show the items in any of them, Expiring keeps only the expiring ones among them, a chosen filter turns blue with a ✕ (tap it again to clear it), and “Showing 3 of 10” with Clear all appears while the list is narrowed."
+    - "Supplies › All: the All and Buy soon filters are gone, since the All tab and the To Buy tab already show those lists. Expiring appears only when something is expiring, and the category filters now show on a phone too."
+  zh-TW:
+    - "日用品 ›「全部」：篩選條件現在是開關，可以同時選好幾個。選多個分類會顯示屬於其中任何一類的品項，「快過期」只留下其中快過期的；選取的條件會變成藍色並帶有 ✕（再點一次就取消），清單被縮小時會顯示「顯示 10 項中的 3 項」和「全部清除」。"
+    - "日用品 ›「全部」：拿掉了「全部」和「準備補貨」這兩個篩選，因為「全部」分頁和「該補貨」分頁已經是那兩份清單。「快過期」只在有東西快過期時才出現，手機上現在也會顯示分類篩選。"
 - version: "1.15.0"
   date: 2026-11-16
   en:

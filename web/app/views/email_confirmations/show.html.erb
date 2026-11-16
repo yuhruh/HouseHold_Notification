@@ -1,0 +1,13 @@
+<%# The confirmation link opened in a browser other than the one that signed up: the password proves who it is %>
+<% content_for :title, t(".title") %>
+<div class="mx-auto w-full max-w-sm space-y-6 py-8">
+  <%= render "shared/flash" %>
+  <%= page_title("email.png", t(".title")) %>
+  <p class="text-sm text-gray-700"><%= t(".hint", email: @user.unconfirmed_email) %></p>
+  <%= form_with url: email_confirmation_path(params[:token]), method: :patch, class: "space-y-4" do |form| %>
+    <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>
+    <%= form.password_field :password, required: true, autofocus: true, autocomplete: "current-password", maxlength: 72, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.submit t(".submit"), class: "btn-press rounded-xl bg-blue-200 text-gray-900 w-full cursor-pointer px-3.5 py-2.5 font-medium" %>
+  <% end %>
+  <p class="text-sm text-gray-600"><%= t(".not_you") %></p>
+</div>

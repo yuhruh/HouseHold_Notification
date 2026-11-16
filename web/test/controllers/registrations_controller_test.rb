@@ -35,7 +35,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     get email_confirmation_path(owner.generate_token_for(:email_confirmation))
     assert_equal "shared@example.com", owner.reload.email_address
 
-    get email_confirmation_path(squatter.generate_token_for(:email_confirmation))
+    patch email_confirmation_path(squatter.generate_token_for(:email_confirmation)), params: { password: "password123" }
     assert_redirected_to new_session_path
     assert_equal I18n.t("email_confirmations.show.taken"), flash[:alert]
   end
@@ -50,5 +50,12 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test "an invalid time zone falls back to Asia/Taipei" do
     sign_up("tz@example.com", tz: "Not/AZone")
     assert_equal "Asia/Taipei", User.find_by!(unconfirmed_email: "tz@example.com").time_zone
+  end
+
+  test "a list of addresses isn't an email address: no account, no mail" do
+    assert_no_enqueued_emails do
+      assert_no_difference("User.count") { sign_up("a@x.com, b@y.com, c@z.com") }
+    end
+    assert_response :unprocessable_content
   end
 end

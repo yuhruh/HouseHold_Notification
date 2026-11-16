@@ -11,6 +11,7 @@ zh-TW:
           attributes:
             allowed_senders:
               invalid: "不是 Email 地址：%{emails}"
+              too_many: "最多 %{count} 個，請先移除不需要的。"
   forwarding_inboxes:
     setup_email:
       sent: "已寄設定信給 %{email}。"
@@ -124,6 +125,7 @@ zh-TW:
       not_member: "來自 %{detail}，不是這本帳本的成員（請在「設定轉寄」新增）"
       no_confirmation: "Gmail 的轉寄通知裡沒有確認連結"
       not_taipower_forward: "%{detail} 寄來的信裡沒有轉寄的台電或台水 Email"
+      by_hand_not_editor: "%{detail} 手動轉寄了一封信，但只有擁有者和共同管理者可以手動轉寄（用 Gmail 篩選器轉寄仍然有效）"
       other_customer_code: "電號 %{detail} 的帳單，不是這本帳本的電號"
       other_ledger_code: "電號 %{detail} 的帳單，這個電號已被其他帳本使用"
       not_turned_on: "一封%{detail} Email，但這本帳本沒有開啟%{detail}"

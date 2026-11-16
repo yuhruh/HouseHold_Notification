@@ -26,10 +26,18 @@ class RegistrationsController < ApplicationController
       @user.save!
       AuthMailer.with(user: @user, locale:).email_confirmation.deliver_later
     end
+    remember_sign_up(existing ? nil : @user)
     render :check_email
   end
 
   private
+    # So the confirmation link, opened in this browser, needs nothing more; anywhere else it asks for
+    # the password (EmailConfirmationsController). Set either way, unreadable and the same length, so
+    # it doesn't tell whether the address already had an account.
+    def remember_sign_up(user)
+      cookies.encrypted[:signup] = { value: format("%020d", user&.id.to_i), expires: 24.hours, httponly: true, same_site: :lax }
+    end
+
     def registration_params
       params.expect(user: %i[ display_name unconfirmed_email password password_confirmation ])
     end

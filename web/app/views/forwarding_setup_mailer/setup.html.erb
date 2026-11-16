@@ -17,6 +17,6 @@
   <% if @several %>
     <p style="margin: 0 0 16px; background: #fef3c7; border-radius: 8px; padding: 10px 12px"><%= t(".already", filter: @filter) %></p>
   <% end %>
-  <p style="margin: 0 0 16px"><%= t(".check", companies: @companies) %></p>
+  <% if @by_hand %><p style="margin: 0 0 16px"><%= t(".check", companies: @companies) %></p><% end %>
   <p style="margin: 0; font-size: 14px; color: #4b5563"><%= t(".ignore", companies: @companies) %></p>
 </div>

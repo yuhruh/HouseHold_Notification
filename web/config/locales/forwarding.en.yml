@@ -11,6 +11,7 @@ en:
           attributes:
             allowed_senders:
               invalid: "aren't email addresses: %{emails}"
+              too_many: "can have %{count} at most. Remove one you no longer need first."
   forwarding_inboxes:
     setup_email:
       sent: "Setup email sent to %{email}."
@@ -124,6 +125,7 @@ en:
       not_member: "from %{detail}, who isn't a member of this ledger (add them in Set up forwarding)"
       no_confirmation: "a Gmail forwarding email without a confirmation link"
       not_taipower_forward: "%{detail} sent an email with no forwarded 台電 or 台水 email inside"
+      by_hand_not_editor: "%{detail} forwarded an email by hand, which only the owner and co-owners can do (their Gmail filter still works)"
       other_customer_code: "a bill for 電號 %{detail}, not this ledger's"
       other_ledger_code: "a bill for 電號 %{detail}, which another ledger already uses"
       not_turned_on: "a %{detail} email, but %{detail} isn't turned on for this ledger"

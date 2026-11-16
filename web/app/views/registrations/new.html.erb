@@ -14,7 +14,7 @@
     <% end %>
     <%= hidden_field_tag :tz, nil, data: { timezone_target: "field" } %>
     <%= form.label :display_name, class: "block text-sm font-medium" %>
-    <%= form.text_field :display_name, autocomplete: "name", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.text_field :display_name, autocomplete: "name", maxlength: User::DISPLAY_NAME_MAX, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
     <%= form.label :unconfirmed_email, t("auth.email"), class: "block text-sm font-medium" %>
     <%= form.email_field :unconfirmed_email, required: true, autocomplete: "email", class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
     <%= form.label :password, t("auth.password"), class: "block text-sm font-medium" %>

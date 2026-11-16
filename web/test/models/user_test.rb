@@ -33,4 +33,27 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "Asia/Taipei", User.valid_time_zone("Mars/Olympus")
     assert_equal "Asia/Taipei", User.valid_time_zone(nil)
   end
+
+  test "an email address is exactly one address" do
+    user = users(:alex)
+    [ "a@x.com, b@y.com", "a@x.com b@y.com", "not-an-email", "a@x.com\nBcc: b@y.com", "#{"a" * 250}@x.com" ].each do |bad|
+      assert_not user.update(unconfirmed_email: bad), bad
+      assert_not User.new(unconfirmed_email: bad, password: "password123").valid?, bad
+    end
+    assert user.update(unconfirmed_email: "new.address+tag@example.co.uk")
+  end
+
+  test "a display name is one short line" do
+    user = users(:alex)
+    user.update!(display_name: "  Alex\r\nClick   here:\thttp://evil.example \u0000 ")
+    assert_equal "Alex Click here: http://evil.example", user.display_name
+    assert_not user.update(display_name: "x" * 61)
+    assert user.update(display_name: "x" * 60)
+  end
+
+  test "an account from before these rules can still be saved" do
+    user = users(:alex)
+    user.update_columns(display_name: "x" * 200, unconfirmed_email: "a@x.com, b@y.com")
+    assert user.reload.update(locale: "en")
+  end
 end

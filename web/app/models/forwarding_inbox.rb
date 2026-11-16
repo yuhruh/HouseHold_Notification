@@ -10,6 +10,7 @@ class ForwardingInbox < ApplicationRecord
   EMAIL = URI::MailTo::EMAIL_REGEXP
   SETUP_RESEND_AFTER = 1.minute
   CONFIRMATION_KEPT = 7.days
+  MAX_ALLOWED_SENDERS = 10
 
   # Someone who may forward here: a member (role "owner", "co_owner" or "viewer") or an email the
   # owner added ("added"), and when they were last sent the setup email
@@ -77,5 +78,6 @@ class ForwardingInbox < ApplicationRecord
   def allowed_senders_are_emails
     bad = allowed_senders.grep_v(EMAIL)
     errors.add(:allowed_senders, :invalid, emails: bad.join(", ")) if bad.any?
+    errors.add(:allowed_senders, :too_many, count: MAX_ALLOWED_SENDERS) if allowed_senders.size > MAX_ALLOWED_SENDERS
   end
 end

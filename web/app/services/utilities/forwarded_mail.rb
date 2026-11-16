@@ -10,8 +10,10 @@ module Utilities
   # - A 台電 or 台水 email (COMPANIES), accepted only when it's one of:
   #     a. forwarded by a Gmail filter: From the company's domain (not failing DKIM/DMARC), sent on
   #        by "<member>+caf_=…@gmail.com", which Gmail's own SPF check on arrival passed
-  #     b. forwarded by hand: From a member (signed by their mail provider), with a forwarded
-  #        message from the company's domain inside
+  #     b. forwarded by hand: From the owner or a co-owner (signed by their mail provider), with a
+  #        forwarded message from the company's domain inside. What's quoted inside can't be
+  #        checked, so it's taken only from someone who may edit the ledger anyway; a viewer or an
+  #        added email forwards with a filter (a)
   #   and only when the ledger has turned that company on. Accepted ones are labelled for the
   #   company and read by its reader, which writes the bill into the ledger. Only (a) counts as
   #   "the filter works".
@@ -31,7 +33,7 @@ module Utilities
     def self.call(inbox: Inbox.connect)
       return [] unless inbox && ForwardingInbox.mailbox
 
-      inboxes = ForwardingInbox.includes(household: %i[users electricity_account water_account]).index_by(&:inbox_token)
+      inboxes = ForwardingInbox.includes(household: [ { memberships: :user }, :electricity_account, :water_account ]).index_by(&:inbox_token)
       return [] if inboxes.empty?
 
       inbox.unprocessed(inboxes.values.filter_map(&:address)).map do |id|
@@ -39,6 +41,15 @@ module Utilities
         result = forwarded.call
         inbox.done!(id, bill: (forwarded.company if result == :bill))
         result
+      rescue *Inbox::UNAVAILABLE
+        raise # Gmail itself can't be reached: stop here and read everything again next time
+      rescue StandardError => e
+        # One message that can't be handled must not hold up every ledger's mail: it's reported,
+        # labelled handled like any other, and what it left half-changed is dropped
+        Rails.error.report(e, context: { gmail_message_id: id })
+        forwarded&.discard_changes
+        inbox.done!(id)
+        :failed
       end
     end
 
@@ -47,6 +58,14 @@ module Utilities
 
     def initialize(mail, inboxes)
       @mail, @inboxes = mail, inboxes
+    end
+
+    # After a failure: the ledger's address and accounts as they are in the database again, because
+    # they're shared with the messages read after this one
+    def discard_changes
+      @inbox&.reload
+    rescue ActiveRecord::RecordNotFound
+      nil
     end
 
     # :confirm, :bill, :ignored, or :unknown (no ledger's address on it)
@@ -104,6 +123,7 @@ module Utilities
         note("received", who)
       elsif allowed?(from)
         return ignore("not_authentic", from) unless signed_by?(/\A(.*\.)?#{Regexp.escape(from.split("@").last)}\z/i)
+        return ignore("by_hand_not_editor", from) unless editor?(from)
 
         @company = body_text.scan(FORWARDED_FROM).flatten.filter_map { company_of(it) }.first
         return ignore("not_taipower_forward", from) unless @company
@@ -138,15 +158,18 @@ module Utilities
     # forwarding ("member+caf_=dest=gmail.com@gmail.com"), and only when Gmail's SPF check on arrival
     # passed for it
     def filter_forwarder
-      sender = header_values("Return-Path").first.to_s.delete("<> ").downcase
-      local = sender[/\A(.+?)\+caf_=.*@gmail\.com\z/, 1]
-      "#{local}@gmail.com" if local && google_results.match?(/\bspf=pass\b[^;]*smtp\.mailfrom="?#{Regexp.escape(sender)}"?/i)
+      local = authentication.spf_sender.to_s[/\A([\w.-]+)\+caf_=[\w.=+-]*@gmail\.com\z/, 1]
+      "#{local}@gmail.com" if local
     end
 
-    def allowed?(email)
-      emails = @inbox.household.users.map(&:email_address) + @inbox.allowed_senders
-      emails.map { canonical(it) }.include?(canonical(email))
-    end
+    def allowed?(email) = same_address?(email, member_emails + @inbox.allowed_senders)
+
+    # The owner or a co-owner: someone who may add and change the ledger's bills themselves
+    def editor?(email) = same_address?(email, member_emails(&:can_write?))
+
+    def member_emails(&role) = @inbox.household.memberships.select { role.nil? || role.call(it) }.filter_map { it.user.email_address }
+
+    def same_address?(email, emails) = emails.map { canonical(it) }.include?(canonical(email))
 
     # Gmail ignores dots and anything after "+" in its own addresses
     def canonical(email)
@@ -156,16 +179,12 @@ module Utilities
       "#{local.split("+").first.delete(".")}@gmail.com"
     end
 
-    # The Authentication-Results Gmail added on arrival (the first one, from mx.google.com)
-    def google_results
-      @google_results ||= header_values("Authentication-Results").find { it.to_s.strip.start_with?("mx.google.com") }.to_s
-    end
+    # What Gmail's own checks on arrival found
+    def authentication = @authentication ||= AuthenticationResults.of(@mail)
 
-    def signed_by?(domain)
-      google_results.scan(/\bdkim=pass\b[^;]*header\.(?:i|d)=@?([\w.-]+)/i).flatten.any? { it.match?(domain) }
-    end
+    def signed_by?(domain) = authentication.dkim_domains.any? { it.match?(domain) }
 
-    def failed_authentication? = google_results.match?(/\b(dkim|dmarc)=fail\b/i)
+    def failed_authentication? = authentication.failed?
 
     def header_values(name) = Array(@mail.header[name]).map { it.respond_to?(:value) ? it.value : it.to_s }
 

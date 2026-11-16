@@ -4,6 +4,7 @@
 # and marks them paid, and `activity` keeps the last lines it reported.
 class UtilityAccount < ApplicationRecord
   ACTIVITY_KEPT = 20
+  ACTIVITY_TEXT = 200
 
   belongs_to :household
   belongs_to :category
@@ -20,8 +21,11 @@ class UtilityAccount < ApplicationRecord
   # The number as shown on screen: only its last 4 digits
   def masked_code = customer_code && "…#{customer_code.last(4)}"
 
-  # Newest first; each line is {"at", "kind", "record_id", "period", "amount", "recorded", "due_on"}
+  # Newest first; each line is {"at", "kind", "record_id", "period", "amount", "recorded", "due_on"}.
+  # Text in a line can come straight from an email (its sender, its subject), so it's cut to
+  # ACTIVITY_TEXT characters and loses what the database can't store (broken bytes, NUL).
   def add_activity(lines)
+    lines = lines.map { |line| line.transform_values { it.is_a?(String) ? it.dup.force_encoding(Encoding::UTF_8).scrub("?").delete("\u0000").truncate(ACTIVITY_TEXT) : it } }
     self.activity = (lines.map { it.merge("at" => Time.current.iso8601) } + activity).first(ACTIVITY_KEPT)
   end
 

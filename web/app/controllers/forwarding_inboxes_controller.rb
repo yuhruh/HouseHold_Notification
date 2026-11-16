@@ -4,6 +4,8 @@
 class ForwardingInboxesController < ApplicationController
   include HouseholdScoped
   before_action :set_inbox
+  # Each of these sends an email to an address the owner typed
+  rate_limit to: 10, within: 1.hour, only: %i[setup_email add_forwarder], by: -> { Current.user.id }, with: -> { back(alert: t("auth.rate_limited")) }
 
   # Send (or resend) the setup email to one of the forwarders
   def setup_email

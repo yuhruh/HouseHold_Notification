@@ -1152,10 +1152,19 @@ each can opt out (same as Bill paid).
   Not Enough Data Yet), **Favorites** and **All**. To Buy, Stocked and Favorites are one centred
   column of cards at every width; All is cards on a phone and a table from 1024px. A filter, a
   search or the archived list always opens All.
-- **Favorites** (1.15.0): `supplies.favorite` is one flag per item, shared by the ledger (not per
-  user). Owners and co-owners star and unstar (`Supplies::FavoritesController`, the item's `update?`
-  policy; the star, the card or row and the tab's count update in place); viewers see the star.
-  Archived items can't be starred. The tab lists the starred items, most urgent first.
+- **Favorites** (1.15.0; per person since 1.17.0): `supply_favorites` holds one star per person
+  and item. The owner and co-owners each add or remove their own (`Supplies::FavoritesController`,
+  the item's `update?` policy; the star, the card or row, the tab's count and the Starred by counts
+  update in place). `Supplies::Starrers` lists who can star (the owner, then co-owners in the order
+  they joined) and gives each a colour (amber, teal, violet, rose, sky, lime, then round again) and
+  an initial (two letters when two people share a first letter); a star of someone who is no longer
+  an owner or co-owner is kept but doesn't count. An item is a favorite while anyone's star is on
+  it, and counts once. Your star is the button (in your colour); other people's are tags with an
+  initial, or with the name on the item page (**Also starred by**). A viewer has no button and sees
+  every star as a tag. With more than one person who can star, the tab has **Starred by**:
+  Everyone, Me and each person with a star (`by=<user id>`). Archived items can't be starred. The
+  tab lists the starred items, most urgent first. The 1.15.0 stars had no name on them and became
+  the owner's.
 - **All's filters** (1.15.1) are switches, any number at once: `kind[]=…` for categories (items in
   any of the chosen ones) and `filter=expiring` (only the expiring ones among them), combined with
   the search `q`. Expiring shows only while something is expiring. There is no All chip and no Buy
@@ -1213,8 +1222,7 @@ screenshot or typed number; photos are never uploaded)
 - `supplies (household_id, name, kind toiletries|cleaning|kitchen|food_drink|health|other, unit
   piece|roll|bottle|can|pack|box|bag, level ≥ 0, level_at, usage_per_day decimal(10,4) null,
   guess_days_per_unit ≥ 1 null, lead_days 0..30 default 3, alert_when_left ≥ 0 default 0,
-  alert_state ok|low|out, alerted_at, archived_at, favorite boolean default false, created_by_id
-  null, lock_version)`
+  alert_state ok|low|out, alerted_at, archived_at, created_by_id null, lock_version)`
 - `supply_purchases (household_id, supply_id, purchased_on, quantity > 0, total_price decimal(12,2)
   ≥ 0, currency, store, product_name null, expires_on null, left_before ≥ 0, record_id null,
   receipt_import_id null, expiry_alerted_at, created_by_id null)`
@@ -1222,6 +1230,8 @@ screenshot or typed number; photos are never uploaded)
   total_price decimal(12,2) ≥ 0, currency, purchased_on, created_by_id null)`: old prices, comparing only
 - `supply_counts (supply_id, counted_at, level ≥ 0, created_by_id null)`
 - `supply_barcodes (household_id, supply_id, code, product_name null)` unique(household_id, code)
+- `supply_favorites (supply_id, user_id, created_at)` unique(supply_id, user_id); both foreign keys
+  delete with their row
 - `product_lookups (code unique, source, name, original_name, brand, kind_guess, raw jsonb,
   fetched_at)`: not household data
 - `receipt_imports (household_id, invoice_no, seller_tax_id, issued_on, total, record_id null,

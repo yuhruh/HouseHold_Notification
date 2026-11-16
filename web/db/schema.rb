@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -809,7 +809,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_120000) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "favorite", default: false, null: false
     t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
     t.index ["household_id"], name: "index_supplies_on_household_id"
     t.check_constraint "alert_state::text = ANY (ARRAY['ok'::character varying, 'low'::character varying, 'out'::character varying]::text[])", name: "supplies_alert_state"
@@ -841,6 +840,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_120000) do
     t.index ["created_by_id"], name: "index_supply_counts_on_created_by_id"
     t.index ["supply_id"], name: "index_supply_counts_on_supply_id"
     t.check_constraint "level >= 0", name: "supply_counts_level_not_negative"
+  end
+
+  create_table "supply_favorites", force: :cascade do |t|
+    t.bigint "supply_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["supply_id", "user_id"], name: "index_supply_favorites_on_supply_id_and_user_id", unique: true
+    t.index ["user_id"], name: "index_supply_favorites_on_user_id"
   end
 
   create_table "supply_prices", force: :cascade do |t|
@@ -1007,6 +1014,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_120000) do
   add_foreign_key "supply_barcodes", "supplies"
   add_foreign_key "supply_counts", "supplies"
   add_foreign_key "supply_counts", "users", column: "created_by_id", on_delete: :nullify
+  add_foreign_key "supply_favorites", "supplies", on_delete: :cascade
+  add_foreign_key "supply_favorites", "users", on_delete: :cascade
   add_foreign_key "supply_prices", "households"
   add_foreign_key "supply_prices", "supplies"
   add_foreign_key "supply_prices", "users", column: "created_by_id", on_delete: :nullify

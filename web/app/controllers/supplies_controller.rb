@@ -9,13 +9,14 @@ class SuppliesController < ApplicationController
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
   # Four tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
-  # month each moves to To Buy), Favorites (the household's starred items) and All (every item, with
-  # filters and search). A filter, category, search or the archived list is always All. All's filters
+  # month each moves to To Buy), Favorites (the items anyone starred, or one person's with `by`) and
+  # All (every item, with filters and search). A filter, category, search or the archived list is always All. All's filters
   # are switches, any number at once: several categories show the items in any of them, and Expiring
   # keeps only the expiring ones among them
   def index
     authorize Supply
-    supplies = Current.household.supplies.includes(:purchases, :counts, :barcodes)
+    supplies = Current.household.supplies.includes(:purchases, :counts, :barcodes, :favorites)
+    @supply_starrers = Supplies::Starrers.new(Current.household)
     supplies = params[:archived].present? ? supplies.where.not(archived_at: nil) : supplies.active
     @today = Current.household.today
     all = supplies.order(:name).map { [ it, it.forecast(today: @today) ] }
@@ -117,7 +118,7 @@ class SuppliesController < ApplicationController
   private
 
   def set_supply
-    @supply = Current.household.supplies.includes(:purchases, :counts, :prices, :barcodes).find(params[:id])
+    @supply = Current.household.supplies.includes(:purchases, :counts, :prices, :barcodes, :favorites).find(params[:id])
   end
 
   def supply_params = params.expect(supply: %i[name kind unit level guess_days_per_unit lead_days alert_when_left])
@@ -164,8 +165,9 @@ class SuppliesController < ApplicationController
   end
 
   # To Buy's three groups, Stocked's months (by the day each item moves to To Buy) and Not enough
-  # data yet, Next up: the stocked item that moves to To Buy first, and Favorites: the starred items,
-  # the ones to restock soonest first
+  # data yet, Next up: the stocked item that moves to To Buy first, and Favorites: the items with
+  # anyone's star (an item two people starred counts once), the ones to restock soonest first; with
+  # `by`, one person's
   def to_buy_and_stocked(all)
     sorted = all.sort_by { |supply, forecast| urgency(supply, forecast) }
     @to_buy = TO_BUY.transform_values { |statuses| sorted.select { statuses.include?(it.last.status) } }
@@ -173,8 +175,11 @@ class SuppliesController < ApplicationController
     @stocked = ok.group_by { it.last.to_buy_on&.beginning_of_month }
     @no_data = sorted.select { it.last.status == :not_enough_data }
     @next_up = ok.find { it.last.to_buy_on }
-    @favorites = sorted.select { it.first.favorite? }
-    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, favorites: @favorites.size, all: all.size }
+    starred = sorted.select { @supply_starrers.starred?(it.first) }
+    @by = (@supply_starrers.find(params[:by]) if @tab == "favorites")
+    @favorites = @by ? starred.select { @supply_starrers.starred_by?(it.first, @by.user) } : starred
+    @star_counts = @supply_starrers.people.index_with { |person| starred.count { @supply_starrers.starred_by?(it.first, person.user) } }
+    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, favorites: starred.size, all: all.size }
   end
 
   # Expiring, an estimated monthly spend (usage × the last price per unit) and the count

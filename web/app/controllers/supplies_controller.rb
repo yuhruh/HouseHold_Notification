@@ -6,7 +6,7 @@ class SuppliesController < ApplicationController
 
   FILTERS = %w[buy_soon expiring].freeze
   TABS = %w[to_buy stocked all].freeze
-  # To Buy's columns (like Bills › To Pay): out or past the buy-by date | buy within 7 days | expiring
+  # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
   # Three tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the

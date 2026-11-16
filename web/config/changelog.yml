@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.11"
+  date: 2026-11-16
+  en:
+    - "Supplies on a computer: To Buy and Stocked list their groups one under another in a single column, instead of two or three columns side by side."
+  zh-TW:
+    - "電腦上的日用品頁：「該補貨」和「還夠用」分頁的分組改成由上到下排成一欄，不再並排成兩、三欄。"
 - version: "1.14.10"
   date: 2026-11-16
   en:

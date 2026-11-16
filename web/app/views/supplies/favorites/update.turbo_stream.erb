@@ -1,0 +1,4 @@
+<%= turbo_stream.replace dom_id(@supply, :row) do %><%= render "supplies/row", supply: @supply, forecast: @forecast %><% end %>
+<%= turbo_stream.replace dom_id(@supply, :card) do %><%= render "supplies/card", supply: @supply, forecast: @forecast %><% end %>
+<%= turbo_stream.update dom_id(@supply, :favorite) do %><%= render "supplies/favorite", supply: @supply, full: true %><% end %>
+<%= turbo_stream.replace "supplies_favorites_count" do %><%= supply_favorites_badge(@favorites) %><% end %>

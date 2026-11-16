@@ -30,6 +30,7 @@ class Supply < ApplicationRecord
   before_validation { self.level_at ||= Time.current }
 
   scope :active, -> { where(archived_at: nil) }
+  scope :favorites, -> { where(favorite: true) }
 
   def expiry_window_days = EXPIRY_WINDOW_DAYS.fetch(kind, DEFAULT_EXPIRY_WINDOW_DAYS)
 

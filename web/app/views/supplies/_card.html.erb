@@ -1,5 +1,5 @@
-<%# One item on To Buy or Stocked, like a bill card on Bills › To Pay: what it needs in its group's colour,
-    the item, then Details, −1 Used one and Bought more. Replaced in place after −1 (counts/update) %>
+<%# One item on To Buy, Stocked or Favorites, like a bill card on Bills › To Pay: what it needs in its group's
+    colour, the item and its star (supplies/favorite) at the top right, then Details, −1 Used one and Restocked. Replaced in place after −1 (counts/update) %>
 <% status = forecast.status %>
 <% left = supply_left(supply, forecast) %>
 <% headline = case status
@@ -16,9 +16,14 @@
                (last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase")) ].compact %>
 <li id="<%= dom_id(supply, :card) %>" class="card-raised space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= supply_tone(status, :card) %>">
   <div class="space-y-0.5">
-    <p class="font-bold <%= supply_tone(status, :ink) %>"><%= headline %></p>
-    <p><%= link_to supply.name, household_supply_path(Current.household, supply), class: "text-lg font-bold hover:underline lg:text-base" %>
-      <span class="text-sm text-gray-600"><%= safe_join(details, " · ") %></span></p>
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0 space-y-0.5">
+        <p class="font-bold <%= supply_tone(status, :ink) %>"><%= headline %></p>
+        <p><%= link_to supply.name, household_supply_path(Current.household, supply), class: "text-lg font-bold hover:underline lg:text-base" %>
+          <span class="text-sm text-gray-600"><%= safe_join(details, " · ") %></span></p>
+      </div>
+      <%= render "supplies/favorite", supply: %>
+    </div>
     <% if status == :ok %>
       <% total = supply_total(supply, forecast, unit: false) %>
       <% if forecast.to_buy_on || total %><p class="flex flex-wrap items-baseline justify-between gap-x-3 text-sm text-gray-700"><span><%= t("supplies.card.moves_on", date: l(forecast.to_buy_on, format: :short)) if forecast.to_buy_on %></span><%= total %></p><% end %>

@@ -158,10 +158,16 @@ en:
       out: "%{item} is probably out. Still have some? Update the count."
       expiry: "%{item}: ~%{left} will expire on %{date} before you use them."
       footer: "You get this because supply alerts are on in My Account → Notifications."
+    favorite:
+      label: "Favorite: %{item}"
+      add: "Add to Favorites"
+      remove: "Remove from Favorites"
+      button: "Favorite"
     switch:
       label: "Supplies views"
       to_buy: "To Buy"
       stocked: "Stocked"
+      favorites: "Favorites"
       all: "All"
     card:
       out: "Probably out · restock today"
@@ -177,11 +183,14 @@ en:
       intro:
         to_buy: "What to buy now. Open an item's Details to see its forecast and where it's cheapest."
         stocked: "Enough for now. Each item says when it moves to To Buy."
+        favorites: "Starred items, the ones to restock soonest first."
         all: "Every item, with filters and search."
       next_up: "Next up: %{item} moves here on %{date}"
       see_stocked: "Stocked"
       nothing_to_buy: "Nothing to buy right now."
       nothing_stocked: "Nothing here yet."
+      no_favorites: "No favorites yet. Tap the star on an item to add it here."
+      no_favorites_viewer: "No favorites yet."
       groups:
         now: "Out Or Buy Now"
         soon: "Buy In The Next 7 Days"

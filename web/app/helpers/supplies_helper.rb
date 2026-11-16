@@ -28,6 +28,11 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # The Favorites tab's count: its own element (hidden at 0), so starring an item updates it in place
+  def supply_favorites_badge(count)
+    tag.span(count, id: "supplies_favorites_count", class: "rounded-full bg-amber-200 px-1.5 text-[11px] font-bold text-amber-900 sm:text-xs #{'hidden' if count.zero?}")
+  end
+
   # The All list's Left column: just the number over the bar ("9", "~2" for an estimate), like the Total
   # at the bar's other end; a screen reader still gets the unit ("9 bottles")
   def supply_left_number(supply, forecast)

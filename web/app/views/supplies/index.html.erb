@@ -2,7 +2,7 @@
 <% writer = policy(Supply).create? %>
 <% chip = "inline-flex min-h-9 items-center gap-1 rounded-full border-2 px-3 text-sm font-semibold" %>
 <% card_list = "flex flex-col space-y-3 lg:space-y-2" %>
-<%# To Buy and Stocked: their groups one under another in one column at every width, as wide as an item's page %>
+<%# To Buy, Stocked and Favorites: their groups or cards one under another in one column at every width, as wide as an item's page %>
 <% column = "mx-auto w-full max-w-3xl" %>
 <div class="w-full space-y-6 py-4 lg:space-y-3">
   <% if @summary[:total].zero? && params[:archived].blank? %>
@@ -105,6 +105,15 @@
             </section>
           <% end %>
         </div>
+      <% end %>
+
+    <% when "favorites" %>
+      <% if @favorites.empty? %>
+        <p class="<%= column %> text-gray-600"><%= t(writer ? ".no_favorites" : ".no_favorites_viewer") %></p>
+      <% else %>
+        <ul class="<%= column %> <%= card_list %>">
+          <% @favorites.each do |supply, forecast| %><%= render "supplies/card", supply:, forecast: %><% end %>
+        </ul>
       <% end %>
 
     <% else %>

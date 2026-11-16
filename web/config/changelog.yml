@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.15.0"
+  date: 2026-11-16
+  en:
+    - "New: Favorites in Supplies. The owner and co-owners can star an item, on its card, in the All list or with the Favorite button on its page, and the new Favorites tab lists the household's starred items, the ones to restock soonest first. Everyone in the household sees the same favorites."
+  zh-TW:
+    - "新功能：日用品的「我的最愛」。擁有者和共同管理者可以在品項卡片、「全部」清單或品項頁的「我的最愛」按鈕替品項加上星星；新的「我的最愛」分頁會列出家裡加上星星的品項，最快要補貨的排在前面。家裡每個人看到的我的最愛都一樣。"
 - version: "1.14.11"
   date: 2026-11-16
   en:

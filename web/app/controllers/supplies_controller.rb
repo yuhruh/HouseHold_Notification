@@ -5,13 +5,13 @@ class SuppliesController < ApplicationController
   before_action :set_supply, only: %i[show edit update archive]
 
   FILTERS = %w[buy_soon expiring].freeze
-  TABS = %w[to_buy stocked all].freeze
+  TABS = %w[to_buy stocked favorites all].freeze
   # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
-  # Three tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
-  # month each moves to To Buy) and All (every item, with filters and search). A filter, category,
-  # search or the archived list is always All
+  # Four tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
+  # month each moves to To Buy), Favorites (the household's starred items) and All (every item, with
+  # filters and search). A filter, category, search or the archived list is always All
   def index
     authorize Supply
     supplies = Current.household.supplies.includes(:purchases, :counts)
@@ -158,7 +158,8 @@ class SuppliesController < ApplicationController
   end
 
   # To Buy's three groups, Stocked's months (by the day each item moves to To Buy) and Not enough
-  # data yet, and Next up: the stocked item that moves to To Buy first
+  # data yet, Next up: the stocked item that moves to To Buy first, and Favorites: the starred items,
+  # the ones to restock soonest first
   def to_buy_and_stocked(all)
     sorted = all.sort_by { |supply, forecast| urgency(supply, forecast) }
     @to_buy = TO_BUY.transform_values { |statuses| sorted.select { statuses.include?(it.last.status) } }
@@ -166,7 +167,8 @@ class SuppliesController < ApplicationController
     @stocked = ok.group_by { it.last.to_buy_on&.beginning_of_month }
     @no_data = sorted.select { it.last.status == :not_enough_data }
     @next_up = ok.find { it.last.to_buy_on }
-    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, all: all.size }
+    @favorites = sorted.select { it.first.favorite? }
+    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, favorites: @favorites.size, all: all.size }
   end
 
   # Buy soon, Expiring, an estimated monthly spend (usage × the last price per unit) and the count

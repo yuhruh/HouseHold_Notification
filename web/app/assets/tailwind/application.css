@@ -105,6 +105,7 @@
 :root {
   --tab-rose: oklch(94.1% 0.03 12.58);
   --tab-sky: oklch(95.1% 0.026 236.824);
+  --tab-amber: oklch(96.2% 0.059 95.617);
   --tab-gray: oklch(92.8% 0.006 264.531);
   --tab-ink: oklch(21% 0.034 264.665);
 }

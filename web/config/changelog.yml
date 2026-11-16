@@ -3,7 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
-- version: "1.16.0"
+- version: "1.17.0"
+  date: 2026-11-17
+  en:
+    - "Favorites: each owner and co-owner now has their own star, in their own colour. The star button on an item is yours; a small tag with an initial beside it (★ S) is someone else's star. The stars you had so far are now the Ledger owner's."
+    - "Supplies › Favorites lists every item anyone starred, counted once even when two people starred it. With more than one person starring, a \"Starred by\" row (Everyone, Me, and each name) shows only one person's stars, and its chips are the key to the colours."
+    - "Taking your star off an item leaves other people's stars on it, so it stays in Favorites until nobody has it starred. An item's page says \"Also starred by\" with the names."
+  zh-TW:
+    - "我的最愛：擁有者和每位共同擁有者現在都有自己的星星，各有各的顏色。品項上的星星按鈕是你的；旁邊帶著名字第一個字的小標籤（★ S）是別人加的星星。原本的星星現在算是帳本擁有者的。"
+    - "日用品 ›「我的最愛」會列出有人加星的所有品項，兩個人都加星的也只算一項。有兩人以上可以加星時，會多一排「誰加的星」（所有人、我，以及每個人的名字），可以只看某個人的星星，這排也說明每個顏色是誰。"
+    - "取消你的星星不會動到別人的星星，所以要等到沒有人加星，品項才會離開我的最愛。品項頁面會寫「也加了星」和名字。"
   date: 2026-11-17
   en:
     - "New: one supply item can be several brands. When you scan the barcode of a brand you haven't scanned before, the New item form offers \"It's one of my items\": pick the item (say Shampoo), and the barcode is remembered for it. Every brand shares the item's count, usage and restock alert, so you are told once when shampoo as a whole runs low."

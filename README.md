@@ -188,8 +188,9 @@ Home Screen.
     Days** and **Expiring**, each in its own colour (softer in dark mode), with a **Next up** line;
   - **Stocked** lists what's enough for now by the month it moves to To Buy, then **Not Enough Data
     Yet**;
-  - **Favorites** lists the starred items, the ones to restock soonest first (on a phone the tab is
-    the star and its count);
+  - **Favorites** lists the items anyone starred, the ones to restock soonest first (on a phone the
+    tab is the star and its count). With more than one person starring, **Starred by** (Everyone,
+    Me, each name) shows one person's stars;
   - **All** is every item: cards on a phone, a table on a computer (the **Left** column is the
     number alone over the stock bar), with the estimated monthly spend and, on a computer, a search
     box.
@@ -201,10 +202,14 @@ Home Screen.
   them. A chosen chip is blue with a ✕ and a second tap clears it; chips and the search keep each
   other. While the list is narrowed, **Showing 3 of 10** and **Clear all** take the monthly
   estimate's place.
-- **Favorites** belong to the ledger, so everyone sees the same ones. Owners and co-owners star an
-  item at the top right of its card, in front of its name in the All table, or with **Favorite**
-  beside Edit on its page; a viewer sees the star but can't change it. Archived items can't be
-  starred.
+- **Favorites**: the owner and each co-owner have their own star, in their own colour (the owner
+  amber, then teal, violet, rose… in the order people joined), always with an initial so colour is
+  never the only cue. The star button is yours: at the top right of an item's card, in front of its
+  name in the All table, or **Favorite** beside Edit on its page. A small tag beside it (★ S) is
+  someone else's star, and the item's page says **Also starred by** with names. An item is in
+  Favorites while anyone has it starred and counts once however many stars it has; taking your own
+  star off leaves the others. Everyone in the ledger sees the same stars; a viewer sees whose they
+  are but can't star. Archived items can't be starred.
 - Every stock bar shows its **Total** over its right end: the most there has been right after a
   restock, never less than the last count ("Total: 25 bottles" on the item's page, "Total: 25" in
   the lists).

@@ -1,16 +1,22 @@
-<%# The star on an item: filled amber when it's a favorite of the household (Supplies › Favorites), an outline
-    when not. Owners and co-owners tap it to switch, in place; a viewer just sees the filled star. `full`
-    (the item page, beside Edit) adds the word; in the lists it's the star alone %>
+<%# The star on an item. Each owner and co-owner has their own, in their colour (Supplies::Starrers): the
+    button is yours (filled when you starred it; tap to switch, in place) and a small tag with an initial
+    beside it is someone else's. A viewer has no button and sees everyone's tags. `full` (the item page,
+    beside Edit) is the button alone with the word, the others are named under it (supply_starred_by);
+    `tags: false` (an All row) leaves the tags to the row, which puts them after the category %>
 <% full = local_assigns[:full] %>
-<% on = supply.favorite? %>
-<% star = capture do %><svg class="h-5 w-5 shrink-0 <%= 'text-amber-700' if on %>" viewBox="0 0 24 24" fill="<%= on ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/></svg><% end %>
-<% if policy(supply).update? && supply.archived_at.nil? %>
-  <%= button_to household_supply_favorite_path(Current.household, supply), method: (on ? :delete : :post),
-        form: { data: { turbo_stream: true }, class: "shrink-0" }, title: t(on ? "supplies.favorite.remove" : "supplies.favorite.add"),
-        "aria-label": t("supplies.favorite.label", item: supply.name), "aria-pressed": on.to_s,
-        class: "btn-press cursor-pointer rounded-xl #{on ? 'bg-amber-100 text-amber-900' : 'bg-white text-gray-900'} #{full ? "inline-flex items-center gap-1.5 px-3.5 py-2 #{on ? 'font-bold' : 'font-medium'}" : 'press-sm flex h-11 w-11 items-center justify-center lg:h-9 lg:w-9'}" do %>
-    <%= star %><% if full %><span><%= t("supplies.favorite.button") %></span><% end %>
+<% tags = supply_star_tags(supply) unless full || local_assigns[:tags] == false %>
+<% if supply_can_star?(supply) %>
+  <% on = supply_starrers.starred_by?(supply, Current.user) %>
+  <% tone = SuppliesHelper::STAR_TONE.fetch(supply_starrers.person(Current.user).color) %>
+  <% button = capture do %>
+    <%= button_to household_supply_favorite_path(Current.household, supply), method: (on ? :delete : :post),
+          form: { data: { turbo_stream: true }, class: "shrink-0" }, title: t(on ? "supplies.favorite.remove" : "supplies.favorite.add"),
+          "aria-label": t("supplies.favorite.label", item: supply.name), "aria-pressed": on.to_s,
+          class: "btn-press cursor-pointer rounded-xl #{on ? "#{tone[:fill]} #{tone[:ink]}" : 'bg-white text-gray-900'} #{full ? "inline-flex items-center gap-1.5 px-3.5 py-2 #{on ? 'font-bold' : 'font-medium'}" : 'press-sm flex h-11 w-11 items-center justify-center lg:h-9 lg:w-9'}" do %>
+      <%= supply_star_icon("h-5 w-5", filled: on, tone: (tone[:icon] if on)) %><% if full %><span><%= t("supplies.favorite.button") %></span><% end %>
+    <% end %>
   <% end %>
-<% elsif on %>
-  <span class="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-amber-900" title="<%= t("supplies.favorite.button") %>"><%= star %><span class="<%= 'sr-only' unless full %>"><%= t("supplies.favorite.button") %></span></span>
+  <% if tags.present? %><div class="flex shrink-0 items-center gap-1.5"><%= tags %><%= button %></div><% else %><%= button %><% end %>
+<% elsif tags.present? %>
+  <div class="flex shrink-0 flex-wrap items-center justify-end gap-1.5"><%= tags %></div>
 <% end %>

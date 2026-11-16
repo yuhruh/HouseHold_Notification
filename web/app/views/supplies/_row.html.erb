@@ -1,13 +1,14 @@
 <%# One item in the list: a card on a phone, a table row from 1024px. Replaced in place after −1.
+    Your star in front of the name, other people's (tags) after the category.
     Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too %>
 <% status = forecast.status %>
 <% last = supply.latest_purchase %>
 <li id="<%= dom_id(supply, :row) %>" class="rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_18rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4">
   <div class="flex items-start gap-2.5 lg:items-center">
-    <%= render "supplies/favorite", supply: %>
+    <%= render "supplies/favorite", supply:, tags: false %>
     <div class="min-w-0 flex-1">
       <%= link_to supply.name, household_supply_path(Current.household, supply), class: "font-bold hover:underline" %>
-      <p class="text-xs text-gray-600"><%= supply_kind(supply.kind) %></p>
+      <p class="flex flex-wrap items-center gap-1.5 text-xs text-gray-600"><span><%= supply_kind(supply.kind) %></span><%= supply_star_tags(supply) %></p>
     </div>
     <span class="lg:hidden"><%= supply_badge(status) %></span>
   </div>

@@ -28,6 +28,69 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # Each person's star colour (Supplies::Starrers::COLORS): the fill and text of their button and tag,
+  # the star itself and the tag's outline
+  STAR_TONE = {
+    "amber" => { fill: "bg-amber-100", ink: "text-amber-900", icon: "text-amber-700", line: "border-amber-700" },
+    "teal" => { fill: "bg-teal-100", ink: "text-teal-900", icon: "text-teal-700", line: "border-teal-700" },
+    "violet" => { fill: "bg-violet-100", ink: "text-violet-900", icon: "text-violet-700", line: "border-violet-700" },
+    "rose" => { fill: "bg-rose-100", ink: "text-rose-900", icon: "text-rose-700", line: "border-rose-700" },
+    "sky" => { fill: "bg-sky-100", ink: "text-sky-900", icon: "text-sky-700", line: "border-sky-700" },
+    "lime" => { fill: "bg-lime-100", ink: "text-lime-900", icon: "text-lime-700", line: "border-lime-700" }
+  }.freeze
+  STAR_PATH = "M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z".freeze
+
+  # Who can star in this household, with their colours; one lookup for the whole page
+  def supply_starrers = @supply_starrers ||= Supplies::Starrers.new(Current.household)
+
+  # Owners and co-owners star an item in use; a viewer, or anyone on an archived item, only sees the stars
+  def supply_can_star?(supply) = supply.archived_at.nil? && policy(supply).update? && supply_starrers.person(Current.user).present?
+
+  def supply_star_icon(size, filled: true, tone: nil)
+    tag.svg(tag.path(d: STAR_PATH), class: "#{size} shrink-0 #{tone}", viewBox: "0 0 24 24", fill: (filled ? "currentColor" : "none"),
+            stroke: "currentColor", "stroke-width": "2", "stroke-linejoin": "round", "aria-hidden": "true")
+  end
+
+  # Someone's star on an item: a small tag in their colour with their initial, or their name (the item page)
+  def supply_star_tag(person, name: false)
+    tone = STAR_TONE.fetch(person.color)
+    said = t("supplies.favorite.by", name: person.name)
+    text = name ? [ tag.span(person.name) ] : [ tag.span(person.initial, aria: { hidden: true }), tag.span(said, class: "sr-only") ]
+    tag.span(safe_join([ supply_star_icon("h-3 w-3", tone: tone[:icon]), *text ]), title: (said unless name),
+             class: "inline-flex h-6 shrink-0 items-center gap-0.5 rounded-full border-[1.5px] pl-1.5 pr-2 text-xs leading-none font-extrabold #{tone[:fill]} #{tone[:ink]} #{tone[:line]}")
+  end
+
+  # The other people's stars on an item, beside your own star button; all of them where there is no
+  # button (a viewer, an archived item)
+  def supply_star_tags(supply, name: false)
+    people = supply_starrers.of(supply)
+    people = people.reject { it.user == Current.user } if supply_can_star?(supply)
+    safe_join(people.map { supply_star_tag(it, name:) }, " ")
+  end
+
+  # The item page, under the Favorite button: "Also starred by ★ Sam" ("Starred by" when your own star isn't on it)
+  def supply_starred_by(supply)
+    tags = supply_star_tags(supply, name: true)
+    return if tags.blank?
+
+    mine = supply_can_star?(supply) && supply_starrers.starred_by?(supply, Current.user)
+    tag.p(safe_join([ tag.span(t(mine ? "supplies.favorite.also_by" : "supplies.favorite.starred_by")), tags ], " "),
+          class: "flex flex-wrap items-center justify-end gap-1.5 text-sm text-gray-700")
+  end
+
+  # A "Starred by" chip on Favorites, one at a time: Everyone, or a person with a star in their colour
+  # (the row is also the key to the colours). The count is its own element, so a star updates it in place
+  def supply_star_chip(label, path, count:, count_id:, chosen:, person: nil)
+    tone = STAR_TONE.fetch(person.color) if person
+    look = if !chosen then "border-(--card-line) bg-white font-semibold"
+    elsif tone then "#{tone[:line]} #{tone[:fill]} #{tone[:ink]} font-extrabold"
+    else "border-blue-700 bg-blue-100 font-bold text-blue-900"
+    end
+    link_to path, class: "inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 px-3 text-sm #{look}", "aria-current": (chosen ? "true" : nil) do
+      safe_join([ (supply_star_icon("h-4 w-4", tone: tone[:icon]) if tone), tag.span(label), tag.span(count, id: count_id, class: "text-xs font-extrabold") ].compact, " ")
+    end
+  end
+
   # The Favorites tab's count: its own element (hidden at 0), so starring an item updates it in place
   def supply_favorites_badge(count)
     tag.span(count, id: "supplies_favorites_count", class: "rounded-full bg-amber-200 px-1.5 text-[11px] font-bold text-amber-900 sm:text-xs #{'hidden' if count.zero?}")

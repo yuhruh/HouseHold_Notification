@@ -124,6 +124,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Favorites: `supplies.favorite` shared by the ledger, star on cards / All rows / item page (owners and co-owners), Favorites tab | ☑ | 1.15.0 (6cb62f3), 2026-11-16; migration `AddFavoriteToSupplies` runs with `db:prepare` at server start (`bin/docker-entrypoint`); not yet confirmed on Railway |
 | All's filters as switches, any number at once (`kind[]`, `filter=expiring`); All and Buy soon chips removed; category chips on a phone | ☑ | 1.15.1 (fba32af), 2026-11-16 |
 | One item, several brands: It's one of my items (barcode joins an existing item), Product or brand on purchases, barcodes on Edit, search by brand | ☑ | 1.16.0, 2026-11-17; migration `AddProductNameToSupplyPurchasesAndBarcodes`. Stock stays combined per item. Not done: merging two items, size-aware usage |
+| Favorites per person: each owner and co-owner has their own star in their own colour with an initial (`supply_favorites`, `Supplies::Starrers`), Starred by chips on the Favorites tab, Also starred by on the item page | ☑ | 1.17.0, 2026-11-17; migration `CreateSupplyFavorites` moves the 1.15.0 stars to each ledger's owner and drops `supplies.favorite` |
 | Yahoo! JAPAN Client ID in credentials | ☐ | optional, see M0-SETUP §8 |
 | Mock-up PNG `docs/mockups/supplies.png` | ☐ | the mock-up exists only as an artifact |
 | Check on a real phone over HTTPS: a Taiwan product, a Japanese product, a real 發票 | ☐ | |

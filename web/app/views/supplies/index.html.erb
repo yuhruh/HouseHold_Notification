@@ -24,7 +24,20 @@
     <% pinned = @tab == "all" ? "space-y-3 lg:sticky lg:top-(--header-h) lg:z-20 lg:mb-0! lg:-mx-2 lg:bg-mauve-100 lg:px-2 lg:pt-2" : "sticky top-(--header-h) z-20 -mx-2 space-y-2 bg-mauve-100 px-2 py-3 lg:py-2" %>
     <div class="<%= pinned %>">
       <%= render "supplies/switch", current: @tab, counts: @counts %>
-      <p class="text-sm text-gray-700"><%= t(".intro.#{@tab}") %></p>
+      <% whose = @tab == "favorites" && @supply_starrers.several? %>
+      <p class="text-sm text-gray-700"><%= t(whose ? ".intro.favorites_whose" : ".intro.#{@tab}") %></p>
+      <% if whose && @counts[:favorites].positive? %>
+        <%# Whose stars: everyone's, or one person's. Each person's chip has their colour, so the row is also the key %>
+        <nav aria-label="<%= t(".starred_by") %>" class="flex flex-wrap items-center gap-2">
+          <span aria-hidden="true" class="text-sm font-semibold text-gray-700"><%= t(".starred_by") %></span>
+          <%= supply_star_chip(t(".everyone"), household_supplies_path(Current.household, tab: "favorites"), count: @counts[:favorites], count_id: "supplies_starred_count_all", chosen: @by.nil?) %>
+          <% @star_counts.each do |person, count| %>
+            <% me = person.user == Current.user %>
+            <% next unless count.positive? || me || person == @by %>
+            <%= supply_star_chip(me ? t(".me") : person.name, household_supplies_path(Current.household, tab: "favorites", by: person.user.id), count:, count_id: "supplies_starred_count_#{person.user.id}", chosen: person == @by, person:) %>
+          <% end %>
+        </nav>
+      <% end %>
       <% if @tab == "all" %>
         <%# The filters are switches, any number at once; each link keeps the others (and the search) and flips its own %>
         <% view = ->(kinds: @kinds, expiring: @expiring) { household_supplies_path(Current.household, { tab: "all", filter: ("expiring" if expiring), kind: kinds.presence, q: @query.presence }.compact) } %>
@@ -118,7 +131,10 @@
 
     <% when "favorites" %>
       <% if @favorites.empty? %>
-        <p class="<%= column %> text-gray-600"><%= t(writer ? ".no_favorites" : ".no_favorites_viewer") %></p>
+        <p class="<%= column %> text-gray-600"><%= if @by.nil? then t(writer ? ".no_favorites" : ".no_favorites_viewer")
+                                                    elsif @by.user == Current.user then t(".no_favorites_mine")
+                                                    else t(".no_favorites_by", name: @by.name)
+                                                    end %></p>
       <% else %>
         <ul class="<%= column %> <%= card_list %>">
           <% @favorites.each do |supply, forecast| %><%= render "supplies/card", supply:, forecast: %><% end %>

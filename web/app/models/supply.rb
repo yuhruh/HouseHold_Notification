@@ -16,6 +16,7 @@ class Supply < ApplicationRecord
   has_many :prices, class_name: "SupplyPrice", dependent: :delete_all
   has_many :counts, class_name: "SupplyCount", dependent: :delete_all
   has_many :barcodes, class_name: "SupplyBarcode", dependent: :delete_all
+  has_many :favorites, class_name: "SupplyFavorite", dependent: :delete_all
 
   normalizes :name, with: ->(name) { name.to_s.squish }
 
@@ -30,7 +31,6 @@ class Supply < ApplicationRecord
   before_validation { self.level_at ||= Time.current }
 
   scope :active, -> { where(archived_at: nil) }
-  scope :favorites, -> { where(favorite: true) }
 
   def expiry_window_days = EXPIRY_WINDOW_DAYS.fetch(kind, DEFAULT_EXPIRY_WINDOW_DAYS)
 

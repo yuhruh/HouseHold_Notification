@@ -144,64 +144,128 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "li#card_supply_#{item.id} span", text: "總數：25"
   end
 
-  test "Favorites: owners and co-owners star an item for the household, and the Favorites tab lists the starred ones" do
-    star = create_item(name: "Coffee", unit: "bottle", level: 30)
-    plain = create_item(name: "Soap", level: 30)
+  test "Favorites: each owner and co-owner has their own star, and the tab lists every starred item once with whose star it is" do
+    alex, sam = users(:alex), users(:google_only)
+    memberships(:sam_home).update!(role: "co_owner")
+    coffee = create_item(name: "Coffee", unit: "bottle", level: 30)
+    soap = create_item(name: "Soap", level: 30)
+    plain = create_item(name: "Tissue", level: 30)
 
     get household_supplies_path(@home, tab: "favorites")
     assert_select "nav a[aria-current=page][href=?]", household_supplies_path(@home, tab: "favorites"), text: /我的最愛/
     assert_select "#supplies_favorites_count.hidden", text: "0"
     assert_select "main p", text: /還沒有我的最愛/
     assert_select "li[id^=card_]", 0
+    assert_select "nav[aria-label=誰加的星]", 0
 
     # The star is on the cards (Stocked), the All rows and the item page
     get household_supplies_path(@home, tab: "stocked")
-    assert_select "li#card_supply_#{star.id} form[action=?] button[aria-pressed=false]", household_supply_favorite_path(@home, star)
+    assert_select "li#card_supply_#{coffee.id} form[action=?] button[aria-pressed=false]", household_supply_favorite_path(@home, coffee)
     get household_supplies_path(@home, tab: "all")
-    assert_select "li#row_supply_#{star.id} form[action=?] button[aria-label=?]", household_supply_favorite_path(@home, star), "我的最愛：Coffee"
-    get household_supply_path(@home, star)
-    assert_select "#favorite_supply_#{star.id} button[aria-pressed=false]", text: /我的最愛/
+    assert_select "li#row_supply_#{coffee.id} form[action=?] button[aria-label=?]", household_supply_favorite_path(@home, coffee), "我的最愛：Coffee"
+    get household_supply_path(@home, coffee)
+    assert_select "#favorite_supply_#{coffee.id} button[aria-pressed=false]", text: /我的最愛/
 
-    post household_supply_favorite_path(@home, star), as: :turbo_stream
+    post household_supply_favorite_path(@home, coffee), as: :turbo_stream
     assert_response :success
-    assert star.reload.favorite?
-    assert_not plain.reload.favorite?
-    %W[row_supply_#{star.id} card_supply_#{star.id} favorite_supply_#{star.id} supplies_favorites_count].each do |target|
+    assert_equal [ alex ], coffee.favorites.map(&:user)
+    assert_empty soap.favorites
+    %W[row_supply_#{coffee.id} card_supply_#{coffee.id} favorite_supply_#{coffee.id} starred_by_supply_#{coffee.id}
+       supplies_favorites_count supplies_starred_count_all supplies_starred_count_#{alex.id}].each do |target|
       assert_match "target=\"#{target}\"", response.body
     end
     assert_select "#supplies_favorites_count:not(.hidden)", text: "1"
+    post household_supply_favorite_path(@home, coffee), as: :turbo_stream
+    assert_equal 1, coffee.favorites.count, "starring twice is one star"
+
+    # Sam stars the coffee too, and the soap: three stars on two items
+    [ coffee, soap ].each { it.favorites.create!(user: sam) }
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "li[id^=card_]", 2
+    assert_select "#supplies_favorites_count:not(.hidden)", text: "2"
+    assert_select "nav[aria-label=誰加的星]" do
+      assert_select "a[aria-current=true]", text: /所有人/
+      assert_select "#supplies_starred_count_all", "2"
+      assert_select "a[href=?]", household_supplies_path(@home, tab: "favorites", by: alex.id), text: /我\s+1/
+      assert_select "a[href=?]", household_supplies_path(@home, tab: "favorites", by: sam.id), text: /Sam\s+2/
+    end
+    assert_select "li#card_supply_#{coffee.id}" do
+      assert_select "button[aria-pressed=true].bg-amber-100"
+      assert_select "span.bg-teal-100[title='Sam 加的星星']", text: /S/
+    end
+    assert_select "li#card_supply_#{soap.id}" do
+      assert_select "button[aria-pressed=false].bg-white"
+      assert_select "span.bg-teal-100[title='Sam 加的星星']"
+    end
+    assert_select "span[title='Alex 加的星星']", 0, "your own star is the button, not a tag"
+
+    # One person's stars
+    get household_supplies_path(@home, tab: "favorites", by: sam.id)
+    assert_select "li[id^=card_]", 2
+    assert_select "nav[aria-label=誰加的星] a[aria-current=true].bg-teal-100", text: /Sam/
+    assert_select "#supplies_favorites_count", text: "2"
+    get household_supplies_path(@home, tab: "favorites", by: alex.id)
+    assert_select "li[id^=card_]", 1
+    assert_select "li#card_supply_#{coffee.id}"
+
+    # All: other people's stars after the category; the item page names them
+    get household_supplies_path(@home, tab: "all")
+    assert_select "li#row_supply_#{soap.id} p span[title='Sam 加的星星']"
+    assert_select "li#row_supply_#{plain.id} span[title]", 0
+    get household_supply_path(@home, coffee)
+    assert_select "#favorite_supply_#{coffee.id} input[name=_method][value=delete]"
+    assert_select "#starred_by_supply_#{coffee.id} p", text: /也加了星\s*Sam/
+    get household_supply_path(@home, soap)
+    assert_select "#starred_by_supply_#{soap.id} p", text: /加星的人\s*Sam/
+
+    # Taking your star away leaves Sam's: the coffee stays in Favorites. Without Turbo: back to where the star was tapped
+    delete household_supply_favorite_path(@home, coffee), headers: { "HTTP_REFERER" => household_supplies_url(@home, tab: "favorites") }
+    assert_redirected_to household_supplies_url(@home, tab: "favorites")
+    assert_equal [ sam ], coffee.favorites.reload.map(&:user)
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "li[id^=card_]", 2
+    assert_select "li#card_supply_#{coffee.id} button[aria-pressed=false]"
+    get household_supplies_path(@home, tab: "favorites", by: alex.id)
+    assert_select "li[id^=card_]", 0
+    assert_select "main p", text: /你還沒有加星的品項/
+
+    # Sam sees the same items with a teal button of their own
+    sign_out
+    sign_in_as sam
+    coffee.favorites.create!(user: alex)
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "li#card_supply_#{coffee.id}" do
+      assert_select "button[aria-pressed=true].bg-teal-100"
+      assert_select "span.bg-amber-100[title='Alex 加的星星']", text: /A/
+    end
+    assert_select "nav[aria-label=誰加的星] a[href=?]", household_supplies_path(@home, tab: "favorites", by: sam.id), text: /我\s+2/
+  end
+
+  test "Favorites: a viewer sees whose stars an item has but can't star, and a viewer's old star doesn't count" do
+    sam = users(:google_only)
+    star = create_item(name: "Coffee", level: 30)
+    plain = create_item(name: "Soap", level: 30)
+    star.favorites.create!(user: users(:alex))
+    plain.favorites.create!(user: sam) # from when Sam was a co-owner
+    sign_out
+    sign_in_as sam
 
     get household_supplies_path(@home, tab: "favorites")
     assert_select "li[id^=card_]", 1
-    assert_select "li#card_supply_#{star.id} button[aria-pressed=true]"
-    assert_select "#supplies_favorites_count:not(.hidden)", text: "1"
-    get household_supply_path(@home, star)
-    assert_select "#favorite_supply_#{star.id} input[name=_method][value=delete]"
-
-    # Without Turbo: back to where the star was tapped
-    delete household_supply_favorite_path(@home, star), headers: { "HTTP_REFERER" => household_supplies_url(@home, tab: "favorites") }
-    assert_redirected_to household_supplies_url(@home, tab: "favorites")
-    assert_not star.reload.favorite?
-  end
-
-  test "Favorites: a viewer sees the stars but can't change them" do
-    star = create_item(name: "Coffee", level: 30, favorite: true)
-    plain = create_item(name: "Soap", level: 30)
-    sign_out
-    sign_in_as users(:google_only)
-
-    get household_supplies_path(@home, tab: "favorites")
-    assert_select "li#card_supply_#{star.id}", text: /我的最愛/
+    assert_select "li#card_supply_#{star.id} span.bg-amber-100[title='Alex 加的星星']", text: /A/
     assert_select "form[action=?]", household_supply_favorite_path(@home, star), 0
+    assert_select "nav[aria-label=誰加的星]", 0, "one person stars here: nothing to tell apart"
     get household_supplies_path(@home, tab: "all")
-    assert_select "li#row_supply_#{plain.id}", text: /我的最愛/, count: 0
+    assert_select "li#row_supply_#{star.id} span[title='Alex 加的星星']"
+    assert_select "li#row_supply_#{plain.id} span[title]", 0
+    get household_supply_path(@home, star)
+    assert_select "#starred_by_supply_#{star.id} p", text: /加星的人\s*Alex/
 
-    post household_supply_favorite_path(@home, plain), as: :turbo_stream
+    post household_supply_favorite_path(@home, star), as: :turbo_stream
     assert_response :forbidden
     delete household_supply_favorite_path(@home, star), as: :turbo_stream
     assert_response :forbidden
-    assert star.reload.favorite?
-    assert_not plain.reload.favorite?
+    assert_equal [ users(:alex) ], star.favorites.reload.map(&:user)
   end
 
   test "To Buy, Stocked and All tabs, like Bills" do

@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.3"
+  date: 2026-11-16
+  en:
+    - "Supplies on a computer: under the pointer, the To Buy, Stocked and All tabs stand on the line as a press-button card in their own colour (rose, sky, grey), and the tab you're on is filled in its colour. To Buy is red instead of blue, on a phone too."
+  zh-TW:
+    - "電腦上的日用品頁：滑鼠移到「該買了」「還夠用」「全部」分頁時，分頁會變成一張有邊框和陰影的卡片，各用自己的顏色（玫瑰紅、天藍、灰）；目前所在的分頁也會填上自己的顏色。「該買了」改用紅色，不再是藍色，手機上也一樣。"
 - version: "1.14.2"
   date: 2026-11-16
   en:

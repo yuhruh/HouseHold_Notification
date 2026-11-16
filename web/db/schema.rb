@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -826,6 +826,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_110000) do
     t.bigint "supply_id", null: false
     t.string "code", null: false
     t.datetime "created_at", null: false
+    t.string "product_name"
     t.index ["household_id", "code"], name: "index_supply_barcodes_on_household_id_and_code", unique: true
     t.index ["household_id"], name: "index_supply_barcodes_on_household_id"
     t.index ["supply_id"], name: "index_supply_barcodes_on_supply_id"
@@ -877,6 +878,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_110000) do
     t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "product_name"
     t.index ["created_by_id"], name: "index_supply_purchases_on_created_by_id"
     t.index ["household_id"], name: "index_supply_purchases_on_household_id"
     t.index ["receipt_import_id"], name: "index_supply_purchases_on_receipt_import_id"

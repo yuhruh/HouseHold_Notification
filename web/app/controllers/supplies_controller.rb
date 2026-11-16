@@ -15,7 +15,7 @@ class SuppliesController < ApplicationController
   # keeps only the expiring ones among them
   def index
     authorize Supply
-    supplies = Current.household.supplies.includes(:purchases, :counts)
+    supplies = Current.household.supplies.includes(:purchases, :counts, :barcodes)
     supplies = params[:archived].present? ? supplies.where.not(archived_at: nil) : supplies.active
     @today = Current.household.today
     all = supplies.order(:name).map { [ it, it.forecast(today: @today) ] }
@@ -61,7 +61,7 @@ class SuppliesController < ApplicationController
 
     saved = Supply.transaction do
       raise ActiveRecord::Rollback unless @supply.save
-      @supply.barcodes.create!(household: Current.household, code: @scan[:barcode]) if @scan[:barcode].present? && !Current.household.supply_barcodes.exists?(code: @scan[:barcode])
+      SupplyBarcode.remember(@supply, @scan[:barcode], product_name: @scan[:product_name].presence || @supply.name) if @scan[:barcode].present?
       if bought
         @purchase = Supplies::PurchaseDetails.for_new(@supply, attributes, level: @supply.level, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
         purchase_failed! unless @purchase.persisted?
@@ -117,7 +117,7 @@ class SuppliesController < ApplicationController
   private
 
   def set_supply
-    @supply = Current.household.supplies.includes(:purchases, :counts, :prices).find(params[:id])
+    @supply = Current.household.supplies.includes(:purchases, :counts, :prices, :barcodes).find(params[:id])
   end
 
   def supply_params = params.expect(supply: %i[name kind unit level guess_days_per_unit lead_days alert_when_left])
@@ -141,7 +141,7 @@ class SuppliesController < ApplicationController
   end
 
   def scan_params
-    params.permit(:barcode, :source, :original_name, :brand, :not_found, filled: []).to_h.symbolize_keys.tap do |scan|
+    params.permit(:barcode, :source, :original_name, :brand, :product_name, :not_found, filled: []).to_h.symbolize_keys.tap do |scan|
       scan[:barcode] = scan[:barcode].to_s.gsub(/\D/, "").presence
       scan[:filled] = Array(scan[:filled]) & %w[name kind unit]
     end
@@ -150,8 +150,13 @@ class SuppliesController < ApplicationController
   def shown?(supply, forecast)
     return false if @expiring && !forecast.expiring?
     return false if @kinds.any? && @kinds.exclude?(supply.kind)
-    return false if @query.present? && !(supply.name.downcase.include?(@query.downcase) || supply.purchases.any? { it.store.to_s.downcase.include?(@query.downcase) })
+    return false if @query.present? && searched(supply).none? { it.to_s.downcase.include?(@query.downcase) }
     true
+  end
+
+  # What the search looks in: the item's name, its stores, and the products (brands) it was bought as
+  def searched(supply)
+    [ supply.name ] + supply.purchases.flat_map { [ it.store, it.product_name ] } + supply.barcodes.map(&:product_name)
   end
 
   def urgency(supply, forecast)

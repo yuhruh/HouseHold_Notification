@@ -12,12 +12,23 @@
     <%= hidden_field_tag :barcode, scan[:barcode] %>
     <% if scan[:not_found] %><%= hidden_field_tag :not_found, 1 %><% end %>
     <% scan[:filled].to_a.each do |name| %><%= hidden_field_tag "filled[]", name, id: nil %><% end %>
+    <% if scan[:product_name].present? %><%= hidden_field_tag :product_name, scan[:product_name], id: nil %><% end %>
     <% if scan[:not_found] %>
       <%# No database knows it: a pop-up asks for the details, then the name field %>
       <% if supply.errors.empty? %><%= render "shared/notice", title: t("supplies.form.not_found_title"), body: t("supplies.form.not_found", code: scan[:barcode]), focus: "#supply_name" %><% end %>
       <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t("supplies.form.not_found_short", code: scan[:barcode]) %></p>
     <% else %>
       <p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("supplies.form.found", code: scan[:barcode], source: t("supplies.sources.#{scan[:source].presence || 'unknown'}")) %></p>
+    <% end %>
+    <%# Another brand of something already tracked: add it to that item instead of making a second one %>
+    <% if supply.new_record? && Current.household.supplies.active.exists? && SupplyBarcode.free?(Current.household, scan[:barcode]) %>
+      <div class="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border-2 border-sky-300 bg-sky-50 px-3 py-2.5">
+        <p class="text-sm text-sky-900"><%= t("supplies.form.existing_question_html") %><span class="block text-xs"><%= t("supplies.form.existing_hint") %></span></p>
+        <%= link_to restock_household_supplies_path(Current.household, barcode: scan[:barcode], product_name: scan[:product_name].presence), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-sky-100 px-3 py-1.5 text-sm font-bold text-gray-900" do %>
+          <%= t("supplies.form.existing_link") %>
+          <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        <% end %>
+      </div>
     <% end %>
   <% end %>
   <div>

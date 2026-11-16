@@ -115,7 +115,8 @@ module SuppliesHelper
   # A History line: "+12 · NT$289 · Costco" or "Counted: 4 rolls"
   def supply_history_line(supply, event)
     if event.is_a?(SupplyPurchase)
-      safe_join([ "+#{supply_count(supply, event.quantity)}", money(event.total_price, event.currency), event.store.presence ].compact, " · ")
+      safe_join([ "+#{supply_count(supply, event.quantity)}", money(event.total_price, event.currency), event.store.presence,
+                  (tag.span(event.product_name, class: "font-semibold") if event.product_name) ].compact, " · ")
     else
       t("supplies.show.counted_line", left: supply_count(supply, event.level))
     end

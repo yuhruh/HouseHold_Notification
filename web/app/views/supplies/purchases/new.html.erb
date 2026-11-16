@@ -1,11 +1,24 @@
 <% content_for :title, t(".title", item: @supply.name) %>
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% stores = Current.household.supply_purchases.where.not(store: nil).distinct.order(:store).pluck(:store) %>
+<% products = (@supply.priced.map(&:product_name) + @supply.barcodes.map(&:product_name)).compact.uniq.sort %>
 <%= render layout: "shared/modal_or_page", locals: { title: t(".title", item: @supply.name), icon: "expense.png" } do %>
   <%= form_with model: @purchase, url: household_supply_purchases_path(Current.household, @supply), class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
     <% if @purchase.errors.any? %>
       <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @purchase.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
     <% end %>
+    <%# One item can be several brands: the product this purchase was, for comparing prices. A scan
+        fills it in and, for a barcode no item has yet, saving remembers the barcode for this item %>
+    <% if @barcode %><%= hidden_field_tag :barcode, @barcode, id: nil %><% end %>
+    <% if @barcode && @link %>
+      <p class="rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900"><%= t("supplies.purchases.form.barcode_note_html", code: @barcode, item: @supply.name) %></p>
+    <% end %>
+    <div>
+      <%= form.label :product_name, t("supplies.purchases.form.product_name"), class: "block text-sm font-medium" %>
+      <%= form.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, list: "supply-products", placeholder: @supply.name, class: (@scanned_name ? "#{field} border-green-700 bg-green-50" : field) %>
+      <datalist id="supply-products"><% products.each do |product| %><option value="<%= product %>"></option><% end %></datalist>
+      <p class="mt-1 text-xs text-gray-600"><%= t(@scanned_name ? "supplies.purchases.form.product_name_scanned" : "supplies.purchases.form.product_name_hint", item: @supply.name) %></p>
+    </div>
     <div class="grid grid-cols-2 gap-3">
       <div>
         <%= form.label :quantity, t("supplies.purchases.form.quantity", unit: t("supplies.units.#{@supply.unit}_other")), class: "block text-sm font-medium" %>

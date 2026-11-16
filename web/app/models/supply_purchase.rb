@@ -1,4 +1,5 @@
-# One restock: how many, what it cost in total, where, and (optionally) when it expires.
+# One restock: how many, what it cost in total, where, which product it was (an item can be several
+# brands; they share its count and forecast) and (optionally) when it expires.
 # left_before is the count just before it, which is how the forecast learns the usage rate.
 # The price per unit is worked out from the total, never typed in.
 class SupplyPurchase < ApplicationRecord
@@ -13,7 +14,6 @@ class SupplyPurchase < ApplicationRecord
   validates :left_before, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100_000 }
 
   def old_price? = false
-  def display_name = supply.name
 
   # When it happened, for ordering against counts: the moment it was logged when it was logged the
   # same day, else midday of the purchase date in the household's zone

@@ -39,7 +39,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     assert_difference -> { @home.records.count } do
       post household_supply_purchases_path(@home, supply), params: { add_to_ledger: "1",
-        supply_purchase: { quantity: 12, total_price: 289, store: "Costco", purchased_on: Date.current, left_before: 4 } }
+        supply_purchase: { quantity: 12, total_price: 289, store: "Costco", purchased_on: @home.today, left_before: 4 } }
     end
     assert_redirected_to household_supply_path(@home, supply)
     record = @home.records.order(:id).last
@@ -105,7 +105,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_equal 4, supply.reload.level
 
-    post household_supply_purchases_path(@home, supply), params: { supply_purchase: { quantity: "1.5", total_price: 10, purchased_on: Date.current, left_before: 0 } }
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: { quantity: "1.5", total_price: 10, purchased_on: @home.today, left_before: 0 } }
     assert_response :unprocessable_content
     post household_supplies_path(@home), params: { supply: { name: "Soap", kind: "cleaning", unit: "bottle", level: -2 } }
     assert_response :unprocessable_content
@@ -325,7 +325,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
   test "an old price: listed in Price history and Where to buy, with no change to the count or forecast" do
     supply = create_item(level: 0)
-    supply.purchases.create!(household: @home, purchased_on: Date.current - 3, quantity: 12, total_price: 289, store: "Costco", left_before: 0)
+    supply.purchases.create!(household: @home, purchased_on: @home.today - 3, quantity: 12, total_price: 289, store: "Costco", left_before: 0)
     supply.update!(level: 0)
     forecast_before = supply.reload.forecast.status
 
@@ -341,7 +341,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     assert_no_difference -> { supply.counts.count } do
       assert_no_difference -> { @home.records.count } do
-        post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Kleenex 3-ply 6 rolls", store: "PX Mart", quantity: 6, total_price: 119, purchased_on: Date.current - 100 } }
+        post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Kleenex 3-ply 6 rolls", store: "PX Mart", quantity: 6, total_price: 119, purchased_on: @home.today - 100 } }
       end
     end
     assert_redirected_to household_supply_path(@home, supply)
@@ -353,7 +353,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal forecast_before, supply.forecast.status
 
     # Same name as the item: stored blank, shown as the item's name
-    post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Toilet paper", store: "Carrefour", quantity: 6, total_price: 60, purchased_on: Date.current - 200 } }
+    post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Toilet paper", store: "Carrefour", quantity: 6, total_price: 60, purchased_on: @home.today - 200 } }
     assert_nil supply.prices.find_by(store: "Carrefour").product_name
 
     get household_supply_path(@home, supply)
@@ -375,17 +375,17 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
   test "an old price can't be in the future, and a viewer can't add or delete one" do
     supply = create_item
-    post household_supply_prices_path(@home, supply), params: { supply_price: { store: "Costco", quantity: 6, total_price: 99, purchased_on: Date.current + 1 } }
+    post household_supply_prices_path(@home, supply), params: { supply_price: { store: "Costco", quantity: 6, total_price: 99, purchased_on: @home.today + 1 } }
     assert_response :unprocessable_content
     assert_equal 0, supply.prices.count
-    price = supply.prices.create!(household: @home, quantity: 6, total_price: 99, purchased_on: Date.current)
+    price = supply.prices.create!(household: @home, quantity: 6, total_price: 99, purchased_on: @home.today)
 
     sign_in_as users(:google_only)
     get household_supply_path(@home, supply)
     assert_select "a[href=?]", new_household_supply_price_path(@home, supply), 0
     get new_household_supply_price_path(@home, supply)
     assert_response :forbidden
-    post household_supply_prices_path(@home, supply), params: { supply_price: { quantity: 6, total_price: 99, purchased_on: Date.current } }
+    post household_supply_prices_path(@home, supply), params: { supply_price: { quantity: 6, total_price: 99, purchased_on: @home.today } }
     assert_response :forbidden
     delete household_supply_price_path(@home, supply, price)
     assert_response :forbidden
@@ -413,7 +413,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     supply = create_item
     supply.barcodes.create!(household: @home, code: "4710000000017")
     get scan_barcode_household_supplies_path(@home, code: "4710000000017")
-    assert_redirected_to new_household_supply_purchase_path(@home, supply, scan: 1)
+    assert_redirected_to new_household_supply_purchase_path(@home, supply, scan: 1, barcode: "4710000000017")
 
     ProductLookup.create!(code: "7394376616228", source: "open_food_facts", name: "燕麥奶", kind_guess: "food_drink", fetched_at: Time.current)
     get scan_barcode_household_supplies_path(@home, code: "7394376616228")
@@ -435,6 +435,111 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "p", /請自己輸入名稱、類別和單位/
     end
     assert_select "input[type=hidden][name=not_found][value='1']"
+  end
+
+  test "another brand joins an item: scan → It's one of my items → pick → Restocked remembers the barcode and the product" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 1)
+    shampoo.purchases.create!(household: @home, purchased_on: @home.today - 30, quantity: 2, total_price: 289, store: "Coupang", left_before: 0, product_name: "Pantene 700ml")
+    ProductLookup.create!(code: "4710000000031", source: "open_beauty_facts", name: "Lux Shampoo 750ml", kind_guess: "toiletries", fetched_at: Time.current)
+
+    get scan_barcode_household_supplies_path(@home, code: "4710000000031")
+    follow_redirect!
+    pick = restock_household_supplies_path(@home, barcode: "4710000000031", product_name: "Lux Shampoo 750ml")
+    assert_select "a[href=?]", pick, text: /這是我已有的項目/
+    assert_select "input[type=hidden][name=product_name][value='Lux Shampoo 750ml']"
+
+    get pick
+    assert_select "h1", /這是哪個項目/
+    assert_select "p", /條碼 4710000000031（Lux Shampoo 750ml）會記在你選的項目上/
+    form = new_household_supply_purchase_path(@home, shampoo, barcode: "4710000000031", product_name: "Lux Shampoo 750ml")
+    assert_select "a[href=?]", form, text: /Shampoo/
+
+    get form
+    assert_select "p", /儲存後，條碼 4710000000031 會記在「Shampoo」上/
+    assert_select "input[name='supply_purchase[product_name]'][value='Lux Shampoo 750ml'].bg-green-50"
+    assert_select "input[name='supply_purchase[total_price]']:not([value])", 1, "a brand bought for the first time: not Pantene's price"
+    assert_select "input[name='supply_purchase[store]'][value=Coupang]"
+    assert_select "datalist#supply-products option[value='Pantene 700ml']"
+    assert_select "input[type=hidden][name=barcode][value='4710000000031']"
+
+    assert_no_difference -> { @home.supplies.count } do
+      post household_supply_purchases_path(@home, shampoo), params: { barcode: "4710000000031",
+        supply_purchase: { product_name: "Lux Shampoo 750ml", quantity: 2, total_price: 398, store: "PX Mart", purchased_on: @home.today, left_before: 1 } }
+    end
+    assert_redirected_to household_supply_path(@home, shampoo)
+    assert_equal 3, shampoo.reload.level, "every brand counts together"
+    assert_equal [ [ "4710000000031", "Lux Shampoo 750ml" ] ], shampoo.barcodes.map { [ it.code, it.product_name ] }
+    assert_equal [ "Pantene 700ml", "Lux Shampoo 750ml" ], shampoo.purchases.order(:purchased_on).map(&:product_name)
+
+    # the item's page names each brand; the lists name the one bought last and the search finds it
+    follow_redirect!
+    assert_select "li", /PX Mart.*Lux Shampoo 750ml/m
+    assert_select "td span", "Pantene 700ml"
+    assert_select "li", /\+2 瓶.*PX Mart.*Lux Shampoo 750ml/m
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id} p span", "Lux Shampoo 750ml"
+    get household_supplies_path(@home, q: "pantene")
+    assert_select "main li", 1
+    assert_select "#row_supply_#{shampoo.id}"
+
+    # the next scan of that bottle goes straight to the item, with the product filled in
+    get scan_barcode_household_supplies_path(@home, code: "4710000000031")
+    assert_redirected_to new_household_supply_purchase_path(@home, shampoo, scan: 1, barcode: "4710000000031")
+    follow_redirect!
+    assert_select "input[name='supply_purchase[product_name]'][value='Lux Shampoo 750ml']"
+    assert_select "input[name='supply_purchase[total_price]'][value='398']", 1, "this product's last price"
+    assert_select "p", text: /會記在「Shampoo」上/, count: 0
+  end
+
+  test "a purchase's product: empty or the item's own name is no product, and over 80 characters is refused" do
+    supply = create_item(name: "Shampoo", unit: "bottle")
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: { product_name: " Shampoo ", quantity: 1, total_price: 100, purchased_on: @home.today, left_before: 4 } }
+    assert_nil supply.purchases.sole.product_name
+    assert_equal "Shampoo", supply.purchases.sole.display_name
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: { product_name: "x" * 81, quantity: 1, total_price: 100, purchased_on: @home.today, left_before: 5 } }
+    assert_response :unprocessable_content
+    assert_equal 1, supply.purchases.count
+
+    # Edit corrects the last purchase's product
+    patch household_supply_path(@home, supply), params: { supply: { name: "Shampoo" }, purchase: { product_name: "Lux 750ml", quantity: 1, total_price: 100, purchased_on: @home.today } }
+    assert_equal "Lux 750ml", supply.purchases.sole.product_name
+  end
+
+  test "Edit lists the item's barcodes; Remove unlinks one, a viewer can't, and an archived item's barcode moves to the item picked" do
+    shampoo = create_item(name: "Shampoo", unit: "bottle")
+    barcode = shampoo.barcodes.create!(household: @home, code: "4710000000031", product_name: "Lux Shampoo 750ml")
+    get edit_household_supply_path(@home, shampoo)
+    assert_select "section[aria-labelledby=supply-barcodes] li", /Lux Shampoo 750ml.*4710000000031/m
+    assert_select "form[action=?] button[aria-label='移除條碼 4710000000031']", household_supply_barcode_path(@home, shampoo, barcode)
+
+    sign_in_as users(:google_only)
+    delete household_supply_barcode_path(@home, shampoo, barcode)
+    assert_response :forbidden
+    post household_supply_purchases_path(@home, shampoo), params: { barcode: "4710000000048", supply_purchase: { quantity: 1, total_price: 100, purchased_on: @home.today, left_before: 4 } }
+    assert_response :forbidden
+    assert_equal 1, shampoo.barcodes.count
+
+    sign_in_as users(:alex)
+    delete household_supply_barcode_path(@home, shampoo, barcode)
+    assert_redirected_to household_supply_path(@home, shampoo)
+    assert_empty shampoo.barcodes.reload
+
+    # a duplicate item put away: its barcode goes to the item it is bought as next
+    duplicate = create_item(name: "Lux Shampoo 750ml", unit: "bottle", archived_at: Time.current)
+    duplicate.barcodes.create!(household: @home, code: "4710000000031")
+    get scan_barcode_household_supplies_path(@home, code: "4710000000031")
+    follow_redirect!
+    assert_select "a", text: /這是我已有的項目/
+    post household_supply_purchases_path(@home, shampoo), params: { barcode: "4710000000031",
+      supply_purchase: { product_name: "Lux Shampoo 750ml", quantity: 1, total_price: 199, purchased_on: @home.today, left_before: 4 } }
+    assert_equal shampoo, @home.supply_barcodes.find_by!(code: "4710000000031").supply
+
+    # a barcode another item in use has stays there
+    other = create_item(name: "Soap")
+    other.barcodes.create!(household: @home, code: "4710000000048")
+    post household_supply_purchases_path(@home, shampoo), params: { barcode: "4710000000048", supply_purchase: { quantity: 1, total_price: 100, purchased_on: @home.today, left_before: 5 } }
+    assert_equal other, @home.supply_barcodes.find_by!(code: "4710000000048").supply
   end
 
   test "a Taiwan e-invoice: review, save once with one Ledger expense, remembered next time, refused twice" do
@@ -465,6 +570,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_match "已從1 張發票儲存 2 筆購買，並在帳本記了 1 筆支出", flash[:notice]
     assert_equal 283, @home.records.order(:id).last.amount_paid
     assert_equal 4 + 12, supply.reload.level
+    assert_equal "舒潔衛生紙", supply.purchases.sole.product_name, "the receipt line's text is the product bought"
     assert_equal 3, @home.supplies.find_by!(name: "鮮奶").level, "the quantity typed on the review wins"
     assert_equal "全聯", @home.receipt_sellers.sole.name
 
@@ -542,6 +648,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   end
 
   test "a new item bought a while ago with some used: the forecast has a usage rate straight away" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon # a purchase on a past day counts from its midday
     bought_on = @home.today - 10
     post household_supplies_path(@home), params: { supply: { name: "Toilet paper", kind: "toiletries", unit: "roll", level: 5 },
                                                    purchase: { purchased_on: bought_on, quantity: 12, total_price: 289, store: "Costco" } }

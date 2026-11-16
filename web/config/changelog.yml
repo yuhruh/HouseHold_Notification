@@ -3,7 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
-- version: "1.15.1"
+- version: "1.16.0"
+  date: 2026-11-17
+  en:
+    - "New: one supply item can be several brands. When you scan the barcode of a brand you haven't scanned before, the New item form offers \"It's one of my items\": pick the item (say Shampoo), and the barcode is remembered for it. Every brand shares the item's count, usage and restock alert, so you are told once when shampoo as a whole runs low."
+    - "Restocked has a new \"Product or brand (optional)\" field. A scan fills it in, a receipt keeps the line's text, and by hand you can pick a brand you bought before or leave it empty. The product shows in History, Price history and Where to buy, so you can compare what each brand cost, and in the lists under Last bought."
+    - "Supplies › All: the search also finds an item by a brand you bought it as. Edit lists the item's barcodes, with Remove for one linked by mistake."
+  zh-TW:
+    - "新功能：一個日用品項目可以有好幾個品牌。掃描沒掃過的品牌條碼時，「新增項目」表單會出現「這是我已有的項目」：選好項目（例如洗髮精），條碼就會記在它上面。所有品牌共用這個項目的數量、用量和補貨提醒，所以洗髮精整體快用完時只會提醒一次。"
+    - "「已補貨」多了「品名或品牌（選填）」欄位。掃描會自動填入，發票會保留品項文字，手動輸入時可以選以前買過的品牌或留空。品名會顯示在記錄、價格記錄和哪裡買，方便比較各品牌的價格，也會顯示在清單的上次購買。"
+    - "日用品 ›「全部」：搜尋也能用買過的品牌找到項目。編輯頁會列出項目的條碼，連結錯的可以移除。"
   date: 2026-11-16
   en:
     - "Supplies › All: the filters are switches now, and you can choose as many as you like. Several categories show the items in any of them, Expiring keeps only the expiring ones among them, a chosen filter turns blue with a ✕ (tap it again to clear it), and “Showing 3 of 10” with Clear all appears while the list is narrowed."

@@ -119,8 +119,9 @@ Home Screen.
   + New Ledger, Ledger Settings and Members.
 - **Your menu** at the right: My Account, Theme (Light / Dark / Auto) and Language switches, Getting
   Started, About This App, Install App and Sign Out. On a phone both menus open as sheets from the bottom, and a tab bar
-  holds Bills, Analysis, Supplies and New. The header's **+ New ▾** menu adds a bill, a supply item
-  or a purchase, or scans a barcode or receipt.
+  holds Bills, Analysis, Supplies and New (its **Add new** sheet closes on Cancel or a tap outside
+  it). The header's **+ New ▾** menu adds a bill, a supply item or a purchase, or scans a barcode or
+  receipt.
 - The **ledger home** has one **Bills** card (what's to pay: overdue, due in 30 days, a count of
   what's coming up and the most urgent bills, beside the last 3 bills paid) and, under **Ledger Setup**, Recurring Bills,
   Categories and Payment Methods.
@@ -182,16 +183,42 @@ Home Screen.
   the app estimates what's left today ("~2 rolls"), the run-out date and a **buy-by** date (run-out −
   days it takes to buy − 2 days, or 4 while there are fewer than 3 readings). With no guess and no
   readings an item says **Not enough data yet**.
-- The page has three tabs, like Bills: **To Buy** (opens first) groups what to buy now into **Out
-  Or Buy Now**, **Buy In The Next 7 Days** and **Expiring**, each in its own colour (softer in dark
-  mode), with a **Next up** line; **Stocked** lists what's enough for now by the month it moves to To
-  Buy, then **Not Enough Data Yet**; **All** is every item with filters, the estimated monthly spend
-  and, on a computer, a table with category chips and a search box.
-- An item's page has the Forecast card with **−1 Used one** (updates in place, with Undo) and
-  **Bought more**, **I have __ left** to correct the count, **Where to buy** (each store's cheapest
-  price per unit, and the total spent) and **History**, both folded. **Edit** (a dialog on a
-  computer) changes the item's settings and corrects its last purchase; **Archive** hides it and
-  stops its alerts.
+- The page has four tabs, like Bills, each with a count:
+  - **To Buy** (opens first) groups what to restock now into **Out Or Buy Now**, **Buy In The Next 7
+    Days** and **Expiring**, each in its own colour (softer in dark mode), with a **Next up** line;
+  - **Stocked** lists what's enough for now by the month it moves to To Buy, then **Not Enough Data
+    Yet**;
+  - **Favorites** lists the starred items, the ones to restock soonest first (on a phone the tab is
+    the star and its count);
+  - **All** is every item: cards on a phone, a table on a computer (the **Left** column is the
+    number alone over the stock bar), with the estimated monthly spend and, on a computer, a search
+    box.
+
+  To Buy, Stocked and Favorites show their groups and cards in one centred column at every width.
+- **All's filters** are switches after a **Filter** label, on a phone too, and any number can be on
+  at once: **Expiring** (shown only while something is expiring) and one chip per category in use.
+  Several categories show the items in any of them, and Expiring keeps only the expiring ones among
+  them. A chosen chip is blue with a ✕ and a second tap clears it; chips and the search keep each
+  other. While the list is narrowed, **Showing 3 of 10** and **Clear all** take the monthly
+  estimate's place.
+- **Favorites** belong to the ledger, so everyone sees the same ones. Owners and co-owners star an
+  item at the top right of its card, in front of its name in the All table, or with **Favorite**
+  beside Edit on its page; a viewer sees the star but can't change it. Archived items can't be
+  starred.
+- Every stock bar shows its **Total** over its right end: the most there has been right after a
+  restock, never less than the last count ("Total: 25 bottles" on the item's page, "Total: 25" in
+  the lists).
+- An item's page has the **Stock Forecast** card with **−1 Used one** (updates in place, with Undo)
+  and **Restocked**, **Inventory:** to correct the count, **Where to buy** (each store's cheapest
+  price per unit, and the total spent), **History** and **Price history**, folded. **Edit** (a
+  dialog on a computer) changes the item's settings and corrects its last purchase; **Archive**
+  hides it and stops its alerts. **‹ Back to Supplies** returns to the view the item was opened
+  from: the same tab, filters and search (remembered per browser tab).
+- **One item, several brands:** an item (say Shampoo) keeps one count, one usage rate and one
+  restock alert for every brand bought as it. A purchase can carry a **Product or brand** (filled in
+  by a scan, taken from a receipt line, or typed), which shows in History, Price history, Where to
+  buy and the lists' Last bought, and which the All search finds. The brand is only a label for
+  comparing prices; the app doesn't count each brand separately.
 - **New item** can include **I already bought these** (date, how many, price, store, expiry), so an
   item bought a while ago has a usage rate from the first day. **Also add to Ledger** on any purchase
   creates a paid expense in the 日用品 category.
@@ -199,10 +226,13 @@ Home Screen.
   Scan product barcode, Add a receipt, Supply item, Log a purchase… and Bill / record. **Log a purchase** lists the
   Buy soon items first.
 - **Scanning**, read in the browser (camera, a photo, a pasted screenshot or the typed number):
-  - a **product barcode** (EAN-13/JAN, EAN-8, UPC) goes to the item it was saved with, or is looked
-    up in Open Food / Beauty / Products Facts and, for Japanese codes, Yahoo! JAPAN Shopping. A code
-    no database knows opens the New item form with a **Product not found** note, and the barcode is
-    remembered once the item is saved.
+  - a **product barcode** (EAN-13/JAN, EAN-8, UPC) goes to the item it was saved with (the
+    Restocked form, product filled in), or is looked up in Open Food / Beauty / Products Facts and,
+    for Japanese codes, Yahoo! JAPAN Shopping. A code no database knows opens the New item form
+    with a **Product not found** note, and the barcode is remembered once the item is saved. For
+    another brand of something already tracked, the New item form offers **It's one of my items**:
+    pick the item, and saving the purchase remembers the barcode for it. **Edit** lists an item's
+    barcodes with **Remove**; a barcode on an archived item moves to the item it is bought as next.
   - **Add a receipt** takes a printed **Taiwan e-invoice** (both QR codes of 電子發票證明聯, shown as
     "1 of 2 QR codes read") or up to 10 **invoice PDFs** (發票明細 from a store's email or order page;
     a locked PDF asks for its password). **Review items** lists every item by invoice (quantity,
@@ -220,7 +250,7 @@ Home Screen.
   is sent once and resets after a purchase or a higher count. Owners and co-owners get them by
   default (**My Account → Notifications → Supplies low or expiring**): inbox and push, or email when
   push is off or no device confirms it within an hour.
-- Everyone in the ledger can see Supplies; owners and co-owners add, edit and archive.
+- Everyone in the ledger can see Supplies; owners and co-owners add, edit, archive and star.
 
 **Sheet import**
 - Upload the sheet's CSV export, review a preview of new / changed / unchanged / error rows, then
@@ -364,9 +394,10 @@ In short:
 8. **Every day:** check **Bills › To Pay** (and **Coming Up** for later), tap **Record Payment** after paying, and **Add photos**
    for receipts. **Expense Analysis** shows where the money goes.
 9. **Supplies:** **+ New ▾ → Supply item** (or scan its barcode), say how many you have, and fill in
-   **I already bought these** if you know when. Tap **−1 Used one** now and then, or **I have __
-   left**, and **Log a purchase** (or scan the 發票) after shopping. The app learns how fast each item
-   goes and sends a restock alert in time.
+   **I already bought these** if you know when. Tap **−1 Used one** now and then, or correct the
+   count under **Inventory:**, and tap **Restocked** (or scan the 發票) after shopping. The app learns
+   how fast each item goes and sends a restock alert in time. Star the things you buy again and
+   again to find them under **Favorites**.
 10. **If a reminder fails**, the owner sees it in the daily summary and can resend it from the
    ledger menu → **Ledger Settings → Reminder delivery**.
 

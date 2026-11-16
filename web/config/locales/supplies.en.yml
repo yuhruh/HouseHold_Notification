@@ -211,7 +211,7 @@ en:
       chosen: "chosen, select to clear"
       showing: "Showing %{shown} of %{total}"
       clear_all: "Clear all"
-      search: "Search items or stores"
+      search: "Search items, brands or stores"
       none_match: "Nothing matches."
       details_label: "Details for %{item}"
       no_purchase: "No purchases yet"
@@ -269,6 +269,12 @@ en:
       title: "New supply item"
     edit:
       title: "Edit %{item}"
+      barcodes:
+        title: "Barcodes"
+        hint: "Scanning one of these opens %{item}. Remove one that was linked by mistake."
+        remove: "Remove"
+        remove_label: "Remove barcode %{code}"
+        confirm: "Remove barcode %{code} from this item? The next scan of it will be treated as new."
     create:
       created: "Added %{item}."
     update:
@@ -301,6 +307,10 @@ en:
       not_found_title: "Product not found"
       not_found_short: "Barcode %{code} · not found, typed in by hand"
       original_name: "Original name: %{name}"
+      existing_question_html: "<strong>Already track this,</strong> under another brand or name?"
+      existing_link: "It's one of my items"
+      existing_hint: "Saving here makes a separate item with its own count and restock date."
+      product_name_hint: "The brand or pack this purchase was, if it wasn't the usual one."
       archive: "Archive item"
       restore: "Put back on the list"
       archive_confirm: "Archive this item? Its alerts stop; its history and Ledger entries are kept."
@@ -312,6 +322,10 @@ en:
         buy_soon: "Buy soon"
         all: "All items"
         not_listed: "Not listed? Add a new supply item"
+        link_title: "Which item is this?"
+        link_note_html: "Barcode %{code} will be remembered for the item you pick, so the next scan goes straight to it."
+        link_note_product_html: "Barcode %{code} (<strong>%{product}</strong>) will be remembered for the item you pick, so the next scan goes straight to it."
+        link_taken: "Barcode %{code} already belongs to one of your items. Pick what you bought."
       new:
         title: "Restocked: %{item}"
       create:
@@ -328,6 +342,13 @@ en:
         left_before_hint: "Filled in with the app's estimate. Correct it if you know better; that's how it calculates."
         add_to_ledger: "Also add to Ledger as an expense"
         add_to_ledger_hint: "A paid expense in %{category}"
+        product_name: "Product or brand (optional)"
+        product_name_hint: "What you bought this time, like a brand and size. It shows in Price history, so you can compare brands; every brand shares this item's count. Leave it empty for plain \"%{item}\"."
+        product_name_scanned: "Filled in from the barcode you scanned. Every brand shares this item's count."
+        barcode_note_html: "Barcode %{code} will be remembered for <strong>%{item}</strong> when you save."
+    barcodes:
+      destroy:
+        removed: "Removed barcode %{code} from %{item}."
     prices:
       new:
         title: "Add an old price: %{item}"

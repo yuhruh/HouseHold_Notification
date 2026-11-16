@@ -1,7 +1,14 @@
-<% content_for :title, t("supplies.purchases.pick.title") %>
-<%# Log a purchase…: which item? The ones to buy soon first, then the rest; a search narrows both %>
-<%= render layout: "shared/modal_or_page", locals: { title: t("supplies.purchases.pick.title"), icon: "expense.png" } do %>
+<%# Log a purchase…: which item? The ones to buy soon first, then the rest; a search narrows both.
+    From a scan ("It's one of my items"): which item is this barcode? It goes along to the Restocked
+    form, which remembers it for the item picked %>
+<% scan = { barcode: @barcode, product_name: @product_name }.compact %>
+<% title = t(@barcode ? "supplies.purchases.pick.link_title" : "supplies.purchases.pick.title") %>
+<% content_for :title, title %>
+<%= render layout: "shared/modal_or_page", locals: { title:, icon: "expense.png" } do %>
   <div class="space-y-4" data-controller="supply-pick">
+    <% if @barcode %>
+      <p class="rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900"><%= @link ? t(@product_name ? "supplies.purchases.pick.link_note_product_html" : "supplies.purchases.pick.link_note_html", code: @barcode, product: @product_name) : t("supplies.purchases.pick.link_taken", code: @barcode) %></p>
+    <% end %>
     <input type="search" data-supply-pick-target="query" data-action="input->supply-pick#filter" placeholder="<%= t("supplies.purchases.pick.search") %>" aria-label="<%= t("supplies.purchases.pick.search") %>" class="block w-full rounded-xl border border-gray-400 px-3 py-2">
     <% [ [ t("supplies.purchases.pick.buy_soon"), @buy_soon ], [ t("supplies.purchases.pick.all"), @others ] ].each do |heading, list| %>
       <% next if list.empty? %>
@@ -10,7 +17,7 @@
         <ul class="space-y-2">
           <% list.each do |supply, forecast| %>
             <li data-supply-pick-target="item" data-name="<%= supply.name.downcase %>">
-              <%= link_to new_household_supply_purchase_path(Current.household, supply), class: "flex min-h-12 items-center justify-between gap-3 rounded-xl border-2 border-(--card-line) bg-white px-3 py-2 hover:bg-gray-50" do %>
+              <%= link_to new_household_supply_purchase_path(Current.household, supply, **scan), class: "flex min-h-12 items-center justify-between gap-3 rounded-xl border-2 border-(--card-line) bg-white px-3 py-2 hover:bg-gray-50" do %>
                 <span class="min-w-0"><span class="block font-semibold"><%= supply.name %></span><span class="text-xs <%= supply_line_class(forecast) %>"><%= supply_left(supply, forecast) %> · <%= supply_line(supply, forecast) %></span></span>
                 <span aria-hidden="true">›</span>
               <% end %>
@@ -19,6 +26,6 @@
         </ul>
       </section>
     <% end %>
-    <p class="text-sm"><%= link_to t("supplies.purchases.pick.not_listed"), new_household_supply_path(Current.household, log_purchase: 1), data: { turbo_frame: "_top" }, class: "font-semibold text-blue-700 hover:underline" %></p>
+    <p class="text-sm"><%= link_to t("supplies.purchases.pick.not_listed"), new_household_supply_path(Current.household, log_purchase: 1, name: @product_name, not_found: (1 if @barcode && @product_name.nil?), **scan), data: { turbo_frame: "_top" }, class: "font-semibold text-blue-700 hover:underline" %></p>
   </div>
 <% end %>

@@ -115,6 +115,15 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Product name from a photo (Tesseract OCR) | ➖ | added in 8b2bbec, removed in 5232496 at the owner's request: unreliable on packaging. Claude vision / Cloud Vision declined; names are typed once and remembered with the barcode |
 | "Product not found" / "N items not found" pop-ups | ☑ | 1.11.2 (5232496) |
 | New item → "I already bought these"; Edit corrects the last purchase (Ledger expense follows) | ☑ | 1.11.3 (13cbfab) |
+| Price history on the item page, Add an old price (`SupplyPrice`) | ☑ | 1.14.0 (3477b0a) |
+| To Buy / Stocked / All tabs, like Bills; press-button tab cards on a computer | ☑ | 1.12.0 (d9dd4f0); tab look 1.14.2 – 1.14.4 (8bd6572, f0d58a2, 2464b86, Bills too) |
+| Add new sheet closes on a click outside it | ☑ | 1.14.5 (cf2ec76) |
+| Wording: Restock now / Restock soon / Restocked / Stock Forecast; 補貨 everywhere in zh-TW; count box labelled Inventory: (盤點) | ☑ | 1.14.6 (0731a82), 1.14.8 (0052a10), 1.14.10 (d813e0e) |
+| ‹ Back to Supplies returns to the view the item was opened from; stock bar Total (`Forecast#full_stock`) | ☑ | 1.14.7 (2122381) |
+| All: Left column is the number alone; To Buy and Stocked in one centred column | ☑ | 1.14.9 (d2e8850), 1.14.11 (45938bf) |
+| Favorites: `supplies.favorite` shared by the ledger, star on cards / All rows / item page (owners and co-owners), Favorites tab | ☑ | 1.15.0 (6cb62f3), 2026-11-16; migration `AddFavoriteToSupplies` runs with `db:prepare` at server start (`bin/docker-entrypoint`); not yet confirmed on Railway |
+| All's filters as switches, any number at once (`kind[]`, `filter=expiring`); All and Buy soon chips removed; category chips on a phone | ☑ | 1.15.1 (fba32af), 2026-11-16 |
+| One item, several brands: It's one of my items (barcode joins an existing item), Product or brand on purchases, barcodes on Edit, search by brand | ☑ | 1.16.0, 2026-11-17; migration `AddProductNameToSupplyPurchasesAndBarcodes`. Stock stays combined per item. Not done: merging two items, size-aware usage |
 | Yahoo! JAPAN Client ID in credentials | ☐ | optional, see M0-SETUP §8 |
 | Mock-up PNG `docs/mockups/supplies.png` | ☐ | the mock-up exists only as an artifact |
 | Check on a real phone over HTTPS: a Taiwan product, a Japanese product, a real 發票 | ☐ | |

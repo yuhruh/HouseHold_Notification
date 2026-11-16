@@ -38,7 +38,7 @@ module Auth
       end
 
       user = User.transaction do
-        User.create!(email_address: email, email_confirmed_at: Time.current, display_name: @auth.info.name,
+        User.create!(email_address: email, email_confirmed_at: Time.current, display_name: @auth.info.name.to_s.first(User::DISPLAY_NAME_MAX).presence,
           time_zone: User.valid_time_zone(@time_zone)).tap { |u| link(u) }
       end
       Result.new(:created, user)

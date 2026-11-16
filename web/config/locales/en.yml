@@ -96,6 +96,15 @@ en:
       invalid_link: "That confirmation link is invalid or has expired. Request a new one below."
       taken: "This email is already in use by another account."
       confirmed: "Your email is confirmed. Welcome!"
+      changed: "Your email is now %{email}."
+      sign_in_first: "Sign in to confirm your new email."
+      other_account: "That link is for a different account. Sign out, then open it again and sign in to that account."
+      title: "Confirm Your Email"
+      hint: "To confirm %{email}, enter the password you chose when you signed up. We ask because this isn't the browser you signed up in."
+      submit: "Confirm"
+      not_you: "Didn't sign up? You can close this page. Nothing happens without the password."
+    update:
+      wrong_password: "That password isn't right."
     new:
       title: "Resend The Confirmation Email"
       submit: "Send"
@@ -275,7 +284,7 @@ en:
         items_html:
           - "The ledger's owner may send you a setup email. Follow it once in Gmail on a computer: add the ledger's forwarding address (the <strong>Copy address</strong> button makes it easy), wait for the owner to confirm it, then create the Gmail filter the email shows."
           - "After that each bill email reaches the ledger by itself: the amount and 繳費期限 are filled in, and the bill is marked paid when the paid notice comes."
-          - "To check it works, forward one bill email to the address by hand; it shows up in the ledger within about 5 minutes."
+          - "The owner and co-owners can check it works by forwarding one bill email to the address by hand; it shows up in the ledger within about 5 minutes."
       privacy: "Privacy policy"
   roles:
     owner: "Owner"

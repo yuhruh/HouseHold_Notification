@@ -111,6 +111,28 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_equal [], inbox.reload.allowed_senders
   end
 
+  test "the owner can't use the setup email to write to address after address" do
+    sign_in_as users(:alex)
+    inbox = @home.create_electricity_account!(category: @power).inbox
+    inbox.update!(allowed_senders: (1..ForwardingInbox::MAX_ALLOWED_SENDERS).map { "kept#{it}@example.com" })
+    assert_no_enqueued_emails do
+      post forwarder_household_forwarding_inbox_path(@home), params: { from: "electricity", email: "one.more@example.com" }
+    end
+    assert_match(/最多 10 個/, flash[:alert])
+    assert_equal ForwardingInbox::MAX_ALLOWED_SENDERS, inbox.reload.allowed_senders.size
+
+    inbox.update!(allowed_senders: [])
+    9.times do |n|
+      post forwarder_household_forwarding_inbox_path(@home), params: { from: "electricity", email: "f#{n}@example.com" }
+      delete forwarder_household_forwarding_inbox_path(@home), params: { from: "electricity", email: "f#{n}@example.com" }
+    end
+    assert_no_enqueued_emails do
+      post forwarder_household_forwarding_inbox_path(@home), params: { from: "electricity", email: "f9@example.com" }
+    end
+    assert_equal I18n.t("auth.rate_limited"), flash[:alert]
+    assert_equal [], inbox.reload.allowed_senders
+  end
+
   test "nothing to send before it's turned on" do
     sign_in_as users(:alex)
     assert_no_enqueued_emails do
@@ -134,6 +156,11 @@ class ElectricityAccountTest < ActionDispatch::IntegrationTest
     assert_match(/1\. .*Forwarding and POP\/IMAP/, body)
     assert_match(/3\. .*from:taipower\.com\.tw/, body)
     assert_match(/#{Regexp.escape(users(:alex).display_name.presence || users(:alex).email_address)} confirms it/, body)
+    assert_no_match(/by hand/, body + html, "an added email can't check by forwarding one by hand")
+
+    owner_mail = ForwardingSetupMailer.with(inbox: account.inbox, email: users(:alex).email_address, added_by: users(:alex), locale: "en").setup
+    assert_match(/forward one 台電 bill email to the address by hand/, owner_mail.text_part.decoded)
+    assert_match(/forward one 台電 bill email to the address by hand/, owner_mail.html_part.decoded)
   end
 
   test "a 電號 must be 11 digits, and a ledger can't take another's" do

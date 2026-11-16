@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   DEFAULT_TIME_ZONE = "Asia/Taipei".freeze
   UNCONFIRMED_TTL = 7.days
+  EMAIL_MAX = 254
+  DISPLAY_NAME_MAX = 60
 
   # Google-only users have no password, so presence isn't validated
   has_secure_password validations: false
@@ -18,7 +20,17 @@ class User < ApplicationRecord
   belongs_to :last_household, class_name: "Household", optional: true
 
   normalizes :email_address, :unconfirmed_email, with: ->(e) { e.strip.downcase }
+  # One line of plain text: other members see it, and it's written into emails the app sends
+  normalizes :display_name, with: ->(name) { name.gsub(/[[:cntrl:]]/, " ").squish }
 
+  # Each is checked when it changes, so an account from before these rules can still be saved.
+  # An address is exactly one address: mail goes to it as written, and "a@x.com, b@y.com" would
+  # reach everyone on the list.
+  validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, length: { maximum: EMAIL_MAX },
+    allow_nil: true, if: :will_save_change_to_email_address?
+  validates :unconfirmed_email, format: { with: URI::MailTo::EMAIL_REGEXP }, length: { maximum: EMAIL_MAX },
+    allow_nil: true, if: :will_save_change_to_unconfirmed_email?
+  validates :display_name, length: { maximum: DISPLAY_NAME_MAX }, if: :will_save_change_to_display_name?
   validates :password, length: { in: 8..72 }, confirmation: true, allow_nil: true
   validates :time_zone, inclusion: { in: ->(_) { TZInfo::Timezone.all_identifiers } }
   validates :locale, inclusion: { in: ->(_) { I18n.available_locales.map(&:to_s) } }, allow_nil: true

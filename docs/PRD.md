@@ -360,6 +360,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
       - `users.email_address` holds **only a confirmed email** (unique where not null). A pending address lives in `users.unconfirmed_email` (**not unique**), so an unconfirmed sign-up never reserves or blocks an address.
       - The confirmation token (`generates_token_for :email_confirmation`, 24h) embeds the `unconfirmed_email` value, so changing it invalidates old links.
       - On confirmation, the address moves into `email_address` inside a transaction. If someone else has verified it meanwhile, the unique index rejects the move and the user sees "this email is already in use".
+      - The link alone confirms nothing (added 2026-11-16), because anyone can type someone else's address. A new sign-up is confirmed at once only in the browser that signed up (an encrypted `signup` cookie); any other browser must enter the sign-up password. A changed address is confirmed only while signed in to that account. The link never signs anyone in to an existing account.
     - **Email + password sign-up:**
       - Always responds "Check your email" (no account enumeration).
       - If the address already belongs to a verified account, that inbox instead receives "You already have an account: sign in or reset your password".

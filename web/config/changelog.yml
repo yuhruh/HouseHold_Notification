@@ -3,6 +3,20 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.1"
+  date: 2026-11-16
+  en:
+    - "Safer sign-up: the link in the confirmation email works right away in the browser you signed up in. In any other browser it asks for your sign-up password first, so nobody else can confirm an account in your name."
+    - "Changing your email: the confirmation link works only while you're signed in to your account. Signed out, it asks you to sign in first."
+    - "Your name is one line of up to 60 characters, and a ledger can have up to 10 other emails that forward bills."
+    - "Forwarded bill emails are checked more strictly, and one email that can't be read no longer holds up the others."
+    - "Forwarding a bill email by hand now adds it only when the owner or a co-owner sends it. A viewer, or another email that forwards, uses the Gmail filter as before."
+  zh-TW:
+    - "註冊更安全：確認信裡的連結，在你註冊時用的瀏覽器會直接生效；在其他瀏覽器會先請你輸入註冊時設定的密碼，別人就無法用你的名義確認帳號。"
+    - "變更電子郵件：確認連結只有在登入你的帳號時才有效；還沒登入的話，會先請你登入。"
+    - "名稱限一行、最多 60 個字；每本帳本最多可以有 10 個其他會轉寄帳單的 Email。"
+    - "轉寄的帳單信會檢查得更嚴格，而且一封讀不了的信不會再卡住其他的信。"
+    - "手動轉寄帳單 Email：只有擁有者或共同管理者寄的才會加進帳本。檢視者和其他會轉寄的 Email 照舊用 Gmail 篩選器轉寄。"
 - version: "1.14.0"
   date: 2026-11-16
   en:

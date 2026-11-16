@@ -31,12 +31,14 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
 
   teardown { ForwardingInbox.singleton_class.send(:remove_method, :mailbox) }
 
-  def email(from:, subject: "Hello", body: "Hi", to: @address, return_path: nil, auth: nil, content_type: "text/plain")
+  # `sent`: headers the sender wrote themselves, which Gmail keeps below its own
+  def email(from:, subject: "Hello", body: "Hi", to: @address, return_path: nil, auth: nil, content_type: "text/plain", sent: [])
     caf = "#{to.sub("@", "=")}@gmail.com"
     headers = [ "Delivered-To: #{to}",
       ("Return-Path: <#{return_path.sub("CAF", caf)}>" if return_path),
       ("Authentication-Results: mx.google.com; #{auth.gsub("CAF", caf)}" if auth),
       "Authentication-Results: spoofed.example; spf=pass smtp.mailfrom=nobody@example.com",
+      *sent.map { it.gsub("CAF", caf) },
       "From: #{from}", "To: someone@gmail.com", "Subject: #{Mail::Encodings.b_value_encode(subject, "UTF-8")}", "Content-Type: #{content_type}; charset=UTF-8" ].compact
     "#{headers.join("\r\n")}\r\n\r\n#{body.gsub("\n", "\r\n")}"
   end
@@ -53,8 +55,8 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
         "click this link to cancel this verification:\nhttps://mail-settings.google.com/mail/uf-%5BANGjdJ_abc%5D-zzz\n")
   end
 
-  # Forwarded by hand from a member's Gmail: From the member, signed by gmail.com, 台電's email quoted inside
-  def by_hand(from: "co.owner@gmail.com", quoted: "寄件者： 台灣電力公司 <ebill@taipower.com.tw>", signed: "gmail.com")
+  # Forwarded by hand by the owner: From them, signed by their mail provider, 台電's email quoted inside
+  def by_hand(from: "alex@example.com", quoted: "寄件者： 台灣電力公司 <ebill@taipower.com.tw>", signed: from.split("@").last)
     email(from:, subject: "Fwd: 台電電子帳單", auth: "dkim=pass header.i=@#{signed}; spf=pass smtp.mailfrom=#{from}",
       body: "---------- Forwarded message ---------\n#{quoted}\nDate: 2026年10月7日\nSubject: 電子帳單\n\n電號 04-08-1234-56-7")
   end
@@ -93,19 +95,19 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
       @account.reload.activity.reverse.map { it.values_at("reason", "detail") }
   end
 
-  test "a 台電 email forwarded by hand by a member is accepted for the bill reader, but doesn't count as the filter working" do
+  test "a 台電 email forwarded by hand by the owner is accepted for the bill reader, but doesn't count as the filter working" do
     inbox = FakeInbox.new("m1" => by_hand, "m2" => by_hand(quoted: "From: 台灣電力公司 <ebill@taipower.com.tw>"))
     assert_equal %i[bill bill], Utilities::ForwardedMail.call(inbox:)
     assert_equal({ "m1" => :taipower, "m2" => :taipower }, inbox.done)
     @account.reload
-    assert_equal [ { "kind" => "received_by_hand", "detail" => "co.owner@gmail.com" }, { "kind" => "unreadable", "detail" => "Fwd: 台電電子帳單" } ],
+    assert_equal [ { "kind" => "received_by_hand", "detail" => "alex@example.com" }, { "kind" => "unreadable", "detail" => "Fwd: 台電電子帳單" } ],
       @account.activity.first(2).reverse.map { it.except("at") }, "no bill table in it, so the reader says so"
     assert_nil @account.last_success_at
   end
 
   test "a hand-forward that isn't 台電's, or isn't really from the member, is ignored" do
     assert_equal %i[ignored ignored], read_mail("m1" => by_hand(quoted: "From: Shop <news@shop.example>"), "m2" => by_hand(signed: "evil.example"))
-    assert_equal [ [ "not_taipower_forward", "co.owner@gmail.com" ], [ "not_authentic", "co.owner@gmail.com" ] ],
+    assert_equal [ [ "not_taipower_forward", "alex@example.com" ], [ "not_authentic", "alex@example.com" ] ],
       @account.reload.activity.reverse.map { it.values_at("reason", "detail") }
   end
 
@@ -142,8 +144,8 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
   test "a 台電 bill forwarded by hand is written too, without counting as the filter working" do
     body = "<div>---------- Forwarded message ---------<br>\nFrom: 台電電子帳單服務系統 &lt;ebill@ebppsmtp.taipower.com.tw&gt;<br>" \
       "Subject: 台電e-Bill115年10月電費通知(電號:12345678901)</div>#{taipower_html("bill_notice")}"
-    mail = email(from: "co.owner@gmail.com", subject: "Fwd: 台電e-Bill115年10月電費通知(電號:12345678901)", content_type: "text/html",
-      auth: "dkim=pass header.i=@gmail.com; spf=pass smtp.mailfrom=co.owner@gmail.com", body:)
+    mail = email(from: "alex@example.com", subject: "Fwd: 台電e-Bill115年10月電費通知(電號:12345678901)", content_type: "text/html",
+      auth: "dkim=pass header.i=@example.com; spf=pass smtp.mailfrom=alex@example.com", body:)
     assert_difference(-> { @home.records.count }, 1) { assert_equal [ :bill ], read_mail("m1" => mail) }
     assert_equal [ "2026 7月-8月", 1234 ], @home.records.last.then { [ it.period.to_s, it.amount_required ] }
     assert_nil @account.reload.last_success_at
@@ -167,6 +169,67 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     assert_equal [ [ "not_taipower", "billing@taipower-tw.example" ], [ "not_authentic", "ebill@taipower.com.tw" ],
       [ "unknown_forwarder", nil ], [ "unknown_forwarder", nil ], [ "not_member", "stranger@gmail.com" ] ], reasons
     assert_nil @account.last_success_at
+  end
+
+  FORWARDED = "---------- Forwarded message ---------\nFrom: 台灣電力公司 <ebill@taipower.com.tw>\n\n電號 04-08-1234-56-7".freeze
+
+  test "only the owner and co-owners add bills by forwarding by hand; a viewer or an added email uses a filter" do
+    viewer = users(:google_only)
+    results = read_mail("added" => by_hand(from: "co.owner@gmail.com"), "viewer" => by_hand(from: viewer.email_address))
+    assert_equal %i[ignored ignored], results
+    assert_equal [ [ "by_hand_not_editor", "co.owner@gmail.com" ], [ "by_hand_not_editor", viewer.email_address ] ],
+      @account.reload.activity.reverse.map { it.values_at("reason", "detail") }
+    assert_equal 0, @home.records.count
+
+    memberships(:sam_home).update!(role: "co_owner")
+    assert_equal [ :bill ], read_mail("coowner" => by_hand(from: viewer.email_address))
+    assert_equal [ :bill ], read_mail("filter" => taipower), "the added email's Gmail filter still forwards 台電's own emails"
+  end
+
+  test "an envelope sender written to read like a DKIM pass doesn't make the owner's hand-forward authentic" do
+    sender = "x.dkim=pass.header.d=example.com@evil.example"
+    forged = email(from: "alex@example.com", subject: "Fwd: 台電電子帳單", body: FORWARDED, return_path: sender,
+      auth: "spf=pass (google.com: domain of #{sender} designates 6.6.6.6 as permitted sender) smtp.mailfrom=#{sender}; " \
+        "dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=example.com")
+    assert_equal [ :ignored ], read_mail("m1" => forged)
+    assert_equal [ "not_authentic", "alex@example.com" ], @account.reload.activity.first.values_at("reason", "detail")
+  end
+
+  test "an envelope sender with quotes or brackets in it proves nothing, whatever the header then seems to say" do
+    sender = "\"x) ; dkim=pass header.i=@example.com ; (y\"@evil.example"
+    forged = email(from: "alex@example.com", subject: "Fwd: 台電電子帳單", body: FORWARDED, return_path: sender,
+      auth: "spf=pass (google.com: domain of #{sender} designates 6.6.6.6 as permitted sender) smtp.mailfrom=#{sender}")
+    assert_equal [ :ignored ], read_mail("m1" => forged)
+    assert_equal "not_authentic", @account.reload.activity.first["reason"]
+  end
+
+  test "headers the sender wrote to pass for Gmail's own don't count" do
+    by_hand = email(from: "alex@example.com", subject: "Fwd: 台電電子帳單", body: FORWARDED, return_path: "someone@evil.example",
+      auth: "dkim=pass header.i=@evil.example; spf=pass smtp.mailfrom=someone@evil.example",
+      sent: [ "Authentication-Results: mx.google.com; dkim=pass header.i=@example.com" ])
+    filtered = email(from: "台灣電力公司 <ebill@taipower.com.tw>", body: "電號 04-08-1234-56-7", return_path: "someone@evil.example",
+      auth: "spf=pass smtp.mailfrom=someone@evil.example",
+      sent: [ "Return-Path: <co.owner+caf_=CAF>", "Authentication-Results: mx.google.com; spf=pass smtp.mailfrom=\"co.owner+caf_=CAF\"" ])
+    assert_equal %i[ignored ignored], read_mail("m1" => by_hand, "m2" => filtered)
+    assert_equal %w[not_authentic unknown_forwarder], @account.reload.activity.reverse.map { it["reason"] }
+    assert_nil @account.last_success_at
+  end
+
+  test "a subject the database can't store is still handled, so the mail after it is read" do
+    inbox = FakeInbox.new("m1" => by_hand.sub(/^Subject: .*$/, "Subject: =?UTF-8?B?AAAA?="), "m2" => confirmation)
+    assert_equal %i[bill confirm], Utilities::ForwardedMail.call(inbox:)
+    assert_equal %w[m1 m2], inbox.done.keys
+    assert_equal [ "unreadable", "" ], @account.reload.activity.second.values_at("kind", "detail")
+  end
+
+  test "a message that can't be handled is reported and labelled, and doesn't hold up the others" do
+    Utilities::Taipower::Reader.define_singleton_method(:call) { |*| raise "the reader broke" }
+    inbox = FakeInbox.new("m1" => by_hand, "m2" => confirmation)
+    assert_equal %i[failed confirm], Utilities::ForwardedMail.call(inbox:)
+    assert_equal({ "m1" => nil, "m2" => nil }, inbox.done)
+    assert_equal LINK, @inbox.reload.forwarding_link
+  ensure
+    Utilities::Taipower::Reader.singleton_class.send(:remove_method, :call)
   end
 
   test "mail to an address whose ledger number doesn't match its token is left alone, but still labelled" do
@@ -226,8 +289,8 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     water_account = @home.create_water_account!(category: @home.categories.find_by!(name_zh: "水費"))
     body = "<div>---------- Forwarded message ---------<br>\nFrom: 台灣自來水公司 &lt;service@ebillserver.water.gov.tw&gt;<br>" \
       "Subject: 台灣自來水公司115年10月帳單通知</div>#{water_html("bill_notice")}"
-    mail = email(from: "co.owner@gmail.com", subject: "Fwd: 台灣自來水公司115年10月帳單通知", content_type: "text/html",
-      auth: "dkim=pass header.i=@gmail.com; spf=pass smtp.mailfrom=co.owner@gmail.com", body:)
+    mail = email(from: "alex@example.com", subject: "Fwd: 台灣自來水公司115年10月帳單通知", content_type: "text/html",
+      auth: "dkim=pass header.i=@example.com; spf=pass smtp.mailfrom=alex@example.com", body:)
     assert_equal [ :bill ], read_mail("m1" => mail)
     assert_equal [ "2026 7月-8月", 680 ], @home.records.last.then { [ it.period.to_s, it.amount_required ] }
     assert_nil water_account.reload.last_success_at

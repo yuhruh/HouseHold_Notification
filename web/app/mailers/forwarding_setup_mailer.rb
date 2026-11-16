@@ -16,6 +16,8 @@ class ForwardingSetupMailer < ApplicationMailer
     domains = companies.map(&:last)
     @filter = domains.one? ? "from:#{domains.first}" : "from:(#{domains.join(" OR ")})"
     @several = domains.many?
+    # Only the owner and co-owners can check by forwarding one by hand (Utilities::ForwardedMail)
+    @by_hand = @inbox.forwarders.find { it.email == params[:email].to_s.downcase }&.role.in?(%w[owner co_owner])
     mail to: params[:email], subject: t(".subject", household: @inbox.household.name, companies: @companies)
   end
 end

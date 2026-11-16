@@ -47,7 +47,7 @@ class BillsPaidNotificationTest < ActionDispatch::IntegrationTest
   end
 
   test "an owner with a device gets one inbox item and one push listing the bills, and no email" do
-    @alex.push_subscriptions.create!(endpoint: "https://push/1", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/1", p256dh: "a", auth: "b")
     bills = [ paid_bill("5月-6月", 410), paid_bill("7月-8月", 374) ]
     assert_no_enqueued_emails do
       with_push { NotifyBillsPaidJob.perform_now(@home.id, bills.map(&:id)) }
@@ -76,14 +76,14 @@ class BillsPaidNotificationTest < ActionDispatch::IntegrationTest
     end
     assert notices.sole.fallback_emailed_at
 
-    @alex.push_subscriptions.create!(endpoint: "https://push/gone", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/gone", p256dh: "a", auth: "b")
     gone = WebPush::ExpiredSubscription.new(Struct.new(:code, :body).new("410", ""), "push")
     assert_enqueued_emails(1) { with_push(error: gone) { NotifyBillsPaidJob.perform_now(@home.id, [ bill.id ]) } }
     assert_empty @alex.push_subscriptions.reload
   end
 
   test "a push no device confirms within an hour is emailed, once" do
-    @alex.push_subscriptions.create!(endpoint: "https://push/1", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/1", p256dh: "a", auth: "b")
     with_push { NotifyBillsPaidJob.perform_now(@home.id, [ paid_bill("7月-8月", 374).id ]) }
 
     travel(30.minutes) { assert_no_enqueued_emails { ConfirmPushReceiptsJob.perform_now } }

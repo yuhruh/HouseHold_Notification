@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
   resource :registration, only: %i[new create]
-  resources :email_confirmations, only: %i[show new create], param: :token
+  resources :email_confirmations, only: %i[show new create update], param: :token
   post "auth/google" => "auth_handoffs#create", as: :google_sign_in
   get "auth/google_oauth2/callback" => "omniauth_callbacks#create"
   get "auth/failure" => "omniauth_callbacks#failure"

@@ -37,7 +37,7 @@
         <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @user.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
       <% end %>
       <%= form.label :display_name, class: "block text-sm font-medium" %>
-      <%= form.text_field :display_name, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 bg-mauve-100" %>
+      <%= form.text_field :display_name, maxlength: User::DISPLAY_NAME_MAX, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 bg-mauve-100" %>
       <%= form.label :locale, t(".locale"), class: "block text-sm font-medium" %>
       <%= form.select :locale, [ [ t(".locale_auto"), "" ], [ "繁體中文", "zh-TW" ], [ "English", "en" ] ], {}, class: "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600 bg-mauve-100" %>
       <%# Time Zone: read-only until the pencil, which swaps in the built-in dropdown grouped by region %>

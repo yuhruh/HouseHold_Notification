@@ -28,7 +28,7 @@ class SupplyAlertsJobTest < ActiveJob::TestCase
   end
 
   test "one digest to each owner and co-owner, none to viewers, and only once" do
-    @alex.push_subscriptions.create!(endpoint: "https://push/1", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/1", p256dh: "a", auth: "b")
     assert_no_enqueued_emails { with_push { SupplyAlertsJob.perform_now } }
     notice = notices.sole
     assert_equal @alex, notice.user
@@ -44,12 +44,12 @@ class SupplyAlertsJobTest < ActiveJob::TestCase
     end
 
     @home.supplies.create!(name: "Soap", kind: "cleaning", unit: "bottle", level: 0, guess_days_per_unit: 5)
-    @alex.push_subscriptions.create!(endpoint: "https://push/gone", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/gone", p256dh: "a", auth: "b")
     gone = WebPush::ExpiredSubscription.new(Struct.new(:code, :body).new("410", ""), "push")
     assert_enqueued_emails(1) { with_push(error: gone) { SupplyAlertsJob.perform_now } }
 
     @home.supplies.create!(name: "Rice", kind: "food_drink", unit: "bag", level: 0, guess_days_per_unit: 5)
-    @alex.push_subscriptions.create!(endpoint: "https://push/2", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/2", p256dh: "a", auth: "b")
     NotificationPreference.for(memberships(:alex_home)).update!(web_push: false)
     @calls.clear
     assert_enqueued_emails(1) { with_push { SupplyAlertsJob.perform_now } }
@@ -57,7 +57,7 @@ class SupplyAlertsJobTest < ActiveJob::TestCase
   end
 
   test "a push no device confirms within an hour is emailed, once" do
-    @alex.push_subscriptions.create!(endpoint: "https://push/1", p256dh: "a", auth: "b")
+    @alex.push_subscriptions.create!(endpoint: "https://fcm.googleapis.com/fcm/send/1", p256dh: "a", auth: "b")
     with_push { SupplyAlertsJob.perform_now }
     travel(30.minutes) { assert_no_enqueued_emails { ConfirmPushReceiptsJob.perform_now } }
     travel(61.minutes) do

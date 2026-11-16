@@ -202,6 +202,7 @@ zh-TW:
       all: "全部"
       search: "搜尋品項或商店"
       none_match: "沒有符合的項目。"
+      details_label: "查看「%{item}」的明細"
       no_purchase: "還沒有購買記錄"
       col_item: "品項"
       col_left: "剩餘"

@@ -131,6 +131,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home)
     assert_select "nav a[aria-current=page]", /該買了/
+    get household_supplies_path(@home, tab: "all")
+    soon = @home.supplies.find_by!(name: "Soon")
+    assert_select "li#row_supply_#{soon.id} a.btn-press[href=?]", household_supply_path(@home, soon), text: /查看明細/
+    get household_supplies_path(@home)
     # All shows its count on a phone too, like To Buy and Stocked
     assert_select "nav a[href=?] span.rounded-full:not(.max-sm\\:hidden)", household_supplies_path(@home, tab: "all"), text: @home.supplies.active.count.to_s
     assert_select "section", text: /用完或現在就買/ do

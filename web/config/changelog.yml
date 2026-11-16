@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.10"
+  date: 2026-11-16
+  en:
+    - "Supplies item page: the count box under the forecast is now labelled \"Inventory:\" instead of \"Confirmed Amount? I have\"."
+  zh-TW:
+    - "日用品品項頁：庫存預測下方的數量欄位改稱「盤點」，不再是「確認過數量？還有」。"
 - version: "1.14.9"
   date: 2026-11-16
   en:

@@ -6,10 +6,10 @@
 - version: "1.14.1"
   date: 2026-11-16
   en:
-    - "Review items: the Add to list groups your supplies by category, with Add as new and Skip at the end."
+    - "Review items: the Add to list groups your supplies by category, with Add as new supply and Skip at the end."
     - "On a phone, a printed receipt's QR code progress now sits under the receipt picture instead of squeezed beside it."
   zh-TW:
-    - "「檢查品項」：「加到」清單依分類列出你的日用品，「新增項目」和「略過」放在最後。"
+    - "「檢查品項」：「加到」清單依分類列出你的日用品，「新增為日用品」和「略過」放在最後。"
     - "在手機上，紙本發票的 QR Code 讀取進度改放在發票示意圖下方，不再擠在旁邊。"
 - version: "1.14.0"
   date: 2026-11-16

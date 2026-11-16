@@ -1,5 +1,5 @@
 <%# The Forecast card: what's left now and the bar's Total over its right end, how fast it goes, when it
-    runs out and when the alert comes, with −1 / Bought more at its top right and "I have __ left".
+    runs out and when the alert comes, with −1 / Restocked at its top right and "Inventory: __ left".
     Replaced in place after a count %>
 <% status = forecast.status %>
 <section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= supply_tone(status, :card) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
@@ -25,7 +25,7 @@
   <% if policy(supply).update? && supply.archived_at.nil? %>
     <%= form_with model: SupplyCount.new, url: household_supply_counts_path(Current.household, supply), data: { turbo_stream: true }, class: "flex flex-wrap items-center gap-2 border-t border-gray-200 pt-3" do |form| %>
       <%= form.label :level, t("supplies.show.counted"), class: "text-sm font-semibold" %>
-      <span class="inline-flex items-center gap-1 text-sm"><%= t("supplies.show.i_have") %>
+      <span class="inline-flex items-center gap-1 text-sm">
         <%= form.number_field :level, min: 0, step: 1, required: true, inputmode: "numeric", class: "w-20 rounded-md border border-gray-400 px-2 py-1" %>
         <%= t("supplies.show.left_unit", unit: t("supplies.units.#{supply.unit}_other")) %></span>
       <%= form.button t("supplies.show.update_count"), type: "submit", name: nil, class: "btn-press cursor-pointer rounded-xl bg-blue-200 px-3 py-1.5 text-sm font-bold text-gray-900" %>

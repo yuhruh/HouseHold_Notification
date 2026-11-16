@@ -156,10 +156,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supplies_path(@home)
     # All shows its count on a phone too, like To Buy and Stocked
     assert_select "nav a[href=?] span.rounded-full:not(.max-sm\\:hidden)", household_supplies_path(@home, tab: "all"), text: @home.supplies.active.count.to_s
-    assert_select "section", text: /用完或現在就買/ do
+    assert_select "section", text: /用完或現在就補貨/ do
       assert_select "li[id^=card_]", text: /Out/
     end
-    assert_select "section", text: /7 天內要買/ do
+    assert_select "section", text: /7 天內要補貨/ do
       assert_select "li", text: /Soon/
     end
     assert_select "li", text: /Plenty/, count: 0
@@ -167,7 +167,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home, tab: "stocked")
     assert_select "li", text: /Plenty/
-    assert_select "li", text: /移到「該補貨了」/
+    assert_select "li", text: /移到「該補貨」/
     assert_select "section", text: /資料不足/ do
       assert_select "li", text: /Unknown/
     end
@@ -291,7 +291,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     create_item(name: "Plenty", level: 50)
     create_item(name: "Soon", level: 1)
     get restock_household_supplies_path(@home)
-    assert_select "section:first-of-type h3", /快補貨/
+    assert_select "section:first-of-type h3", /準備補貨/
     assert_select "section:first-of-type li", text: /Soon/
   end
 

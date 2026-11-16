@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.8"
+  date: 2026-11-16
+  en:
+    - "Supplies in Traditional Chinese: restocking is called 補貨 everywhere, in the To Buy groups, the alerts and the item settings, the tab is named 「該補貨」 wherever it is mentioned, and \"Restock soon\" is 「準備補貨」 everywhere."
+  zh-TW:
+    - "日用品用詞統一為「補貨」：「該補貨」分頁的分組、提醒通知和品項設定都改用「補貨」（例如「7 天內要補貨」「某日前補貨」的說法），提到分頁時一律寫「該補貨」，「快補貨」一律改為「準備補貨」。"
 - version: "1.14.7"
   date: 2026-11-16
   en:

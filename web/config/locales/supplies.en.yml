@@ -202,6 +202,7 @@ en:
       all: "All"
       search: "Search items or stores"
       none_match: "Nothing matches."
+      details_label: "Details for %{item}"
       no_purchase: "No purchases yet"
       col_item: "Item"
       col_left: "Left"

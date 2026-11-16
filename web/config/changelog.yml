@@ -11,6 +11,12 @@
   zh-TW:
     - "「日用品」› 品項頁面在「記錄」下方新增「價格記錄」：列出每次買的品名、商店、數量、價格和日期，最新的在最上面。★ 標示每單位最便宜的價格。"
     - "「新增舊價格」可以記下以前買過的價格，就算已經用完也可以。只用來比價：會出現在「價格記錄」和「去哪買」，不會改變你還有多少、預測或帳本。"
+- version: "1.13.3"
+  date: 2026-11-16
+  en:
+    - "Supplies › All: every item has a Details › button, like the To Buy and Stocked cards, so it's clear where to open an item."
+  zh-TW:
+    - "日用品 › 全部：每個品項都有「查看明細 ›」按鈕，和「該買了」、「還夠用」的卡片一樣，一看就知道從哪裡打開。"
 - version: "1.13.2"
   date: 2026-11-16
   en:

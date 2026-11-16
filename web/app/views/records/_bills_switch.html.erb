@@ -1,18 +1,20 @@
 <%# Bills: three views under the title, To Pay (pending#show, opens first), Coming Up (pending#coming_up)
     and All (records#index), each with its count. A phone gets one full-width three-part switch (44px
-    taps); from 640px they're tabs underlined in the view's colour: red To Pay, sky Coming Up, dark All %>
+    taps). From 640px they're tabs on a line (tab-row), as on Supplies (supplies/_switch): the current one
+    filled in its colour over an underline (red To Pay, sky Coming Up, grey All), and under the pointer a tab
+    stands on the line as a press-button card in its own colour (tab-card; both in application.css) %>
 <% to_pay = local_assigns[:to_pay] || Records::ToPay.new(Current.household) %>
 <% household = Current.household %>
-<% tabs = [ [ :to_pay, household_pending_path(household), to_pay.count, "bg-red-600 text-white", "bg-blue-100 text-blue-900 sm:border-red-600" ],
-            [ :coming_up, household_coming_up_path(household), to_pay.coming_up_count, "bg-sky-100 text-sky-900", "bg-sky-100 text-sky-900 sm:border-sky-700" ],
-            [ :all, household_records_path(household), household.records.count, "bg-gray-200 text-gray-800 max-sm:hidden", "bg-gray-100 text-gray-900 sm:border-gray-800" ] ] %>
+<% tabs = [ [ :to_pay, household_pending_path(household), to_pay.count, "bg-red-600 text-white", "bg-red-100 text-red-900 sm:bg-red-50 sm:border-red-600", "[--tab-card:var(--tab-rose)]" ],
+            [ :coming_up, household_coming_up_path(household), to_pay.coming_up_count, "bg-sky-100 text-sky-900", "bg-sky-100 text-sky-900 sm:border-sky-700", "[--tab-card:var(--tab-sky)]" ],
+            [ :all, household_records_path(household), household.records.count, "bg-gray-200 text-gray-800 max-sm:hidden", "bg-gray-200 text-gray-900 sm:border-gray-800", "[--tab-card:var(--tab-gray)]" ] ] %>
 <div class="space-y-3">
   <h1 class="flex items-center gap-3 text-3xl font-bold"><%= image_tag "icons/records.png", alt: "", class: "h-10 w-10 object-contain" %><span><%= t("layouts.header.bills") %></span></h1>
   <nav aria-label="<%= t("records.bills_switch.label") %>"
-       class="grid grid-cols-3 gap-1 rounded-2xl border-2 border-(--card-line) bg-white p-1 sm:flex sm:gap-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:border-gray-300 sm:bg-transparent sm:p-0">
-    <% tabs.each do |view, path, count, badge, here_class| %>
+       class="tab-row grid grid-cols-3 gap-1 rounded-2xl border-2 border-(--card-line) bg-white p-1 sm:flex sm:gap-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:border-transparent sm:bg-transparent sm:p-0">
+    <% tabs.each do |view, path, count, badge, here_class, card| %>
       <% here = view == current %>
-      <%= link_to path, class: "flex min-h-11 items-center justify-center gap-1.5 rounded-xl text-sm sm:-mb-0.5 sm:rounded-none sm:border-b-4 sm:px-5 sm:text-base sm:bg-transparent #{here ? "font-extrabold #{here_class}" : 'font-semibold text-gray-700 hover:bg-gray-50 sm:border-transparent'}", "aria-current": (here ? "page" : nil) do %>
+      <%= link_to path, class: "tab-card #{card} flex min-h-11 items-center justify-center gap-1.5 rounded-xl text-sm sm:-mb-0.5 sm:border-b-4 sm:px-5 sm:text-base #{here ? "font-extrabold sm:rounded-b-none #{here_class}" : 'font-semibold text-gray-700 max-sm:hover:bg-gray-50 sm:rounded-none sm:border-transparent'}", "aria-current": (here ? "page" : nil) do %>
         <span><%= t("records.bills_switch.#{view}") %></span>
         <% if count.positive? %><span class="rounded-full px-1.5 text-[11px] font-bold sm:text-xs <%= badge %>"><%= count %></span><% end %>
       <% end %>

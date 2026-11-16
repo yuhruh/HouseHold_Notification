@@ -96,9 +96,9 @@
   box-shadow: 4px 4px 0 var(--card-line);
 }
 
-/* Tabs on a line, from 640px (Supplies: To Buy, Stocked, All). tab-row is the row: the line is its
-   own layer over the tabs, and the row is cut off at the line's lower edge, so nothing shows below
-   it. tab-card is a tab: with a mouse, under the pointer it becomes a press-button card standing on
+/* Tabs on a line, from 640px (Supplies: To Buy, Stocked, All; Bills: To Pay, Coming Up, All).
+   tab-row is the row: the line is its own layer over the tabs, and the row is cut off at the
+   line's lower edge, so nothing shows below it. tab-card is a tab: with a mouse, under the pointer it becomes a press-button card standing on
    the line (outline and hard shadow as a ring, so the tab keeps its size and its neighbours don't
    move), filled with --tab-card, and pressing sinks it behind the line. The fills and their text
    are the light-mode colours in dark mode too, dimmed like a press button's. */

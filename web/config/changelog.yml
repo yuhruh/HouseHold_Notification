@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.7"
+  date: 2026-11-16
+  en:
+    - "Supplies: ‹ Back to Supplies on an item now returns to where you opened it from, the same tab, filter and search, instead of always To Buy."
+    - "Supplies: the stock bar now shows its Total over its right end, the most you had right after a restock. On the item page it reads \"Total: 25 bottles\", in the lists just \"Total: 25\"."
+  zh-TW:
+    - "日用品：品項頁的「‹ 回到日用品」現在會回到你打開它的地方，同一個分頁、篩選和搜尋，不再一律回到「該補貨」。"
+    - "日用品：庫存條的右上方現在會顯示「總數」，也就是補貨後最多有過的數量。品項頁顯示「總數：25 瓶」，清單裡只顯示「總數：25」。"
 - version: "1.14.6"
   date: 2026-11-16
   en:

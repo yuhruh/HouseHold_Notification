@@ -93,6 +93,19 @@ class Supplies::ForecastTest < ActiveSupport::TestCase
     assert f.expiring?
   end
 
+  test "the bar's Total is the most there was right after a restock, never less than the last count" do
+    assert_equal 0, forecast(Date.current).full_stock
+    assert_equal 0, forecast(Date.current).fill_percent
+
+    buy(24, on: Date.new(2026, 11, 1), left_before: 1)
+    assert_equal 25, forecast(Date.new(2026, 11, 1)).full_stock
+    count(9, on: Date.new(2026, 11, 10))
+    assert_equal 25, forecast(Date.new(2026, 11, 10)).full_stock
+    travel_to(Time.zone.local(2026, 11, 10, 10)) { assert_equal 36, forecast(Date.current).fill_percent }
+    count(30, on: Date.new(2026, 11, 11))
+    assert_equal 30, forecast(Date.new(2026, 11, 11)).full_stock
+  end
+
   test "counts must be whole numbers from 0 up" do
     assert_not @supply.counts.new(level: -1).valid?
     assert_not @supply.counts.new(level: 2.5).valid?

@@ -28,6 +28,15 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # "Total: 25 bottles" over the right end of the stock bar (the bar's full length); in the lists just
+  # "Total: 25", the unit is right beside it. Nothing for an empty item nobody has bought yet
+  def supply_total(supply, forecast, unit: true)
+    total = forecast.full_stock
+    return unless total.positive?
+
+    tag.span(t("supplies.total", total: unit ? supply_count(supply, total) : number_with_delimiter(total)), class: "whitespace-nowrap text-gray-600 #{unit ? 'text-sm' : 'text-xs'} font-semibold")
+  end
+
   def supply_badge(status)
     tag.span(t("supplies.status.#{status}"), class: "whitespace-nowrap rounded-full border-[1.5px] px-2 py-0.5 text-[11px] font-bold #{supply_tone(status, :card)} #{supply_tone(status, :ink)} #{supply_tone(status, :line)}")
   end

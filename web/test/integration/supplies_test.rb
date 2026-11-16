@@ -122,6 +122,25 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", household_supplies_path(@home, archived: 1)
   end
 
+  test "the stock bar's Total: with the unit on the item page, the number alone in the lists" do
+    item = create_item(name: "Coffee", unit: "bottle", level: 9, guess_days_per_unit: 100)
+    item.purchases.create!(household: @home, purchased_on: 10.days.ago.to_date, quantity: 24, total_price: 458, left_before: 1)
+    empty = create_item(name: "Empty", level: 0)
+
+    get household_supply_path(@home, item)
+    assert_select "section#forecast_supply_#{item.id} p", text: /目前.*9 瓶.*總數：25 瓶/m
+    assert_select "body[data-controller~=supplies-view][data-supplies-view-list-value=?]", household_supplies_path(@home)
+    assert_select "a[data-supplies-view-target=link][href=?]", household_supplies_path(@home), text: /回到日用品/
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "li#row_supply_#{item.id} span", text: "總數：25"
+    assert_select "li#row_supply_#{empty.id}", text: /總數/, count: 0
+    assert_select "a[data-supplies-view-target]", 0
+
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "li#card_supply_#{item.id} span", text: "總數：25"
+  end
+
   test "To Buy, Stocked and All tabs, like Bills" do
     out = create_item(name: "Out", level: 0, guess_days_per_unit: 3)
     out.purchases.create!(household: @home, purchased_on: 10.days.ago.to_date, quantity: 1, total_price: 10, left_before: 0)

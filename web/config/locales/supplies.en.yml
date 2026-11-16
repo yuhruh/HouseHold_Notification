@@ -62,6 +62,7 @@ en:
       record: "Bill / record"
       record_hint: "A bill, expense or income for the Ledger"
   supplies:
+    total: "Total: %{total}"
     kinds:
       toiletries: "Toiletries"
       cleaning: "Cleaning"

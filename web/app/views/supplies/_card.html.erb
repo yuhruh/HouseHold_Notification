@@ -20,7 +20,8 @@
     <p><%= link_to supply.name, household_supply_path(Current.household, supply), class: "text-lg font-bold hover:underline lg:text-base" %>
       <span class="text-sm text-gray-600"><%= safe_join(details, " · ") %></span></p>
     <% if status == :ok %>
-      <% if forecast.to_buy_on %><p class="text-sm text-gray-700"><%= t("supplies.card.moves_on", date: l(forecast.to_buy_on, format: :short)) %></p><% end %>
+      <% total = supply_total(supply, forecast, unit: false) %>
+      <% if forecast.to_buy_on || total %><p class="flex flex-wrap items-baseline justify-between gap-x-3 text-sm text-gray-700"><span><%= t("supplies.card.moves_on", date: l(forecast.to_buy_on, format: :short)) if forecast.to_buy_on %></span><%= total %></p><% end %>
       <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
     <% end %>
   </div>

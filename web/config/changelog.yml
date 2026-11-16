@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.5"
+  date: 2026-11-16
+  en:
+    - "New in the bottom bar: the Add new sheet now also closes when you tap or click anywhere outside it, not only on Cancel."
+  zh-TW:
+    - "底部列的「新增」：除了按「取消」，點一下選單以外的任何地方也會關閉選單。"
 - version: "1.14.4"
   date: 2026-11-16
   en:

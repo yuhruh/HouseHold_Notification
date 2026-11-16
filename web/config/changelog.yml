@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.4"
+  date: 2026-11-16
+  en:
+    - "Bills on a computer: the To Pay, Coming Up and All tabs now work like the Supplies tabs. Under the pointer a tab stands on the line as a press-button card in its own colour (rose, sky, grey), and the tab you're on is filled in its colour. To Pay is red instead of blue, on a phone too."
+  zh-TW:
+    - "電腦上的帳單頁：「待繳」「即將到來」「全部」分頁現在和日用品頁的分頁一樣。滑鼠移上去時，分頁會變成一張有邊框和陰影的卡片，各用自己的顏色（玫瑰紅、天藍、灰）；目前所在的分頁也會填上自己的顏色。「待繳」改用紅色，不再是藍色，手機上也一樣。"
 - version: "1.14.3"
   date: 2026-11-16
   en:

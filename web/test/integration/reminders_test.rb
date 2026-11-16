@@ -27,7 +27,7 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "h2", /30 天內到期 \(1\)/
     assert_select "h2", /未設定到期日 \(1\)/
     assert_select "li#record_#{later.id}", 0
-    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：水費 會在 #{(today + 6).strftime('%Y-%m-%d')} 移到這裡/
+    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：水費 會在 #{(today + 6).strftime('%Y-%m-%d')} 移到待繳區/
     assert_select "main nav a[aria-current=page]", /待繳\s*3/, "bills due later aren't counted"
 
     get household_coming_up_path(@home)
@@ -111,7 +111,7 @@ class RemindersTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", household_recurring_templates_path(@home)
 
     get household_pending_path(@home)
-    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：冷氣清洗 會在 #{moves} 移到這裡/
+    assert_select "a[href=?]", household_coming_up_path(@home), /下一筆：冷氣清洗 會在 #{moves} 移到待繳區/
     get household_records_path(@home)
     assert_select "a[href=?]", household_coming_up_path(@home), /1 筆定期帳單已排定，尚未建立：冷氣清洗/
     get household_path(@home)

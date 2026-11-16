@@ -4,7 +4,7 @@ en:
       electricity_account: "Electricity Account"
     attributes:
       electricity_account:
-        customer_code: "電號"
+        customer_code: "Electricity Account Number"
         category_id: "Put Electricity Bills In"
         category: "Category"
         payment_method_id: "Payment Method For New Bills"

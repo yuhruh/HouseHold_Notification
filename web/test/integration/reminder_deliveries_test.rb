@@ -24,7 +24,7 @@ class ReminderDeliveriesTest < ActionDispatch::IntegrationTest
       end
       note = users(:alex).notifications.sole
       assert_match "1 則提醒未送達", note.title
-      assert_match "Sam（Email：Invalid To header）", note.body
+      assert_match "Sam（電子郵件：Invalid To header）", note.body
       assert @failed.reload.owner_notified_at
       assert_equal Date.new(2026, 10, 20), @home.reload.last_failure_summary_on
       OwnerFailureSummaryJob.perform_now

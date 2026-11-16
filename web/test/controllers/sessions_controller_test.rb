@@ -4,7 +4,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "new" do
     get new_session_path
     assert_response :success
-    assert_equal "no-referrer", response.headers["Referrer-Policy"]
+    assert_equal "same-origin", response.headers["Referrer-Policy"]
   end
 
   test "signs in a verified user" do
@@ -57,4 +57,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       cookie_jar.signed[:session_id] = session_record.id
       cookies["session_id"] = cookie_jar[:session_id]
     end
+
+  # Not "no-referrer": a browser then posts plain forms (Continue with Google, the theme buttons)
+  # with "Origin: null", and the CSRF check answers 422
+  test "auth pages send Referer to this app only" do
+    [ new_password_path, new_registration_path, new_session_path ].each do |path|
+      get path
+      assert_equal "same-origin", response.headers["Referrer-Policy"], path
+    end
+    assert_select "form[action=?][data-turbo=false]", google_sign_in_path
+  end
 end

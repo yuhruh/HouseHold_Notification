@@ -52,8 +52,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_match "NT$289 買 12 · 每捲 NT$24.1", response.body
     get household_supplies_path(@home, tab: "all")
     assert_select "li##{ActionView::RecordIdentifier.dom_id(supply, :row)}", /Toilet paper/
-    assert_select "main details summary", /新增日用品/
-    assert_select "main details a[href=?]", scan_household_supplies_path(@home)
+    # No add button of its own (like Bills): the header's New is the one place to add
+    assert_select "main details summary", text: /新增日用品/, count: 0
+    assert_select "header a[href=?]", new_household_supply_path(@home)
+    assert_select "header a[href=?]", scan_household_supplies_path(@home)
   end
 
   test "−1 at 0 stays at 0, and the button is off" do

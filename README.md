@@ -195,19 +195,25 @@ Home Screen.
 - **New item** can include **I already bought these** (date, how many, price, store, expiry), so an
   item bought a while ago has a usage rate from the first day. **Also add to Ledger** on any purchase
   creates a paid expense in the 日用品 category.
-- **Add**: **+ New ▾** in the header (and **New** in the phone tab bar) offers Upload or scan
-  barcode / receipt, Supply item, Log a purchase… and Bill / record. **Log a purchase** lists the
+- **Add**: **+ New ▾** in the header (and **New** in the phone tab bar) is the one place to add:
+  Scan product barcode, Add a receipt, Supply item, Log a purchase… and Bill / record. **Log a purchase** lists the
   Buy soon items first.
 - **Scanning**, read in the browser (camera, a photo, a pasted screenshot or the typed number):
   - a **product barcode** (EAN-13/JAN, EAN-8, UPC) goes to the item it was saved with, or is looked
     up in Open Food / Beauty / Products Facts and, for Japanese codes, Yahoo! JAPAN Shopping. A code
     no database knows opens the New item form with a **Product not found** note, and the barcode is
     remembered once the item is saved.
-  - a **Taiwan e-invoice** (both QR codes of 電子發票證明聯) lists each line to match to an item, add
-    as new or skip; choices are remembered per store. Lines that match nothing are tagged **Not
-    found**. The same invoice can't be added twice, and the whole receipt can become one Ledger
-    expense. Japanese receipts (レシート) have no item QR code and aren't supported.
-  - Only the barcode number leaves the app (with a generic User-Agent); photos aren't uploaded.
+  - **Add a receipt** takes a printed **Taiwan e-invoice** (both QR codes of 電子發票證明聯, shown as
+    "1 of 2 QR codes read") or up to 10 **invoice PDFs** (發票明細 from a store's email or order page;
+    a locked PDF asks for its password). **Review items** lists every item by invoice (quantity,
+    unit price, subtotal) to match to an item, add as new or skip; choices are remembered per store,
+    shipping and handling fees start skipped, and lines that match nothing are tagged **Not found**.
+    An invoice can be excluded, or marked **Not a supplies store** so its next receipts start out.
+    **Not included** lists duplicates, invoices added before, PDFs with no item list (their total can
+    go to the Ledger) and PDFs that couldn't be read. Each invoice can become one Ledger expense.
+    Japanese receipts (レシート) have no item QR code and aren't supported.
+  - Only the barcode number, the QR text or the PDFs' text leaves the device (with a generic
+    User-Agent for lookups); photos and PDF files aren't uploaded.
 - **Alerts** (`SupplyAlertsJob`, 09:00 Taipei): one message per person listing what to buy (on the
   buy-by date, or when the count reaches "alert me when only N are left"), what's probably out, and
   what will expire before it's used (7 days ahead for food & drink and health, 30 for the rest). Each
@@ -278,6 +284,11 @@ Errors from requests and jobs go to Sentry.
 - **Bill barcodes on the device:** Code 39 is read in the browser (`BarcodeDetector`, or a vendored
   ZXing build in `public/vendor/`); the server (`Records::BillBarcode`) is the authority on what the
   three barcodes mean.
+- **Invoice PDFs on the device:** pdf.js (`public/vendor/pdfjs-4.10.38/`, with its CJK cmaps) pulls
+  each PDF's text pieces and their positions in the browser; `Supplies::InvoicePdfParser` finds the
+  invoice number, date, seller and total by pattern and label, and the items from the table under
+  the 數量 / 金額 heading (wrapped names join the row they sit beside). `Supplies::ReceiptBatch`
+  reviews and saves several invoices in one transaction.
 - **Supplies scanning on the device:** product barcodes and e-invoice QR codes are read the same way
   (`BarcodeDetector` or ZXing, on the live camera or a still photo). `Supplies::EInvoiceParser`
   decodes the two QR codes (Big5, UTF-8 or Base64 item names); `Supplies::BarcodeLookup` checks the

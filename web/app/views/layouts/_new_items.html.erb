@@ -1,14 +1,16 @@
-<%# The "+ New" choices (header menu on a computer, the tab bar's Add new sheet on a phone): Scan, Supply
-    item, Log a purchase… and Bill / record, the current page's own choice first and tinted. With `only`
+<%# The "+ New" choices (header menu on a computer, the tab bar's Add new sheet on a phone): Scan product
+    barcode, Add a receipt (a printed receipt's QR codes or invoice PDFs), Supply item, Log a purchase… and
+    Bill / record, the current page's own choice first and tinted. With `only`
     (the empty Supplies page's Add your first supply menu), just those, in that order %>
 <% items = [
   [ :scan, "import.png", scan_household_supplies_path(household), t("layouts.new_menu.scan"), t("layouts.new_menu.scan_hint") ],
+  [ :receipt, "payment.png", scan_household_supplies_path(household, mode: "receipt"), t("layouts.new_menu.receipt"), t("layouts.new_menu.receipt_hint") ],
   [ :supply, "add.png", new_household_supply_path(household), t("layouts.new_menu.supply"), t("layouts.new_menu.supply_hint") ],
   [ :purchase, "expense.png", restock_household_supplies_path(household), t("layouts.new_menu.purchase"), t("layouts.new_menu.purchase_hint") ],
   [ :record, "new_entry.png", new_household_record_path(household), t("layouts.new_menu.record"), t("layouts.new_menu.record_hint") ]
 ] %>
 <% first = current == :supplies ? :supply : :record %>
-<% items = items.partition { it.first == :scan }.flatten(1) if large %>
+<% items = items.partition { it.first.in?(%i[scan receipt]) }.flatten(1) if large %>
 <% items = [ items.find { it.first == first } ] + items.reject { it.first == first } unless large %>
 <% if (only = local_assigns[:only]) %>
   <% items = only.map { |key| items.find { it.first == key } } %>

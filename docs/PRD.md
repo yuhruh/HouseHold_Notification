@@ -1156,6 +1156,18 @@ screenshot or typed number; photos are never uploaded)
   (`receipt_sellers`) and line choices are remembered per seller (`receipt_item_matches`, with units
   per line). `Supplies::ImportReceipt` saves everything in one transaction, optionally one Ledger
   expense for the receipt total. Invoice numbers are unique per ledger.
+- **Add a receipt** (1.13.0): New › Add a receipt chooses a printed receipt (the two QR codes, shown
+  as "N of 2 QR codes read", not boxes to tick) or up to 10 **invoice PDFs** (發票明細). pdf.js reads
+  each PDF in the browser (`public/vendor/pdfjs-4.10.38/`; a locked PDF asks for its password) and
+  only its text pieces with their positions are posted; `Supplies::InvoicePdfParser` finds number,
+  date, seller, total and the item table (quantity / unit price / amount columns, wrapped names).
+  **Review items** (`Supplies::ReceiptBatch`) lists every item by invoice with an editable quantity;
+  fees (運費, 手續費…) start skipped; an invoice can be excluded or marked **Not a supplies store**
+  (`receipt_sellers.skip`); **Not included** lists duplicates, invoices added before, total-only
+  PDFs (total → Ledger) and unreadable ones. Nothing is stored between review and save.
+- **Why not the MOF API:** reading a phone barcode's (手機條碼) invoices or an invoice by number needs
+  an AppID and APIKey that only a 營業人 can apply for, and signing in to einvoice.nat.gov.tw on the
+  user's behalf isn't allowed; the PDF and QR routes need neither.
 - **Out of scope:** Japanese receipts (no item QR code); reading text from photos (Tesseract OCR was
   tried and removed as unreliable; outside vision services were declined).
 

@@ -1,66 +1,99 @@
 <% content_for :title, t(".title") %>
-<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
-<% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900" } %>
-<% unmatched = @rows.select { it.choice.blank? } %>
-<div class="mx-auto w-full max-w-2xl space-y-5 py-4">
+<%# Review items: every invoice that will be added, item by item (supplies/receipts/_invoice), then the
+    ones that won't under Not included, each with why. Saving posts the same QR text or PDF text again %>
+<% currency = Current.household.default_currency %>
+<% shown = @batch.shown %>
+<% unmatched = shown.sum { |entry| entry.rows.count { it.choice.blank? } } %>
+<% items = shown.sum { it.rows.count { |row| row.choice != "skip" } } %>
+<div class="mx-auto w-full max-w-5xl space-y-5 py-4">
   <%= page_title("import.png", t(".title")) %>
-  <%# Lines that match none of the household's supplies: a pop-up asks for them, their name fields open %>
-  <% if unmatched.any? %>
-    <%= render "shared/notice", title: t(".unmatched_title", count: unmatched.size), body: t(".unmatched", count: unmatched.size), focus: "#line_#{unmatched.first.index}_choice" %>
+  <% if unmatched.positive? %>
+    <% first = shown.find { it.rows.any? { |row| row.choice.blank? } } %>
+    <%= render "shared/notice", title: t(".unmatched_title", count: unmatched), body: t(".unmatched", count: unmatched),
+          focus: "#invoice_#{first.key}_line_#{first.rows.find { it.choice.blank? }.index}_choice" %>
   <% end %>
-  <%= form_with url: receipt_household_supplies_path(Current.household), method: :post, class: "space-y-5" do |form| %>
-    <%= hidden_field_tag :left, @codes[0] %>
-    <%= hidden_field_tag :right, @codes[1] %>
-    <div class="card-raised grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 text-sm">
-      <div class="col-span-2">
-        <%= label_tag :store, t(".store"), class: "block font-medium" %>
-        <%= text_field_tag :store, @store, maxlength: 60, list: "receipt-stores", required: true, class: field %>
-        <datalist id="receipt-stores"><% @stores.each do |store| %><option value="<%= store %>"></option><% end %></datalist>
-        <% if @receipt.seller_tax_id && @store.blank? %><p class="mt-1 text-xs text-gray-600"><%= t(".store_once", tax_id: @receipt.seller_tax_id) %></p><% end %>
-      </div>
-      <p><span class="block text-gray-600"><%= t(".date") %></span><span class="font-semibold"><%= l(@receipt.issued_on, format: :long) %></span></p>
-      <p><span class="block text-gray-600"><%= t(".invoice_no") %></span><span class="font-semibold"><%= @receipt.invoice_no %></span></p>
-      <p class="col-span-2"><span class="block text-gray-600"><%= t(".total") %></span><span class="text-xl font-extrabold"><%= money(@receipt.total, Current.household.default_currency) %></span></p>
-    </div>
-
-    <% if @rows.empty? %>
-      <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t(".no_items") %></p>
+  <p class="text-center text-gray-700">
+    <% if @batch.pdfs? %>
+      <%= t(".intro_pdfs", pdfs: t(".pdfs", count: @batch.entries.size), invoices: t(".invoices", count: shown.size), items: t(".items", count: items)) %>
     <% else %>
-      <ul class="space-y-3">
-        <% @rows.each do |row| %>
-          <% name = "lines[#{row.index}]" %>
-          <li class="space-y-2 rounded-2xl border-2 border-(--card-line) bg-white p-3">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
-              <span class="font-semibold"><%= row.item.text %></span>
-              <span class="text-sm text-gray-700"><%= t(".line", quantity: row.item.quantity.to_s("F").delete_suffix(".0"), amount: money(row.item.amount, Current.household.default_currency)) %></span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <% tag = row.tag || (:not_found if row.choice.blank?) %>
-              <% if tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold <%= tags[tag] %>"><%= t(".tags.#{tag}") %></span><% end %>
-              <label class="sr-only" for="line_<%= row.index %>_choice"><%= t(".is") %></label>
-              <%= select_tag "#{name}[choice]", options_for_select([ [ t(".choose"), "" ] ] + @supplies.map { [ it.name, it.id.to_s ] } + [ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], row.choice),
-                    id: "line_#{row.index}_choice", class: "min-w-0 flex-1 rounded-md border border-gray-400 px-2 py-1.5" %>
-              <label class="flex items-center gap-1 text-sm">× <%= number_field_tag "#{name}[units_per_line]", row.units_per_line, min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
-            </div>
-            <details class="text-sm" <%= "open" if row.choice.blank? %>>
-              <summary class="cursor-pointer text-gray-700"><%= t(".new_details") %></summary>
-              <div class="mt-2 grid grid-cols-3 gap-2">
-                <%= text_field_tag "#{name}[name]", row.item.text.truncate(60, omission: ""), maxlength: 60, "aria-label": t(".new_name"), class: "col-span-3 rounded-md border border-gray-400 px-2 py-1" %>
-                <%= select_tag "#{name}[kind]", options_for_select(Supply::KINDS.map { [ supply_kind(it), it ] }, "other"), "aria-label": t(".new_kind"), class: "col-span-2 rounded-md border border-gray-400 px-2 py-1" %>
-                <%= select_tag "#{name}[unit]", options_for_select(Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, "piece"), "aria-label": t(".new_unit"), class: "rounded-md border border-gray-400 px-2 py-1" %>
-              </div>
-            </details>
-          </li>
-        <% end %>
-      </ul>
+      <%= t(".intro_qr") %>
+    <% end %>
+  </p>
+
+  <%= form_with url: receipt_household_supplies_path(Current.household), method: :post, class: "space-y-5" do |form| %>
+    <%= hidden_field_tag :source, @batch.source %>
+    <% if @batch.pdfs? %>
+      <% params[:pdfs].to_unsafe_h.sort_by { |key, _| key.to_i }.first(Supplies::ReceiptBatch::MAX_PDFS).each_with_index do |(_, pdf), index| %>
+        <%= hidden_field_tag "pdfs[#{index}][name]", pdf["name"], id: nil %>
+        <%= hidden_field_tag "pdfs[#{index}][words]", pdf["words"], id: nil %>
+      <% end %>
+    <% else %>
+      <%= hidden_field_tag :left, params[:left] %>
+      <%= hidden_field_tag :right, params[:right] %>
+    <% end %>
+    <datalist id="receipt-stores"><% @stores.each do |store| %><option value="<%= store %>"></option><% end %></datalist>
+
+    <% if shown.any? %>
+      <label class="flex items-center justify-end gap-2 text-sm font-semibold">
+        <%= check_box_tag :add_to_ledger, "1", false %> <%= t(".add_to_ledger") %>
+      </label>
+      <% shown.each do |entry| %>
+        <%= render "supplies/receipts/invoice", entry:, supplies: @supplies %>
+      <% end %>
       <p class="text-xs text-gray-600"><%= t(".hint") %></p>
     <% end %>
 
-    <label class="flex items-start gap-2 text-sm"><%= check_box_tag :add_to_ledger, "1", false, class: "mt-1" %>
-      <span><%= t(".add_to_ledger", total: money(@receipt.total, Current.household.default_currency)) %></span></label>
-    <div class="flex flex-wrap items-center gap-3">
-      <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
-      <%= cancel_link(scan_household_supplies_path(Current.household, mode: "receipt")) %>
+    <% if @batch.not_included.any? %>
+      <section class="space-y-2" aria-labelledby="not_included_title">
+        <h2 id="not_included_title" class="text-base font-bold text-gray-700"><%= t(".not_included", count: @batch.not_included.size) %></h2>
+        <% folded = "flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed px-4 py-3" %>
+        <% @batch.not_included.each do |entry| %>
+          <% receipt = entry.receipt %>
+          <% label = receipt ? safe_join([ (entry.store.presence || receipt.invoice_no), l(receipt.issued_on, format: :long), money(receipt.total, currency) ], " · ") : entry.file %>
+          <% case entry.status %>
+          <% when :total_only %>
+            <div class="<%= folded %> border-amber-400 bg-amber-50 text-amber-900">
+              <p><span class="font-bold"><%= label %></span> · <%= t(@batch.pdfs? ? ".why.total_only_pdf" : ".why.total_only_qr") %></p>
+              <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+                <%= check_box_tag "invoices[#{entry.key}][ledger_total]", "1", !@batch.pdfs?, id: "invoice_#{entry.key}_ledger_total" %> <%= t(".ledger_total") %>
+              </label>
+              <%= hidden_field_tag "invoices[#{entry.key}][store]", entry.store, id: nil %>
+            </div>
+          <% when :skip_store %>
+            <details class="rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 text-gray-700">
+              <summary class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <span><span class="font-bold"><%= label %></span> · <%= t(".why.skip_store") %></span>
+                <span class="text-sm text-blue-700 underline"><%= t(".show_items") %></span>
+              </summary>
+              <div class="space-y-3 px-4 pb-4">
+                <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+                  <%= check_box_tag "invoices[#{entry.key}][include]", "1", false, id: "invoice_#{entry.key}_include" %> <%= t(".include_anyway") %>
+                </label>
+                <%= render "supplies/receipts/invoice", entry:, supplies: @supplies %>
+              </div>
+            </details>
+          <% else %>
+            <div class="<%= folded %> <%= entry.status == :unreadable ? 'border-red-400' : 'border-gray-400' %> bg-gray-50 text-gray-700">
+              <p><span class="font-bold"><%= label %></span> ·
+                <% if entry.status == :unreadable %><span class="font-semibold text-red-700"><%= t(".why.unreadable") %></span>
+                <% elsif entry.status == :already %><%= t(".why.already", date: l(entry.already.created_at.to_date, format: :long)) %>
+                <% else %><%= t(".why.duplicate") %><% end %>
+              </p>
+              <% if entry.file.present? && receipt %><span class="text-xs"><%= entry.file %></span><% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </section>
+    <% end %>
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <% if @batch.pdfs? %>
+        <%= link_to t(".more_pdfs"), scan_household_supplies_path(Current.household, mode: "pdf"), class: "btn-press inline-flex items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
+      <% else %><span></span><% end %>
+      <div class="flex flex-wrap items-center gap-3">
+        <%= cancel_link(scan_household_supplies_path(Current.household, mode: @batch.pdfs? ? "pdf" : "receipt")) %>
+        <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
+      </div>
     </div>
   <% end %>
 </div>

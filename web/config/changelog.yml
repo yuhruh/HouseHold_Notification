@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.13.0"
+  date: 2026-11-16
+  en:
+    - "New › Add a receipt: choose a printed receipt (its two QR codes) or invoice PDFs (發票明細 from a store's email or order page, up to 10 at a time). PDFs are read on your device and never uploaded."
+    - "Review items lists every item by invoice with its quantity, unit price and subtotal. Shipping fees start skipped, you can change a quantity, exclude an invoice or mark a store as not a supplies store, and Not included shows duplicates, receipts added before and PDFs with only a total."
+    - "A printed receipt now shows \"1 of 2 QR codes read\" with a picture of the receipt: the two QR codes aren't boxes to tick. New › Scan product barcode is just for barcodes."
+  zh-TW:
+    - "「新增」›「新增發票」：可以選紙本發票（兩個 QR Code）或發票明細 PDF（商店寄來或訂單頁下載的，一次最多 10 個）。PDF 在你的裝置上讀取，不會上傳。"
+    - "「檢查品項」依發票列出每個品項的數量、單價和小計。運費一開始就略過；可以改數量、不加某張發票，或標記某家店不是日用品店。「沒有加入」會列出重複的、之前加過的，以及只有總額的 PDF。"
+    - "紙本發票現在會顯示「已讀取 1／2 個 QR Code」和發票示意圖：兩個 QR Code 不是要勾選的方框。「新增」›「掃描商品條碼」只用來掃條碼。"
 - version: "1.12.3"
   date: 2026-11-16
   en:

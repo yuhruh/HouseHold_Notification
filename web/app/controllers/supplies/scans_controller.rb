@@ -1,5 +1,6 @@
-# New → Scan barcode or receipt. The camera or photo is read in the browser (supply_scan_controller);
-# only the barcode number comes here. A barcode the household saved goes straight to that item's
+# New → Scan product barcode (mode "barcode") and New → Add a receipt: a printed receipt's QR codes
+# ("receipt") or invoice PDFs ("pdf"). The camera, photo or PDF is read in the browser
+# (supply_scan_controller, receipt_pdf_controller); only the barcode number comes here. A barcode the household saved goes straight to that item's
 # Bought form; one a product database knows opens New item filled in; anything else opens it empty
 # with the barcode attached.
 class Supplies::ScansController < ApplicationController
@@ -7,7 +8,7 @@ class Supplies::ScansController < ApplicationController
 
   def show
     authorize Supply, :create?
-    @mode = params[:mode] == "receipt" ? "receipt" : "barcode"
+    @mode = params[:mode].presence_in(%w[receipt pdf]) || "barcode"
   end
 
   def barcode

@@ -96,6 +96,46 @@
   box-shadow: 4px 4px 0 var(--card-line);
 }
 
+/* Tabs on a line, from 640px (Supplies: To Buy, Stocked, All). tab-row is the row: the line is its
+   own layer over the tabs, and the row is cut off at the line's lower edge, so nothing shows below
+   it. tab-card is a tab: with a mouse, under the pointer it becomes a press-button card standing on
+   the line (outline and hard shadow as a ring, so the tab keeps its size and its neighbours don't
+   move), filled with --tab-card, and pressing sinks it behind the line. The fills and their text
+   are the light-mode colours in dark mode too, dimmed like a press button's. */
+:root {
+  --tab-rose: oklch(94.1% 0.03 12.58);
+  --tab-sky: oklch(95.1% 0.026 236.824);
+  --tab-gray: oklch(92.8% 0.006 264.531);
+  --tab-ink: oklch(21% 0.034 264.665);
+}
+@utility tab-row {
+  @media (width >= 40rem) {
+    position: relative;
+    clip-path: inset(-12px -12px 0 -12px);
+    &::after { content: ""; position: absolute; inset: auto 0 -2px; height: 2px; background-color: var(--color-gray-300); z-index: 2; pointer-events: none; }
+  }
+}
+@utility tab-card {
+  @media (width >= 40rem) and (hover: hover) {
+    transition: transform 80ms ease-out, box-shadow 80ms ease-out;
+    &:hover {
+      position: relative;
+      z-index: 1;
+      background-color: var(--tab-card, var(--tab-gray));
+      color: var(--tab-ink);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      border-bottom-color: transparent;
+      box-shadow: 0 0 0 2px var(--press-line), 4px 4px 0 2px var(--press-line);
+    }
+    &:active { transform: translate(4px, 4px); box-shadow: 0 0 0 2px var(--press-line), 0 0 0 2px var(--press-line); }
+    @media (prefers-reduced-motion: reduce) { transition: none; }
+  }
+}
+@media (width >= 40rem) and (hover: hover) {
+  :root[data-theme="dark"] .tab-card:hover { filter: brightness(0.85); }
+  @media (prefers-color-scheme: dark) { :root[data-theme="system"] .tab-card:hover { filter: brightness(0.85); } }
+}
+
 /* A lower raised card, a 2px shadow, for cards that sit under a card-raised one (About This App) */
 @utility card-raised-sm {
   border: 2px solid var(--card-line);

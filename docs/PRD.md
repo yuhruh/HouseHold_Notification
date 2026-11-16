@@ -380,7 +380,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
     - Users can connect/disconnect Google, but never remove their last sign-in method. A Google-only user can set a password through a reset email.
     - **Web OAuth carry-over:** the "Continue with Google" form is a CSRF-protected POST (`omniauth-rails_csrf_protection`) carrying `tz` and an optional `return_to` (internal path only). The server stores them in an `auth_handoffs` row (10-min TTL, single use), and only the handoff id travels in the session. The callback reads them from the row. Invitations do **not** travel through any auth flow; they are found by verified email (see 12a).
     - **Session lifetime: 1 year, sliding.** Each visit extends it, so a family member who opens the app at least once a year never has to sign in again. Sign-out and "sign out other sessions" end sessions immediately (and remove those browsers' push subscriptions); expiry does not remove push subscriptions.
-    - Rate limiting (Rails 8 `rate_limit`) on sign-in, sign-up, confirmation resend, password reset and OAuth start. `Referrer-Policy: no-referrer` on auth routes. `filter_parameters` covers `token, invite, password, code`.
+    - Rate limiting (Rails 8 `rate_limit`) on sign-in, sign-up, confirmation resend, password reset and OAuth start. `Referrer-Policy: same-origin` on auth routes (Referer goes to this app only; `no-referrer` makes browsers send `Origin: null` on plain form posts, which the CSRF check rejects). `filter_parameters` covers `token, invite, password, code`.
 11. **Time zone:**
     - A Stimulus `timezone` controller fills a hidden `tz` field on the sign-up and "Continue with Google" forms. The server validates it against tzinfo and falls back to `Asia/Taipei`.
     - The value is stored in `users.time_zone`. An `around_action` wraps each request in `Time.use_zone(Current.user.time_zone)`.
@@ -888,7 +888,7 @@ Execution order: **M0 → M1 → M2 → M4 → M5 → M3 → M6 → M7**. Remind
 - Tenant isolation in one place, plus Pundit; tests prove cross-household access fails.
 - Money as decimal + explicit currency; never cross-currency sums.
 - UTC storage; `Time.current` / `Time.zone.today` only (RuboCop `Rails/TimeZone`, `Rails/Date`).
-- Tokens: random, stored as digests, single use, short TTL. `filter_parameters` set; `Referrer-Policy: no-referrer` on auth routes; no enumeration in auth responses.
+- Tokens: random, stored as digests, single use, short TTL. `filter_parameters` set; `Referrer-Policy: same-origin` on auth routes; no enumeration in auth responses.
 - Secrets in Rails credentials / Railway env vars.
 - **Rails master key** (`config/master.key` / `RAILS_MASTER_KEY`) is stored in a **password manager** (e.g. 1Password/Bitwarden, in the household vault) and set as a Railway env var. It is never committed or sent in chat. Losing it means losing every credential (Gmail token, VAPID keys, Healthchecks URLs).
 - **VAPID keys must never be rotated casually.** Every browser's push subscription is bound to the VAPID public key. Rotating it silently breaks push for **every** member until each re-enables notifications on each device. Rotate only if the private key leaks, and then announce it, expect every subscription to fail (404/410 or "no device confirmed"), and ask the family to tap "Enable notifications" again. This note also goes in `docs/NOTIFICATIONS.md` and next to the credential entry.

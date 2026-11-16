@@ -134,6 +134,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home, tab: "all")
     assert_select "li#row_supply_#{item.id} span", text: "總數：25"
+    # The All list's Left column is the number alone; the unit is there for a screen reader
+    assert_select "li#row_supply_#{item.id} span[aria-hidden=true]", text: "9"
+    assert_select "li#row_supply_#{item.id} span.sr-only", text: "9 瓶"
     assert_select "li#row_supply_#{empty.id}", text: /總數/, count: 0
     assert_select "a[data-supplies-view-target]", 0
 

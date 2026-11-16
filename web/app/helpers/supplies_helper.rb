@@ -28,6 +28,14 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # The All list's Left column: just the number over the bar ("9", "~2" for an estimate), like the Total
+  # at the bar's other end; a screen reader still gets the unit ("9 bottles")
+  def supply_left_number(supply, forecast)
+    count = forecast.on_hand_rounded
+    number = forecast.estimated? && count.positive? ? "~#{number_with_delimiter(count)}" : number_with_delimiter(count)
+    safe_join([ tag.span(number, aria: { hidden: true }), tag.span(supply_left(supply, forecast), class: "sr-only") ])
+  end
+
   # "Total: 25 bottles" over the right end of the stock bar (the bar's full length); in the lists just
   # "Total: 25", the unit is right beside it. Nothing for an empty item nobody has bought yet
   def supply_total(supply, forecast, unit: true)

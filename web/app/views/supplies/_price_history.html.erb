@@ -1,0 +1,69 @@
+<%# Price history: purchases and old prices, newest first. Two-line rows on a phone, a table from sm up.
+    ★ marks the lowest price per unit; old prices (comparing only, no stock change) can be deleted %>
+<% lowest = price_history.min_by(&:unit_price) %>
+<% unit_one = t("supplies.units.#{supply.unit}_one") %>
+<% can_edit = policy(supply).update? && !supply.archived_at %>
+<% old_tag = "whitespace-nowrap rounded-full bg-[#fef3c7] px-2 py-0.5 text-xs font-semibold text-[#92400e] dark:bg-[#443617] dark:text-[#f2d995]" %>
+<% low_tag = "whitespace-nowrap rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800" %>
+<% tags = ->(entry) do %>
+  <% if entry.equal?(lowest) && price_history.size > 1 %><span class="<%= low_tag %>">★ <%= t("supplies.show.lowest") %></span><% end %>
+  <% if entry.old_price? %><span class="<%= old_tag %>"><%= t("supplies.show.old_price") %></span><% end %>
+  <% if !entry.old_price? && entry.record_id %><%= link_to t("supplies.show.in_ledger"), household_record_path(Current.household, entry.record_id), class: "text-xs text-blue-700 hover:underline" %><% end %>
+<% end %>
+<% delete = ->(entry) do %>
+  <% if can_edit && entry.old_price? %>
+    <%= button_to "✕", household_supply_price_path(Current.household, supply, entry), method: :delete, form: { data: { turbo_confirm: t("supplies.show.delete_old_price_confirm") } },
+          "aria-label": t("supplies.show.delete_old_price"), title: t("supplies.show.delete_old_price"), class: "cursor-pointer rounded-md px-1.5 py-0.5 text-sm text-gray-600 hover:bg-red-50 hover:text-red-700" %>
+  <% end %>
+<% end %>
+<details id="<%= dom_id(supply, :price_history) %>" class="card-raised rounded-2xl bg-white">
+  <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+    <span class="font-bold"><%= t("supplies.show.price_history") %></span>
+    <span class="min-w-0 truncate text-sm text-gray-600"><%= lowest ? t("supplies.show.lowest_price", price: supply_unit_price(lowest), unit: unit_one) : t("supplies.show.no_history") %> ▾</span>
+  </summary>
+  <% if price_history.any? %>
+    <ul class="divide-y divide-gray-200 border-t border-gray-200 px-4 sm:hidden">
+      <% price_history.each do |entry| %>
+        <li class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 py-2.5 text-sm">
+          <span class="min-w-0 font-semibold [overflow-wrap:anywhere]"><%= entry.display_name %></span>
+          <span class="text-right font-bold tabular-nums"><%= money(entry.total_price, entry.currency) %></span>
+          <span class="min-w-0 text-gray-600"><%= [ entry.store.presence || "—", supply_count(supply, entry.quantity), l(entry.purchased_on, format: :long) ].join(" · ") %></span>
+          <span class="whitespace-nowrap text-right text-gray-600 tabular-nums"><%= supply_unit_price(entry) %>/<%= unit_one %></span>
+          <span class="col-span-2 mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %><span class="ml-auto"><% delete.(entry) %></span></span>
+        </li>
+      <% end %>
+    </ul>
+    <div class="hidden overflow-x-auto sm:block">
+      <table class="w-full border-collapse text-sm tabular-nums">
+        <thead>
+          <tr class="border-y border-gray-200 text-left text-xs text-gray-600">
+            <th class="px-4 py-2 font-semibold"><%= t("supplies.show.price_date") %></th>
+            <th class="px-3 py-2 font-semibold"><%= t("supplies.show.price_product") %></th>
+            <th class="px-3 py-2 font-semibold"><%= t("supplies.purchases.form.store") %></th>
+            <th class="px-3 py-2 text-right font-semibold"><%= t("supplies.show.price_amount") %></th>
+            <th class="px-3 py-2 text-right font-semibold"><%= t("supplies.show.price_price") %></th>
+            <th class="w-8 px-2 py-2"><span class="sr-only"><%= t("supplies.show.delete_old_price") %></span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <% price_history.each do |entry| %>
+            <tr class="align-top">
+              <td class="whitespace-nowrap px-4 py-2.5"><%= l(entry.purchased_on, format: :long) %></td>
+              <td class="px-3 py-2.5"><span class="font-semibold"><%= entry.display_name %></span><span class="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %></span></td>
+              <td class="px-3 py-2.5"><%= entry.store.presence || "—" %></td>
+              <td class="whitespace-nowrap px-3 py-2.5 text-right"><%= supply_count(supply, entry.quantity) %></td>
+              <td class="whitespace-nowrap px-3 py-2.5 text-right"><span class="font-bold"><%= money(entry.total_price, entry.currency) %></span><span class="block text-xs text-gray-600"><%= supply_unit_price(entry) %>/<%= unit_one %></span></td>
+              <td class="px-2 py-2"><% delete.(entry) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+  <% if can_edit %>
+    <div class="border-t border-gray-200 px-4 py-3">
+      <%= link_to nav_label("add.png", t("supplies.show.add_old_price")), new_household_supply_price_path(Current.household, supply), data: modal_link_data,
+            class: "btn-press press-sm inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900" %>
+    </div>
+  <% end %>
+</details>

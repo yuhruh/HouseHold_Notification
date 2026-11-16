@@ -3,6 +3,22 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.0"
+  date: 2026-11-16
+  en:
+    - "Supplies › an item's page has a new Price history under History: every price you paid, with the product name, store, amount, price and date, newest first. ★ marks the lowest price per unit."
+    - "Add an old price saves what something cost before, even if you've used it all up. It's only for comparing: it shows in Price history and Where to buy, and doesn't change how many you have, the forecast or the Ledger."
+  zh-TW:
+    - "「日用品」› 品項頁面在「記錄」下方新增「價格記錄」：列出每次買的品名、商店、數量、價格和日期，最新的在最上面。★ 標示每單位最便宜的價格。"
+    - "「新增舊價格」可以記下以前買過的價格，就算已經用完也可以。只用來比價：會出現在「價格記錄」和「去哪買」，不會改變你還有多少、預測或帳本。"
+- version: "1.13.1"
+  date: 2026-11-16
+  en:
+    - "Review items: the Add to list shows your supplies under their category (Toiletries, Cleaning, Food & drink…), the same categories as the item form."
+    - "Printed receipt on a phone: \"0 of 2 QR codes read\" and its hint now sit under the receipt picture."
+  zh-TW:
+    - "檢查品項：「加到」清單依類別（盥洗用品、清潔用品、食品飲料…）列出你的日用品，和日用品表單的類別一樣。"
+    - "手機上的紙本發票：「已讀取 0／2 個 QR Code」和說明移到發票示意圖下方。"
 - version: "1.13.0"
   date: 2026-11-16
   en:

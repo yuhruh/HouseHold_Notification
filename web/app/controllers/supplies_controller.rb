@@ -34,6 +34,7 @@ class SuppliesController < ApplicationController
     authorize @supply
     @forecast = @supply.forecast
     @history = @supply.history
+    @price_history = @supply.price_history
     @stores = stores(@supply)
   end
 
@@ -114,7 +115,7 @@ class SuppliesController < ApplicationController
   private
 
   def set_supply
-    @supply = Current.household.supplies.includes(:purchases, :counts).find(params[:id])
+    @supply = Current.household.supplies.includes(:purchases, :counts, :prices).find(params[:id])
   end
 
   def supply_params = params.expect(supply: %i[name kind unit level guess_days_per_unit lead_days alert_when_left])
@@ -177,9 +178,10 @@ class SuppliesController < ApplicationController
     { buy_soon: all.count { it.last.needs_buying? }, expiring: all.count { it.last.expiring? }, monthly:, total: all.size }
   end
 
-  # Where to buy: each store's cheapest price per unit and how often it was used, cheapest first
+  # Where to buy: each store's cheapest price per unit (purchases and old prices) and how often it
+  # was used, cheapest first
   def stores(supply)
-    supply.purchases.group_by { it.store.presence || "—" }.map do |store, purchases|
+    supply.priced.group_by { it.store.presence || "—" }.map do |store, purchases|
       best = purchases.min_by(&:unit_price)
       { store:, best:, times: purchases.size }
     end.sort_by { it[:best].unit_price }

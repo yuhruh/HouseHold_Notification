@@ -1,0 +1,41 @@
+<%# Add an old price: the five things to compare by. Nothing about the count, expiry or the Ledger %>
+<% content_for :title, t("supplies.prices.new.title", item: @supply.name) %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% stores = Current.household.supply_purchases.where.not(store: nil).distinct.pluck(:store) | Current.household.supply_prices.where.not(store: nil).distinct.pluck(:store) %>
+<%= render layout: "shared/modal_or_page", locals: { title: t("supplies.prices.new.title", item: @supply.name), icon: "expense.png" } do %>
+  <%= form_with model: @price, url: household_supply_prices_path(Current.household, @supply), class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
+    <% if @price.errors.any? %>
+      <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @price.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+    <% end %>
+    <div>
+      <%= form.label :product_name, t("supplies.prices.new.product_name"), class: "block text-sm font-medium" %>
+      <%= form.text_field :product_name, value: @price.product_name || @supply.name, maxlength: 80, class: field %>
+      <p class="mt-1 text-xs text-gray-600"><%= t("supplies.prices.new.product_name_hint") %></p>
+    </div>
+    <div>
+      <%= form.label :store, t("supplies.purchases.form.store"), class: "block text-sm font-medium" %>
+      <%= form.text_field :store, maxlength: 60, list: "supply-price-stores", class: field %>
+      <datalist id="supply-price-stores"><% stores.sort.each do |store| %><option value="<%= store %>"></option><% end %></datalist>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <%= form.label :quantity, t("supplies.prices.new.quantity", unit: t("supplies.units.#{@supply.unit}_other")), class: "block text-sm font-medium" %>
+        <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field %>
+      </div>
+      <div>
+        <%= form.label :total_price, t("supplies.prices.new.total_price"), class: "block text-sm font-medium" %>
+        <% currency = Current.household.default_currency %>
+        <%= form.number_field :total_price, value: (Household::WHOLE_CURRENCIES.include?(currency) && @price.total_price == @price.total_price&.round ? @price.total_price&.to_i : @price.total_price), min: 0, step: (currency == "USD" ? "0.01" : "1"), required: true, inputmode: "decimal", class: field %>
+      </div>
+    </div>
+    <div>
+      <%= form.label :purchased_on, t("supplies.prices.new.purchased_on"), class: "block text-sm font-medium" %>
+      <%= form.date_field :purchased_on, required: true, max: Current.household.today, class: field %>
+    </div>
+    <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t("supplies.prices.new.hint") %></p>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+      <%= modal_cancel(household_supply_path(Current.household, @supply)) %>
+    </div>
+  <% end %>
+<% end %>

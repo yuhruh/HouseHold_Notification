@@ -21,11 +21,23 @@ en:
         purchased_on: "Date"
         expires_on: "Expires"
         left_before: "How many were left before"
+      supply_price:
+        product_name: "Product name"
+        quantity: "Amount"
+        total_price: "Price"
+        store: "Store"
+        purchased_on: "Bought on"
       supply_count:
         level: "Count"
     errors:
       models:
         supply_purchase:
+          attributes:
+            total_price:
+              whole_number: "must be a whole number of dollars"
+            purchased_on:
+              in_the_future: "can't be in the future"
+        supply_price:
           attributes:
             total_price:
               whole_number: "must be a whole number of dollars"
@@ -231,6 +243,17 @@ en:
       expires: "expires %{date}"
       in_ledger: "In Ledger"
       from_receipt: "from receipt"
+      price_history: "Price history"
+      lowest_price: "Lowest %{price}/%{unit}"
+      lowest: "lowest"
+      old_price: "Old price"
+      add_old_price: "Add an old price"
+      delete_old_price: "Delete this old price"
+      delete_old_price_confirm: "Delete this old price?"
+      price_date: "Date"
+      price_product: "Product"
+      price_amount: "Amount"
+      price_price: "Price"
     new:
       title: "New supply item"
     edit:
@@ -294,6 +317,19 @@ en:
         left_before_hint: "Filled in with the app's estimate. Correct it if you know better; that's how it learns."
         add_to_ledger: "Also add to Ledger as an expense"
         add_to_ledger_hint: "A paid expense in %{category}"
+    prices:
+      new:
+        title: "Add an old price: %{item}"
+        product_name: "Product name"
+        product_name_hint: "Change it if the pack was different, like \"Kleenex 3-ply 6 rolls\"."
+        quantity: "Amount (%{unit})"
+        total_price: "Price"
+        purchased_on: "Bought on"
+        hint: "Only for comparing prices. It won't change how many you have."
+      create:
+        saved: "Saved an old price for %{item}."
+      destroy:
+        deleted: "Deleted the old price."
     scans:
       show:
         title: "Scan product barcode"

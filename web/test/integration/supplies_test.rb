@@ -242,12 +242,63 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "nav a[aria-current=page]", /全部/
   end
 
-  test "filters: Buy soon and Expiring" do
+  test "All's filters are switches: several categories at once, each chip flips itself and keeps the others" do
+    create_item(name: "Paper", kind: "toiletries")
+    create_item(name: "Soap", kind: "cleaning")
+    create_item(name: "Rice", kind: "food_drink")
+    all = household_supplies_path(@home, tab: "all")
+
+    get all
+    assert_select "nav[aria-label=篩選] a", 3
+    assert_select "nav[aria-label=篩選] a[aria-current]", 0
+    assert_select "nav[aria-label=篩選] a", text: /準備補貨|全部|快過期/, count: 0
+    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", kind: [ "cleaning" ]), text: /清潔/
+    assert_select "p", text: /每月約/
+    assert_select "a", text: "全部清除", count: 0
+
+    get household_supplies_path(@home, tab: "all", kind: %w[toiletries cleaning])
+    assert_select "nav a[aria-current=page]", /全部/
+    assert_select "main li", 2
+    assert_select "main li", text: /Rice/, count: 0
+    assert_select "nav[aria-label=篩選] a[aria-current=true]", 2
+    assert_select "p", text: /顯示 3 項中的 2 項/
+    assert_select "p", text: /每月約/, count: 0
+    assert_select "a[href=?]", all, text: "全部清除"
+    # a chosen chip leads to the list without it; another one is added to the chosen ones
+    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", kind: [ "toiletries" ]), text: /清潔/
+    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", kind: %w[toiletries cleaning food_drink])
+    # the search keeps the chosen filters
+    assert_select "form input[type=hidden][name='kind[]']", 2
+
+    # one category, as older links give it
+    get household_supplies_path(@home, kind: "food_drink")
+    assert_select "main li", 1
+    assert_select "main li", text: /Rice/
+  end
+
+  test "All's Expiring filter shows only while something is expiring, and narrows the chosen categories" do
+    create_item(name: "Paper", kind: "toiletries")
+    get household_supplies_path(@home, tab: "all")
+    assert_select "nav[aria-label=篩選] a", text: /快過期/, count: 0
+
+    milk = create_item(name: "Milk", kind: "food_drink", level: 30, guess_days_per_unit: 30)
+    milk.purchases.create!(household: @home, purchased_on: @home.today, quantity: 30, total_price: 300, left_before: 0, expires_on: @home.today + 5)
+    create_item(name: "Rice", kind: "food_drink")
+    get household_supplies_path(@home, tab: "all")
+    assert_select "nav[aria-label=篩選] a", text: /快過期\s*1/
+
+    get household_supplies_path(@home, tab: "all", filter: "expiring", kind: %w[food_drink toiletries])
+    assert_select "main li", 1
+    assert_select "main li", text: /Milk/
+    assert_select "p", text: /顯示 3 項中的 1 項/
+    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", kind: %w[toiletries food_drink]), text: /快過期/
+  end
+
+  test "the old Buy soon filter opens To Buy, where those items are" do
     create_item(name: "Soon", level: 1)
-    create_item(name: "Plenty", level: 50)
     get household_supplies_path(@home, filter: "buy_soon")
+    assert_select "nav a[aria-current=page]", /該補貨/
     assert_select "main li", text: /Soon/
-    assert_select "main li", text: /Plenty/, count: 0
   end
 
   test "a viewer sees supplies but can't change them" do

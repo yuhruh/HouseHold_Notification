@@ -1,6 +1,5 @@
 <% content_for :title, t(".title") %>
 <% writer = policy(Supply).create? %>
-<% chip = "inline-flex min-h-9 items-center gap-1 rounded-full border-2 px-3 text-sm font-semibold" %>
 <% card_list = "flex flex-col space-y-3 lg:space-y-2" %>
 <%# To Buy, Stocked and Favorites: their groups or cards one under another in one column at every width, as wide as an item's page %>
 <% column = "mx-auto w-full max-w-3xl" %>
@@ -27,21 +26,31 @@
       <%= render "supplies/switch", current: @tab, counts: @counts %>
       <p class="text-sm text-gray-700"><%= t(".intro.#{@tab}") %></p>
       <% if @tab == "all" %>
+        <%# The filters are switches, any number at once; each link keeps the others (and the search) and flips its own %>
+        <% view = ->(kinds: @kinds, expiring: @expiring) { household_supplies_path(Current.household, { tab: "all", filter: ("expiring" if expiring), kind: kinds.presence, q: @query.presence }.compact) } %>
         <div class="flex flex-wrap items-center gap-2">
-          <nav aria-label="<%= t(".filters") %>" class="flex flex-wrap gap-2">
-            <% [ [ nil, t(".all"), @summary[:total] ], [ "buy_soon", t(".buy_soon"), @summary[:buy_soon] ], [ "expiring", t(".expiring"), @summary[:expiring] ] ].each do |filter, label, count| %>
-              <% here = @filter == filter && @kind.nil? && params[:archived].blank? %>
-              <%= link_to household_supplies_path(Current.household, tab: "all", filter:), class: "#{chip} #{here ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}", "aria-current": (here ? "page" : nil) do %>
-                <%= label %> <span class="font-extrabold"><%= count %></span>
-              <% end %>
+          <nav aria-label="<%= t(".filters") %>" class="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+            <span aria-hidden="true" class="text-sm font-semibold text-gray-700"><%= t(".filters") %></span>
+            <% if @summary[:expiring].positive? || @expiring %>
+              <%= supply_filter_chip(t(".expiring"), view.(expiring: !@expiring), chosen: @expiring, count: @summary[:expiring]) %>
             <% end %>
             <% @kinds_in_use.each do |kind| %>
-              <%= link_to supply_kind(kind), household_supplies_path(Current.household, kind:), class: "#{chip.sub('inline-flex ', '')} hidden lg:inline-flex #{@kind == kind ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}" %>
+              <% chosen = @kinds.include?(kind) %>
+              <%= supply_filter_chip(supply_kind(kind), view.(kinds: chosen ? @kinds - [ kind ] : @kinds + [ kind ]), chosen:) %>
             <% end %>
           </nav>
-          <p class="text-sm font-semibold text-gray-700 lg:ml-2"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
+          <% if @narrowed %>
+            <p class="flex items-center gap-3 text-sm font-semibold text-gray-700 lg:ml-2">
+              <span><%= t(".showing", shown: @items.size, total: @summary[:total]) %></span>
+              <%= link_to t(".clear_all"), household_supplies_path(Current.household, tab: "all"), class: "inline-flex min-h-9 items-center text-blue-700 hover:underline" %>
+            </p>
+          <% else %>
+            <p class="text-sm font-semibold text-gray-700 lg:ml-2"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
+          <% end %>
           <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
             <%= form.hidden_field :tab, value: "all", id: nil %>
+            <% if @expiring %><%= form.hidden_field :filter, value: "expiring", id: nil %><% end %>
+            <% @kinds.each do |kind| %><%= hidden_field_tag "kind[]", kind, id: nil %><% end %>
             <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-64 rounded-xl border border-gray-400 px-3 py-1.5" %>
           <% end %>
         </div>

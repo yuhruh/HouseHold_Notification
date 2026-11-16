@@ -133,4 +133,20 @@ module SuppliesHelper
     currency = purchases.first.currency
     t("supplies.show.total_spent", total: money(total, currency), since: l(first, format: :supply_month), monthly: money((total / months).round, currency))
   end
+
+  # A filter on Supplies › All: a switch. Chosen it is blue with a ✕, and its link leads to the list
+  # without it; otherwise the link adds it to the ones already chosen
+  def supply_filter_chip(label, path, chosen:, count: nil)
+    tone = chosen ? "border-blue-700 bg-blue-100 font-bold text-blue-900" : "border-(--card-line) bg-white font-semibold"
+    link_to path, class: "inline-flex min-h-9 items-center gap-1 rounded-full border-2 px-3 text-sm #{tone}", "aria-current": (chosen ? "true" : nil) do
+      parts = [ tag.span(label) ]
+      parts << tag.span(count, class: "font-extrabold") if count
+      if chosen
+        parts << tag.svg(tag.path(d: "M6 6l12 12M18 6L6 18"), class: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+                         "stroke-width": "2.6", "stroke-linecap": "round", "aria-hidden": "true")
+        parts << tag.span(t("supplies.index.chosen"), class: "sr-only")
+      end
+      safe_join(parts, " ")
+    end
+  end
 end

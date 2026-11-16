@@ -5,10 +5,13 @@
       <h1 class="text-3xl font-bold"><%= @supply.name %></h1>
       <p class="text-sm text-gray-600"><%= t("supplies.show.subtitle", unit: t("supplies.units.#{@supply.unit}_one"), kind: supply_kind(@supply.kind)) %><% if @supply.archived_at %> · <%= t("supplies.show.archived") %><% end %></p>
     </div>
-    <% if policy(@supply).edit? %>
-      <%= link_to nav_label("edit.png", t("supplies.actions.edit")), edit_household_supply_path(Current.household, @supply), data: modal_link_data,
-            class: "btn-press inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
-    <% end %>
+    <div class="flex shrink-0 flex-wrap items-center justify-end gap-2.5">
+      <div id="<%= dom_id(@supply, :favorite) %>"><%= render "supplies/favorite", supply: @supply, full: true %></div>
+      <% if policy(@supply).edit? %>
+        <%= link_to nav_label("edit.png", t("supplies.actions.edit")), edit_household_supply_path(Current.household, @supply), data: modal_link_data,
+              class: "btn-press inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
+      <% end %>
+    </div>
   </div>
   <%= render "shared/flash" %>
   <%= render "supplies/forecast", supply: @supply, forecast: @forecast %>

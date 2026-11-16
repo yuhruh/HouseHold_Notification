@@ -101,6 +101,7 @@ Rails.application.routes.draw do
         post "receipt/save", to: "supplies/receipts#create", as: :receipt
       end
       post :archive, on: :member
+      resource :favorite, only: %i[create destroy], controller: "supplies/favorites"
       resources :purchases, only: %i[new create], controller: "supplies/purchases"
       resources :counts, only: %i[create destroy], controller: "supplies/counts"
       resources :prices, only: %i[new create destroy], controller: "supplies/prices"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -809,6 +809,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_100000) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "favorite", default: false, null: false
     t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
     t.index ["household_id"], name: "index_supplies_on_household_id"
     t.check_constraint "alert_state::text = ANY (ARRAY['ok'::character varying, 'low'::character varying, 'out'::character varying]::text[])", name: "supplies_alert_state"

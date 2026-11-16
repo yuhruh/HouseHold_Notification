@@ -144,6 +144,66 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "li#card_supply_#{item.id} span", text: "總數：25"
   end
 
+  test "Favorites: owners and co-owners star an item for the household, and the Favorites tab lists the starred ones" do
+    star = create_item(name: "Coffee", unit: "bottle", level: 30)
+    plain = create_item(name: "Soap", level: 30)
+
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "nav a[aria-current=page][href=?]", household_supplies_path(@home, tab: "favorites"), text: /我的最愛/
+    assert_select "#supplies_favorites_count.hidden", text: "0"
+    assert_select "main p", text: /還沒有我的最愛/
+    assert_select "li[id^=card_]", 0
+
+    # The star is on the cards (Stocked), the All rows and the item page
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "li#card_supply_#{star.id} form[action=?] button[aria-pressed=false]", household_supply_favorite_path(@home, star)
+    get household_supplies_path(@home, tab: "all")
+    assert_select "li#row_supply_#{star.id} form[action=?] button[aria-label=?]", household_supply_favorite_path(@home, star), "我的最愛：Coffee"
+    get household_supply_path(@home, star)
+    assert_select "#favorite_supply_#{star.id} button[aria-pressed=false]", text: /我的最愛/
+
+    post household_supply_favorite_path(@home, star), as: :turbo_stream
+    assert_response :success
+    assert star.reload.favorite?
+    assert_not plain.reload.favorite?
+    %W[row_supply_#{star.id} card_supply_#{star.id} favorite_supply_#{star.id} supplies_favorites_count].each do |target|
+      assert_match "target=\"#{target}\"", response.body
+    end
+    assert_select "#supplies_favorites_count:not(.hidden)", text: "1"
+
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "li[id^=card_]", 1
+    assert_select "li#card_supply_#{star.id} button[aria-pressed=true]"
+    assert_select "#supplies_favorites_count:not(.hidden)", text: "1"
+    get household_supply_path(@home, star)
+    assert_select "#favorite_supply_#{star.id} input[name=_method][value=delete]"
+
+    # Without Turbo: back to where the star was tapped
+    delete household_supply_favorite_path(@home, star), headers: { "HTTP_REFERER" => household_supplies_url(@home, tab: "favorites") }
+    assert_redirected_to household_supplies_url(@home, tab: "favorites")
+    assert_not star.reload.favorite?
+  end
+
+  test "Favorites: a viewer sees the stars but can't change them" do
+    star = create_item(name: "Coffee", level: 30, favorite: true)
+    plain = create_item(name: "Soap", level: 30)
+    sign_out
+    sign_in_as users(:google_only)
+
+    get household_supplies_path(@home, tab: "favorites")
+    assert_select "li#card_supply_#{star.id}", text: /我的最愛/
+    assert_select "form[action=?]", household_supply_favorite_path(@home, star), 0
+    get household_supplies_path(@home, tab: "all")
+    assert_select "li#row_supply_#{plain.id}", text: /我的最愛/, count: 0
+
+    post household_supply_favorite_path(@home, plain), as: :turbo_stream
+    assert_response :forbidden
+    delete household_supply_favorite_path(@home, star), as: :turbo_stream
+    assert_response :forbidden
+    assert star.reload.favorite?
+    assert_not plain.reload.favorite?
+  end
+
   test "To Buy, Stocked and All tabs, like Bills" do
     out = create_item(name: "Out", level: 0, guess_days_per_unit: 3)
     out.purchases.create!(household: @home, purchased_on: 10.days.ago.to_date, quantity: 1, total_price: 10, left_before: 0)

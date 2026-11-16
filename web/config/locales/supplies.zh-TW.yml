@@ -158,10 +158,16 @@ zh-TW:
       out: "%{item} 可能用完了。還有剩嗎？請更新數量。"
       expiry: "%{item}：約 %{left} 會在 %{date} 過期前用不完。"
       footer: "你收到這封信，是因為「我的帳戶 → 通知」開啟了日用品提醒。"
+    favorite:
+      label: "我的最愛：%{item}"
+      add: "加入我的最愛"
+      remove: "從我的最愛移除"
+      button: "我的最愛"
     switch:
       label: "日用品檢視"
       to_buy: "該補貨"
       stocked: "還夠用"
+      favorites: "我的最愛"
       all: "全部"
     card:
       out: "可能用完了 · 今天就補貨"
@@ -177,11 +183,14 @@ zh-TW:
       intro:
         to_buy: "現在該補貨的東西。打開「詳情」可以看預測和哪裡最便宜。"
         stocked: "目前還夠用。每項都會顯示什麼時候移到「該補貨」。"
+        favorites: "加上星星的品項，最快要補貨的排在前面。"
         all: "所有項目，可以篩選和搜尋。"
       next_up: "下一個：%{item} 將在 %{date} 移到「該補貨」"
       see_stocked: "還夠用"
       nothing_to_buy: "現在沒有要補貨的東西。"
       nothing_stocked: "這裡還沒有項目。"
+      no_favorites: "還沒有我的最愛。點一下品項上的星星就能加入。"
+      no_favorites_viewer: "還沒有我的最愛。"
       groups:
         now: "用完或現在就補貨"
         soon: "7 天內要補貨"

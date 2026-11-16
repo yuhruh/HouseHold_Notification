@@ -14,7 +14,10 @@ module Supplies
     Item = Data.define(:text, :quantity, :unit_price) do
       def amount = (quantity * unit_price).round(2)
     end
-    Receipt = Data.define(:invoice_no, :issued_on, :total, :seller_tax_id, :items)
+    # seller_name: the store name printed on an invoice PDF (a QR code has only the tax ID)
+    Receipt = Data.define(:invoice_no, :issued_on, :total, :seller_tax_id, :items, :seller_name) do
+      def initialize(seller_name: nil, **rest) = super(seller_name:, **rest)
+    end
 
     HEAD = /\A(?<no>[A-Z]{2}\d{8})(?<date>\d{7})(?<random>\d{4})(?<sales>\h{8})(?<total>\h{8})(?<buyer>\d{8})(?<seller>\d{8})/
 

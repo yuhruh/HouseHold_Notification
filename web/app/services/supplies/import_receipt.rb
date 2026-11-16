@@ -19,8 +19,11 @@ module Supplies
       household.receipt_sellers.find_by(tax_id: receipt.seller_tax_id)&.name if receipt.seller_tax_id
     end
 
-    # What each line probably is: remembered from an earlier receipt from this store, else a name
-    # that matches one of the household's supplies, else nothing chosen yet
+    # Lines that aren't things you keep in stock: shipping and handling fees start out skipped
+    FEE = /運費|運送費|配送費|手續費|處理費|包裝費|shipping|delivery fee|handling/i
+
+    # What each line probably is: remembered from an earlier receipt from this store, else a fee
+    # (skipped), else a name that matches one of the household's supplies, else nothing chosen yet
     def self.rows(household, receipt)
       supplies = household.supplies.active.to_a
       matches = household.receipt_item_matches.where(seller_tax_id: receipt.seller_tax_id.to_s, receipt_text: receipt.items.map(&:text)).index_by(&:receipt_text)
@@ -28,6 +31,8 @@ module Supplies
         if (match = matches[item.text])
           supply = supplies.find { it.id == match.supply_id }
           Row.new(index:, item:, supply:, choice: supply ? supply.id.to_s : "skip", tag: supply ? :remembered : :skipped, units_per_line: match.units_per_line)
+        elsif item.text.match?(FEE)
+          Row.new(index:, item:, supply: nil, choice: "skip", tag: :fee, units_per_line: 1)
         elsif (supply = suggest(supplies, item.text))
           Row.new(index:, item:, supply:, choice: supply.id.to_s, tag: :suggested, units_per_line: 1)
         else
@@ -48,7 +53,8 @@ module Supplies
       letters.empty? ? 0 : letters.count { text.include?(it) }.fdiv(letters.size)
     end
 
-    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", units_per_line:, name:, kind:, unit: } }
+    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, kind:, unit: } }
+    # (quantity: how many came, when it differs from the receipt; the price stays what the line cost)
     def self.call(household, receipt, lines:, store:, user:, add_to_ledger: false)
       new(household, receipt, lines:, store:, user:, add_to_ledger:).call
     end
@@ -82,7 +88,7 @@ module Supplies
     def remember_store
       return unless @store && @receipt.seller_tax_id
       seller = @household.receipt_sellers.find_or_initialize_by(tax_id: @receipt.seller_tax_id)
-      seller.update!(name: @store)
+      seller.update!(name: @store, skip: false) # imported, so it is a supplies store after all
     end
 
     def save_line(import, item, line)
@@ -103,7 +109,8 @@ module Supplies
 
       total = item.amount
       total = total.round if Household::WHOLE_CURRENCIES.include?(@household.default_currency)
-      purchase = LogPurchase.call(supply, { quantity: [ item.quantity.round, 1 ].max * units, total_price: total, store: @store,
+      quantity = line["quantity"].to_s.match?(/\A\d+\z/) && line["quantity"].to_i.positive? ? line["quantity"].to_i : [ item.quantity.round, 1 ].max
+      purchase = LogPurchase.call(supply, { quantity: quantity * units, total_price: total, store: @store,
                                             purchased_on: @receipt.issued_on, receipt_import: import }, user: @user)
       raise ActiveRecord::RecordInvalid, purchase unless purchase.persisted?
     end

@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 
-// New → Scan barcode or receipt. Reads in the browser only, from the camera (a webcam on a computer), a
+// New → Scan product barcode, and New → Add a receipt › Printed receipt. Reads in the browser only, from the camera (a webcam on a computer), a
 // photo you choose, drop or paste, at a few sizes and turns: product barcodes (EAN-13/JAN, EAN-8, UPC)
 // and a Taiwan e-invoice's two QR codes. The browser's own BarcodeDetector when it has one, else ZXing,
 // loaded only then. The photo never leaves the device: a barcode number goes to supplies/scans#barcode,
@@ -11,7 +11,7 @@ const LEFT_QR = /^[A-Z]{2}\d{8}\d{7}\d{4}[0-9a-fA-F]{16}\d{16}/
 let zxingLoading = null
 
 export default class extends Controller {
-  static targets = ["video", "camera", "photo", "message", "code", "left", "right", "receiptForm", "tickLeft", "tickRight", "light", "drop"]
+  static targets = ["video", "camera", "photo", "message", "code", "left", "right", "receiptForm", "tickLeft", "tickRight", "labelLeft", "labelRight", "qrCount", "light", "drop"]
   static values = { mode: String, barcodeUrl: String, texts: Object }
 
   connect() {
@@ -139,9 +139,11 @@ export default class extends Controller {
     if (this.modeValue === "receipt") this.receiptProgress()
   }
 
+  // Progress, not a choice: each QR code's square turns green when it's read, with "1 of 2 read"
   receiptProgress() {
-    this.tick(this.tickLeftTarget, this.left)
-    this.tick(this.tickRightTarget, this.right)
+    this.tick(this.tickLeftTarget, this.labelLeftTarget, this.textsValue.left_qr, this.left)
+    this.tick(this.tickRightTarget, this.labelRightTarget, this.textsValue.right_qr, this.right)
+    this.qrCountTarget.textContent = this.textsValue.qr_count.replace("%{count}", [this.left, this.right].filter(Boolean).length)
     if (this.left && this.right) {
       this.done = true
       this.stop()
@@ -154,9 +156,13 @@ export default class extends Controller {
     }
   }
 
-  tick(target, ok) {
-    target.className = ok ? "flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white" : "flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400"
-    target.textContent = ok ? "✓" : ""
+  tick(box, label, name, ok) {
+    box.className = ok
+      ? "flex h-14 w-14 items-center justify-center rounded-lg border-[3px] border-green-600 bg-green-100 text-2xl font-extrabold text-green-800"
+      : "flex h-14 w-14 items-center justify-center rounded-lg border-[3px] border-dashed border-gray-400 text-xl text-gray-400"
+    box.textContent = ok ? "✓" : "▦"
+    label.className = ok ? "text-xs font-bold text-green-800" : "text-xs font-semibold text-gray-600"
+    label.textContent = `${name} · ${ok ? this.textsValue.qr_read : this.textsValue.qr_needed}`
   }
 
   goBarcode(code) {

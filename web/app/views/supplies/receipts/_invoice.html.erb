@@ -1,0 +1,71 @@
+<%# One invoice on Review items: its store (named once, remembered by tax ID), date, total and number,
+    then a row per item: name, quantity (editable), unit price, subtotal, and what it is. A :ok invoice
+    has Exclude this invoice (and, once excluded, Not a supplies store); a folded one under Not included
+    shows the same rows inside. Field names: invoices[key][…] %>
+<% receipt = entry.receipt %>
+<% currency = Current.household.default_currency %>
+<% base = "invoices[#{entry.key}]" %>
+<% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700",
+            fee: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900" } %>
+<% cols = "lg:grid lg:grid-cols-[minmax(0,2.2fr)_5rem_6rem_6rem_minmax(0,2.4fr)] lg:items-start lg:gap-3" %>
+<section id="invoice_<%= entry.key %>" class="group card-raised overflow-hidden rounded-2xl bg-white has-[.receipt-exclude:checked]:opacity-60" aria-labelledby="invoice_<%= entry.key %>_title">
+  <div class="flex flex-wrap items-end justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
+    <div class="min-w-0 space-y-1">
+      <h2 id="invoice_<%= entry.key %>_title" class="sr-only"><%= entry.store.presence || receipt.invoice_no %></h2>
+      <label class="block text-xs font-semibold text-gray-600" for="invoice_<%= entry.key %>_store"><%= t(".store") %></label>
+      <%= text_field_tag "#{base}[store]", entry.store, id: "invoice_#{entry.key}_store", maxlength: 60, list: "receipt-stores",
+            class: "w-56 rounded-md border border-gray-400 px-2 py-1 font-bold" %>
+      <p class="text-sm text-gray-700"><%= safe_join([ l(receipt.issued_on, format: :long), money(receipt.total, currency), receipt.invoice_no, entry.file.presence ].compact, " · ") %></p>
+      <% if receipt.seller_tax_id && entry.store.blank? %><p class="text-xs text-gray-600"><%= t(".store_once", tax_id: receipt.seller_tax_id) %></p><% end %>
+    </div>
+    <% if entry.status == :ok %>
+      <div class="flex flex-col items-end gap-1.5">
+        <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
+          <%= check_box_tag "#{base}[exclude]", "1", false, id: "invoice_#{entry.key}_exclude", class: "receipt-exclude" %> <%= t(".exclude") %>
+        </label>
+        <% if receipt.seller_tax_id %>
+          <label class="hidden items-center gap-2 text-sm text-gray-700 group-has-[.receipt-exclude:checked]:inline-flex">
+            <%= check_box_tag "#{base}[skip_store]", "1", false, id: "invoice_#{entry.key}_skip_store" %> <%= t(".not_supplies_store") %>
+          </label>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div aria-hidden="true" class="hidden <%= cols %> border-b border-gray-200 px-4 py-1.5 text-xs font-bold text-gray-600">
+    <span><%= t(".col_item") %></span><span><%= t(".col_qty") %></span><span class="text-right"><%= t(".col_price") %></span><span class="text-right"><%= t(".col_subtotal") %></span><span><%= t(".col_add_to") %></span>
+  </div>
+  <ul class="divide-y divide-gray-200">
+    <% entry.rows.each do |row| %>
+      <% name = "#{base}[lines][#{row.index}]" %>
+      <% id = "invoice_#{entry.key}_line_#{row.index}" %>
+      <% tag = row.tag || (:not_found if row.choice.blank?) %>
+      <li class="space-y-2 px-4 py-3 <%= cols %> lg:space-y-0">
+        <p class="font-semibold"><%= row.item.text %></p>
+        <label class="flex items-center gap-2 text-sm lg:block">
+          <span class="lg:sr-only"><%= t(".col_qty") %></span>
+          <%= number_field_tag "#{name}[quantity]", [ row.item.quantity.round, 1 ].max, id: "#{id}_quantity", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %>
+        </label>
+        <p class="text-sm lg:text-right"><span class="text-gray-600 lg:sr-only"><%= t(".col_price") %> </span><%= money(row.item.unit_price, currency, exact: true) %></p>
+        <p class="text-sm font-semibold lg:text-right"><span class="font-normal text-gray-600 lg:sr-only"><%= t(".col_subtotal") %> </span><%= money(row.item.amount, currency) %></p>
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="sr-only" for="<%= id %>_choice"><%= t(".is") %></label>
+            <%= select_tag "#{name}[choice]", options_for_select([ [ t(".choose"), "" ] ] + supplies.map { [ it.name, it.id.to_s ] } + [ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], row.choice),
+                  id: "#{id}_choice", class: "min-w-0 flex-1 rounded-md border border-gray-400 px-2 py-1.5" %>
+            <% if tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold whitespace-nowrap <%= tags[tag] %>"><%= t(".tags.#{tag}") %></span><% end %>
+          </div>
+          <label class="flex items-center gap-1 text-sm text-gray-700">× <%= number_field_tag "#{name}[units_per_line]", row.units_per_line, id: "#{id}_units", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
+          <details class="text-sm" <%= "open" if row.choice.blank? %>>
+            <summary class="cursor-pointer text-gray-700"><%= t(".new_details") %></summary>
+            <div class="mt-2 grid grid-cols-3 gap-2">
+              <%= text_field_tag "#{name}[name]", row.item.text.truncate(60, omission: ""), id: "#{id}_name", maxlength: 60, "aria-label": t(".new_name"), class: "col-span-3 rounded-md border border-gray-400 px-2 py-1" %>
+              <%= select_tag "#{name}[kind]", options_for_select(Supply::KINDS.map { [ supply_kind(it), it ] }, "other"), id: "#{id}_kind", "aria-label": t(".new_kind"), class: "col-span-2 rounded-md border border-gray-400 px-2 py-1" %>
+              <%= select_tag "#{name}[unit]", options_for_select(Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, "piece"), id: "#{id}_unit", "aria-label": t(".new_unit"), class: "rounded-md border border-gray-400 px-2 py-1" %>
+            </div>
+          </details>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</section>

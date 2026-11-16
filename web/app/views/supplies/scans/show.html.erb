@@ -1,58 +1,110 @@
-<% content_for :title, t(".title") %>
-<% texts = t("supplies.scans.js").to_h %>
-<% tab = "inline-flex min-h-10 items-center rounded-full border-2 px-4 text-sm font-bold" %>
 <% receipt = @mode == "receipt" %>
-<div class="mx-auto w-full max-w-xl space-y-5 py-4" data-controller="supply-scan" data-supply-scan-mode-value="<%= @mode %>"
-     data-supply-scan-barcode-url-value="<%= scan_barcode_household_supplies_path(Current.household) %>" data-supply-scan-texts-value="<%= texts.to_json %>">
-  <%= page_title("import.png", t(".title")) %>
+<% pdf = @mode == "pdf" %>
+<% title = @mode == "barcode" ? t(".title") : t(".receipt_title") %>
+<% content_for :title, title %>
+<% texts = t("supplies.scans.js").to_h %>
+<% card = "flex items-start gap-3 rounded-2xl px-4 py-3 text-left" %>
+<div class="mx-auto w-full max-w-xl space-y-5 py-4">
+  <%= page_title("import.png", title) %>
   <%= render "shared/flash" %>
-  <nav aria-label="<%= t(".what") %>" class="flex justify-center gap-2">
-    <%= link_to t(".barcode_tab"), scan_household_supplies_path(Current.household), class: "#{tab} #{receipt ? 'border-(--card-line) bg-white' : 'border-blue-700 bg-blue-100 text-blue-900'}", "aria-current": (receipt ? nil : "page") %>
-    <%= link_to t(".receipt_tab"), scan_household_supplies_path(Current.household, mode: "receipt"), class: "#{tab} #{receipt ? 'border-blue-700 bg-blue-100 text-blue-900' : 'border-(--card-line) bg-white'}", "aria-current": (receipt ? "page" : nil) %>
-  </nav>
-  <p class="text-center text-sm text-gray-700"><%= receipt ? t(".receipt_intro") : t(".barcode_intro") %></p>
 
-  <% if receipt %>
-    <ul class="flex justify-center gap-6 text-sm font-semibold">
-      <li class="flex items-center gap-2"><span data-supply-scan-target="tickLeft" class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400"></span><%= t(".left_qr") %></li>
-      <li class="flex items-center gap-2"><span data-supply-scan-target="tickRight" class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-slate-400"></span><%= t(".right_qr") %></li>
-    </ul>
-    <%= form_with url: receipt_review_household_supplies_path(Current.household), method: :post, data: { supply_scan_target: "receiptForm", turbo: false }, html: { hidden: true } do %>
-      <%= hidden_field_tag :left, nil, data: { supply_scan_target: "left" } %>
-      <%= hidden_field_tag :right, nil, data: { supply_scan_target: "right" } %>
-    <% end %>
+  <% unless @mode == "barcode" %>
+    <%# Add a receipt: what do you have? A printed receipt with QR codes, or invoice PDFs %>
+    <nav aria-label="<%= t(".what") %>" class="space-y-2">
+      <p class="text-sm font-semibold text-gray-700"><%= t(".what") %></p>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <% [ [ "receipt", "🧾", t(".qr_choice"), t(".qr_choice_hint") ], [ "pdf", "📄", t(".pdf_choice"), t(".pdf_choice_hint") ] ].each do |mode, icon, label, hint| %>
+          <% here = @mode == mode %>
+          <%= link_to scan_household_supplies_path(Current.household, mode:), class: "#{card} #{here ? 'border-[3px] border-blue-600 bg-blue-50 text-gray-900' : 'card-raised bg-white text-gray-900'}", "aria-current": (here ? "page" : nil) do %>
+            <span class="text-2xl" aria-hidden="true"><%= icon %></span>
+            <span class="flex flex-col"><span class="font-bold"><%= label %></span><span class="text-sm text-gray-700"><%= hint %></span></span>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
   <% end %>
 
-  <p hidden role="status" aria-live="polite" data-supply-scan-target="message"></p>
-
-  <div hidden data-supply-scan-target="camera" class="space-y-2">
-    <video data-supply-scan-target="video" playsinline muted class="aspect-[4/3] w-full rounded-2xl bg-black object-cover"></video>
-    <div class="flex justify-center gap-2">
-      <button type="button" hidden data-supply-scan-target="light" data-action="supply-scan#toggleLight" class="btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900"><%= t(".light") %></button>
-      <button type="button" data-action="supply-scan#stop" class="btn-press cursor-pointer rounded-xl bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900"><%= t(".stop") %></button>
+  <% if pdf %>
+    <div class="space-y-4" data-controller="receipt-pdf" data-receipt-pdf-base-value="/vendor/pdfjs-4.10.38/"
+         data-receipt-pdf-max-value="<%= Supplies::ReceiptBatch::MAX_PDFS %>" data-receipt-pdf-texts-value="<%= t("supplies.scans.pdf_js").to_h.to_json %>">
+      <div data-receipt-pdf-target="drop" data-action="dragover->receipt-pdf#dragOver dragleave->receipt-pdf#dragLeave drop->receipt-pdf#drop"
+           class="card-raised space-y-3 rounded-2xl border-2 border-dashed border-gray-400 bg-white p-6 text-center">
+        <p class="font-semibold text-gray-800"><%= t(".pdf_drop") %></p>
+        <button type="button" data-action="receipt-pdf#choose" class="btn-press cursor-pointer rounded-xl bg-blue-200 px-4 py-2 font-bold text-gray-900"><%= t(".pdf_choose") %></button>
+        <p class="text-xs text-gray-600"><%= t(".pdf_hint", count: Supplies::ReceiptBatch::MAX_PDFS) %></p>
+        <input type="file" accept="application/pdf,.pdf" multiple hidden data-receipt-pdf-target="input" data-action="change->receipt-pdf#picked">
+      </div>
+      <ul data-receipt-pdf-target="list" class="space-y-2" aria-live="polite"></ul>
+      <p class="text-sm text-gray-600"><%= t(".pdf_private") %></p>
+      <%= form_with url: receipt_review_household_supplies_path(Current.household), method: :post, data: { receipt_pdf_target: "form", turbo: false }, class: "flex justify-end" do %>
+        <%= hidden_field_tag :source, "pdf", id: nil %>
+        <div data-receipt-pdf-target="fields" hidden></div>
+        <button type="submit" disabled data-receipt-pdf-target="submit" class="btn-press cursor-pointer rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900 disabled:cursor-not-allowed disabled:opacity-50"><%= t(".pdf_review") %></button>
+      <% end %>
     </div>
-  </div>
+  <% else %>
+    <div class="space-y-5" data-controller="supply-scan" data-supply-scan-mode-value="<%= @mode %>"
+         data-supply-scan-barcode-url-value="<%= scan_barcode_household_supplies_path(Current.household) %>" data-supply-scan-texts-value="<%= texts.to_json %>">
+      <p class="text-center text-sm text-gray-700"><%= receipt ? t(".receipt_intro") : t(".barcode_intro") %></p>
 
-  <div data-supply-scan-target="drop" data-action="dragover->supply-scan#dragOver dragleave->supply-scan#dragLeave drop->supply-scan#drop"
-       class="card-raised space-y-3 rounded-2xl border-2 border-dashed border-gray-400 bg-white p-6 text-center">
-    <button type="button" data-action="supply-scan#start" class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-4 py-2.5 font-bold text-gray-900 lg:hidden"><%= t(".use_camera") %></button>
-    <p class="hidden text-gray-700 lg:block"><%= t(".drop_here") %></p>
-    <div class="flex flex-wrap justify-center gap-2">
-      <button type="button" data-action="supply-scan#choose" class="btn-press cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900"><%= t(".choose_photo") %></button>
-      <button type="button" data-action="supply-scan#start" class="btn-press hidden cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 lg:inline-block"><%= t(".use_webcam") %></button>
+      <% if receipt %>
+        <%# Progress, not a choice: each QR code turns green when it's read (supply_scan_controller#tick) %>
+        <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-300 bg-white p-4">
+          <div class="flex flex-col items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2" aria-hidden="true">
+            <span class="text-xs text-gray-500"><%= t(".receipt_picture") %></span>
+            <div class="flex gap-4">
+              <% [ [ "Left", t(".left_qr") ], [ "Right", t(".right_qr") ] ].each do |side, label| %>
+                <div class="flex flex-col items-center gap-1">
+                  <span data-supply-scan-target="tick<%= side %>" class="flex h-14 w-14 items-center justify-center rounded-lg border-[3px] border-dashed border-gray-400 text-xl text-gray-400">▦</span>
+                  <span data-supply-scan-target="label<%= side %>" class="text-xs font-semibold text-gray-600"><%= label %> · <%= t("supplies.scans.js.qr_needed") %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <div class="min-w-0 flex-1 space-y-1">
+            <p class="font-bold" data-supply-scan-target="qrCount"><%= t("supplies.scans.js.qr_count", count: 0) %></p>
+            <p class="text-sm text-gray-600"><%= t(".receipt_progress_hint") %></p>
+          </div>
+        </div>
+        <%= form_with url: receipt_review_household_supplies_path(Current.household), method: :post, data: { supply_scan_target: "receiptForm", turbo: false }, html: { hidden: true } do %>
+          <%= hidden_field_tag :source, "qr", id: nil %>
+          <%= hidden_field_tag :left, nil, data: { supply_scan_target: "left" } %>
+          <%= hidden_field_tag :right, nil, data: { supply_scan_target: "right" } %>
+        <% end %>
+      <% end %>
+
+      <p hidden role="status" aria-live="polite" data-supply-scan-target="message"></p>
+
+      <div hidden data-supply-scan-target="camera" class="space-y-2">
+        <video data-supply-scan-target="video" playsinline muted class="aspect-[4/3] w-full rounded-2xl bg-black object-cover"></video>
+        <div class="flex justify-center gap-2">
+          <button type="button" hidden data-supply-scan-target="light" data-action="supply-scan#toggleLight" class="btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900"><%= t(".light") %></button>
+          <button type="button" data-action="supply-scan#stop" class="btn-press cursor-pointer rounded-xl bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900"><%= t(".stop") %></button>
+        </div>
+      </div>
+
+      <div data-supply-scan-target="drop" data-action="dragover->supply-scan#dragOver dragleave->supply-scan#dragLeave drop->supply-scan#drop"
+           class="card-raised space-y-3 rounded-2xl border-2 border-dashed border-gray-400 bg-white p-6 text-center">
+        <button type="button" data-action="supply-scan#start" class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-4 py-2.5 font-bold text-gray-900 lg:hidden"><%= t(".use_camera") %></button>
+        <p class="hidden text-gray-700 lg:block"><%= t(".drop_here") %></p>
+        <div class="flex flex-wrap justify-center gap-2">
+          <button type="button" data-action="supply-scan#choose" class="btn-press cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900"><%= t(".choose_photo") %></button>
+          <button type="button" data-action="supply-scan#start" class="btn-press hidden cursor-pointer rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 lg:inline-block"><%= t(".use_webcam") %></button>
+        </div>
+        <p class="text-xs text-gray-600"><%= t(".photo_private") %></p>
+        <input type="file" accept="image/*,.heic,.heif" hidden data-supply-scan-target="photo" data-action="change->supply-scan#readPhoto">
+      </div>
+
+      <% unless receipt %>
+        <details class="rounded-xl border border-gray-300 p-3">
+          <summary class="cursor-pointer text-sm font-semibold"><%= t(".type_number") %></summary>
+          <form class="mt-3 flex gap-2" data-action="submit->supply-scan#typed">
+            <label for="supply-scan-code" class="sr-only"><%= t(".number") %></label>
+            <input id="supply-scan-code" data-supply-scan-target="code" inputmode="numeric" pattern="[0-9 ]*" maxlength="16" required placeholder="4710000000000" class="min-w-0 flex-1 rounded-md border border-gray-400 px-3 py-2">
+            <button type="submit" class="btn-press cursor-pointer rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900"><%= t(".look_up") %></button>
+          </form>
+        </details>
+      <% end %>
     </div>
-    <p class="text-xs text-gray-600"><%= t(".photo_private") %></p>
-    <input type="file" accept="image/*,.heic,.heif" hidden data-supply-scan-target="photo" data-action="change->supply-scan#readPhoto">
-  </div>
-
-  <% unless receipt %>
-    <details class="rounded-xl border border-gray-300 p-3">
-      <summary class="cursor-pointer text-sm font-semibold"><%= t(".type_number") %></summary>
-      <form class="mt-3 flex gap-2" data-action="submit->supply-scan#typed">
-        <label for="supply-scan-code" class="sr-only"><%= t(".number") %></label>
-        <input id="supply-scan-code" data-supply-scan-target="code" inputmode="numeric" pattern="[0-9 ]*" maxlength="16" required placeholder="4710000000000" class="min-w-0 flex-1 rounded-md border border-gray-400 px-3 py-2">
-        <button type="submit" class="btn-press cursor-pointer rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900"><%= t(".look_up") %></button>
-      </form>
-    </details>
   <% end %>
 </div>

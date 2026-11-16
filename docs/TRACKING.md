@@ -110,6 +110,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 |---|---|---|
 | Supplies: items, purchases, counts, run-out forecast, restock / out / expiry alerts | ☑ | 2026-11-15, PR #2 (e2395bd), deployed; migration `CreateSupplies` ran on Railway. `Supplies::Forecast` (14-day prior, 120-day window, buffer 2 / 4 days), `SupplyAlertsJob` daily 09:00 with push → email fallback, `supply_alert` preference (owners / co-owners on). Changelog 1.11.0 |
 | Scanning: product barcodes (Open Food / Beauty / Products Facts, Yahoo! JAPAN) and Taiwan e-invoice QR | ☑ | read in the browser; only the barcode number leaves the app. Duplicate invoices refused; Japanese receipts unsupported (no item QR) |
+| Add a receipt: printed receipt QR or up to 10 invoice PDFs (pdf.js in the browser), Review items by invoice, Not included, Not a supplies store | ☑ | 1.13.0, 2026-11-16 |
 | + New ▾ menu (header) and Add new sheet (phone tab bar); Supplies tab | ☑ | 1.11.0; the Supplies page's Add supply menu in 1.11.1 (8b2bbec) |
 | Product name from a photo (Tesseract OCR) | ➖ | added in 8b2bbec, removed in 5232496 at the owner's request: unreliable on packaging. Claude vision / Cloud Vision declined; names are typed once and remembered with the barcode |
 | "Product not found" / "N items not found" pop-ups | ☑ | 1.11.2 (5232496) |

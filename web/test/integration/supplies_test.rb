@@ -15,9 +15,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supplies_path(@home)
     assert_select "main div.text-center details summary", /新增第一項日用品/
     assert_select "main div.text-center details" do
-      assert_select "a", 3
+      assert_select "a", 4
       assert_select "a:first-child[href=?]", new_household_supply_path(@home), text: /日用品項目/
-      assert_select "a[href=?]", scan_household_supplies_path(@home), text: /上傳或掃描/
+      assert_select "a[href=?]", scan_household_supplies_path(@home), text: /掃描商品條碼/
+      assert_select "a[href=?]", scan_household_supplies_path(@home, mode: "receipt"), text: /新增發票/
       assert_select "a[href=?]", restock_household_supplies_path(@home), text: /記錄購買/
       assert_select "a[href=?]", new_household_record_path(@home), 0
     end
@@ -177,6 +178,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     get scan_household_supplies_path(@home)
     assert_response :forbidden
+    get scan_household_supplies_path(@home, mode: "pdf")
+    assert_response :forbidden
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: { "0" => { name: "a.pdf", words: file_fixture("einvoice/invoice_pdf_words.json").read } } }
+    assert_response :forbidden
   end
 
   test "dialog on a computer: Bought more loads into the modal frame with a dialog" do
@@ -227,37 +232,103 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   test "a Taiwan e-invoice: review, save once with one Ledger expense, remembered next time, refused twice" do
     supply = create_item(name: "衛生紙")
     head = "AB12345678" "1151115" "1234" "0000010E" "0000011B" "00000000" "12345678" + ("x" * 24)
-    left = "#{head}:**********:2:2:1:舒潔衛生紙:1:189:鮮奶:2:47"
+    left = "#{head}:**********:3:3:1:舒潔衛生紙:1:189:鮮奶:2:47:運費:1:60"
 
-    post receipt_review_household_supplies_path(@home), params: { left:, right: "" }
+    post receipt_review_household_supplies_path(@home), params: { source: "qr", left:, right: "" }
     assert_response :success
-    assert_select "select[name='lines[0][choice]'] option[selected][value=?]", supply.id.to_s
+    assert_select "select[name='invoices[0][lines][0][choice]'] option[selected][value=?]", supply.id.to_s
     assert_select "span", text: "建議"
     assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
-    assert_select "details[open] input[name='lines[1][name]'][value=鮮奶]"
+    assert_select "details[open] input[name='invoices[0][lines][1][name]'][value=鮮奶]"
     assert_select "span", text: "找不到"
+    assert_select "select[name='invoices[0][lines][2][choice]'] option[selected][value=skip]", 1, "shipping starts skipped"
+    assert_select "span", text: "運費等 · 略過"
+    assert_select "input[name='invoices[0][lines][1][quantity]'][value='2']"
 
     assert_difference -> { @home.records.count } => 1, -> { @home.supply_purchases.count } => 2 do
-      post receipt_household_supplies_path(@home), params: { left:, store: "全聯", add_to_ledger: "1",
-        lines: { "0" => { choice: supply.id, units_per_line: 12 }, "1" => { choice: "new", name: "鮮奶", kind: "food_drink", unit: "bottle", units_per_line: 1 } } }
+      post receipt_household_supplies_path(@home), params: { source: "qr", left:, add_to_ledger: "1",
+        invoices: { "0" => { store: "全聯", lines: { "0" => { choice: supply.id, quantity: 1, units_per_line: 12 },
+                                                    "1" => { choice: "new", quantity: 3, name: "鮮奶", kind: "food_drink", unit: "bottle", units_per_line: 1 },
+                                                    "2" => { choice: "skip" } } } } }
     end
+    assert_redirected_to household_supplies_path(@home)
+    assert_match "已從1 張發票儲存 2 筆購買，並在帳本記了 1 筆支出", flash[:notice]
     assert_equal 283, @home.records.order(:id).last.amount_paid
     assert_equal 4 + 12, supply.reload.level
+    assert_equal 3, @home.supplies.find_by!(name: "鮮奶").level, "the quantity typed on the review wins"
     assert_equal "全聯", @home.receipt_sellers.sole.name
 
-    post receipt_review_household_supplies_path(@home), params: { left: }
+    post receipt_review_household_supplies_path(@home), params: { source: "qr", left: }
     assert_redirected_to scan_household_supplies_path(@home, mode: "receipt")
     assert_match "已經在", flash[:alert]
 
     other = left.sub("AB12345678", "AB12345679")
-    post receipt_review_household_supplies_path(@home), params: { left: other }
+    post receipt_review_household_supplies_path(@home), params: { source: "qr", left: other }
     assert_select "span", text: "已記住"
     assert_select "dialog[data-controller=notice]", 0, "every line is remembered"
-    assert_select "input[name=store][value=全聯]"
-    assert_select "input[name='lines[0][units_per_line]'][value='12']"
+    assert_select "input[name='invoices[0][store]'][value=全聯]"
+    assert_select "input[name='invoices[0][lines][0][units_per_line]'][value='12']"
 
-    post receipt_review_household_supplies_path(@home), params: { left: "https://example.com" }
+    post receipt_review_household_supplies_path(@home), params: { source: "qr", left: "https://example.com" }
     assert_match "不像台灣電子發票", flash[:alert]
+  end
+
+  test "invoice PDFs: items listed by invoice, the rest under Not included; exclude, not a supplies store, total only" do
+    cleaner = create_item(name: "馬桶清潔劑")
+    words = file_fixture("einvoice/invoice_pdf_words.json").read
+    unreadable = [ { s: "Hello", x: 10, y: 10, w: 20, h: 9 } ].to_json
+    # Another store's PDF: no item list, only a total
+    total_only = [ { s: "12345679 某某商店", x: 40, y: 80, w: 90, h: 10 }, { s: "AB98765432", x: 40, y: 120, w: 50, h: 9 },
+                   { s: "2026/11/08", x: 120, y: 120, w: 47, h: 9 }, { s: "總計", x: 40, y: 160, w: 18, h: 9 }, { s: "812", x: 100, y: 160, w: 15, h: 9 } ].to_json
+    pdfs = { "0" => { name: "發票明細_HX45765353.pdf", words: }, "1" => { name: "copy.pdf", words: },
+             "2" => { name: "scan_0001.pdf", words: unreadable }, "3" => { name: "invoice_1108.pdf", words: total_only } }
+
+    get scan_household_supplies_path(@home, mode: "pdf")
+    assert_select "[data-controller=receipt-pdf] input[type=file][multiple]"
+    assert_select "a[aria-current=page][href=?]", scan_household_supplies_path(@home, mode: "pdf")
+
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: }
+    assert_response :success
+    assert_select "section#invoice_0" do
+      assert_select "input[name='invoices[0][store]'][value=徠樂企業社]"
+      assert_select "li", 2
+      assert_select "select[name='invoices[0][lines][0][choice]'] option[selected][value=?]", cleaner.id.to_s
+      assert_select "select[name='invoices[0][lines][1][choice]'] option[selected][value=skip]"
+      assert_select "input[name='invoices[0][lines][0][quantity]'][value='2']"
+    end
+    assert_select "h2#not_included_title", "沒有加入（3）"
+    assert_match "跟上面是同一張", response.body
+    assert_match "無法讀取", response.body
+    assert_match "這個 PDF 裡沒有品項", response.body
+    assert_select "input[type=hidden][name='pdfs[0][words]']"
+
+    assert_difference -> { @home.supply_purchases.count } => 1, -> { @home.records.count } => 1 do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
+        invoices: { "0" => { store: "徠樂", lines: { "0" => { choice: cleaner.id, quantity: 2, units_per_line: 1 }, "1" => { choice: "skip" } } },
+                    "3" => { ledger_total: "1", store: "某某商店" } } }
+    end
+    assert_equal [ [ 2, 120, "徠樂" ] ], cleaner.purchases.map { [ it.quantity, it.total_price.to_i, it.store ] }
+    assert_equal 812, @home.records.order(:id).last.amount_paid
+    assert_match "已從2 張發票儲存 1 筆購買", flash[:notice]
+
+    # Added before now; excluding another as "not a supplies store" puts its next receipts under Not included
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: }
+    assert_match "已在", response.body
+    restaurant = [ { s: "22222222 某某餐廳", x: 40, y: 80, w: 90, h: 10 }, { s: "CD11112222", x: 40, y: 120, w: 50, h: 9 },
+                   { s: "2026/11/05", x: 120, y: 120, w: 47, h: 9 }, { s: "品名", x: 40, y: 150, w: 18, h: 9 }, { s: "數量", x: 200, y: 150, w: 18, h: 9 },
+                   { s: "金額", x: 260, y: 150, w: 18, h: 9 }, { s: "牛肉麵", x: 40, y: 170, w: 30, h: 9 }, { s: "1", x: 206, y: 170, w: 5, h: 9 },
+                   { s: "320", x: 262, y: 170, w: 15, h: 9 }, { s: "總計", x: 40, y: 200, w: 18, h: 9 }, { s: "320", x: 262, y: 200, w: 15, h: 9 } ].to_json
+    meal = { "0" => { name: "receipt_1105.pdf", words: restaurant } }
+    assert_no_difference -> { @home.supply_purchases.count } do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs: meal,
+        invoices: { "0" => { exclude: "1", skip_store: "1", store: "某某餐廳", lines: { "0" => { choice: "new", name: "牛肉麵" } } } } }
+    end
+    assert_match "沒有加入任何東西", flash[:notice]
+    assert @home.receipt_sellers.find_by!(tax_id: "22222222").skip
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: meal }
+    assert_select "section[id^=invoice_]", 1, "only inside the folded Not included row"
+    assert_match "不是日用品店", response.body
+    assert_select "input[name='invoices[0][include]']"
   end
 
   test "a new item bought a while ago with some used: the forecast has a usage rate straight away" do

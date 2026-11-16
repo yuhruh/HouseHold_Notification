@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.12.3"
+  date: 2026-11-16
+  en:
+    - "Supplies no longer has its own Add supply button on a computer. As on Bills, you add things from New at the top (Supply item, scan, Log a purchase…), so there's one place to look."
+  zh-TW:
+    - "電腦版的日用品頁不再有自己的「新增日用品」按鈕。和帳單一樣，從上方的「新增」加入（日用品項目、掃描、記錄購買…），只要找一個地方。"
 - version: "1.12.2"
   date: 2026-11-15
   en:

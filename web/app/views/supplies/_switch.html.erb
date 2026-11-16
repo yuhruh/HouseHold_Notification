@@ -6,12 +6,8 @@
             [ "stocked", household_supplies_path(household, tab: "stocked"), counts[:stocked], "bg-sky-100 text-sky-900", "bg-sky-100 text-sky-900 sm:border-sky-700" ],
             [ "all", household_supplies_path(household, tab: "all"), counts[:all], "bg-gray-200 text-gray-800 max-sm:hidden", "bg-gray-100 text-gray-900 sm:border-gray-800" ] ] %>
 <div class="space-y-3">
-  <div class="flex items-center justify-between gap-3">
-    <%= page_title("ledger.png", t("supplies.index.title")) %>
-    <% if policy(Supply).create? %>
-      <%= render "supplies/add_menu", label: t("supplies.index.add"), menu_class: "hidden lg:block", align: :right %>
-    <% end %>
-  </div>
+  <%# No add button here: as on Bills, the header's New (tab bar's New on a phone) is the one place to add %>
+  <%= page_title("ledger.png", t("supplies.index.title")) %>
   <nav aria-label="<%= t("supplies.switch.label") %>"
        class="grid grid-cols-3 gap-1 rounded-2xl border-2 border-(--card-line) bg-white p-1 sm:flex sm:gap-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:border-gray-300 sm:bg-transparent sm:p-0">
     <% tabs.each do |view, path, count, badge, here_class| %>

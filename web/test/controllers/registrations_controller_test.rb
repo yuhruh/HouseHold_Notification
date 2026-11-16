@@ -23,7 +23,9 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
       end
     end
     assert_response :success
-    assert_equal new_body.gsub(/name="authenticity_token" value="[^"]+"/, ""), response.body.gsub(/name="authenticity_token" value="[^"]+"/, "")
+    # The CSRF token and the script nonce are new on every response
+    per_response = /name="authenticity_token" value="[^"]+"|(?:nonce|name="csp-nonce" content)="[^"]+"/
+    assert_equal new_body.gsub(per_response, ""), response.body.gsub(per_response, "")
   end
 
   test "an unconfirmed sign-up doesn't block the real owner, who can confirm" do

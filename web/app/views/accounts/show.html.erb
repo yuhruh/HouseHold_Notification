@@ -17,11 +17,10 @@
       <%# The buttons sit side by side, each as wide as its words; on a phone they wrap under the photo %>
       <div class="flex items-center gap-3">
         <%# One step: picking a photo uploads it straight away %>
-        <%= form_with url: avatar_path, method: :patch, multipart: true do |f| %>
-          <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "avatar_input", class: "peer sr-only",
-                onchange: "if (this.files.length) { this.labels[0].querySelector('span').textContent = '#{j t('photos.gallery.uploading')}'; this.form.requestSubmit() }" %>
+        <%= form_with url: avatar_path, method: :patch, multipart: true, data: { controller: "auto-submit", auto_submit_busy_value: t("photos.gallery.uploading") } do |f| %>
+          <%= f.file_field :avatar, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "avatar_input", class: "peer sr-only", data: { action: "auto-submit#submit" } %>
           <label for="avatar_input" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
-            <%= image_tag "icons/#{has_photo ? 'update_photo' : 'add_photo'}.png", alt: "", class: "h-6 w-6 object-contain" %><span><%= t(has_photo ? "photos.avatar.change" : "photos.avatar.choose") %></span>
+            <%= image_tag "icons/#{has_photo ? 'update_photo' : 'add_photo'}.png", alt: "", class: "h-6 w-6 object-contain" %><span data-auto-submit-target="label"><%= t(has_photo ? "photos.avatar.change" : "photos.avatar.choose") %></span>
           </label>
         <% end %>
         <% if has_photo %>

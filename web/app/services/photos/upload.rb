@@ -12,6 +12,9 @@ module Photos
 
     module_function
 
+    # By what the file holds, never by its name: a file named photo.jpg isn't a JPEG for that
+    def photo?(file) = TYPES.include?(Marcel::MimeType.for(file.tempfile))
+
     def attach(record, files)
       files = Array(files).compact_blank
       raise Error, I18n.t("photos.errors.none") if files.empty?
@@ -21,8 +24,7 @@ module Photos
       skipped = 0
       files.each do |file|
         raise Error, I18n.t("photos.errors.too_large", name: file.original_filename, max: MAX_BYTES / 1.megabyte) if file.size > MAX_BYTES
-        type = Marcel::MimeType.for(file.tempfile, name: file.original_filename)
-        raise Error, I18n.t("photos.errors.type", name: file.original_filename) unless TYPES.include?(type)
+        raise Error, I18n.t("photos.errors.type", name: file.original_filename) unless photo?(file)
 
         clean = Sanitizer.call(file.tempfile.path)
         fingerprint = Fingerprint.call(clean.path)

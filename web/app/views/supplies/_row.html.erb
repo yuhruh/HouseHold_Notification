@@ -11,7 +11,7 @@
     <span class="lg:hidden"><%= supply_badge(status) %></span>
   </div>
   <div class="mt-2 lg:mt-0">
-    <p class="flex items-baseline justify-between gap-2"><span class="font-semibold"><%= supply_left(supply, forecast) %></span><%= supply_total(supply, forecast, unit: false) %></p>
+    <p class="flex items-baseline justify-between gap-2"><span class="font-semibold"><%= supply_left_number(supply, forecast) %></span><%= supply_total(supply, forecast, unit: false) %></p>
     <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
   </div>
   <div class="mt-2 lg:mt-0">

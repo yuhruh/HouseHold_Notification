@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.14.9"
+  date: 2026-11-16
+  en:
+    - "Supplies › All: the Left column shows just the number over the bar (\"9\" instead of \"9 bottles\"), like the Total at the bar's other end."
+  zh-TW:
+    - "日用品的「全部」分頁：「剩餘」欄的庫存條上方只顯示數字（「9」，不再是「9 瓶」），和另一端的「總數」一樣。"
 - version: "1.14.8"
   date: 2026-11-16
   en:

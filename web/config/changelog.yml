@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.20.1"
+  date: 2026-11-18
+  en:
+    - "Supplies: Combine now works the way round you would expect. The item you opened is the one that is kept, and the item you pick moves into it as a brand. Before, it was the other way round: opening \"Face Wash\" and picking a product removed Face Wash. The button is now called \"Combine another item into this one\", and the page and the question it asks say which item keeps its name."
+  zh-TW:
+    - "日用品：合併的方向改成比較直覺的方式。你打開的品項會保留，你選的品項會搬進來變成它的一個品牌。之前剛好相反：打開「洗面乳」再選一個商品，被移除的是「洗面乳」。按鈕改名為「把另一個品項合併進來」，頁面和確認訊息都會寫出哪個品項保留名稱。"
 - version: "1.20.0"
   date: 2026-11-17
   en:

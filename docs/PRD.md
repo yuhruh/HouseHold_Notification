@@ -1203,10 +1203,12 @@ each can opt out (same as Bill paid).
   prefilled from the last purchase of that product, so another brand's price isn't offered. Edit
   lists the barcodes with Remove (`Supplies::BarcodesController`). Not done: size-aware usage (a
   500 ml and a 1 L bottle both count as one).
-- **Combine with another item** (1.20.0, Edit → `supplies/combines#new`, `Supplies::Combine`): for
-  items saved one per product. The item picked (any other active item, the same category listed
-  first, whatever its unit) keeps its name, category, unit and settings; the other becomes a brand
-  of it and is removed. Purchases, counts, old prices, barcodes, stars and receipt matches move; a
+- **Combine another item into this one** (1.20.0; direction since 1.20.1; Edit →
+  `supplies/combines#new`, `Supplies::Combine`): for items saved one per product. The item being
+  edited keeps its name, category, unit and settings; the item picked (any other active item, the
+  same category listed first, whatever its unit) becomes a brand of it and is removed. (1.20.0 had
+  it the other way round, which removed a general item like "Face Wash" when a product was picked
+  from it.) Purchases, counts, old prices, barcodes, stars and receipt matches move; a
   purchase, price or barcode with no product named takes the old item's name. The two histories
   become one timeline: each purchase's `left_before` and each count's `level` gain what the other
   item last knew at that moment, so the counts add up and the forecast sees only real usage; every
@@ -1296,8 +1298,8 @@ the Expiring and category filter switches, the ~monthly estimate, cards on a pho
 1024px with search), item page (Stock Forecast with Used 1 bottle, in the item's own unit, and Restocked, the stock bar's
 Total, Inventory:, Favorite beside Edit, Where to buy, History and Price history folded; Add an old
 price), New item (after a scan: It's one of my items), Edit (dialog on a computer; the item's
-barcodes with Remove; Archive item, Combine with another item, Delete item), Combine with which
-item? (same category first), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned
+barcodes with Remove; Archive item, Combine another item into this one, Delete item), Which item
+joins …? (same category first), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned
 barcode), Restocked (Product or brand), Scan, Receipt review. The header's **+ New ▾** menu and the phone tab bar's **New** sheet (closed by Cancel or a
 tap outside it) offer Upload or scan barcode / receipt, Supply item, Log a purchase… and Bill /
 record.

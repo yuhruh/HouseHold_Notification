@@ -63,7 +63,7 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     assert_selector "dialog[open] input[name='supply_purchase[quantity]']", wait: 5
   end
 
-  test "Edit: Combine moves an item into another as a brand, and Delete removes one; both ask first" do
+  test "Edit: Combine brings another item into the one opened, as a brand, and Delete removes one; both ask first" do
     home = households(:home)
     alex = users(:alex)
     promise = home.supplies.create!(name: "Promise Volume Shampoo", unit: "bottle", level: 0, level_at: Time.current)
@@ -71,17 +71,18 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     Supplies::LogPurchase.call(promise, { quantity: 2, total_price: 499, purchased_on: home.today }, user: alex)
     Supplies::LogPurchase.call(shampoo, { quantity: 3, total_price: 897, purchased_on: home.today - 5, product_name: "PDRN Care" }, user: alex)
     sign_in
-    visit household_supply_path(home, promise)
+    visit household_supply_path(home, shampoo)
     click_on "Edit"
-    within("dialog[open]", wait: 5) { click_on "Combine with another item" }
-    assert_text "Combine with which item?", wait: 5
-    asked = dismiss_confirm { find("button", text: /\AShampoo/).click }
-    assert_match "Shampoo will have 2 + 3 = 5 bottles", asked
+    within("dialog[open]", wait: 5) { click_on "Combine another item into this one" }
+    assert_text "Which item joins Shampoo?", wait: 5
+    asked = dismiss_confirm { find("button", text: /\APromise Volume Shampoo/).click }
+    assert_match "Move Promise Volume Shampoo into Shampoo? Shampoo will have 3 + 2 = 5 bottles", asked
     assert Supply.exists?(promise.id), "Cancel changes nothing"
-    accept_confirm { find("button", text: /\AShampoo/).click }
-    assert_text "Combined Promise Volume Shampoo into Shampoo.", wait: 5
+    accept_confirm { find("button", text: /\APromise Volume Shampoo/).click }
+    assert_text "Promise Volume Shampoo is now a brand of Shampoo.", wait: 5
     assert_text "5 bottles now"
     assert_text "In stock by brand"
+    assert_not Supply.exists?(promise.id)
 
     click_on "Edit"
     asked = within("dialog[open]", wait: 5) { accept_confirm { click_on "Delete item" } }

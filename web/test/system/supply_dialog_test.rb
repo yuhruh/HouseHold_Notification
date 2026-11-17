@@ -62,4 +62,31 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     within("dialog[open]", wait: 5) { find("a[href='#{new_household_supply_purchase_path(home, supply)}']").click }
     assert_selector "dialog[open] input[name='supply_purchase[quantity]']", wait: 5
   end
+
+  test "Edit: Combine moves an item into another as a brand, and Delete removes one; both ask first" do
+    home = households(:home)
+    alex = users(:alex)
+    promise = home.supplies.create!(name: "Promise Volume Shampoo", unit: "bottle", level: 0, level_at: Time.current)
+    shampoo = home.supplies.create!(name: "Shampoo", unit: "bottle", level: 0, level_at: Time.current)
+    Supplies::LogPurchase.call(promise, { quantity: 2, total_price: 499, purchased_on: home.today }, user: alex)
+    Supplies::LogPurchase.call(shampoo, { quantity: 3, total_price: 897, purchased_on: home.today - 5, product_name: "PDRN Care" }, user: alex)
+    sign_in
+    visit household_supply_path(home, promise)
+    click_on "Edit"
+    within("dialog[open]", wait: 5) { click_on "Combine with another item" }
+    assert_text "Combine with which item?", wait: 5
+    asked = dismiss_confirm { find("button", text: /\AShampoo/).click }
+    assert_match "Shampoo will have 2 + 3 = 5 bottles", asked
+    assert Supply.exists?(promise.id), "Cancel changes nothing"
+    accept_confirm { find("button", text: /\AShampoo/).click }
+    assert_text "Combined Promise Volume Shampoo into Shampoo.", wait: 5
+    assert_text "5 bottles now"
+    assert_text "In stock by brand"
+
+    click_on "Edit"
+    asked = within("dialog[open]", wait: 5) { accept_confirm { click_on "Delete item" } }
+    assert_match "Delete Shampoo for good? Its history (2 purchases)", asked
+    assert_text "Deleted Shampoo.", wait: 5
+    assert_equal 0, home.supplies.count
+  end
 end

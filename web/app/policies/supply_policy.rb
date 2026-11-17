@@ -8,4 +8,6 @@ class SupplyPolicy < ApplicationPolicy
   alias_method :edit?, :write?
   alias_method :update?, :write?
   alias_method :archive?, :write?
+  alias_method :combine?, :write?
+  alias_method :destroy?, :write?
 end

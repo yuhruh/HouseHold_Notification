@@ -95,7 +95,7 @@ Rails.application.routes.draw do
     resources :supply_categories, only: %i[new create edit update destroy] do
       post :archive, on: :member
     end
-    resources :supplies, except: :destroy do
+    resources :supplies do
       collection do
         get :restock, to: "supplies/purchases#pick"
         get :scan, to: "supplies/scans#show"
@@ -109,6 +109,7 @@ Rails.application.routes.draw do
       resources :counts, only: %i[create destroy], controller: "supplies/counts"
       resources :prices, only: %i[new create destroy], controller: "supplies/prices"
       resources :barcodes, only: :destroy, controller: "supplies/barcodes"
+      resource :combine, only: %i[new create], controller: "supplies/combines"
     end
     resources :payment_methods, except: %i[show destroy] do
       post :archive, on: :member

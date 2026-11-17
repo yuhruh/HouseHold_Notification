@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.19.1"
+  date: 2026-11-17
+  en:
+    - "Supplies: a category you name on the item form is saved in the language you are using. In English it becomes the category's English name, in 繁體中文 its Chinese name, and the note under the field says which. Before, it always went in the Chinese name."
+    - "A supply category needs a name in one language only. People using the other language see that name until theirs is added. A category you already added with only an English name has moved to the English field."
+    - "Settings › Categories: a supply category with one name shows a yellow \"Add the Chinese name\" or \"Add the English name\" tag that opens Edit, where the empty name is marked. The tag appears only when someone in the ledger uses that language."
+  zh-TW:
+    - "日用品：在品項表單新增的類別，會存成你正在使用的語言。英文介面存成英文名稱，繁體中文介面存成中文名稱，欄位下方的說明會寫清楚。以前一律存成中文名稱。"
+    - "日用品類別只要有一種語言的名稱就可以。使用另一種語言的人，在補上名稱之前會看到現有的名稱。之前新增、只有英文名稱的類別，已經移到英文名稱欄位。"
+    - "「設定 › 類別」：只有一個名稱的日用品類別會顯示黃色的「補上中文名稱」或「補上英文名稱」標籤，點了會開啟編輯，沒填的名稱會標示出來。帳本裡有人使用那種語言時，標籤才會出現。"
 - version: "1.19.0"
   date: 2026-11-17
   en:

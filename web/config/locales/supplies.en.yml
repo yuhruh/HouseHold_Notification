@@ -37,6 +37,10 @@ en:
         level: "Count"
     errors:
       models:
+        supply_category:
+          attributes:
+            base:
+              name_missing: "Give the category a name in at least one language."
         supply_purchase:
           attributes:
             total_price:
@@ -68,7 +72,12 @@ en:
       record: "Bill / record"
       record_hint: "A bill, expense or income for the Ledger"
   supply_categories:
+    languages:
+      "zh-TW": "繁體中文"
+      en: "English"
     form:
+      one_name: "a name in one language is enough"
+      missing: "Not added yet. People using %{language} see “%{name}” until you add one."
       perishable: "Goes off quickly"
       perishable_hint: "Warn a week before an expiry date instead of a month, like Food & drink and Health."
     destroy:
@@ -314,7 +323,7 @@ en:
     form:
       new_category: "＋ New category…"
       new_category_name: "New category name"
-      new_category_hint: "Saved with this item. Everyone in the ledger can pick it from then on; rename or archive it in Settings › Categories."
+      new_category_hint: "Saved with this item, as the category's English name. Add its Chinese name in Settings › Categories."
       new_category_blank: "Type a name for the new category."
       level: "How many do you have now?"
       guess: "How long does one last? (optional)"

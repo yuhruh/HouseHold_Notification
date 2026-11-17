@@ -123,7 +123,7 @@ class SupplyCategoriesTest < ActionDispatch::IntegrationTest
     assert_select "section#supplies form[action*='/#{other.id}']", 0
 
     get new_household_supply_category_path(@home)
-    assert_select "input[name='supply_category[name_zh]'][required]"
+    assert_select "input[name='supply_category[name_zh]']:not([required])"
     assert_select "input[type=checkbox][name='supply_category[perishable]']"
     post household_supply_categories_path(@home), params: { supply_category: { name_zh: "洗面乳", name_en: "Face wash", perishable: "1" } }
     assert_redirected_to household_categories_path(@home, anchor: "supplies")
@@ -136,8 +136,9 @@ class SupplyCategoriesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='supply_category[name_zh]'][value=盥洗用品]"
     patch household_supply_category_path(@home, toiletries), params: { supply_category: { name_zh: "浴室用品", name_en: "Bathroom", perishable: "0" } }
     assert_equal [ "浴室用品", "Bathroom", "toiletries" ], toiletries.reload.then { [ it.name_zh, it.name_en, it.key ] }
-    patch household_supply_category_path(@home, toiletries), params: { supply_category: { name_zh: "" } }
+    patch household_supply_category_path(@home, toiletries), params: { supply_category: { name_zh: "", name_en: "" } }
     assert_response :unprocessable_content
+    assert_equal "浴室用品", toiletries.reload.name_zh
 
     delete household_supply_category_path(@home, toiletries)
     assert_match "封存", flash[:alert]
@@ -160,6 +161,77 @@ class SupplyCategoriesTest < ActionDispatch::IntegrationTest
     delete household_supply_category_path(@home, other)
     assert_response :forbidden
     assert_nil other.reload.archived_at
+  end
+
+  test "a category named on the item form is saved in the language the person uses" do
+    users(:alex).update!(locale: "en")
+    get new_household_supply_path(@home)
+    assert_select "p", /as the category's English name/
+    post household_supplies_path(@home), params: { new_category_name: "Shampoo", supply: { name: "Lux", supply_category_id: "new", unit: "bottle", level: 1 } }
+    shampoo = @home.supplies.find_by!(name: "Lux").category
+    assert_equal [ nil, "Shampoo" ], [ shampoo.name_zh, shampoo.name_en ]
+
+    # someone reading in Chinese sees the one name it has, and names their own in Chinese
+    users(:alex).update!(locale: "zh-TW")
+    get new_household_supply_path(@home)
+    assert_select "#{SELECT} option[value='#{shampoo.id}']", "Shampoo"
+    assert_select "p", /存成類別的中文名稱/
+    post household_supplies_path(@home), params: { new_category_name: "洗面乳", supply: { name: "Perfect Whip", supply_category_id: "new", unit: "piece", level: 1 } }
+    face = @home.supplies.find_by!(name: "Perfect Whip").category
+    assert_equal [ "洗面乳", nil ], [ face.name_zh, face.name_en ]
+    get household_supplies_path(@home, tab: "all")
+    assert_select "nav[aria-label=篩選] a.rounded-full", text: /Shampoo/
+    assert_select "nav[aria-label=篩選] a.rounded-full", text: /洗面乳/
+  end
+
+  test "Settings: a category with one name gets a tag to add the other, only for a language the ledger is read in" do
+    shampoo = SupplyCategory.named(@home, "Shampoo", locale: :en)
+    face = SupplyCategory.named(@home, "洗面乳")
+    get household_categories_path(@home)
+    assert_select "section#supplies li", text: /\A\s*Shampoo\s+沒有品項/
+    assert_select "section#supplies a[href=?]", edit_household_supply_category_path(@home, shampoo), text: "補上中文名稱"
+    assert_select "section#supplies a", text: "補上英文名稱", count: 0, message: "nobody reads this ledger in English"
+
+    users(:google_only).update!(locale: "en") # a member, here a viewer, who chose English
+    get household_categories_path(@home)
+    assert_select "section#supplies a[href=?]", edit_household_supply_category_path(@home, face), text: "補上英文名稱"
+    assert_select "section#supplies a", text: /補上/, count: 2
+
+    get edit_household_supply_category_path(@home, shampoo)
+    assert_select "input[name='supply_category[name_zh]'].bg-amber-50"
+    assert_select "input[name='supply_category[name_en]'][value=Shampoo]:not(.bg-amber-50)"
+    assert_select "p", /使用 繁體中文 的人會看到「Shampoo」/
+    get edit_household_supply_category_path(@home, @home.supply_categories.find_by!(key: "kitchen"))
+    assert_select "input.bg-amber-50", 0
+    get new_household_supply_category_path(@home)
+    assert_select "input.bg-amber-50", 0
+
+    patch household_supply_category_path(@home, shampoo), params: { supply_category: { name_zh: "洗髮精", name_en: "Shampoo" } }
+    get household_categories_path(@home)
+    assert_select "section#supplies li", text: /洗髮精 \/ Shampoo/
+    assert_select "section#supplies a", text: /補上/, count: 1
+
+    sign_in_as users(:google_only)
+    get household_categories_path(@home)
+    assert_select "section#supplies a", 0, "a viewer can't edit, so gets no tag"
+  end
+
+  test "Settings: a name in either language is enough, none is refused, and a name the ledger already has is refused" do
+    post household_supply_categories_path(@home), params: { supply_category: { name_zh: "", name_en: "Pet" } }
+    assert_redirected_to household_categories_path(@home, anchor: "supplies")
+    pet = @home.supply_categories.find_by!(name_en: "Pet")
+    assert_nil pet.name_zh
+
+    post household_supply_categories_path(@home), params: { supply_category: { name_zh: " ", name_en: "" } }
+    assert_response :unprocessable_content
+    assert_select "li", "請至少輸入一種語言的名稱。"
+    post household_supply_categories_path(@home), params: { supply_category: { name_zh: "pet" } }
+    assert_response :unprocessable_content
+    post household_supply_categories_path(@home), params: { supply_category: { name_en: "廚房用品" } }
+    assert_response :unprocessable_content
+
+    patch household_supply_category_path(@home, pet), params: { supply_category: { name_zh: "寵物用品", name_en: "" } }
+    assert_equal [ "寵物用品", nil ], pet.reload.then { [ it.name_zh, it.name_en ] }
   end
 
   test "a viewer sees the supply categories but can't change them, and another ledger's aren't found" do

@@ -37,6 +37,10 @@ zh-TW:
         level: "數量"
     errors:
       models:
+        supply_category:
+          attributes:
+            base:
+              name_missing: "請至少輸入一種語言的名稱。"
         supply_purchase:
           attributes:
             total_price:
@@ -68,7 +72,12 @@ zh-TW:
       record: "帳單／記錄"
       record_hint: "帳本裡的帳單、支出或收入"
   supply_categories:
+    languages:
+      "zh-TW": "繁體中文"
+      en: "English"
     form:
+      one_name: "只填一種語言的名稱也可以"
+      missing: "還沒有填。在填好之前，使用 %{language} 的人會看到「%{name}」。"
       perishable: "容易過期"
       perishable_hint: "到期前一週提醒，而不是一個月前，和「食品飲料」、「保健醫療」一樣。"
     destroy:
@@ -314,7 +323,7 @@ zh-TW:
     form:
       new_category: "＋ 新增類別…"
       new_category_name: "新類別名稱"
-      new_category_hint: "會和這個品項一起儲存，之後帳本的成員都能選用；可在「設定 › 類別」改名或封存。"
+      new_category_hint: "會和這個品項一起儲存，存成類別的中文名稱。英文名稱可以在「設定 › 類別」補上。"
       new_category_blank: "請輸入新類別的名稱。"
       level: "現在有幾個？"
       guess: "一個大約用多久？（選填）"

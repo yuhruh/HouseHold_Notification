@@ -145,7 +145,8 @@
       <% if @items.empty? %>
         <p class="rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center text-gray-600"><%= t(".none_match") %></p>
       <% else %>
-        <div class="lg:card-raised lg:overflow-hidden lg:rounded-b-2xl lg:border-t-0! lg:bg-white">
+        <%# Not clipped: a row's "Which one did you use?" menu hangs below it; the last row rounds its own corners %>
+        <div class="lg:card-raised lg:rounded-b-2xl lg:border-t-0! lg:bg-white">
           <ul class="space-y-3 lg:space-y-0">
             <% @items.each do |supply, forecast| %>
               <%= render "supplies/row", supply:, forecast: %>

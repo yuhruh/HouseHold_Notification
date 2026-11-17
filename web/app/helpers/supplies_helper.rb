@@ -249,4 +249,12 @@ module SuppliesHelper
       safe_join(parts, " ")
     end
   end
+
+  # The languages this ledger is read in: what each member chose in My Account, and the one on screen
+  def ledger_locales
+    @ledger_locales ||= (Current.household.memberships.includes(:user).filter_map { it.user.locale.presence } + [ I18n.locale.to_s ]).uniq
+  end
+
+  # "zh-TW" or "en" when a supply category has no name in a language the ledger is read in
+  def supply_category_missing_name(category) = category.missing_locale.then { it if ledger_locales.include?(it) }
 end

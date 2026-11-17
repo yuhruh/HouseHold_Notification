@@ -40,7 +40,7 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     find("#supply_level").set("2")
     click_on "Save"
     assert_text "piece · Shampoo", wait: 5
-    assert_equal "Shampoo", home.supplies.find_by!(name: "Lux").category.name_zh
+    assert_equal "Shampoo", home.supplies.find_by!(name: "Lux").category.name_en, "typed in English, so it's the English name"
   end
 
   test "using the last one pops up Time to restock; Bought more opens the purchase dialog" do

@@ -178,7 +178,10 @@ Home Screen.
   Food & drink, Health, Other), and owners and co-owners add more, either from the item form (the
   Category list ends with **＋ New category…**, saved with the item) or under **Settings →
   Categories → Supplies**, where they are also renamed, archived (hidden from the form, kept on
-  their items) and, when empty, deleted. Other always stays, for an item without a category. Purchases record the date, how many, the total
+  their items) and, when empty, deleted. Other always stays, for an item without a category. A
+  category needs a name in one language: one typed on the item form is saved in the language the
+  person uses, the other language shows it until its own is added, and Settings tags a category
+  that lacks a name in a language someone in the ledger uses. Purchases record the date, how many, the total
   price, the store and an optional expiry date. The price per unit is worked out from the total
   (NT$289 for 12 · NT$24.1/roll), never typed in.
 - **Run-out forecast** (`Supplies::Forecast`): purchases and counts form a timeline of known stock,

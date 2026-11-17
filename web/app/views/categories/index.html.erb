@@ -65,10 +65,13 @@
     <ul class="divide-y rounded-lg border">
       <% @supply_categories.each do |category| %>
         <% count = @supply_counts[category.id].to_i %>
+        <%# One name only, and someone reads the ledger in the other language: a tag that opens Edit %>
+        <% missing = (supply_category_missing_name(category) if policy(category).update?) %>
         <li class="px-4 py-2 <%= 'text-gray-400' if category.archived_at %>">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <span><%= category.name_zh %><%= " / #{category.name_en}" if category.name_en.present? %>
-              <span class="text-sm text-gray-500"><%= safe_join([ t(".items", count:), (t(".perishable") if category.perishable?), (t(".always_kept") if category.fallback?), (t(".archived") if category.archived_at) ].compact, " · ") %></span></span>
+            <span><%= category.names.join(" / ") %>
+              <span class="text-sm text-gray-500"><%= safe_join([ t(".items", count:), (t(".perishable") if category.perishable?), (t(".always_kept") if category.fallback?), (t(".archived") if category.archived_at) ].compact, " · ") %></span>
+              <% if missing %><%= link_to t(".add_name.#{missing}"), edit_household_supply_category_path(Current.household, category), class: "ml-1 inline-block rounded-full border border-amber-400 bg-amber-100 px-2.5 py-0.5 align-middle text-xs font-bold whitespace-nowrap text-amber-900" %><% end %></span>
             <% if policy(category).update? %>
               <span class="flex gap-3 text-sm">
                 <%= link_to edit_household_supply_category_path(Current.household, category), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".edit") %></span><% end %>

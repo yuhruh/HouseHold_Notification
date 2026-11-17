@@ -1174,6 +1174,14 @@ each can opt out (same as Bill paid).
   archived), or Settings → Categories → Supplies, which also renames, archives (hidden from the
   form, kept on its items) and deletes an empty one. Other always stays and takes an item without a
   category. "Goes off quickly" sets the expiry alert to a week ahead. Viewers see them only.
+- **A category's name, in either language** (1.19.1). One of `name_zh` / `name_en` is enough; a
+  name is the ledger's only one across both fields, in any case. A name typed on the item form is
+  saved under the language on screen (`name_en` in English, `name_zh` in 繁體中文) and the hint
+  says so. Whoever reads the other language sees the one name until theirs is added. Settings →
+  Categories shows owners and co-owners an "Add the Chinese name" / "Add the English name" tag on
+  such a category, linking to Edit, where the empty field is marked; only for a language the ledger
+  is read in (a member's language in My Account, or the one on screen; a member who never chose one
+  doesn't count). Bills categories still require a Chinese name. The app does not translate.
 - **All's filters** (1.15.1) are switches, any number at once: `category[]=<id>` for categories
   (items in any of the chosen ones) and `filter=expiring` (only the expiring ones among them), combined with
   the search `q`. Expiring shows only while something is expiring. There is no All chip and no Buy
@@ -1242,7 +1250,7 @@ screenshot or typed number; photos are never uploaded)
   tried and removed as unreliable; outside vision services were declined).
 
 **Data model**
-- `supply_categories (household_id, name_zh, name_en null, key toiletries|cleaning|kitchen|food_drink|
+- `supply_categories (household_id, name_zh null, name_en null (one of the two is required), key toiletries|cleaning|kitchen|food_drink|
   health|other null (a starting one), perishable, position, archived_at)` unique(household_id,
   name_zh), unique(household_id, key)
 - `supplies (household_id, supply_category_id, name, unit

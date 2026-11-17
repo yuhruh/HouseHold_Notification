@@ -1,18 +1,23 @@
-<%# A supply category: its two names, and whether what's in it goes off quickly (expiry alerts a week
-    ahead instead of a month) %>
-<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<%# A supply category: its two names (one is enough), and whether what's in it goes off quickly
+    (expiry alerts a week ahead instead of a month). A name still missing in a language the ledger
+    is read in is marked, with what those people see meanwhile %>
+<% missing = (supply_category_missing_name(category) if category.persisted? && category.errors.empty?) %>
+<% field = ->(locale) { "block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-blue-600 #{missing == locale ? 'border-amber-500 bg-amber-50' : 'border-gray-400'}" } %>
+<% missing_hint = ->(locale) { tag.p(t(".missing", language: t("supply_categories.languages.#{locale}"), name: category.name), class: "mt-1 text-xs text-gray-600") if missing == locale } %>
 <%= form_with model: [ Current.household, category ], class: "space-y-4" do |form| %>
   <% if category.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% category.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
   <% end %>
-  <p class="text-sm text-gray-600"><%= t("categories.index.supplies") %></p>
+  <p class="text-sm text-gray-600"><%= t("categories.index.supplies") %> · <%= t(".one_name") %></p>
   <div>
     <%= form.label :name_zh, class: "block text-sm font-medium" %>
-    <%= form.text_field :name_zh, required: true, maxlength: 40, autofocus: category.new_record?, class: field %>
+    <%= form.text_field :name_zh, maxlength: 40, autofocus: category.new_record?, class: field.("zh-TW") %>
+    <%= missing_hint.("zh-TW") %>
   </div>
   <div>
     <%= form.label :name_en, class: "block text-sm font-medium" %>
-    <%= form.text_field :name_en, maxlength: 40, class: field %>
+    <%= form.text_field :name_en, maxlength: 40, class: field.("en") %>
+    <%= missing_hint.("en") %>
   </div>
   <label class="flex items-start gap-2.5 text-sm">
     <%= form.check_box :perishable, class: "mt-0.5 h-4.5 w-4.5 flex-none" %>

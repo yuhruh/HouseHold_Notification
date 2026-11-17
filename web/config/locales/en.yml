@@ -986,6 +986,9 @@ en:
         other: "%{count} items"
       perishable: "expiry alert a week ahead"
       always_kept: "always kept, for anything without a category"
+      add_name:
+        "zh-TW": "Add the Chinese name"
+        en: "Add the English name"
       archived: "archived"
       edit: "Edit"
       delete: "Delete"

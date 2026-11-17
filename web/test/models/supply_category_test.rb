@@ -20,6 +20,25 @@ class SupplyCategoryTest < ActiveSupport::TestCase
     I18n.with_locale(:en) { assert_equal [ "Kitchen", "洗髮精" ], [ kitchen.name, shampoo.name ] }
   end
 
+  test "one name is enough: it's saved in the language it was typed in, and shown to both until the other is added" do
+    shampoo = SupplyCategory.named(@home, "Shampoo", locale: :en)
+    assert_equal [ nil, "Shampoo", "zh-TW", [ "Shampoo" ] ], [ shampoo.name_zh, shampoo.name_en, shampoo.missing_locale, shampoo.names ]
+    assert_equal "Shampoo", shampoo.name
+    I18n.with_locale(:en) do
+      face = SupplyCategory.named(@home, "Face wash")
+      assert_equal [ nil, "Face wash" ], [ face.name_zh, face.name_en ]
+    end
+    soap = SupplyCategory.named(@home, "香皂")
+    assert_equal [ "香皂", nil, "en" ], [ soap.name_zh, soap.name_en, soap.missing_locale ]
+    I18n.with_locale(:en) { assert_equal "香皂", soap.name }
+    shampoo.update!(name_zh: "洗髮精")
+    assert_equal [ "洗髮精", nil, [ "洗髮精", "Shampoo" ] ], [ shampoo.name, shampoo.missing_locale, shampoo.names ]
+
+    nameless = @home.supply_categories.new(name_zh: " ", name_en: "")
+    assert_not nameless.valid?
+    assert_includes nameless.errors.full_messages, "請至少輸入一種語言的名稱。"
+  end
+
   test "a starting category is found by its key after a rename; with no key, an unknown one or an archived one it's Other" do
     kitchen = SupplyCategory.for_key(@home, "kitchen")
     kitchen.update!(name_zh: "廚房", name_en: nil)
@@ -49,6 +68,9 @@ class SupplyCategoryTest < ActiveSupport::TestCase
   test "names are unique in a ledger whatever the case, and a category with items can't be deleted" do
     shampoo = SupplyCategory.named(@home, "Shampoo")
     assert_not @home.supply_categories.new(name_zh: "shampoo").valid?
+    assert_not @home.supply_categories.new(name_en: "SHAMPOO").valid?, "the other language's field counts too"
+    shampoo.update!(archived_at: Time.current)
+    assert shampoo.valid?
     @home.supplies.create!(name: "Lux", unit: "bottle", level: 1, category: shampoo)
     assert_not shampoo.destroy
     assert SupplyCategory.exists?(shampoo.id)

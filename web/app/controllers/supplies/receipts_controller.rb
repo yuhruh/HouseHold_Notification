@@ -13,7 +13,8 @@ class Supplies::ReceiptsController < ApplicationController
       return redirect_to back_path, alert: t("supplies.receipts.already", date: l(already.created_at.to_date, format: :long)), status: :see_other
     end
     @stores = Current.household.supply_purchases.where.not(store: nil).distinct.order(:store).pluck(:store)
-    @supplies = Current.household.supplies.active.order(:name)
+    @supplies = Current.household.supplies.active.includes(:category).order(:name)
+    @categories = Current.household.supply_categories.active.ordered.to_a
   end
 
   def create

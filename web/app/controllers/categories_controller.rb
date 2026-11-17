@@ -1,5 +1,6 @@
 # Categories (PRD §3): bilingual names, archive instead of delete once used, and the item-name
-# aliases imports saved. detail_required isn't editable in v1.
+# aliases imports saved. detail_required isn't editable in v1. The page also lists the ledger's
+# supply categories, which have their own controller (SupplyCategoriesController).
 class CategoriesController < ApplicationController
   include HouseholdScoped
   before_action :set_category, only: %i[edit update archive destroy]
@@ -8,6 +9,8 @@ class CategoriesController < ApplicationController
     authorize Category
     @categories = Current.household.categories.ordered.includes(:category_aliases)
     @counts = Current.household.records.group(:category_id).count
+    @supply_categories = Current.household.supply_categories.ordered
+    @supply_counts = Current.household.supplies.group(:supply_category_id).count
   end
 
   def new

@@ -173,8 +173,12 @@ Home Screen.
   the charts scroll.
 
 **Supplies** (`/h/:id/supplies`)
-- Each item has a name, kind (toiletries, cleaning, kitchen, food & drink, health, other), unit
-  (piece, roll, bottle…) and a whole-number count. Purchases record the date, how many, the total
+- Each item has a name, a category, a unit (piece, roll, bottle…) and a whole-number count.
+  **Categories are the ledger's own**: every ledger starts with six (Toiletries, Cleaning, Kitchen,
+  Food & drink, Health, Other), and owners and co-owners add more, either from the item form (the
+  Category list ends with **＋ New category…**, saved with the item) or under **Settings →
+  Categories → Supplies**, where they are also renamed, archived (hidden from the form, kept on
+  their items) and, when empty, deleted. Other always stays, for an item without a category. Purchases record the date, how many, the total
   price, the store and an optional expiry date. The price per unit is worked out from the total
   (NT$289 for 12 · NT$24.1/roll), never typed in.
 - **Run-out forecast** (`Supplies::Forecast`): purchases and counts form a timeline of known stock,
@@ -254,7 +258,8 @@ Home Screen.
     User-Agent for lookups); photos and PDF files aren't uploaded.
 - **Alerts** (`SupplyAlertsJob`, 09:00 Taipei): one message per person listing what to buy (on the
   buy-by date, or when the count reaches "alert me when only N are left"), what's probably out, and
-  what will expire before it's used (7 days ahead for food & drink and health, 30 for the rest). Each
+  what will expire before it's used (7 days ahead in a category marked **Goes off quickly**, which Food & drink and Health are
+  to start with, 30 for the rest). Each
   is sent once and resets after a purchase or a higher count. Owners and co-owners get them by
   default (**My Account → Notifications → Supplies low or expiring**): inbox and push, or email when
   push is off or no device confirms it within an hour.

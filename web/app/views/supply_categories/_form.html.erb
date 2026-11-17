@@ -1,0 +1,25 @@
+<%# A supply category: its two names, and whether what's in it goes off quickly (expiry alerts a week
+    ahead instead of a month) %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<%= form_with model: [ Current.household, category ], class: "space-y-4" do |form| %>
+  <% if category.errors.any? %>
+    <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% category.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
+  <% end %>
+  <p class="text-sm text-gray-600"><%= t("categories.index.supplies") %></p>
+  <div>
+    <%= form.label :name_zh, class: "block text-sm font-medium" %>
+    <%= form.text_field :name_zh, required: true, maxlength: 40, autofocus: category.new_record?, class: field %>
+  </div>
+  <div>
+    <%= form.label :name_en, class: "block text-sm font-medium" %>
+    <%= form.text_field :name_en, maxlength: 40, class: field %>
+  </div>
+  <label class="flex items-start gap-2.5 text-sm">
+    <%= form.check_box :perishable, class: "mt-0.5 h-4.5 w-4.5 flex-none" %>
+    <span><span class="font-semibold"><%= t(".perishable") %></span><span class="block text-xs text-gray-600"><%= t(".perishable_hint") %></span></span>
+  </label>
+  <div class="flex gap-3">
+    <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+    <%= cancel_link(household_categories_path(Current.household, anchor: "supplies")) %>
+  </div>
+<% end %>

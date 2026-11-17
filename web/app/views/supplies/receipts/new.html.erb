@@ -38,7 +38,7 @@
         <%= check_box_tag :add_to_ledger, "1", false %> <%= t(".add_to_ledger") %>
       </label>
       <% shown.each do |entry| %>
-        <%= render "supplies/receipts/invoice", entry:, supplies: @supplies %>
+        <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories %>
       <% end %>
       <p class="text-xs text-gray-600"><%= t(".hint") %></p>
     <% end %>
@@ -69,7 +69,7 @@
                 <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
                   <%= check_box_tag "invoices[#{entry.key}][include]", "1", false, id: "invoice_#{entry.key}_include" %> <%= t(".include_anyway") %>
                 </label>
-                <%= render "supplies/receipts/invoice", entry:, supplies: @supplies %>
+                <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories %>
               </div>
             </details>
           <% else %>

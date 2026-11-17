@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -794,7 +794,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_150000) do
   create_table "supplies", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
-    t.string "kind", default: "other", null: false
     t.string "unit", default: "piece", null: false
     t.integer "level", default: 0, null: false
     t.datetime "level_at", null: false
@@ -809,12 +808,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_150000) do
     t.integer "lock_version", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "supply_category_id", null: false
     t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
     t.index ["household_id"], name: "index_supplies_on_household_id"
+    t.index ["supply_category_id"], name: "index_supplies_on_supply_category_id"
     t.check_constraint "alert_state::text = ANY (ARRAY['ok'::character varying, 'low'::character varying, 'out'::character varying]::text[])", name: "supplies_alert_state"
     t.check_constraint "alert_when_left >= 0", name: "supplies_alert_when_left_not_negative"
     t.check_constraint "guess_days_per_unit IS NULL OR guess_days_per_unit >= 1", name: "supplies_guess_days"
-    t.check_constraint "kind::text = ANY (ARRAY['toiletries'::character varying, 'cleaning'::character varying, 'kitchen'::character varying, 'food_drink'::character varying, 'health'::character varying, 'other'::character varying]::text[])", name: "supplies_kind"
     t.check_constraint "lead_days >= 0 AND lead_days <= 30", name: "supplies_lead_days"
     t.check_constraint "level >= 0", name: "supplies_level_not_negative"
     t.check_constraint "unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying, 'pack'::character varying, 'box'::character varying, 'bag'::character varying]::text[])", name: "supplies_unit"
@@ -829,6 +829,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_150000) do
     t.index ["household_id", "code"], name: "index_supply_barcodes_on_household_id_and_code", unique: true
     t.index ["household_id"], name: "index_supply_barcodes_on_household_id"
     t.index ["supply_id"], name: "index_supply_barcodes_on_supply_id"
+  end
+
+  create_table "supply_categories", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name_zh", null: false
+    t.string "name_en"
+    t.string "key"
+    t.boolean "perishable", default: false, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "archived_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "key"], name: "index_supply_categories_on_household_id_and_key", unique: true, where: "(key IS NOT NULL)"
+    t.index ["household_id", "name_zh"], name: "index_supply_categories_on_household_id_and_name_zh", unique: true
+    t.index ["household_id"], name: "index_supply_categories_on_household_id"
   end
 
   create_table "supply_counts", force: :cascade do |t|
@@ -1011,9 +1026,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_150000) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spike_push_sends", "spike_push_subscriptions", on_delete: :cascade
   add_foreign_key "supplies", "households"
+  add_foreign_key "supplies", "supply_categories"
   add_foreign_key "supplies", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "supply_barcodes", "households"
   add_foreign_key "supply_barcodes", "supplies"
+  add_foreign_key "supply_categories", "households"
   add_foreign_key "supply_counts", "supplies"
   add_foreign_key "supply_counts", "users", column: "created_by_id", on_delete: :nullify
   add_foreign_key "supply_favorites", "supplies", on_delete: :cascade

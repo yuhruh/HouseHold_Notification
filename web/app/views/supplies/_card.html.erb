@@ -11,7 +11,7 @@
               else t("supplies.card.ok", left:, date: l(forecast.run_out_on, format: :short))
               end %>
 <% last = supply.latest_purchase %>
-<% details = [ supply_kind(supply.kind),
+<% details = [ supply.category.name,
                (t("supplies.card.runs_out", date: l(forecast.run_out_on, format: :short)) if forecast.run_out_on && status.in?(%i[buy_now buy_soon])),
                (last ? safe_join([ last.product_name, last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase")) ].compact %>
 <li id="<%= dom_id(supply, :card) %>" class="card-raised relative space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= supply_tone(status, :card) %>">

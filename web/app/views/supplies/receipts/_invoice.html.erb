@@ -7,8 +7,8 @@
 <% base = "invoices[#{entry.key}]" %>
 <% tags = { remembered: "bg-green-100 text-green-800", suggested: "bg-blue-100 text-blue-800", skipped: "bg-gray-100 text-gray-700",
             fee: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900" } %>
-<%# Add to: the household's supplies under their category (the same kinds as the item form), empty ones left out %>
-<% groups = supplies.group_by(&:kind).sort_by { |kind, _| Supply::KINDS.index(kind) || Supply::KINDS.size }.map { |kind, list| [ supply_kind(kind), list.map { [ it.name, it.id.to_s ] } ] } %>
+<%# Add to: the household's supplies under their category (the same ones as the item form), empty ones left out %>
+<% groups = supplies.group_by(&:category).sort_by { |category, _| [ category.position, category.id ] }.map { |category, list| [ category.name, list.map { [ it.name, it.id.to_s ] } ] } %>
 <% cols = "lg:grid lg:grid-cols-[minmax(0,2.2fr)_5rem_6rem_6rem_minmax(0,2.4fr)] lg:items-start lg:gap-3" %>
 <section id="invoice_<%= entry.key %>" class="group card-raised overflow-hidden rounded-2xl bg-white has-[.receipt-exclude:checked]:opacity-60" aria-labelledby="invoice_<%= entry.key %>_title">
   <div class="flex flex-wrap items-end justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
@@ -63,7 +63,7 @@
             <summary class="cursor-pointer text-gray-700"><%= t(".new_details") %></summary>
             <div class="mt-2 grid grid-cols-3 gap-2">
               <%= text_field_tag "#{name}[name]", row.item.text.truncate(60, omission: ""), id: "#{id}_name", maxlength: 60, "aria-label": t(".new_name"), class: "col-span-3 rounded-md border border-gray-400 px-2 py-1" %>
-              <%= select_tag "#{name}[kind]", options_for_select(Supply::KINDS.map { [ supply_kind(it), it ] }, "other"), id: "#{id}_kind", "aria-label": t(".new_kind"), class: "col-span-2 rounded-md border border-gray-400 px-2 py-1" %>
+              <%= select_tag "#{name}[supply_category_id]", options_for_select(categories.map { [ it.name, it.id ] }, categories.find(&:fallback?)&.id), id: "#{id}_kind", "aria-label": t(".new_kind"), class: "col-span-2 rounded-md border border-gray-400 px-2 py-1" %>
               <%= select_tag "#{name}[unit]", options_for_select(Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, "piece"), id: "#{id}_unit", "aria-label": t(".new_unit"), class: "rounded-md border border-gray-400 px-2 py-1" %>
             </div>
           </details>

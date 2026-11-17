@@ -3,6 +3,18 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.19.0"
+  date: 2026-11-17
+  en:
+    - "Supplies: categories are now your own. The Category list on an item's form ends with \"＋ New category…\": type a name such as Shampoo or Face wash and it is saved with the item, for everyone in the ledger to pick."
+    - "Settings › Categories has a new Supplies section, where owners and co-owners add, rename, archive and delete supply categories. Every ledger starts with the six there were before and your items stay where they are. \"Other\" always stays, for anything without a category."
+    - "Each supply category has a \"Goes off quickly\" switch: its items warn a week before an expiry date instead of a month. It is on for Food & drink and Health, as before."
+    - "The All tab filters by your own categories and has an \"Edit categories\" link. On the item form, \"Kind\" is now called \"Category\"."
+  zh-TW:
+    - "日用品：類別現在可以自己訂。品項表單的「類別」清單最後一項是「＋ 新增類別…」：輸入名稱（例如洗髮精、洗面乳），就會和品項一起儲存，帳本的成員都能選用。"
+    - "「設定 › 類別」多了「日用品」區塊，擁有者和共同擁有者可以新增、改名、封存和刪除日用品類別。每個帳本一開始都有原本的六個類別，既有品項的類別不變。「其他」固定保留，放沒有類別的品項。"
+    - "每個日用品類別都有「容易過期」開關：打開後，裡面的品項會在到期前一週提醒，而不是一個月前。「食品飲料」和「保健醫療」和以前一樣是打開的。"
+    - "「全部」分頁用你自己的類別篩選，並多了「編輯類別」連結。"
 - version: "1.18.2"
   date: 2026-11-17
   en:

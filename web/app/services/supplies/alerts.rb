@@ -37,7 +37,7 @@ module Supplies
     end
 
     def call
-      @household.supplies.active.includes(:purchases, :counts).order(:name).flat_map do |supply|
+      @household.supplies.active.includes(:category, :purchases, :counts).order(:name).flat_map do |supply|
         forecast = supply.forecast(today: @today)
         stock_lines(supply, forecast) + expiry_lines(supply, forecast)
       end

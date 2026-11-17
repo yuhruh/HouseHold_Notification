@@ -4,6 +4,11 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% scan = local_assigns[:scan] || {} %>
 <% filled = ->(name) { scan[:filled].to_a.include?(name) ? "#{field} bg-green-50 border-green-700" : field } %>
+<%# Category: the ledger's own (an archived one only while this item is still in it), then "＋ New
+    category…", which shows a field for its name (new_category: what was typed, when the form comes back) %>
+<% new_category = local_assigns[:new_category] %>
+<% categories = Current.household.supply_categories.active.ordered.to_a %>
+<% categories |= [ supply.category ] if supply.category&.persisted? %>
 <%= form_with model: [ Current.household, supply ], class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
   <% if supply.errors.any? %>
     <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% supply.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
@@ -36,14 +41,23 @@
     <%= form.text_field :name, required: true, maxlength: 60, autofocus: supply.name.blank?, class: filled.("name") %>
     <% if scan[:original_name].present? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.original_name", name: scan[:original_name]) %></p><% end %>
   </div>
-  <div class="grid grid-cols-2 gap-3">
-    <div>
-      <%= form.label :kind, class: "block text-sm font-medium" %>
-      <%= form.select :kind, Supply::KINDS.map { [ supply_kind(it), it ] }, {}, class: filled.("kind") %>
+  <div class="space-y-4" data-controller="new-category">
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <%= form.label :supply_category_id, class: "block text-sm font-medium" %>
+        <%= form.select :supply_category_id, categories.map { [ it.name, it.id ] } + [ [ t("supplies.form.new_category"), SuppliesController::NEW_CATEGORY ] ],
+              { selected: new_category ? SuppliesController::NEW_CATEGORY : supply.supply_category_id }, class: filled.("kind"),
+              data: { new_category_target: "select", action: "new-category#toggle" } %>
+      </div>
+      <div>
+        <%= form.label :unit, class: "block text-sm font-medium" %>
+        <%= form.select :unit, Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, class: filled.("unit") %>
+      </div>
     </div>
-    <div>
-      <%= form.label :unit, class: "block text-sm font-medium" %>
-      <%= form.select :unit, Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, class: filled.("unit") %>
+    <div data-new-category-target="field" <%= "hidden" unless new_category %>>
+      <%= label_tag :new_category_name, t("supplies.form.new_category_name"), class: "block text-sm font-medium" %>
+      <%= text_field_tag :new_category_name, new_category, maxlength: 40, required: !new_category.nil?, class: field, data: { new_category_target: "input" } %>
+      <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.new_category_hint") %></p>
     </div>
   </div>
   <% if supply.new_record? %>

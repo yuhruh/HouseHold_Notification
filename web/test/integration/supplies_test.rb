@@ -7,6 +7,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     sign_in_as users(:alex)
   end
 
+  # One of the six categories every ledger starts with, by its key
+  def category(key) = SupplyCategory.for_key(@home, key)
+
   def create_item(**attrs)
     @home.supplies.create!(name: "Toilet paper", kind: "toiletries", unit: "roll", level: 4, guess_days_per_unit: 3, **attrs)
   end
@@ -23,9 +26,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", new_household_record_path(@home), 0
     end
 
-    post household_supplies_path(@home), params: { supply: { name: "Toilet paper", kind: "toiletries", unit: "roll", level: 4, guess_days_per_unit: 3, lead_days: 3, alert_when_left: 0 } }
+    post household_supplies_path(@home), params: { supply: { name: "Toilet paper", supply_category_id: category("toiletries").id, unit: "roll", level: 4, guess_days_per_unit: 3, lead_days: 3, alert_when_left: 0 } }
     supply = @home.supplies.sole
     assert_redirected_to household_supply_path(@home, supply)
+    assert_equal "toiletries", supply.category.key
     assert_equal [ 4 ], supply.counts.map(&:level)
 
     post household_supply_counts_path(@home, supply), params: { used_one: 1 }, as: :turbo_stream
@@ -129,7 +133,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     post household_supply_purchases_path(@home, supply), params: { supply_purchase: { quantity: "1.5", total_price: 10, purchased_on: @home.today, left_before: 0 } }
     assert_response :unprocessable_content
-    post household_supplies_path(@home), params: { supply: { name: "Soap", kind: "cleaning", unit: "bottle", level: -2 } }
+    post household_supplies_path(@home), params: { supply: { name: "Soap", supply_category_id: category("cleaning").id, unit: "bottle", level: -2 } }
     assert_response :unprocessable_content
   end
 
@@ -333,16 +337,18 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     create_item(name: "Soap", kind: "cleaning")
     create_item(name: "Rice", kind: "food_drink")
     all = household_supplies_path(@home, tab: "all")
+    toiletries, cleaning, food = %w[toiletries cleaning food_drink].map { category(it).id }
 
     get all
-    assert_select "nav[aria-label=篩選] a", 3
+    assert_select "nav[aria-label=篩選] a.rounded-full", 3
     assert_select "nav[aria-label=篩選] a[aria-current]", 0
     assert_select "nav[aria-label=篩選] a", text: /準備補貨|全部|快過期/, count: 0
-    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", kind: [ "cleaning" ]), text: /清潔/
+    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", category: [ cleaning ]), text: /清潔/
+    assert_select "nav[aria-label=篩選] a[href=?]", household_categories_path(@home, anchor: "supplies"), text: "編輯類別"
     assert_select "p", text: /每月約/
     assert_select "a", text: "全部清除", count: 0
 
-    get household_supplies_path(@home, tab: "all", kind: %w[toiletries cleaning])
+    get household_supplies_path(@home, tab: "all", category: [ cleaning, toiletries ])
     assert_select "nav a[aria-current=page]", /全部/
     assert_select "main li", 2
     assert_select "main li", text: /Rice/, count: 0
@@ -351,15 +357,33 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /每月約/, count: 0
     assert_select "a[href=?]", all, text: "全部清除"
     # a chosen chip leads to the list without it; another one is added to the chosen ones
-    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", kind: [ "toiletries" ]), text: /清潔/
-    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", kind: %w[toiletries cleaning food_drink])
+    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", category: [ toiletries ]), text: /清潔/
+    assert_select "a[href=?]", household_supplies_path(@home, tab: "all", category: [ toiletries, cleaning, food ])
     # the search keeps the chosen filters
-    assert_select "form input[type=hidden][name='kind[]']", 2
+    assert_select "form input[type=hidden][name='category[]']", 2
 
-    # one category, as older links give it
-    get household_supplies_path(@home, kind: "food_drink")
+    # one category on its own; one that isn't the ledger's is ignored
+    get household_supplies_path(@home, category: food)
     assert_select "main li", 1
     assert_select "main li", text: /Rice/
+    get household_supplies_path(@home, tab: "all", category: [ SupplyCategory.for_key(households(:parents), "food_drink").id ])
+    assert_select "main li", 3
+
+    # a category of the ledger's own is a filter like the starting six, in the list's order
+    shampoo = SupplyCategory.named(@home, "洗髮精")
+    create_item(name: "Lux", category: shampoo)
+    get all
+    assert_select "nav[aria-label=篩選] a.rounded-full", 4
+    assert_select "nav[aria-label=篩選] a.rounded-full:last-of-type", text: /洗髮精/
+    get household_supplies_path(@home, tab: "all", category: [ shampoo.id ])
+    assert_select "main li", 1
+    assert_select "main li", text: /Lux.*洗髮精/m
+
+    # a viewer filters too, but gets no link to edit the categories
+    sign_in_as users(:google_only)
+    get all
+    assert_select "nav[aria-label=篩選] a.rounded-full", 4
+    assert_select "a", text: "編輯類別", count: 0
   end
 
   test "All's Expiring filter shows only while something is expiring, and narrows the chosen categories" do
@@ -373,11 +397,11 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supplies_path(@home, tab: "all")
     assert_select "nav[aria-label=篩選] a", text: /快過期\s*1/
 
-    get household_supplies_path(@home, tab: "all", filter: "expiring", kind: %w[food_drink toiletries])
+    get household_supplies_path(@home, tab: "all", filter: "expiring", category: [ category("food_drink").id, category("toiletries").id ])
     assert_select "main li", 1
     assert_select "main li", text: /Milk/
     assert_select "p", text: /顯示 3 項中的 1 項/
-    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", kind: %w[toiletries food_drink]), text: /快過期/
+    assert_select "a[aria-current=true][href=?]", household_supplies_path(@home, tab: "all", category: [ category("toiletries").id, category("food_drink").id ]), text: /快過期/
   end
 
   test "the old Buy soon filter opens To Buy, where those items are" do
@@ -397,7 +421,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post household_supply_counts_path(@home, supply), params: { used_one: 1 }
     assert_response :forbidden
-    post household_supplies_path(@home), params: { supply: { name: "X", kind: "other", unit: "piece", level: 1 } }
+    post household_supplies_path(@home), params: { supply: { name: "X", supply_category_id: category("other").id, unit: "piece", level: 1 } }
     assert_response :forbidden
     get new_household_supply_purchase_path(@home, supply)
     assert_response :forbidden
@@ -508,7 +532,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "input[type=hidden][name=barcode][value=7394376616228]"
 
     post household_supplies_path(@home), params: { barcode: "7394376616228", log_purchase: "1", purchase: { total_price: 120, store: "全聯" },
-                                                   supply: { name: "燕麥奶", kind: "food_drink", unit: "bottle", level: 2 } }
+                                                   supply: { name: "燕麥奶", supply_category_id: category("food_drink").id, unit: "bottle", level: 2 } }
     milk = @home.supplies.find_by!(name: "燕麥奶")
     assert_equal [ "7394376616228" ], milk.barcodes.map(&:code)
     assert_equal [ [ 2, 120, "全聯" ] ], milk.purchases.map { [ it.quantity, it.total_price, it.store ] }
@@ -775,6 +799,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "span", text: "建議"
     assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
     assert_select "details[open] input[name='invoices[0][lines][1][name]'][value=鮮奶]"
+    assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option", 6
+    assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option[selected]", "其他"
     assert_select "span", text: "找不到"
     assert_select "select[name='invoices[0][lines][2][choice]'] option[selected][value=skip]", 1, "shipping starts skipped"
     assert_select "span", text: "運費等 · 略過"
@@ -783,7 +809,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_difference -> { @home.records.count } => 1, -> { @home.supply_purchases.count } => 2 do
       post receipt_household_supplies_path(@home), params: { source: "qr", left:, add_to_ledger: "1",
         invoices: { "0" => { store: "全聯", lines: { "0" => { choice: supply.id, quantity: 1, units_per_line: 12 },
-                                                    "1" => { choice: "new", quantity: 3, name: "鮮奶", kind: "food_drink", unit: "bottle", units_per_line: 1 },
+                                                    "1" => { choice: "new", quantity: 3, name: "鮮奶", supply_category_id: category("food_drink").id, unit: "bottle", units_per_line: 1 },
                                                     "2" => { choice: "skip" } } } } }
     end
     assert_redirected_to household_supplies_path(@home)
@@ -792,6 +818,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal 4 + 12, supply.reload.level
     assert_equal "舒潔衛生紙", supply.purchases.sole.product_name, "the receipt line's text is the product bought"
     assert_equal 3, @home.supplies.find_by!(name: "鮮奶").level, "the quantity typed on the review wins"
+    assert_equal "food_drink", @home.supplies.find_by!(name: "鮮奶").category.key, "a new item goes in the category picked on the review"
     assert_equal "全聯", @home.receipt_sellers.sole.name
 
     post receipt_review_household_supplies_path(@home), params: { source: "qr", left: }
@@ -870,7 +897,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   test "a new item bought a while ago with some used: the forecast has a usage rate straight away" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon # a purchase on a past day counts from its midday
     bought_on = @home.today - 10
-    post household_supplies_path(@home), params: { supply: { name: "Toilet paper", kind: "toiletries", unit: "roll", level: 5 },
+    post household_supplies_path(@home), params: { supply: { name: "Toilet paper", supply_category_id: category("toiletries").id, unit: "roll", level: 5 },
                                                    purchase: { purchased_on: bought_on, quantity: 12, total_price: 289, store: "Costco" } }
     supply = @home.supplies.sole
     assert_equal [ [ bought_on, 12, 0 ] ], supply.purchases.map { [ it.purchased_on, it.quantity, it.left_before ] }
@@ -885,13 +912,13 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   end
 
   test "bought today with none used: just the purchase; a future date is refused" do
-    post household_supplies_path(@home), params: { supply: { name: "Soap", kind: "cleaning", unit: "bottle", level: 3 },
+    post household_supplies_path(@home), params: { supply: { name: "Soap", supply_category_id: category("cleaning").id, unit: "bottle", level: 3 },
                                                    purchase: { quantity: 3, total_price: 150 } }
     supply = @home.supplies.sole
     assert_equal [ 3 ], supply.purchases.map(&:quantity)
     assert_empty supply.counts
 
-    post household_supplies_path(@home), params: { supply: { name: "Rice", kind: "food_drink", unit: "bag", level: 1 },
+    post household_supplies_path(@home), params: { supply: { name: "Rice", supply_category_id: category("food_drink").id, unit: "bag", level: 1 },
                                                    purchase: { purchased_on: @home.today + 1, quantity: 1, total_price: 300 } }
     assert_response :unprocessable_content
     assert_select "li", /不能是未來的日期/
@@ -913,7 +940,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   end
 
   test "edit: an item added without a purchase can get one afterwards, before its first count" do
-    post household_supplies_path(@home), params: { supply: { name: "Shampoo", kind: "toiletries", unit: "bottle", level: 2 } }
+    post household_supplies_path(@home), params: { supply: { name: "Shampoo", supply_category_id: category("toiletries").id, unit: "bottle", level: 2 } }
     supply = @home.supplies.sole
     patch household_supply_path(@home, supply), params: { supply: { name: "Shampoo" },
       purchase: { purchased_on: @home.today - 20, quantity: 3, total_price: 597, store: "屈臣氏" } }

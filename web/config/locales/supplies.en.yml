@@ -5,10 +5,16 @@ en:
   activerecord:
     models:
       supply: "Supply item"
+      supply_category: "Supply category"
     attributes:
+      supply_category:
+        name_zh: "Name (Chinese)"
+        name_en: "Name (English)"
+        perishable: "Goes off quickly"
       supply:
         name: "Name"
-        kind: "Kind"
+        supply_category_id: "Category"
+        category: "Category"
         unit: "Counted in"
         level: "How many you have"
         guess_days_per_unit: "One lasts about"
@@ -61,15 +67,14 @@ en:
       purchase_hint: "Restock something you already bought"
       record: "Bill / record"
       record_hint: "A bill, expense or income for the Ledger"
+  supply_categories:
+    form:
+      perishable: "Goes off quickly"
+      perishable_hint: "Warn a week before an expiry date instead of a month, like Food & drink and Health."
+    destroy:
+      in_use: "This category has items; archive it instead."
   supplies:
     total: "Total: %{total}"
-    kinds:
-      toiletries: "Toiletries"
-      cleaning: "Cleaning"
-      kitchen: "Kitchen"
-      food_drink: "Food & drink"
-      health: "Health"
-      other: "Other"
     units:
       piece:
         one: "%{count} piece"
@@ -232,6 +237,7 @@ en:
       chosen: "chosen, select to clear"
       showing: "Showing %{shown} of %{total}"
       clear_all: "Clear all"
+      edit_categories: "Edit categories"
       search: "Search items, brands or stores"
       none_match: "Nothing matches."
       details_label: "Details for %{item}"
@@ -306,6 +312,10 @@ en:
       archived: "Archived %{item}. Its history and Ledger entries are kept."
       restored: "%{item} is back on the list."
     form:
+      new_category: "＋ New category…"
+      new_category_name: "New category name"
+      new_category_hint: "Saved with this item. Everyone in the ledger can pick it from then on; rename or archive it in Settings › Categories."
+      new_category_blank: "Type a name for the new category."
       level: "How many do you have now?"
       guess: "How long does one last? (optional)"
       guess_before: "One lasts about"
@@ -326,7 +336,7 @@ en:
       add_purchase_hint: "When you bought them, how many and the price. Leave empty to skip."
       ledger_follows: "The Ledger expense from this purchase is updated with it."
       found: "Found barcode %{code} in %{source}. Check the name before saving."
-      not_found: "No product database knows barcode %{code}. Type the name, kind and unit yourself. We'll remember this barcode, so next time it goes straight to this item."
+      not_found: "No product database knows barcode %{code}. Type the name, category and unit yourself. We'll remember this barcode, so next time it goes straight to this item."
       not_found_title: "Product not found"
       not_found_short: "Barcode %{code} · not found, typed in by hand"
       original_name: "Original name: %{name}"
@@ -473,7 +483,7 @@ en:
         units_each: "units each"
         new_details: "New item details"
         new_name: "Name"
-        new_kind: "Kind"
+        new_kind: "Category"
         new_unit: "Counted in"
       new:
         title: "Review items"

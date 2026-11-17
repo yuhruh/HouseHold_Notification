@@ -5,6 +5,8 @@ class SuppliesController < ApplicationController
   before_action :set_supply, only: %i[show edit update archive]
 
   TABS = %w[to_buy stocked favorites all].freeze
+  # The form's Category choice that makes a new one, named in new_category_name
+  NEW_CATEGORY = "new".freeze
   # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
@@ -15,19 +17,20 @@ class SuppliesController < ApplicationController
   # keeps only the expiring ones among them
   def index
     authorize Supply
-    supplies = Current.household.supplies.includes(:purchases, :counts, :barcodes, :favorites)
+    supplies = Current.household.supplies.includes(:category, :purchases, :counts, :barcodes, :favorites)
     @supply_starrers = Supplies::Starrers.new(Current.household)
     supplies = params[:archived].present? ? supplies.where.not(archived_at: nil) : supplies.active
     @today = Current.household.today
     all = supplies.order(:name).map { [ it, it.forecast(today: @today) ] }
     @summary = summary(all)
     @expiring = params[:filter] == "expiring"
-    @kinds = Supply::KINDS & Array(params[:kind]).map(&:to_s)
+    @categories_in_use = all.map { it.first.category }.uniq.sort_by { [ it.position, it.id ] }
+    chosen = Array.wrap(params[:category]).map { it.to_s.to_i }
+    @chosen = @categories_in_use.select { chosen.include?(it.id) }
     @query = params[:q].to_s.strip
-    @narrowed = @expiring || @kinds.any? || @query.present?
+    @narrowed = @expiring || @chosen.any? || @query.present?
     all_only = @narrowed || params[:archived].present?
     @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || "to_buy")
-    @kinds_in_use = all.map { it.first.kind }.uniq
     @archived_count = Current.household.supplies.where.not(archived_at: nil).count
     @items = all.select { |supply, forecast| shown?(supply, forecast) }.sort_by { |supply, forecast| urgency(supply, forecast) }
     to_buy_and_stocked(all)
@@ -44,6 +47,7 @@ class SuppliesController < ApplicationController
   def new
     authorize Supply
     @supply = Current.household.supplies.new(prefill_params)
+    @supply.settle_category
     @scan = scan_params
     @purchase = SupplyPurchase.new(purchased_on: Current.household.today)
   end
@@ -61,7 +65,7 @@ class SuppliesController < ApplicationController
     @purchase = SupplyPurchase.new(attributes)
 
     saved = Supply.transaction do
-      raise ActiveRecord::Rollback unless @supply.save
+      raise ActiveRecord::Rollback unless new_category_for(@supply) && @supply.save
       SupplyBarcode.remember(@supply, @scan[:barcode], product_name: @scan[:product_name].presence || @supply.name) if @scan[:barcode].present?
       if bought
         @purchase = Supplies::PurchaseDetails.for_new(@supply, attributes, level: @supply.level, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
@@ -91,7 +95,7 @@ class SuppliesController < ApplicationController
     attributes = purchase_params
     @purchase = @supply.latest_purchase || SupplyPurchase.new(attributes)
     saved = Supply.transaction do
-      raise ActiveRecord::Rollback unless @supply.update(supply_params.except(:level))
+      raise ActiveRecord::Rollback unless new_category_for(@supply) && @supply.update(supply_params.except(:level))
       if @supply.latest_purchase || Supplies::PurchaseDetails.given?(attributes)
         @purchase = Supplies::PurchaseDetails.for_edit(@supply, attributes, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
         purchase_failed! unless @purchase.persisted? && @purchase.errors.empty?
@@ -118,10 +122,33 @@ class SuppliesController < ApplicationController
   private
 
   def set_supply
-    @supply = Current.household.supplies.includes(:purchases, :counts, :prices, :barcodes, :favorites).find(params[:id])
+    @supply = Current.household.supplies.includes(:category, :purchases, :counts, :prices, :barcodes, :favorites).find(params[:id])
   end
 
-  def supply_params = params.expect(supply: %i[name kind unit level guess_days_per_unit lead_days alert_when_left])
+  def supply_params
+    params.expect(supply: %i[name supply_category_id unit level guess_days_per_unit lead_days alert_when_left]).tap do |attrs|
+      attrs.delete(:supply_category_id) if adding_category?
+    end
+  end
+
+  def adding_category? = params.dig(:supply, :supply_category_id) == NEW_CATEGORY
+
+  # "＋ New category…" on the form: the category typed beside it is made with the item, or found by
+  # its name if the ledger already has it. Without a usable name nothing is saved
+  def new_category_for(supply)
+    return true unless adding_category?
+
+    authorize SupplyCategory, :create?
+    @new_category = params[:new_category_name].to_s.squish
+    if @new_category.empty?
+      supply.errors.add(:base, t("supplies.form.new_category_blank"))
+      return false
+    end
+    category = SupplyCategory.named(Current.household, @new_category)
+    category.errors.full_messages.each { supply.errors.add(:base, it) }
+    supply.category = category if category.persisted?
+    category.persisted?
+  end
 
   def purchase_params
     params.fetch(:purchase, {}).permit(*Supplies::PurchaseDetails::FIELDS).to_h.symbolize_keys
@@ -133,10 +160,10 @@ class SuppliesController < ApplicationController
     raise ActiveRecord::Rollback
   end
 
-  # From a scan: the product name, kind and barcode a lookup found (supplies/scans#barcode)
+  # From a scan: the product name, kind (a starting category's key) and barcode a lookup found (supplies/scans#barcode)
   def prefill_params
     params.permit(:name, :kind, :unit).to_h.symbolize_keys.tap do |attrs|
-      attrs.delete(:kind) unless Supply::KINDS.include?(attrs[:kind])
+      attrs.delete(:kind) unless SupplyCategory::KEYS.include?(attrs[:kind])
       attrs.delete(:unit) unless Supply::UNITS.include?(attrs[:unit])
     end
   end
@@ -150,7 +177,7 @@ class SuppliesController < ApplicationController
 
   def shown?(supply, forecast)
     return false if @expiring && !forecast.expiring?
-    return false if @kinds.any? && @kinds.exclude?(supply.kind)
+    return false if @chosen.any? && @chosen.exclude?(supply.category)
     return false if @query.present? && searched(supply).none? { it.to_s.downcase.include?(@query.downcase) }
     true
   end

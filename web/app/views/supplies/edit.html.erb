@@ -1,6 +1,6 @@
 <% content_for :title, t(".title", item: @supply.name) %>
 <%= render layout: "shared/modal_or_page", locals: { title: t(".title", item: @supply.name), icon: "edit.png" } do %>
-  <%= render "form", supply: @supply, purchase: @purchase %>
+  <%= render "form", supply: @supply, purchase: @purchase, new_category: @new_category %>
   <%# The barcodes saved on this item (one per brand or size scanned): a scan of one opens the item.
       Outside the form above, since each Remove is a form of its own %>
   <% if @supply.barcodes.any? %>

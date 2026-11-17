@@ -974,7 +974,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "input[name=_method][value=delete]"
       assert_select "button.btn-press.bg-red-100", text: /刪除品項/
     end
-    assert_select "a.btn-press[href=?]", new_household_supply_combine_path(@home, supply), text: "和另一個品項合併"
+    assert_select "a.btn-press[href=?]", new_household_supply_combine_path(@home, supply), text: "把另一個品項合併進來"
 
     assert_difference -> { @home.supplies.count } => -1, -> { SupplyPurchase.count } => -3, -> { @home.records.count } => 0 do
       delete household_supply_path(@home, supply)
@@ -994,7 +994,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "form[data-turbo-confirm*=?]", "沒有購買記錄"
   end
 
-  test "Edit › Combine: pick the item to keep, the same category first; the two become one" do
+  test "Edit › Combine: the item you opened is kept; the one you pick moves in as a brand, the same category first" do
     shampoo = SupplyCategory.named(@home, "洗髮精")
     promise = create_item(name: "Promise Volume Shampoo", unit: "bottle", category: shampoo, level: 0)
     keep = create_item(name: "Shampoo", unit: "bottle", category: shampoo, level: 0)
@@ -1003,27 +1003,31 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     Supplies::LogPurchase.call(promise, { quantity: 2, total_price: 499, purchased_on: @home.today - 3 }, user: users(:alex))
     Supplies::LogPurchase.call(keep, { quantity: 3, total_price: 897, purchased_on: @home.today - 5, product_name: "PDRN Care" }, user: users(:alex))
 
-    get new_household_supply_combine_path(@home, promise)
+    get edit_household_supply_path(@home, keep)
+    assert_select "a.btn-press[href=?]", new_household_supply_combine_path(@home, keep), text: "把另一個品項合併進來"
+
+    get new_household_supply_combine_path(@home, keep)
     assert_response :success
-    assert_select "h1, h2", /要和哪個品項合併？/
-    assert_select "p.bg-sky-50", /Promise Volume Shampoo（2 瓶）會搬到你選的品項/
+    assert_select "h1, h2", /要把哪個品項合併到「Shampoo」？/
+    assert_select "p.bg-sky-50", /你選的品項會搬進「Shampoo」.*「Shampoo」的名稱和單位不變/
     assert_select "section", 2
     assert_select "section:first-of-type h3", "同一個類別（洗髮精）"
     assert_select "section:first-of-type li", 1
-    assert_select "section:first-of-type form[action=?][data-turbo-confirm*=?]", household_supply_combine_path(@home, promise), "「Shampoo」會變成 2 + 3 = 5 瓶" do
-      assert_select "input[name=into][value=?]", keep.id.to_s
-      assert_select "button", /Shampoo\s*3 瓶/
+    assert_select "section:first-of-type form[action=?][data-turbo-confirm*=?]", household_supply_combine_path(@home, keep),
+                  "要把「Promise Volume Shampoo」合併到「Shampoo」嗎？「Shampoo」會變成 3 + 2 = 5 瓶" do
+      assert_select "input[name=from][value=?]", promise.id.to_s
+      assert_select "button", /Promise Volume Shampoo\s*2 瓶/
     end
     assert_select "section:last-of-type li button", /Dish soap\s*0 瓶 · 廚房用品/
-    assert_select "button", text: /Old shampoo|Promise/, count: 0
-    assert_select "a[href=?]", new_household_supply_path(@home), text: /先新增/
+    assert_select "button", text: /Old shampoo|\AShampoo/, count: 0
+    assert_select "p", /請打開那個品項再合併/
 
-    post household_supply_combine_path(@home, promise), params: { into: keep.id }
+    post household_supply_combine_path(@home, keep), params: { from: promise.id }
     assert_redirected_to household_supply_path(@home, keep)
     follow_redirect!
-    assert_select "#notice", "已把 Promise Volume Shampoo 合併到 Shampoo。"
+    assert_select "#notice", "「Promise Volume Shampoo」現在是「Shampoo」的一個品牌。"
     assert_not Supply.exists?(promise.id)
-    assert_equal 5, keep.reload.level
+    assert_equal [ "Shampoo", 5 ], [ keep.reload.name, keep.level ], "the item opened keeps its name"
     assert_equal({ "PDRN Care" => 3, "Promise Volume Shampoo" => 2 }, keep.brands.list.to_h { [ it.key, it.known ] })
     assert_select "##{ActionView::RecordIdentifier.dom_id(keep, :forecast)}", /Promise Volume Shampoo/
 
@@ -1034,13 +1038,31 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "section h3", "其他品項"
   end
 
+  test "Combine: an empty general item takes in two products and then asks which one was used" do
+    face = SupplyCategory.named(@home, "洗面乳")
+    general = create_item(name: "Face Wash", unit: "piece", category: face, level: 0)
+    scrub = create_item(name: "Perfect Whip 去除角質", unit: "piece", category: face, level: 0)
+    acne = create_item(name: "Perfect Whip 預防青春痘", unit: "piece", category: face, level: 0)
+    [ scrub, acne ].each { Supplies::LogPurchase.call(it, { quantity: 1, total_price: 120, purchased_on: @home.today - 2 }, user: users(:alex)) }
+
+    post household_supply_combine_path(@home, general), params: { from: scrub.id }
+    post household_supply_combine_path(@home, general), params: { from: acne.id }
+
+    assert_equal [ "Face Wash" ], @home.supplies.pluck(:name)
+    assert_equal [ "Face Wash", 2 ], [ general.reload.name, general.level ]
+    assert_equal({ "Perfect Whip 去除角質" => 1, "Perfect Whip 預防青春痘" => 1 }, general.brands.list.to_h { [ it.key, it.known ] })
+    assert general.brands.several?
+    get household_supply_path(@home, general)
+    assert_select "##{ActionView::RecordIdentifier.dom_id(general, :forecast)}", /Perfect Whip 去除角質.*Perfect Whip 預防青春痘/m
+  end
+
   test "a viewer can't delete or combine items, and another ledger's items aren't found" do
     supply = create_item
     other = create_item(name: "Dish soap")
     theirs = households(:parents).supplies.create!(name: "Rice", kind: "food_drink", unit: "bag", level: 1)
-    post household_supply_combine_path(@home, supply), params: { into: theirs.id }
+    post household_supply_combine_path(@home, supply), params: { from: theirs.id }
     assert_response :not_found
-    post household_supply_combine_path(@home, supply), params: { into: supply.id }
+    post household_supply_combine_path(@home, supply), params: { from: supply.id }
     assert_response :not_found
     delete household_supply_path(@home, theirs)
     assert_response :not_found
@@ -1048,7 +1070,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     sign_in_as users(:google_only)
     get new_household_supply_combine_path(@home, supply)
     assert_response :forbidden
-    post household_supply_combine_path(@home, supply), params: { into: other.id }
+    post household_supply_combine_path(@home, supply), params: { from: other.id }
     assert_response :forbidden
     delete household_supply_path(@home, supply)
     assert_response :forbidden

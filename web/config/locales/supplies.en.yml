@@ -321,15 +321,15 @@ en:
       deleted: "Deleted %{item}."
     combines:
       new:
-        title: "Combine with which item?"
-        note_html: "<strong>%{item}</strong> (%{count}) moves into the item you pick and becomes a brand of it. Its purchases, counts, prices and barcodes go along."
+        title: "Which item joins %{item}?"
+        note_html: "The item you pick moves into <strong>%{item}</strong> and becomes a brand of it. Its purchases, counts, prices and barcodes come along, and the two counts are added. %{item} keeps its name and unit."
         same: "In the same category (%{category})"
         others: "Other items"
-        none: "There is no other item to combine it with yet."
-        missing: "Not there yet? Make the item first (for example “Shampoo”), then come back."
-        confirm: "Combine %{item} into %{target}? %{target} will have %{mine} + %{theirs} = %{total}, and “%{item}” becomes one of its brands. %{item} is then removed. This can't be undone."
+        none: "There is no other item to bring in yet."
+        other_way: "To keep the other item's name instead of “%{item}”, open that item and combine from there."
+        confirm: "Move %{item} into %{target}? %{target} will have %{mine} + %{theirs} = %{total}, and “%{item}” becomes one of its brands. %{item} then stops being an item of its own. This can't be undone."
       create:
-        combined: "Combined %{item} into %{target}."
+        combined: "%{item} is now a brand of %{target}."
     archive:
       archived: "Archived %{item}. Its history and Ledger entries are kept."
       restored: "%{item} is back on the list."
@@ -370,8 +370,8 @@ en:
       restore: "Put back on the list"
       archive_confirm: "Archive this item? Its alerts stop; its history and Ledger entries are kept."
       archive_hint: "Hides it and stops its alerts. History and Ledger entries are kept."
-      combine: "Combine with another item"
-      combine_hint: "Moves its purchases, counts, prices and barcodes into another item, where it becomes a brand. The two counts are added."
+      combine: "Combine another item into this one"
+      combine_hint: "For the same thing saved as two items. The other item moves in here as a brand, with its purchases, counts, prices and barcodes; the two counts are added. This item keeps its name."
       delete: "Delete item"
       delete_hint: "Removes it for good, with its history, prices and barcodes. Expenses already in the Ledger stay."
       delete_confirm: "Delete %{item} for good? Its history (%{purchases}), prices, barcodes and stars are deleted with it. Expenses already in the Ledger stay. This can't be undone. To only hide it, use Archive item instead."

@@ -248,9 +248,10 @@ Home Screen.
     another brand of something already tracked, the New item form offers **It's one of my items**:
     pick the item, and saving the purchase remembers the barcode for it. **Edit** lists an item's
     barcodes with **Remove**; a barcode on an archived item moves to the item it is bought as next.
-  - **Edit** also has **Combine with another item** and **Delete item**. Combine is for items saved
-    one per product: pick the item to keep, and the other moves into it as a brand (purchases,
-    counts, old prices, barcodes and stars go along; the counts are added). Delete removes an item
+  - **Edit** also has **Combine another item into this one** and **Delete item**. Combine is for
+    items saved one per product: open the item to keep ("Shampoo"), pick another, and that one
+    moves in as a brand (purchases, counts, old prices, barcodes and stars come along; the counts
+    are added). Delete removes an item
     for good with its history; Ledger expenses stay, and Archive still only hides.
   - **Add a receipt** takes a printed **Taiwan e-invoice** (both QR codes of 電子發票證明聯, shown as
     "1 of 2 QR codes read") or up to 10 **invoice PDFs** (發票明細 from a store's email or order page;

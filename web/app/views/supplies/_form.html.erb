@@ -100,7 +100,7 @@
     <%= image_tag "icons/archive.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= supply.archived_at ? t("supplies.form.restore") : t("supplies.form.archive") %></span>
   <% end %>
   <% unless supply.archived_at %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.archive_hint") %></p><% end %>
-  <%# Saved once per product? Combine moves this item into the one it really is, as a brand of it %>
+  <%# The same thing saved as two items? Combine brings the other one into this item, as a brand of it %>
   <div>
     <%= link_to t("supplies.form.combine"), new_household_supply_combine_path(Current.household, supply), data: { turbo_frame: "_top" },
           class: "btn-press mt-6 inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-sm font-medium text-gray-900" %>

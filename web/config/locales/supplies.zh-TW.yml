@@ -321,15 +321,15 @@ zh-TW:
       deleted: "已刪除 %{item}。"
     combines:
       new:
-        title: "要和哪個品項合併？"
-        note_html: "<strong>%{item}</strong>（%{count}）會搬到你選的品項，變成它的一個品牌。購買記錄、盤點、價格和條碼會一起搬過去。"
+        title: "要把哪個品項合併到「%{item}」？"
+        note_html: "你選的品項會搬進<strong>「%{item}」</strong>，變成它的一個品牌。購買記錄、盤點、價格和條碼會一起搬過來，兩邊的數量會相加。「%{item}」的名稱和單位不變。"
         same: "同一個類別（%{category}）"
         others: "其他品項"
-        none: "目前沒有其他品項可以合併。"
-        missing: "還沒有這個品項？先新增（例如「洗髮精」），再回來合併。"
-        confirm: "要把「%{item}」合併到「%{target}」嗎？「%{target}」會變成 %{mine} + %{theirs} = %{total}，「%{item}」會變成它的一個品牌，原本的品項會移除。合併後無法復原。"
+        none: "目前沒有其他品項可以合併進來。"
+        other_way: "如果想保留另一個品項的名稱，而不是「%{item}」，請打開那個品項再合併。"
+        confirm: "要把「%{item}」合併到「%{target}」嗎？「%{target}」會變成 %{mine} + %{theirs} = %{total}，「%{item}」會變成它的一個品牌，不再是獨立的品項。合併後無法復原。"
       create:
-        combined: "已把 %{item} 合併到 %{target}。"
+        combined: "「%{item}」現在是「%{target}」的一個品牌。"
     archive:
       archived: "已封存 %{item}。記錄和帳本項目都會保留。"
       restored: "%{item} 已放回清單。"
@@ -370,8 +370,8 @@ zh-TW:
       restore: "放回清單"
       archive_confirm: "要封存這個項目嗎？提醒會停止，記錄和帳本項目都會保留。"
       archive_hint: "隱藏並停止提醒。記錄和帳本項目都會保留。"
-      combine: "和另一個品項合併"
-      combine_hint: "把購買記錄、盤點、價格和條碼搬到另一個品項，變成它的一個品牌。兩邊的數量會相加。"
+      combine: "把另一個品項合併進來"
+      combine_hint: "同一種東西存成兩個品項時使用。另一個品項會搬進來變成一個品牌，連同購買記錄、盤點、價格和條碼；兩邊的數量會相加。這個品項的名稱不變。"
       delete: "刪除品項"
       delete_hint: "永久刪除，連同記錄、價格和條碼。已記入帳本的支出會保留。"
       delete_confirm: "要永久刪除「%{item}」嗎？它的記錄（%{purchases}）、價格、條碼和星號會一起刪除。已記入帳本的支出會保留。刪除後無法復原。如果只是想隱藏，請改用「封存此項目」。"

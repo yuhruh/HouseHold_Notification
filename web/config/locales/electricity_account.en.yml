@@ -63,8 +63,8 @@ en:
         unreadable: "Couldn't read a bill in a Taiwan Power Company email (%{detail}). Nothing was changed."
     missing_mail:
       title: "%{household}: no Taiwan Power Company bill email yet"
-      body: "Taiwan Power Company's bill email was expected around %{expected}, 2 months after the last one (%{last}), and hasn't arrived. Check the bill in the Taiwan Power Company App, and that the Gmail filter still forwards Taiwan Power Company's emails."
-      body_first: "No Taiwan Power Company bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in the Taiwan Power Company App, and that Gmail forwarding was confirmed and the filter is set up."
+      body: "Taiwan Power Company's bill email was expected around %{expected}, 2 months after the last one (%{last}), and hasn't arrived. Check the bill in Taiwan Power Company's app, and that the Gmail filter still forwards Taiwan Power Company's emails."
+      body_first: "No Taiwan Power Company bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in Taiwan Power Company's app, and that Gmail forwarding was confirmed and the filter is set up."
     update:
       saved: "Electricity saved."
     destroy:

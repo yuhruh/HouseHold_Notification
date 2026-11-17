@@ -53,7 +53,7 @@ module Supplies
       letters.empty? ? 0 : letters.count { text.include?(it) }.fdiv(letters.size)
     end
 
-    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, kind:, unit: } }
+    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, supply_category_id:, unit: } }
     # (quantity: how many came, when it differs from the receipt; the price stays what the line cost)
     def self.call(household, receipt, lines:, store:, user:, add_to_ledger: false)
       new(household, receipt, lines:, store:, user:, add_to_ledger:).call
@@ -118,7 +118,7 @@ module Supplies
 
     def new_supply(item, line)
       @household.supplies.create!(name: line["name"].presence || item.text.truncate(60, omission: ""),
-                                  kind: line["kind"].presence_in(Supply::KINDS) || "other", unit: line["unit"].presence_in(Supply::UNITS) || "piece",
+                                  category: @household.supply_categories.find_by(id: line["supply_category_id"]), unit: line["unit"].presence_in(Supply::UNITS) || "piece",
                                   level: 0, created_by: @user)
     end
   end

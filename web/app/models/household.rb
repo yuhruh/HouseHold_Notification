@@ -20,6 +20,7 @@ class Household < ApplicationRecord
   has_many :recurring_templates
   has_many :reminder_deliveries
   has_many :supplies
+  has_many :supply_categories
   has_many :supply_purchases
   has_many :supply_prices
   has_many :supply_barcodes

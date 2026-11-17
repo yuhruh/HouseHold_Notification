@@ -3,7 +3,7 @@
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0">
       <h1 class="text-3xl font-bold"><%= @supply.name %></h1>
-      <p class="text-sm text-gray-600"><%= t("supplies.show.subtitle", unit: t("supplies.units.#{@supply.unit}_one"), kind: supply_kind(@supply.kind)) %><% if @supply.archived_at %> · <%= t("supplies.show.archived") %><% end %></p>
+      <p class="text-sm text-gray-600"><%= t("supplies.show.subtitle", unit: t("supplies.units.#{@supply.unit}_one"), kind: @supply.category.name) %><% if @supply.archived_at %> · <%= t("supplies.show.archived") %><% end %></p>
     </div>
     <%# Your own star (Favorite) and Edit; under them, whose other stars the item has %>
     <div class="flex shrink-0 flex-col items-end gap-2">

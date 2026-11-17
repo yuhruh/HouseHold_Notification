@@ -3,14 +3,14 @@
 # used, when it runs out and when to buy more come from Supplies::Forecast; alert_state makes each
 # restock alert go once (Supplies::Alerts).
 class Supply < ApplicationRecord
-  KINDS = %w[toiletries cleaning kitchen food_drink health other].freeze
   UNITS = %w[piece roll bottle can pack box bag].freeze
   ALERT_STATES = %w[ok low out].freeze
-  # Expiry alerts: perishables a week ahead, everything else a month
-  EXPIRY_WINDOW_DAYS = { "food_drink" => 7, "health" => 7 }.freeze
+  # Expiry alerts: a week ahead in a category that goes off quickly, everything else a month
+  PERISHABLE_EXPIRY_WINDOW_DAYS = 7
   DEFAULT_EXPIRY_WINDOW_DAYS = 30
 
   belongs_to :household
+  belongs_to :category, class_name: "SupplyCategory", foreign_key: :supply_category_id, inverse_of: :supplies
   belongs_to :created_by, class_name: "User", optional: true
   has_many :purchases, class_name: "SupplyPurchase", dependent: :destroy
   has_many :prices, class_name: "SupplyPrice", dependent: :delete_all
@@ -21,18 +21,37 @@ class Supply < ApplicationRecord
   normalizes :name, with: ->(name) { name.to_s.squish }
 
   validates :name, presence: true, length: { maximum: 60 }
-  validates :kind, inclusion: { in: KINDS }
   validates :unit, inclusion: { in: UNITS }
   validates :alert_state, inclusion: { in: ALERT_STATES }
   validates :level, :alert_when_left, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100_000 }
   validates :lead_days, numericality: { only_integer: true, in: 0..30 }
   validates :guess_days_per_unit, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than: 10_000 }, allow_nil: true
 
+  validate { errors.add(:category, :invalid) if category && category.household_id != household_id }
+
   before_validation { self.level_at ||= Time.current }
+  before_validation :settle_category
 
   scope :active, -> { where(archived_at: nil) }
 
-  def expiry_window_days = EXPIRY_WINDOW_DAYS.fetch(kind, DEFAULT_EXPIRY_WINDOW_DAYS)
+  def expiry_window_days = category.perishable? ? PERISHABLE_EXPIRY_WINDOW_DAYS : DEFAULT_EXPIRY_WINDOW_DAYS
+
+  # `kind` names one of the six starting categories by its key ("kitchen"), the way a barcode lookup
+  # guesses it. It becomes the ledger's category with that key once the ledger is known, unless a
+  # category was chosen as well; an item with neither goes in Other
+  def kind=(key)
+    @kind = key.to_s.presence
+  end
+
+  def kind = @kind || category&.key
+
+  def settle_category
+    return unless household
+
+    self.category = SupplyCategory.for_key(household, @kind) if @kind && !supply_category_id_changed?
+    @kind = nil
+    self.category ||= SupplyCategory.fallback(household)
+  end
 
   def forecast(today: household.today) = Supplies::Forecast.new(self, today:)
 

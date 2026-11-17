@@ -9,7 +9,7 @@
     <%= render "supplies/favorite", supply:, tags: false %>
     <div class="min-w-0 flex-1">
       <%= link_to supply.name, household_supply_path(Current.household, supply), class: "font-bold hover:underline" %>
-      <p class="flex flex-wrap items-center gap-1.5 text-xs text-gray-600"><span><%= supply_kind(supply.kind) %></span><%= supply_star_tags(supply) %></p>
+      <p class="flex flex-wrap items-center gap-1.5 text-xs text-gray-600"><span><%= supply.category.name %></span><%= supply_star_tags(supply) %></p>
       <%= supply_brand_split(supply, forecast) %>
     </div>
     <span class="lg:hidden"><%= supply_badge(status) %></span>

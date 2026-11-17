@@ -1,4 +1,4 @@
 <% content_for :title, t(".title") %>
 <%= render layout: "shared/modal_or_page", locals: { title: t(".title"), icon: "add.png" } do %>
-  <%= render "form", supply: @supply, scan: @scan, purchase: @purchase %>
+  <%= render "form", supply: @supply, scan: @scan, purchase: @purchase, new_category: @new_category %>
 <% end %>

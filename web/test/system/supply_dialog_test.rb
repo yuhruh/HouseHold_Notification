@@ -25,6 +25,24 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     assert_selector "dialog[open]", wait: 5
   end
 
+  test "New item: choosing New category shows a field for its name, and saving makes the category with the item" do
+    home = households(:home)
+    sign_in
+    visit new_household_supply_path(home)
+    assert_no_selector "#new_category_name"
+    select "＋ New category…", from: "supply_supply_category_id"
+    assert_selector "#new_category_name:focus[required]"
+    select "Kitchen", from: "supply_supply_category_id"
+    assert_no_selector "#new_category_name"
+    select "＋ New category…", from: "supply_supply_category_id"
+    find("#new_category_name").set("Shampoo")
+    find("#supply_name").set("Lux")
+    find("#supply_level").set("2")
+    click_on "Save"
+    assert_text "piece · Shampoo", wait: 5
+    assert_equal "Shampoo", home.supplies.find_by!(name: "Lux").category.name_zh
+  end
+
   test "using the last one pops up Time to restock; Bought more opens the purchase dialog" do
     home = households(:home)
     supply = home.supplies.create!(name: "Toilet paper", unit: "roll", level: 1, level_at: Time.current)

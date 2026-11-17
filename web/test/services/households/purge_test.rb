@@ -9,6 +9,7 @@ class Households::PurgeTest < ActiveSupport::TestCase
     water = household.categories.find_by!(name_zh: "水費")
     household.category_aliases.create!(alias: "台電電費", category: water)
     card = household.payment_methods.create!(name: "Card", kind: "card")
+    household.supplies.create!(name: "Lux", unit: "bottle", level: 1, category: SupplyCategory.named(household, "洗髮精"))
     household.records.create!(record_type: "expense", category: water, title: "水費", payment_method: card,
       period: Period.parse(2026, "1月-2月"))
 

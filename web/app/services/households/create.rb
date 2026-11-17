@@ -6,6 +6,7 @@ module Households
       Household.transaction do
         household.save!
         Categories::Seed.call(household)
+        SupplyCategory.seed(household)
         household.memberships.create!(user:, role: "owner")
         user.update!(last_household: household)
       end

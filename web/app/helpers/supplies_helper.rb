@@ -222,7 +222,6 @@ module SuppliesHelper
     end
   end
 
-  def supply_kind(kind) = t("supplies.kinds.#{kind}")
 
   # Total spent on an item, since its first purchase, and about how much a month
   def supply_spending(supply)

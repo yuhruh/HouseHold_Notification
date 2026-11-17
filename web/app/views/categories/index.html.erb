@@ -54,6 +54,37 @@
       </ul>
     </section>
   <% end %>
+  <%# The ledger's own supply categories (the item form's Category list). Each ledger starts with six;
+      "Other" always stays, and one with items is archived, not deleted %>
+  <section id="supplies" class="scroll-mt-24 space-y-2">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold"><%= image_tag "icons/ledger.png", alt: "", class: "inline h-[1.2em] w-[1.2em] object-contain align-[-0.25em]" %> <%= t(".supplies") %></h2>
+      <% if policy(SupplyCategory).write? %><%= link_to new_household_supply_category_path(Current.household), class: "inline-flex items-center gap-1 text-sm underline" do %><%= image_tag "icons/add.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".new") %></span><% end %><% end %>
+    </div>
+    <p class="text-sm text-gray-600"><%= t(".supplies_intro") %></p>
+    <ul class="divide-y rounded-lg border">
+      <% @supply_categories.each do |category| %>
+        <% count = @supply_counts[category.id].to_i %>
+        <li class="px-4 py-2 <%= 'text-gray-400' if category.archived_at %>">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span><%= category.name_zh %><%= " / #{category.name_en}" if category.name_en.present? %>
+              <span class="text-sm text-gray-500"><%= safe_join([ t(".items", count:), (t(".perishable") if category.perishable?), (t(".always_kept") if category.fallback?), (t(".archived") if category.archived_at) ].compact, " · ") %></span></span>
+            <% if policy(category).update? %>
+              <span class="flex gap-3 text-sm">
+                <%= link_to edit_household_supply_category_path(Current.household, category), class: "inline-flex items-center gap-1 underline" do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".edit") %></span><% end %>
+                <% if category.fallback? %>
+                <% elsif count.zero? %>
+                  <%= button_to household_supply_category_path(Current.household, category), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "inline-flex items-center gap-1 cursor-pointer text-red-700 underline" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete") %></span><% end %>
+                <% else %>
+                  <%= button_to archive_household_supply_category_path(Current.household, category), class: "inline-flex items-center gap-1 cursor-pointer underline" do %><% if category.archived_at %><%= t(".unarchive") %><% else %><%= image_tag "icons/archive.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".archive") %></span><% end %><% end %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </section>
 </div>
 <% end %>
 <%= render "household_settings/layout", current: :categories %>

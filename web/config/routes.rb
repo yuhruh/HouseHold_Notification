@@ -92,6 +92,9 @@ Rails.application.routes.draw do
       post :archive, on: :member
       delete "aliases/:alias_id" => "categories#destroy_alias", on: :collection, as: :destroy_alias
     end
+    resources :supply_categories, only: %i[new create edit update destroy] do
+      post :archive, on: :member
+    end
     resources :supplies, except: :destroy do
       collection do
         get :restock, to: "supplies/purchases#pick"

@@ -1133,7 +1133,8 @@ each can opt out (same as Bill paid).
 - **Alerts** (`Supplies::Alerts` + `SupplyAlertsJob`, daily 09:00 Asia/Taipei, one message per
   member per ledger): **low** once on the buy-by date or when the rounded count ≤ "alert me when only
   N are left"; **out** once on the run-out date (also a prompt to correct the count); **expiry** once
-  per batch, 7 days ahead for food & drink and health and 30 for everything else, only if stock is
+  per batch, 7 days ahead in a category that goes off quickly (`supply_categories.perishable`: Food
+  & drink and Health to start with) and 30 for everything else, only if stock is
   predicted to be left. A purchase or a count above the threshold resets the state to ok. Delivery:
   inbox always, push, and email when push is off, no device accepts it, or none confirms within 1 h.
 - **New item → I already bought these**: the purchase is saved with nothing left before it, then
@@ -1165,8 +1166,16 @@ each can opt out (same as Bill paid).
   Everyone, Me and each person with a star (`by=<user id>`). Archived items can't be starred. The
   tab lists the starred items, most urgent first. The 1.15.0 stars had no name on them and became
   the owner's.
-- **All's filters** (1.15.1) are switches, any number at once: `kind[]=…` for categories (items in
-  any of the chosen ones) and `filter=expiring` (only the expiring ones among them), combined with
+- **Categories are the ledger's own** (1.19.0, `supply_categories`). Every ledger starts with six
+  (Toiletries, Cleaning, Kitchen, Food & drink, Health, Other; `key` marks them, so a barcode
+  lookup's guess still finds one after a rename). Owners and co-owners add more: the item form's
+  Category list ends with "＋ New category…" (a name typed there is saved with the item; a name the
+  ledger already has, in either language and any case, is used instead, and comes back if it was
+  archived), or Settings → Categories → Supplies, which also renames, archives (hidden from the
+  form, kept on its items) and deletes an empty one. Other always stays and takes an item without a
+  category. "Goes off quickly" sets the expiry alert to a week ahead. Viewers see them only.
+- **All's filters** (1.15.1) are switches, any number at once: `category[]=<id>` for categories
+  (items in any of the chosen ones) and `filter=expiring` (only the expiring ones among them), combined with
   the search `q`. Expiring shows only while something is expiring. There is no All chip and no Buy
   soon chip: the All tab and the To Buy tab are those lists, and an old `filter=buy_soon` link opens
   To Buy. While the list is narrowed, "Showing N of M" and Clear all replace the monthly estimate.
@@ -1233,7 +1242,10 @@ screenshot or typed number; photos are never uploaded)
   tried and removed as unreliable; outside vision services were declined).
 
 **Data model**
-- `supplies (household_id, name, kind toiletries|cleaning|kitchen|food_drink|health|other, unit
+- `supply_categories (household_id, name_zh, name_en null, key toiletries|cleaning|kitchen|food_drink|
+  health|other null (a starting one), perishable, position, archived_at)` unique(household_id,
+  name_zh), unique(household_id, key)
+- `supplies (household_id, supply_category_id, name, unit
   piece|roll|bottle|can|pack|box|bag, level ≥ 0, level_at, usage_per_day decimal(10,4) null,
   guess_days_per_unit ≥ 1 null, lead_days 0..30 default 3, alert_when_left ≥ 0 default 0,
   alert_state ok|low|out, alerted_at, archived_at, created_by_id null, lock_version)`

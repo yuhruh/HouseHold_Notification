@@ -40,16 +40,20 @@
       <% end %>
       <% if @tab == "all" %>
         <%# The filters are switches, any number at once; each link keeps the others (and the search) and flips its own %>
-        <% view = ->(kinds: @kinds, expiring: @expiring) { household_supplies_path(Current.household, { tab: "all", filter: ("expiring" if expiring), kind: kinds.presence, q: @query.presence }.compact) } %>
+        <% view = ->(categories: @chosen, expiring: @expiring) { household_supplies_path(Current.household, { tab: "all", filter: ("expiring" if expiring), category: categories.map(&:id).presence, q: @query.presence }.compact) } %>
         <div class="flex flex-wrap items-center gap-2">
           <nav aria-label="<%= t(".filters") %>" class="flex w-full flex-wrap items-center gap-2 lg:w-auto">
             <span aria-hidden="true" class="text-sm font-semibold text-gray-700"><%= t(".filters") %></span>
             <% if @summary[:expiring].positive? || @expiring %>
               <%= supply_filter_chip(t(".expiring"), view.(expiring: !@expiring), chosen: @expiring, count: @summary[:expiring]) %>
             <% end %>
-            <% @kinds_in_use.each do |kind| %>
-              <% chosen = @kinds.include?(kind) %>
-              <%= supply_filter_chip(supply_kind(kind), view.(kinds: chosen ? @kinds - [ kind ] : @kinds + [ kind ]), chosen:) %>
+            <% @categories_in_use.each do |category| %>
+              <% chosen = @chosen.include?(category) %>
+              <%= supply_filter_chip(category.name, view.(categories: (chosen ? @chosen - [ category ] : @chosen + [ category ]).sort_by { [ it.position, it.id ] }), chosen:) %>
+            <% end %>
+            <%# The ledger's own categories are added, renamed and archived in Settings %>
+            <% if policy(SupplyCategory).write? %>
+              <%= link_to t(".edit_categories"), household_categories_path(Current.household, anchor: "supplies"), class: "inline-flex min-h-9 items-center px-1 text-sm font-semibold text-blue-700 underline" %>
             <% end %>
           </nav>
           <% if @narrowed %>
@@ -63,7 +67,7 @@
           <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
             <%= form.hidden_field :tab, value: "all", id: nil %>
             <% if @expiring %><%= form.hidden_field :filter, value: "expiring", id: nil %><% end %>
-            <% @kinds.each do |kind| %><%= hidden_field_tag "kind[]", kind, id: nil %><% end %>
+            <% @chosen.each do |category| %><%= hidden_field_tag "category[]", category.id, id: nil %><% end %>
             <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-72 rounded-xl border border-gray-400 px-3 py-1.5" %>
           <% end %>
         </div>

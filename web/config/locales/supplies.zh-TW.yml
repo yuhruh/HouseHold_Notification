@@ -5,10 +5,16 @@ zh-TW:
   activerecord:
     models:
       supply: "日用品"
+      supply_category: "日用品類別"
     attributes:
+      supply_category:
+        name_zh: "名稱（中文）"
+        name_en: "名稱（英文）"
+        perishable: "容易過期"
       supply:
         name: "名稱"
-        kind: "類別"
+        supply_category_id: "類別"
+        category: "類別"
         unit: "單位"
         level: "目前數量"
         guess_days_per_unit: "一個大約用幾天"
@@ -61,15 +67,14 @@ zh-TW:
       purchase_hint: "補貨"
       record: "帳單／記錄"
       record_hint: "帳本裡的帳單、支出或收入"
+  supply_categories:
+    form:
+      perishable: "容易過期"
+      perishable_hint: "到期前一週提醒，而不是一個月前，和「食品飲料」、「保健醫療」一樣。"
+    destroy:
+      in_use: "這個類別還有品項，請改用封存。"
   supplies:
     total: "總數：%{total}"
-    kinds:
-      toiletries: "盥洗用品"
-      cleaning: "清潔用品"
-      kitchen: "廚房用品"
-      food_drink: "食品飲料"
-      health: "保健醫療"
-      other: "其他"
     units:
       piece:
         one: "%{count} 個"
@@ -232,6 +237,7 @@ zh-TW:
       chosen: "已選取，再點一次取消"
       showing: "顯示 %{total} 項中的 %{shown} 項"
       clear_all: "全部清除"
+      edit_categories: "編輯類別"
       search: "搜尋品項、品牌或商店"
       none_match: "沒有符合的項目。"
       details_label: "查看「%{item}」的明細"
@@ -306,6 +312,10 @@ zh-TW:
       archived: "已封存 %{item}。記錄和帳本項目都會保留。"
       restored: "%{item} 已放回清單。"
     form:
+      new_category: "＋ 新增類別…"
+      new_category_name: "新類別名稱"
+      new_category_hint: "會和這個品項一起儲存，之後帳本的成員都能選用；可在「設定 › 類別」改名或封存。"
+      new_category_blank: "請輸入新類別的名稱。"
       level: "現在有幾個？"
       guess: "一個大約用多久？（選填）"
       guess_before: "一個大約用"

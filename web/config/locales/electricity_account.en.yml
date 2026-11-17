@@ -15,36 +15,36 @@ en:
         electricity_account:
           attributes:
             customer_code:
-              invalid: "must be the 11 digits of the 電號 on your bill"
+              invalid: "must be the 11 digits of the customer number on your bill"
               taken: "is already used by another ledger"
             household_id:
               taken: "already has an electricity account"
   electricity_accounts:
     show:
-      title: "Electricity (台電)"
-      intro: "New 電費 bills come from 台電's 電子帳單 emails, forwarded by whoever receives them. The app fills in the bill's amount and payment deadline, and marks it paid when 台電's paid notice arrives."
-      customer_code_hint: "Filled in from the first 台電 email. After that, emails for any other 電號 are ignored."
-      disconnect_confirm: "Disconnect electricity? 台電's emails are ignored from now on. Bills it added stay in Bills."
+      title: "Electricity (Taiwan Power Company)"
+      intro: "New electricity bills come from Taiwan Power Company's 電子帳單 emails, forwarded by whoever receives them. The app fills in the bill's amount and payment deadline, and marks it paid when Taiwan Power Company's paid notice arrives."
+      customer_code_hint: "Filled in from the first Taiwan Power Company email. After that, emails for any other customer numbers are ignored."
+      disconnect_confirm: "Disconnect electricity? Taiwan Power Company's emails are ignored from now on. Bills it added stay in Bills."
       how:
-        - "Whoever gets 台電's emails sets up Gmail once to forward them to this ledger's address."
+        - "Whoever gets Taiwan Power Company's emails sets up Gmail once to forward them to this ledger's address."
         - "Each 電費通知 email fills in the 電費 bill with its amount and payment deadline, or adds it."
         - "Each 電費已繳通知 email marks that bill paid, on the day it arrives."
         - "A bill you already entered is matched by its period and filled in, never added twice."
         - "Bills already marked paid are never changed, and nothing is ever deleted."
       status:
         working: "Forwarding works"
-        working_hint: "台電 bills fill in by themselves."
+        working_hint: "Taiwan Power Company bills fill in by themselves."
         confirm: "Setting up: step 2 needs you"
-        confirm_hint: "Gmail asked to forward 台電's emails here. Confirm it in step 2."
-        waiting: "Waiting for the Gmail filter's first 台電 email"
-        waiting_hint: "Bills fill in by themselves once the Gmail filter forwards its first 台電 email."
-      from_first_email: "From the first 台電 email"
-      last_bill: "Latest 台電 bill"
+        confirm_hint: "Gmail asked to forward Taiwan Power Company's emails here. Confirm it in step 2."
+        waiting: "Waiting for the Gmail filter's first Taiwan Power Company email"
+        waiting_hint: "Bills fill in by themselves once the Gmail filter forwards its first Taiwan Power Company email."
+      from_first_email: "From the first Taiwan Power Company email"
+      last_bill: "Latest Taiwan Power Company bill"
       step1:
-        title: "Send the setup email to whoever gets 台電's emails"
+        title: "Send the setup email to whoever gets Taiwan Power Company's emails"
       step3:
-        title: "Gmail filter forwards 台電's emails"
-        hint: "The forwarder creates a filter for from:taipower.com.tw (it's in the setup email). This turns green when the first 台電 email comes through it."
+        title: "Gmail filter forwards Taiwan Power Company's emails"
+        hint: "The forwarder creates a filter for from:taipower.com.tw (it's in the setup email). This turns green when the first Taiwan Power Company email comes through it."
       activity: "Recent activity"
       no_activity: "Nothing yet."
       open_bill: "Open"
@@ -53,18 +53,18 @@ en:
         added_paid: "Added %{period}, already paid: NT$%{amount}"
         matched: "Filled in your %{period} bill: NT$%{amount}, Payment Deadline %{due}"
         paid: "Marked paid: %{period}, NT$%{amount}"
-        amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, 台電 billed NT$%{amount}. Not changed."
+        amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, Taiwan Power Company billed NT$%{amount}. Not changed."
         needs_a_look: "More than one bill could be %{period} (NT$%{amount}). None was changed."
         ignored: "Ignored an email: %{detail}"
-        received: "Received a 台電 email forwarded by %{detail}'s Gmail filter"
-        received_by_hand: "Received a 台電 email %{detail} forwarded by hand"
+        received: "Received a Taiwan Power Company email forwarded by %{detail}'s Gmail filter"
+        received_by_hand: "Received a Taiwan Power Company email %{detail} forwarded by hand"
         forwarding_request: "%{detail} asked Gmail to forward here: confirm it above"
-        customer_code_set: "電號 set to %{detail} from the first 台電 bill email"
-        unreadable: "Couldn't read a bill in a 台電 email (%{detail}). Nothing was changed."
+        customer_code_set: "Customer number set to %{detail} from the first Taiwan Power Company bill email"
+        unreadable: "Couldn't read a bill in a Taiwan Power Company email (%{detail}). Nothing was changed."
     missing_mail:
-      title: "%{household}: no 台電 bill email yet"
-      body: "台電's bill email was expected around %{expected}, 2 months after the last one (%{last}), and hasn't arrived. Check the bill in the 台灣電力 App, and that the Gmail filter still forwards 台電's emails."
-      body_first: "No 台電 bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in the 台灣電力 App, and that Gmail forwarding was confirmed and the filter is set up."
+      title: "%{household}: no Taiwan Power Company bill email yet"
+      body: "Taiwan Power Company's bill email was expected around %{expected}, 2 months after the last one (%{last}), and hasn't arrived. Check the bill in the Taiwan Power Company App, and that the Gmail filter still forwards Taiwan Power Company's emails."
+      body_first: "No Taiwan Power Company bill email has arrived since Electricity was turned on (%{since}); one was expected around %{expected}. Check the bill in the Taiwan Power Company App, and that Gmail forwarding was confirmed and the filter is set up."
     update:
       saved: "Electricity saved."
     destroy:

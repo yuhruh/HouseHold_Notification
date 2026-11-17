@@ -80,7 +80,7 @@ en:
     coming_up:
       intro: "Not due yet, soonest first. Each moves to To Pay on the date shown."
       empty: "Nothing coming up."
-      month: "%{year} %{month}月"
+      month: "%{year} / %{month}"
       due:
         one: "Due %{date} (tomorrow)"
         other: "Due %{date} (in %{count} days)"

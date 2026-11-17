@@ -23,7 +23,7 @@ class WarnMissingUtilityMailJobTest < ActiveJob::TestCase
     end
     warning = warnings.sole
     assert_equal users(:alex), warning.user
-    assert_match(/no 台電 bill email yet/, warning.title)
+    assert_match(/no Taiwan Power Company bill email yet/, warning.title)
     assert_match(/expected around 2026-12-08, 2 months after the last one \(2026-10-08\)/, warning.body)
     assert_equal "/h/#{@home.id}/electricity_account", warning.url
     assert_equal Date.new(2026, 12, 8), @account.reload.missing_mail_warned_for

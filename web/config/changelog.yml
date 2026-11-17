@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.18.1"
+  date: 2026-11-17
+  en:
+    - "Every page starts higher: the empty space above the page's title is gone, so a little more fits on the first screen."
+    - "What's New lists 1.16.0 and 1.15.1 again. They were missing, and 1.17.0 showed the wrong notes."
+  zh-TW:
+    - "每個頁面都往上移了一些：標題上方的空白拿掉了，第一個畫面可以多顯示一點內容。"
+    - "「更新內容」重新列出 1.16.0 和 1.15.1。之前這兩版不見了，1.17.0 顯示的內容也不對。"
 - version: "1.18.0"
   date: 2026-11-17
   en:
@@ -23,6 +31,7 @@
     - "我的最愛：擁有者和每位共同擁有者現在都有自己的星星，各有各的顏色。品項上的星星按鈕是你的；旁邊帶著名字第一個字的小標籤（★ S）是別人加的星星。原本的星星現在算是帳本擁有者的。"
     - "日用品 ›「我的最愛」會列出有人加星的所有品項，兩個人都加星的也只算一項。有兩人以上可以加星時，會多一排「誰加的星」（所有人、我，以及每個人的名字），可以只看某個人的星星，這排也說明每個顏色是誰。"
     - "取消你的星星不會動到別人的星星，所以要等到沒有人加星，品項才會離開我的最愛。品項頁面會寫「也加了星」和名字。"
+- version: "1.16.0"
   date: 2026-11-17
   en:
     - "New: one supply item can be several brands. When you scan the barcode of a brand you haven't scanned before, the New item form offers \"It's one of my items\": pick the item (say Shampoo), and the barcode is remembered for it. Every brand shares the item's count, usage and restock alert, so you are told once when shampoo as a whole runs low."
@@ -32,6 +41,7 @@
     - "新功能：一個日用品項目可以有好幾個品牌。掃描沒掃過的品牌條碼時，「新增項目」表單會出現「這是我已有的項目」：選好項目（例如洗髮精），條碼就會記在它上面。所有品牌共用這個項目的數量、用量和補貨提醒，所以洗髮精整體快用完時只會提醒一次。"
     - "「已補貨」多了「品名或品牌（選填）」欄位。掃描會自動填入，發票會保留品項文字，手動輸入時可以選以前買過的品牌或留空。品名會顯示在記錄、價格記錄和哪裡買，方便比較各品牌的價格，也會顯示在清單的上次購買。"
     - "日用品 ›「全部」：搜尋也能用買過的品牌找到項目。編輯頁會列出項目的條碼，連結錯的可以移除。"
+- version: "1.15.1"
   date: 2026-11-16
   en:
     - "Supplies › All: the filters are switches now, and you can choose as many as you like. Several categories show the items in any of them, Expiring keeps only the expiring ones among them, a chosen filter turns blue with a ✕ (tap it again to clear it), and “Showing 3 of 10” with Clear all appears while the list is narrowed."

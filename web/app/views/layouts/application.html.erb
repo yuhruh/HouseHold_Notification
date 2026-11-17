@@ -60,7 +60,7 @@
       </div>
     <% end %>
     <%# Signed in, under 1550px: room at the bottom for the tab bar (layouts/_tab_bar) %>
-    <main class="container mx-auto mt-10 px-4 flex <%= 'pb-28 min-[1550px]:pb-0' if authenticated? %>">
+    <main class="container mx-auto px-4 flex <%= 'pb-28 min-[1550px]:pb-0' if authenticated? %>">
       <%= yield %>
     </main>
     <%# Bought more, Edit and Log a purchase open here as a dialog on a computer (modal_link_controller) %>

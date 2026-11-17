@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.19.2"
+  date: 2026-11-17
+  en:
+    - "The English screens now use English for most Taiwanese names and bill terms: Taiwan Power Company, Taiwan Water, ShinTao Gas, customer number, payment deadline, invoice. A few terms printed on the bills and emails themselves stay in Chinese so you can match them."
+    - "In English, the month headings under Coming Up read \"2026 / 11\" instead of \"2026 11月\"."
+  zh-TW:
+    - "英文介面的台灣公司名稱和帳單用語大多改成英文（例如台電、台水、欣桃天然氣、用戶編號、繳費期限、發票）。少數印在帳單和電子郵件上的用語維持中文，方便對照。"
+    - "英文介面「即將到期」的月份標題改成「2026 / 11」，不再是「2026 11月」。繁體中文介面沒有變動。"
 - version: "1.19.1"
   date: 2026-11-17
   en:

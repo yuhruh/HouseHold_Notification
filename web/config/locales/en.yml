@@ -187,7 +187,7 @@ en:
         scan:
           title: "Scan a bill"
           items:
-            - "New Record → Scan the Bill's Barcodes: point the camera, or use a photo, at the 3 barcodes on a Taiwan bill (三段式條碼), and the amount, due date, year and category are filled in."
+            - "New Record → Scan the Bill's Barcodes: point the camera, or use a photo, at the 3 barcodes on a Taiwan bill (Three-segment barcode), and the amount, due date, year and category are filled in."
             - "The first bill from each biller asks once which category it is. Reading happens on your phone; nothing is uploaded until you save."
             - "Before the form is filled your records are checked: a bill already recorded (same bill number) shows that record instead, and a record you typed in yourself for the same category and period asks whether it's the same bill."
         recurring:
@@ -208,7 +208,7 @@ en:
           items:
             - "Owner, co-owner (edits records) and viewer (read-only). Invite people by email."
             - "Sign in with email and password or Google; one account can belong to several ledgers."
-            - "The ledger menu at the top switches ledgers and opens Ledger Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or 繁體中文) and Sign Out."
+            - "The ledger menu at the top switches ledgers and opens Ledger Settings and Members; your menu has My Account, the theme (light, dark or your device's), the language (English or Traditional Chinese) and Sign Out."
             - "On a phone, the tab bar at the bottom has Bills, Analysis and New Record. Put it on your home screen like an app (Android: one tap; iPhone and iPad: Safari → Add to Home Screen)."
             - "The activity log shows who did what."
             - "The ledger home has one Bills card: what's to pay (overdue, due in 30 days and the most urgent bills) and the last 3 bills paid. Recurring Bills, Categories and Payment Methods sit below it under Ledger Setup."
@@ -272,7 +272,7 @@ en:
           - "\"Remind Me Later\" quiets one bill for a while, for you only."
           - "Gas, electricity and water bills the ledger has connected fill themselves in and are marked paid when the company says so; you get a \"Bill paid\" notification (turn it off in My Account → Notifications)."
           - "\"Add photos\" on a bill keeps a receipt. Location data is removed from photos."
-          - "Supplies keeps track of things the home keeps in stock. Tap an item's \"Used 1\" button now and then and log what you buy (or scan the barcode or 發票); the app learns how fast each item goes and, at 9:00, says what to buy before it runs out (turn it off in My Account → Notifications)."
+          - "Supplies keeps track of things the home keeps in stock. Tap an item's \"Used 1\" button now and then and log what you buy (or scan the barcode or invoice); the app learns how fast each item goes and, at 9:00, says what to buy before it runs out (turn it off in My Account → Notifications)."
       trouble:
         title: "6. If something goes wrong"
         items_html:
@@ -280,10 +280,10 @@ en:
           - "<strong>Lost phone:</strong> sign in on a computer and remove it under My Account → Devices, or ask the ledger owner to."
           - "<strong>Anything else:</strong> ask the person who invited you."
       forward:
-        title: "7. If you receive 台電 or 台水 bill emails"
+        title: "7. If you receive Taiwan Power Company or Taiwan Water bill emails"
         items_html:
           - "The ledger's owner may send you a setup email. Follow it once in Gmail on a computer: add the ledger's forwarding address (the <strong>Copy address</strong> button makes it easy), wait for the owner to confirm it, then create the Gmail filter the email shows."
-          - "After that each bill email reaches the ledger by itself: the amount and 繳費期限 are filled in, and the bill is marked paid when the paid notice comes."
+          - "After that each bill email reaches the ledger by itself: the amount and payment deadline are filled in, and the bill is marked paid when the paid notice comes."
           - "The owner and co-owners can check it works by forwarding one bill email to the address by hand; it shows up in the ledger within about 5 minutes."
       privacy: "Privacy policy"
   roles:
@@ -674,12 +674,12 @@ en:
       import_undone: "Import Undone"
       template_updated: "Updated By Its Recurring Template"
       reminders_restarted: "Reminders Restarted"
-      gas_synced: "Added Or Filled In From 欣桃天然氣"
-      gas_paid: "Marked Paid From 欣桃天然氣"
-      taipower_synced: "Added Or Filled In From A 台電 Email"
-      taipower_paid: "Marked Paid From A 台電 Email"
-      water_synced: "Added Or Filled In From A 台水 Email"
-      water_paid: "Marked Paid From A 台水 Email"
+      gas_synced: "Added Or Filled In From ShinTao Gas"
+      gas_paid: "Marked Paid From ShinTao Gas"
+      taipower_synced: "Added Or Filled In From A Taiwan Power Company Email"
+      taipower_paid: "Marked Paid From A Taiwan Power Company Email"
+      water_synced: "Added Or Filled In From A Taiwan Water Email"
+      water_paid: "Marked Paid From A Taiwan Water Email"
     index:
       scheduled:
         one: "1 recurring bill is scheduled and not created yet: %{names}"

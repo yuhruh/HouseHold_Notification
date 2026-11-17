@@ -25,7 +25,7 @@ en:
   forwarding_setup_mailer:
     setup:
       subject: "%{household}: forward %{companies}'s bill emails to Household Tracker"
-      intro: "%{owner} added you to %{household} on Household Tracker as someone who receives %{companies}'s bill emails. Set up Gmail once, and each bill reaches the ledger by itself: the amount and 繳費期限 are filled in, and it's marked paid when the company's paid notice comes."
+      intro: "%{owner} added you to %{household} on Household Tracker as someone who receives %{companies}'s bill emails. Set up Gmail once, and each bill reaches the ledger by itself: the amount and payment deadline are filled in, and it's marked paid when the company's paid notice comes."
       forward_to: "Forward to this address:"
       copy_link: "Copy it on this page:"
       copy_button: "Copy address"
@@ -62,7 +62,7 @@ en:
       payment_method_hint: "Given to bills the app adds. Leave it empty if you pay with different cards."
       save: "Save"
       turn_on: "Turn On"
-      turn_on_hint: "Choose the category and tap Turn On. 台電 and 台水 share the ledger's forwarding address."
+      turn_on_hint: "Choose the category and tap Turn On. Taiwan Power Company and Taiwan Water share the ledger's forwarding address."
       not_on_yet: "The owner hasn't turned this on yet."
       owner_only: "Only the owner can change these."
       disconnect: "Disconnect"
@@ -71,7 +71,7 @@ en:
       copy: "Copy"
       copied: "Copied"
       steps:
-        - "Gmail ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address › Next › Proceed. Leave forwarding itself off. (Skip this if the Gmail already forwards 台電 or 台水 here.)"
+        - "Gmail ⚙️ › See all settings › Forwarding and POP/IMAP › Add a forwarding address › paste the address › Next › Proceed. Leave forwarding itself off. (Skip this if the Gmail already forwards Taiwan Power Company or Taiwan Water here.)"
         - "Gmail asks this ledger to confirm. Within about 5 minutes the owner sees a Confirm Forwarding button in step 2: tap it."
         - "In Gmail's search box type %{filter} › Show search options › Create filter › tick Forward it to › choose this address › Create filter."
       confirm_title: "Confirm forwarding"
@@ -119,12 +119,12 @@ en:
         working: "Working · last %{time}"
   utilities:
     forwarded_mail:
-      not_taipower: "not from 台電 or 台水 (from %{detail})"
+      not_taipower: "not from Taiwan Power Company or Taiwan Water (from %{detail})"
       not_authentic: "claims to be from %{detail} but failed Gmail's sender check"
       unknown_forwarder: "couldn't tell whose Gmail forwarded it (only Gmail filter forwarding from a member is accepted)"
       not_member: "from %{detail}, who isn't a member of this ledger (add them in Set up forwarding)"
       no_confirmation: "a Gmail forwarding email without a confirmation link"
-      not_taipower_forward: "%{detail} sent an email with no forwarded 台電 or 台水 email inside"
+      not_taipower_forward: "%{detail} sent an email with no forwarded Taiwan Power Company or Taiwan Water email inside"
       by_hand_not_editor: "%{detail} forwarded an email by hand, which only the owner and co-owners can do (their Gmail filter still works)"
       other_customer_code: "a bill for 電號 %{detail}, not this ledger's"
       other_ledger_code: "a bill for 電號 %{detail}, which another ledger already uses"

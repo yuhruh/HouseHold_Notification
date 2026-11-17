@@ -15,7 +15,7 @@ en:
         water_account:
           attributes:
             customer_code:
-              invalid: "must be the 11 digits of the 水號 on your bill"
+              invalid: "must be the 11 digits of the water account number on your bill"
               taken: "is already used by another ledger"
             household_id:
               taken: "already has a water account"
@@ -23,7 +23,7 @@ en:
     show:
       title: "Water (Taiwan Water)"
       intro: "New water bills come from Taiwan Water's e-bill emails, forwarded by whoever receives them, to the same address as Taiwan Power's. The app fills in the bill's amount and payment deadline, and marks it paid when Taiwan Water's payment successful emails arrive."
-      customer_code_hint: "Filled in from the first Taiwan Water's email. After that, emails for any other 水號 are ignored."
+      customer_code_hint: "Filled in from the first Taiwan Water's email. After that, emails for any other water account numbers are ignored."
       disconnect_confirm: "Disconnect water? Taiwan Water's emails are ignored from now on. Bills it added stay in Bills."
       how:
         - "Whoever gets Taiwan Water's e-bill emails sets up Gmail once to forward them to this ledger's address (the same one Taiwan Power's emails use)."

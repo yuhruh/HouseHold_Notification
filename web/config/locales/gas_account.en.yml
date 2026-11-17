@@ -4,7 +4,7 @@ en:
       gas_account: "Gas Account"
     attributes:
       gas_account:
-        customer_code: "用戶編號 (Customer Number)"
+        customer_code: "Customer Number"
         category_id: "Put Gas Bills In"
         category: "Category"
         payment_method_id: "Payment Method For New Bills"
@@ -19,7 +19,7 @@ en:
               invalid: "must be the 10 digits on your gas bill"
               taken: "is already connected to another ledger"
             household_id:
-              taken: "already has a 用戶編號"
+              taken: "already has a customer number connected"
   household_settings:
     layout:
       label: "Ledger settings sections"
@@ -27,8 +27,8 @@ en:
   gas_accounts:
     show:
       title: "Gas Account"
-      intro: "Connect your 欣桃天然氣 用戶編號. Every working day at 11:30 the app checks it, adds new gas bills to Bills, and marks them paid once the gas company shows them paid."
-      customer_code_hint: "10 digits, printed on your gas bill. Only this number is sent to 欣桃天然氣."
+      intro: "Connect your ShinTao Gas customer number. Every working day at 11:30 the app checks it, adds new gas bills to Bills, and marks them paid once the gas company shows them paid."
+      customer_code_hint: "10 digits, printed on your gas bill. Only this number is sent to ShinTao Gas."
       choose: "Choose a category"
       no_payment_method: "None"
       payment_method_hint: "Given to bills the app adds."
@@ -36,20 +36,20 @@ en:
       save: "Save"
       check_now: "Check Now"
       disconnect: "Disconnect"
-      disconnect_confirm: "Disconnect this 用戶編號? Bills it added stay in Bills."
+      disconnect_confirm: "Disconnect this customer number? Bills it added stay in Bills."
       how_title: "How it works"
       how:
-        - "A new gas bill is added to Bills with its amount and 限繳日."
+        - "A new gas bill is added to Bills with its amount and payment deadline."
         - "A bill you already entered or scanned is matched by its period, or by its due date and amount, and filled in instead of added twice."
-        - "When 欣桃天然氣 lists it as paid, the bill is marked paid."
+        - "When ShinTao Gas lists it as paid, the bill is marked paid."
         - "Bills already marked paid are never changed, and nothing is ever deleted."
       status:
         connected: "Connected"
         failed: "Last check didn't work"
         not_checked: "Not checked yet"
       error:
-        not_found: "欣桃天然氣 doesn't know this 用戶編號. Check the number on your gas bill. No bills were changed."
-        other: "Couldn't check with 欣桃天然氣 (%{detail}). No bills were changed. It tries again next working day."
+        not_found: "ShinTao Gas doesn't know this customer number. Check the number on your gas bill. No bills were changed."
+        other: "Couldn't check with ShinTao Gas (%{detail}). No bills were changed. It tries again next working day."
       last_checked: "Last checked"
       not_yet: "Not yet"
       schedule_label: "Next check"
@@ -62,16 +62,16 @@ en:
         added: "Added %{period}: NT$%{amount}, due %{due}"
         matched: "Filled in your %{period} bill: NT$%{amount}, due %{due}"
         paid: "Marked paid: %{period}, NT$%{amount}"
-        amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, 欣桃天然氣 billed NT$%{amount}. Not changed."
+        amount_differs: "Amount differs for %{period}: you recorded NT$%{recorded}, ShinTao Gas billed NT$%{amount}. Not changed."
         needs_a_look: "More than one bill could be %{period} (NT$%{amount}). None was changed."
-      delay_hint: "Paid at a convenience store or bank? It can take about 12 business days before 欣桃天然氣 shows it paid. You can still mark it paid yourself."
+      delay_hint: "Paid at a convenience store or bank? It can take about 12 business days before ShinTao Gas shows it paid. You can still mark it paid yourself."
     update:
       saved: "Gas account saved."
     check:
       done:
-        zero: "Checked with 欣桃天然氣. Nothing new."
-        one: "Checked with 欣桃天然氣: 1 update."
-        other: "Checked with 欣桃天然氣: %{count} updates."
-      failed: "Couldn't check with 欣桃天然氣. See below."
+        zero: "Checked with ShinTao Gas. Nothing new."
+        one: "Checked with ShinTao Gas: 1 update."
+        other: "Checked with ShinTao Gas: %{count} updates."
+      failed: "Couldn't check with ShinTao Gas. See below."
     destroy:
       disconnected: "Gas account disconnected. Its bills stay in Bills."

@@ -2,7 +2,7 @@
 # more (Supplies::Forecast). Everyone sees them; owners and co-owners add, edit and archive.
 class SuppliesController < ApplicationController
   include HouseholdScoped
-  before_action :set_supply, only: %i[show edit update archive]
+  before_action :set_supply, only: %i[show edit update archive destroy]
 
   TABS = %w[to_buy stocked favorites all].freeze
   # The form's Category choice that makes a new one, named in new_category_name
@@ -117,6 +117,18 @@ class SuppliesController < ApplicationController
     authorize @supply
     @supply.update!(archived_at: @supply.archived_at ? nil : Time.current)
     redirect_to household_supplies_path(Current.household), notice: t(@supply.archived_at ? ".archived" : ".restored", item: @supply.name)
+  end
+
+  # Delete removes the item for good, with its history, old prices, barcodes and stars. Expenses it
+  # added to the Ledger stay. A receipt none of whose items are left can be added again
+  def destroy
+    authorize @supply
+    Supply.transaction do
+      imports = Current.household.receipt_imports.where(id: @supply.purchases.filter_map(&:receipt_import_id))
+      @supply.destroy!
+      imports.where.missing(:purchases).where(record_id: nil).destroy_all
+    end
+    redirect_to household_supplies_path(Current.household), notice: t(".deleted", item: @supply.name), status: :see_other
   end
 
   private

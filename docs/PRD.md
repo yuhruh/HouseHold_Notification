@@ -1201,8 +1201,23 @@ each can opt out (same as Bill paid).
   `supplies/purchases#pick` → the Restocked form; saving it calls `SupplyBarcode.remember` (new
   code, or moved from an archived item; a code on another item in use stays there). The form is
   prefilled from the last purchase of that product, so another brand's price isn't offered. Edit
-  lists the barcodes with Remove (`Supplies::BarcodesController`). Not done: merging two items, and
-  size-aware usage (a 500 ml and a 1 L bottle both count as one).
+  lists the barcodes with Remove (`Supplies::BarcodesController`). Not done: size-aware usage (a
+  500 ml and a 1 L bottle both count as one).
+- **Combine with another item** (1.20.0, Edit → `supplies/combines#new`, `Supplies::Combine`): for
+  items saved one per product. The item picked (any other active item, the same category listed
+  first, whatever its unit) keeps its name, category, unit and settings; the other becomes a brand
+  of it and is removed. Purchases, counts, old prices, barcodes, stars and receipt matches move; a
+  purchase, price or barcode with no product named takes the old item's name. The two histories
+  become one timeline: each purchase's `left_before` and each count's `level` gain what the other
+  item last knew at that moment, so the counts add up and the forecast sees only real usage; every
+  count gets `by_product`, so each brand keeps its share (one count a second after the last event
+  sets them when a later purchase would shift them). Stock no purchase explains joins without a
+  brand name. Asks first; it can't be undone. Owners and co-owners.
+- **Delete item** (1.20.0, Edit, also on an archived item): `supplies#destroy` removes the item
+  with its purchases, counts, old prices, barcodes, stars and receipt matches (so the store's line
+  is asked about again rather than skipped). Ledger records stay. A `receipt_imports` row left with
+  no purchases and no Ledger record is removed, so that receipt can be added again. Asks first, and
+  says how many purchases go. Owners and co-owners.
 - **Which brand was used** (1.18.0): the item's one count is also split by brand
   (`Supplies::Brands`), for showing and for saying which brand a bottle was; the usage rate, run-out
   date and alert stay per item. The purchases and counts are replayed as lots, one per purchase: a
@@ -1281,7 +1296,8 @@ the Expiring and category filter switches, the ~monthly estimate, cards on a pho
 1024px with search), item page (Stock Forecast with Used 1 bottle, in the item's own unit, and Restocked, the stock bar's
 Total, Inventory:, Favorite beside Edit, Where to buy, History and Price history folded; Add an old
 price), New item (after a scan: It's one of my items), Edit (dialog on a computer; the item's
-barcodes with Remove), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned
+barcodes with Remove; Archive item, Combine with another item, Delete item), Combine with which
+item? (same category first), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned
 barcode), Restocked (Product or brand), Scan, Receipt review. The header's **+ New ▾** menu and the phone tab bar's **New** sheet (closed by Cancel or a
 tap outside it) offer Upload or scan barcode / receipt, Supply item, Log a purchase… and Bill /
 record.

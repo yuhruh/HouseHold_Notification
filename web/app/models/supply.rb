@@ -17,6 +17,8 @@ class Supply < ApplicationRecord
   has_many :counts, class_name: "SupplyCount", dependent: :delete_all
   has_many :barcodes, class_name: "SupplyBarcode", dependent: :delete_all
   has_many :favorites, class_name: "SupplyFavorite", dependent: :delete_all
+  # What a store's receipt line meant; without the item the line is asked about again
+  has_many :receipt_item_matches, dependent: :delete_all
 
   normalizes :name, with: ->(name) { name.to_s.squish }
 

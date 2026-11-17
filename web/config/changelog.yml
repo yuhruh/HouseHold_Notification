@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.20.0"
+  date: 2026-11-17
+  en:
+    - "Supplies: an item can now be deleted. Edit has a \"Delete item\" button under Archive item. It removes the item for good, with its history, old prices, barcodes and stars, and asks first. Expenses already in the Ledger stay. Archive still only hides an item."
+    - "Supplies: \"Combine with another item\" on Edit. If you saved one item per product (two shampoos as two items), pick the item to keep and the other moves into it as a brand. The counts are added, the purchases keep their prices and stores, and \"Used 1 bottle\" then asks which brand."
+    - "After you delete an item, a receipt whose items are all gone can be added again."
+  zh-TW:
+    - "日用品：品項現在可以刪除。「編輯」裡的「封存此項目」下方多了「刪除品項」按鈕，會永久刪除品項，連同記錄、舊價格、條碼和星號，刪除前會先詢問。已記入帳本的支出會保留。封存仍然只是隱藏。"
+    - "日用品：「編輯」多了「和另一個品項合併」。如果同一種東西每個商品各存成一個品項（兩瓶洗髮精存成兩個品項），選擇要保留的品項，另一個就會搬進去變成它的一個品牌。數量會相加，購買記錄保留價格和商店，之後按「用掉 1 瓶」會問是哪個品牌。"
+    - "刪除品項後，如果某張發票的品項都已經不在，那張發票可以重新加入。"
 - version: "1.19.2"
   date: 2026-11-17
   en:

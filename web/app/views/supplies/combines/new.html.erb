@@ -1,0 +1,33 @@
+<%# Combine with another item: which one? It keeps its name and unit; this item becomes a brand of it.
+    The items in the same category first; a search narrows both lists. Each choice asks to confirm %>
+<% title = t(".title") %>
+<% content_for :title, title %>
+<%= render layout: "shared/modal_or_page", locals: { title:, icon: "ledger.png" } do %>
+  <div class="space-y-4" data-controller="supply-pick">
+    <p class="rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900"><%= t("supplies.combines.new.note_html", item: @supply.name, count: supply_count(@supply, @supply.level)) %></p>
+    <% if @same.empty? && @others.empty? %>
+      <p class="text-sm text-gray-600"><%= t("supplies.combines.new.none") %></p>
+    <% else %>
+      <input type="search" data-supply-pick-target="query" data-action="input->supply-pick#filter" placeholder="<%= t("supplies.purchases.pick.search") %>" aria-label="<%= t("supplies.purchases.pick.search") %>" class="block w-full rounded-xl border border-gray-400 px-3 py-2">
+    <% end %>
+    <% [ [ t("supplies.combines.new.same", category: @supply.category.name), @same ], [ t("supplies.combines.new.others"), @others ] ].each do |heading, list| %>
+      <% next if list.empty? %>
+      <section data-supply-pick-target="group">
+        <h3 class="mb-2 text-sm font-bold text-gray-700"><%= heading %></h3>
+        <ul class="space-y-2">
+          <% list.each do |target| %>
+            <li data-supply-pick-target="item" data-name="<%= target.name.downcase %>">
+              <%= button_to household_supply_combine_path(Current.household, @supply), params: { into: target.id },
+                    form: { data: { turbo_frame: "_top", turbo_confirm: t("supplies.combines.new.confirm", item: @supply.name, target: target.name, mine: @supply.level, theirs: target.level, total: supply_count(target, @supply.level + target.level)) } },
+                    class: "flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-xl border-2 border-(--card-line) bg-white px-3 py-2 text-left hover:bg-gray-50" do %>
+                <span class="min-w-0"><span class="block font-semibold"><%= target.name %></span><span class="text-xs text-gray-600"><%= supply_count(target, target.level) %><% unless target.supply_category_id == @supply.supply_category_id %> · <%= target.category.name %><% end %></span></span>
+                <span aria-hidden="true">›</span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+    <p class="text-sm"><%= link_to t("supplies.combines.new.missing"), new_household_supply_path(Current.household), data: { turbo_frame: "_top" }, class: "font-semibold text-blue-700 hover:underline" %></p>
+  </div>
+<% end %>

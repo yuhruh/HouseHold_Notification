@@ -62,34 +62,41 @@ module Supplies
 
     def find(key) = list.find { it.key == key.to_s }
 
+    # Each brand's share of the last known count, or of the count as it stood at `time`:
+    # product => how many (Supplies::Combine adds two items' shares together)
+    def known_at(time = nil)
+      at = time ? replay(events.select { it.at <= time }) : lots
+      at.group_by(&:key).transform_values { |mine| mine.sum(&:left) }.select { |_, left| left.positive? }
+    end
+
     # Every product this item was bought as: the names a brand-by-brand count may use
     def keys = @supply.purchases.reject(&:new_record?).map { self.class.key(it.product_name) }.uniq
 
     private
 
-    def lots
-      @lots ||= begin
-        lots = []
-        events.each do |event|
-          if event.is_a?(SupplyPurchase)
-            settle(lots, event.left_before)
-            key = self.class.key(event.product_name)
-            lots.each { it.key ||= key }
-            lots << Lot.new(key, event.quantity, event)
-          else
-            if event.by_product.present?
-              assign(lots, event.by_product)
-            elsif event.used_product
-              take(lots.select { it.key == event.used_product }, 1)
-            end
-            settle(lots, event.level)
+    def lots = @lots ||= replay(events)
+
+    def replay(events)
+      lots = []
+      events.each do |event|
+        if event.is_a?(SupplyPurchase)
+          settle(lots, event.left_before)
+          key = self.class.key(event.product_name)
+          lots.each { it.key ||= key }
+          lots << Lot.new(key, event.quantity, event)
+        else
+          if event.by_product.present?
+            assign(lots, event.by_product)
+          elsif event.used_product
+            take(lots.select { it.key == event.used_product }, 1)
           end
+          settle(lots, event.level)
         end
-        lots.each { it.key ||= NO_BRAND }
       end
+      lots.each { it.key ||= NO_BRAND }
     end
 
-    def events = (@supply.purchases.to_a + @supply.counts.to_a).reject(&:new_record?).sort_by(&:at)
+    def events = @events ||= (@supply.purchases.to_a + @supply.counts.to_a).reject(&:new_record?).sort_by(&:at)
 
     # Bring the lots to a count of the whole item: too many go from the lot bought first, extra ones
     # join the brand bought last

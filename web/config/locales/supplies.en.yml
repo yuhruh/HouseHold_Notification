@@ -119,7 +119,7 @@ en:
       runs_out_buy_by: "Runs out ~%{date} · buy by %{buy_by}"
       runs_out: "Runs out ~%{date}"
       at_alert_level: "Down to your alert level (%{count} left)"
-      not_enough_data: "Not enough data yet · tap −1 or update the count"
+      not_enough_data: "Not enough data yet · tap \"%{button}\" or update the count"
     notice:
       ok: "OK"
     price_line: "%{total} for %{quantity} · %{unit_price}/%{unit}"
@@ -131,8 +131,8 @@ en:
       unknown: "a product database"
     actions:
       used_up_hint: "Nothing left: log a purchase with Restocked, or update the count if you still have some"
-      used_one: "Used one"
-      used_one_label: "Used one %{item}"
+      used_one: "Used %{amount}"
+      used_one_label: "%{button}: %{item}"
       bought: "Updated"
       bought_more: "Restocked"
       edit: "Edit"
@@ -222,7 +222,7 @@ en:
         now: "Past the buy-by date, or probably out."
         soon: "Buy these before they run out."
         expiring: "Some will expire before you use them."
-        no_data: "Tap −1 now and then, or count them, so the app learns."
+        no_data: "Tap an item's \"Used 1\" button now and then, or count them, so the app learns."
       add_first: "Add your first supply"
       empty_title: "Nothing tracked yet"
       empty_body: "Add the things your household keeps in stock. The app learns how fast you use them and tells you when to buy more."
@@ -257,7 +257,7 @@ en:
       based_on:
         one: "Based on 1 usage reading"
         other: "Based on %{count} usage readings"
-      learning_hint: "Tap −1 when you open a new one, or update the count regularly."
+      learning_hint: "Tap \"%{button}\" when you open a new one, or update the count regularly."
       counted: "Inventory: "
       left_unit: "%{unit} left"
       update_count: "Update"

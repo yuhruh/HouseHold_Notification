@@ -272,7 +272,7 @@ en:
           - "\"Remind Me Later\" quiets one bill for a while, for you only."
           - "Gas, electricity and water bills the ledger has connected fill themselves in and are marked paid when the company says so; you get a \"Bill paid\" notification (turn it off in My Account → Notifications)."
           - "\"Add photos\" on a bill keeps a receipt. Location data is removed from photos."
-          - "Supplies keeps track of things the home keeps in stock. Tap \"−1 Used one\" now and then and log what you buy (or scan the barcode or 發票); the app learns how fast each item goes and, at 9:00, says what to buy before it runs out (turn it off in My Account → Notifications)."
+          - "Supplies keeps track of things the home keeps in stock. Tap an item's \"Used 1\" button now and then and log what you buy (or scan the barcode or 發票); the app learns how fast each item goes and, at 9:00, says what to buy before it runs out (turn it off in My Account → Notifications)."
       trouble:
         title: "6. If something goes wrong"
         items_html:

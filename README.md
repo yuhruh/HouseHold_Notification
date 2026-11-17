@@ -213,7 +213,7 @@ Home Screen.
 - Every stock bar shows its **Total** over its right end: the most there has been right after a
   restock, never less than the last count ("Total: 25 bottles" on the item's page, "Total: 25" in
   the lists).
-- An item's page has the **Stock Forecast** card with **−1 Used one** (updates in place, with Undo)
+- An item's page has the **Stock Forecast** card with **Used 1 bottle** (the item's own unit: Used 1 roll, Used 1 pack; updates in place, with Undo)
   and **Restocked**, **Inventory:** to correct the count, **Where to buy** (each store's cheapest
   price per unit, and the total spent), **History** and **Price history**, folded. **Edit** (a
   dialog on a computer) changes the item's settings and corrects its last purchase; **Archive**
@@ -224,7 +224,7 @@ Home Screen.
   by a scan, taken from a receipt line, or typed), which shows in History, Price history, Where to
   buy and the lists' Last bought, and which the All search finds. With two or
   more brands in stock, the lists say how many of each ("2 Lux Shampoo 750ml · 1 Pantene Shampoo
-  700ml"), **−1** asks **Which one did you use?** (only the brands that still have some), and the
+  700ml"), **Used 1 bottle** asks **Which one did you use?** (only the brands that still have some), and the
   item's page has **In stock by brand** with a −1 for each and an Inventory number per brand. The
   total, the run-out date and the alert are still one for the item.
 - **New item** can include **I already bought these** (date, how many, price, store, expiry), so an
@@ -402,7 +402,7 @@ In short:
 8. **Every day:** check **Bills › To Pay** (and **Coming Up** for later), tap **Record Payment** after paying, and **Add photos**
    for receipts. **Expense Analysis** shows where the money goes.
 9. **Supplies:** **+ New ▾ → Supply item** (or scan its barcode), say how many you have, and fill in
-   **I already bought these** if you know when. Tap **−1 Used one** now and then, or correct the
+   **I already bought these** if you know when. Tap an item's **Used 1** button (**Used 1 bottle**, **Used 1 roll**) now and then, or correct the
    count under **Inventory:**, and tap **Restocked** (or scan the 發票) after shopping. The app learns
    how fast each item goes and sends a restock alert in time. Star the things you buy again and
    again to find them under **Favorites**.

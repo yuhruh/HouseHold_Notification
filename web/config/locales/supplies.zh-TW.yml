@@ -119,7 +119,7 @@ zh-TW:
       runs_out_buy_by: "約 %{date} 用完 · %{buy_by} 前補貨"
       runs_out: "約 %{date} 用完"
       at_alert_level: "已到提醒數量（剩 %{count}）"
-      not_enough_data: "資料不足 · 按 −1 或更新數量"
+      not_enough_data: "資料不足 · 按「%{button}」或更新數量"
     notice:
       ok: "好"
     price_line: "%{total} 買 %{quantity} · 每%{unit} %{unit_price}"
@@ -131,8 +131,8 @@ zh-TW:
       unknown: "商品資料庫"
     actions:
       used_up_hint: "已經用完了：補貨後按「已補貨」，或還有剩的話更新數量"
-      used_one: "用掉一個"
-      used_one_label: "%{item} 用掉一個"
+      used_one: "用掉 %{amount}"
+      used_one_label: "%{item} %{button}"
       bought: "更新"
       bought_more: "已補貨"
       edit: "編輯"
@@ -222,7 +222,7 @@ zh-TW:
         now: "已過建議補貨日，或可能用完了。"
         soon: "在用完前補貨。"
         expiring: "有些會在用完前過期。"
-        no_data: "偶爾按「−1」或數一下，App 才能計算。"
+        no_data: "偶爾按品項上的「用掉 1」按鈕，或數一下，App 才能計算。"
       add_first: "新增第一項日用品"
       empty_title: "還沒有紀錄任何東西"
       empty_body: "加入家裡常備的東西。App 會計算你們用多快，並在該補貨時提醒你。"
@@ -257,7 +257,7 @@ zh-TW:
       based_on:
         one: "根據 1 筆用量資料"
         other: "根據 %{count} 筆用量資料"
-      learning_hint: "開始使用新的日用品時按 −1，或定期更新一下數量。"
+      learning_hint: "開始使用新的日用品時按「%{button}」，或定期更新一下數量。"
       counted: "盤點: "
       left_unit: "%{unit}"
       update_count: "更新"

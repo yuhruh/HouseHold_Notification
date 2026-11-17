@@ -28,6 +28,9 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # What the take-one-off button says, in the item's own unit: "Used 1 bottle", "Used 1 roll"
+  def supply_used_one(supply) = t("supplies.actions.used_one", amount: supply_count(supply, 1))
+
   # What is left of each brand of an item (Supplies::Brands), worked out once per item on a page
   def supply_brands(supply, forecast) = (@supply_brands ||= {})[supply.id] ||= supply.brands(forecast)
 
@@ -176,7 +179,7 @@ module SuppliesHelper
     elsif forecast.at_alert_level?
       t("supplies.line.at_alert_level", count: supply.alert_when_left)
     else
-      t("supplies.line.not_enough_data")
+      t("supplies.line.not_enough_data", button: supply_used_one(supply))
     end
   end
 

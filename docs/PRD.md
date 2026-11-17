@@ -1109,7 +1109,7 @@ Households run out of everyday things (toilet paper, shampoo, drinks) without wa
 track of what they paid and where. **Supplies** tracks each consumable's count, price, store and
 expiry, learns how fast the household uses it, predicts the run-out date, and alerts in time to buy
 more. Decisions made with the owner: an **Also add to Ledger** box (off by default) turns a purchase
-into a paid expense; stock comes from purchases plus quick counts (**−1** or **Inventory:**), with
+into a paid expense; stock comes from purchases plus quick counts (**Used 1 bottle**, worded with the item's unit, or **Inventory:**), with
 estimates in between, so nothing needs daily logging; alerts go to owners and co-owners by default,
 each can opt out (same as Bill paid).
 
@@ -1194,10 +1194,10 @@ each can opt out (same as Bill paid).
   sets each brand, and anything else (a plain count, what was left before a purchase, the forecast's
   estimate between counts) takes from the lot bought first. Stock no purchase explains joins the
   brand bought last. So the brands always add up to the number shown. With two or more brands in
-  stock at the last count: the lists show each brand's number, **−1** opens **Which one did you
+  stock at the last count: the lists show each brand's number, **Used 1 bottle** opens **Which one did you
   use?** (a button per brand with stock, the one bought first on top, marked Oldest; no "not sure"),
   and the item's page has **In stock by brand** (a −1 per brand) and Inventory with a number per
-  brand. One brand in stock: −1 is a single tap, as before. A brand with none left on an old page is
+  brand. One brand in stock: it is a single tap, as before. A brand with none left on an old page is
   refused, not taken from another brand. Correcting a purchase's product on Edit renames it in the
   counts that named it (`Supplies::Brands.renamed`).
 - Viewers see Supplies; owners and co-owners write (`SupplyPolicy`).
@@ -1258,7 +1258,7 @@ screenshot or typed number; photos are never uploaded)
 
 **Screens:** Supplies list (`/h/:id/supplies`; the To Buy, Stocked, Favorites and All tabs; on All
 the Expiring and category filter switches, the ~monthly estimate, cards on a phone and a table from
-1024px with search), item page (Stock Forecast with −1 Used one and Restocked, the stock bar's
+1024px with search), item page (Stock Forecast with Used 1 bottle, in the item's own unit, and Restocked, the stock bar's
 Total, Inventory:, Favorite beside Edit, Where to buy, History and Price history folded; Add an old
 price), New item (after a scan: It's one of my items), Edit (dialog on a computer; the item's
 barcodes with Remove), Log a purchase (picker, Buy soon first; "Which item is this?" for a scanned

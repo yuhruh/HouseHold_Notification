@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.18.2"
+  date: 2026-11-17
+  en:
+    - "Supplies: the \"−1 Used one\" button now says what it takes off, in the item's own unit: \"Used 1 bottle\", \"Used 1 roll\", \"Used 1 pack\". It reads the same on the To Buy, Stocked and Favorites cards, in the All list and on an item's page, and the hints name the button the same way."
+  zh-TW:
+    - "日用品：「−1 用掉一個」按鈕現在會寫出用掉的是什麼，用的是品項自己的單位：「用掉 1 瓶」、「用掉 1 捲」、「用掉 1 包」。「該補貨」、「還夠用」、「我的最愛」的卡片、「全部」清單和品項頁面都一樣，提示文字也用同樣的名稱。"
 - version: "1.18.1"
   date: 2026-11-17
   en:

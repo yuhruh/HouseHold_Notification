@@ -1,5 +1,6 @@
-<%# −1 Used one (in place, with a toast; off once nothing is left, saying why) and Bought more (a dialog on a
-    computer). With several brands in stock −1 opens "Which one did you use?": a button per brand that still
+<%# Used 1 bottle, in the item's own unit (in place, with a toast; off once nothing is left, saying why) and
+    Restocked (a dialog on a computer; "Updated" in an All row). With several brands in stock the first one
+    opens "Which one did you use?": a −1 button per brand that still
     has some, the one bought first on top. `menu` places that menu: under the card or row on a phone
     (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
     view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar %>
@@ -13,8 +14,8 @@
   <div class="flex shrink-0 items-center gap-2" title="<%= t("supplies.actions.used_up_hint") if used_up %>">
     <% if brands.several? && !used_up %>
       <details class="group" data-controller="dropdown" data-action="toggle->dropdown#reveal">
-        <summary aria-label="<%= t("supplies.actions.used_one_label", item: supply.name) %>" class="<%= minus %> block list-none group-open:bg-gray-200 [&::-webkit-details-marker]:hidden">
-          −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>
+        <summary aria-label="<%= t("supplies.actions.used_one_label", button: supply_used_one(supply), item: supply.name) %>" class="<%= minus %> block list-none group-open:bg-gray-200 [&::-webkit-details-marker]:hidden">
+          <%= supply_used_one(supply) %>
         </summary>
         <div data-dropdown-target="panel" class="pointer-events-none absolute z-10 pb-28 <%= place %>">
         <div class="card-raised pointer-events-auto flex flex-col gap-2.5 rounded-2xl bg-white p-3 pr-3.5 pb-4 text-left text-gray-900">
@@ -35,9 +36,9 @@
       </details>
     <% else %>
       <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1 }, disabled: used_up,
-            form: { data: { turbo_stream: true } }, "aria-label": t("supplies.actions.used_one_label", item: supply.name),
+            form: { data: { turbo_stream: true } }, "aria-label": t("supplies.actions.used_one_label", button: supply_used_one(supply), item: supply.name),
             class: "#{minus} disabled:cursor-not-allowed disabled:opacity-50" do %>
-        −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>
+        <%= supply_used_one(supply) %>
       <% end %>
     <% end %>
     <%= link_to new_household_supply_purchase_path(Current.household, supply), data: modal_link_data,

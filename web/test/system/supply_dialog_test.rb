@@ -30,17 +30,17 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     supply = home.supplies.create!(name: "Toilet paper", unit: "roll", level: 1, level_at: Time.current)
     sign_in
     visit household_supply_path(home, supply)
-    find("button[aria-label='Used one Toilet paper']").click
+    find("button[aria-label='Used 1 roll: Toilet paper']").click
     within("dialog[open]", wait: 5) do
       assert_text "Toilet paper"
       click_on "Later"
     end
     assert_no_selector "dialog[open]"
-    assert_selector "button[disabled][aria-label='Used one Toilet paper']"
+    assert_selector "button[disabled][aria-label='Used 1 roll: Toilet paper']"
 
     Supplies::RecordCount.call(supply, 1, user: users(:alex))
     visit household_supply_path(home, supply)
-    find("button[aria-label='Used one Toilet paper']").click
+    find("button[aria-label='Used 1 roll: Toilet paper']").click
     within("dialog[open]", wait: 5) { find("a[href='#{new_household_supply_purchase_path(home, supply)}']").click }
     assert_selector "dialog[open] input[name='supply_purchase[quantity]']", wait: 5
   end

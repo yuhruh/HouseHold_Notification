@@ -4,7 +4,7 @@
     Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too %>
 <% status = forecast.status %>
 <% last = supply.latest_purchase %>
-<li id="<%= dom_id(supply, :row) %>" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_18rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
+<li id="<%= dom_id(supply, :row) %>" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_22.5rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
   <div class="flex items-start gap-2.5 lg:items-center">
     <%= render "supplies/favorite", supply:, tags: false %>
     <div class="min-w-0 flex-1">

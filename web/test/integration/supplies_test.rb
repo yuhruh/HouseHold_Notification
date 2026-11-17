@@ -59,12 +59,34 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "header a[href=?]", scan_household_supplies_path(@home)
   end
 
+  test "the take-one-off button and the hints name the item's own unit, on cards, All rows and the item's page" do
+    paper = create_item(guess_days_per_unit: nil)
+    soap = create_item(name: "Dish soap", unit: "pack", guess_days_per_unit: 30)
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "#card_supply_#{paper.id} button[aria-label='Toilet paper 用掉 1 捲']", "用掉 1 捲"
+    assert_select "#card_supply_#{soap.id} button[aria-label='Dish soap 用掉 1 包']", "用掉 1 包"
+    assert_select "p", "偶爾按品項上的「用掉 1」按鈕，或數一下，App 才能計算。"
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{paper.id} button", "用掉 1 捲"
+    assert_select "#row_supply_#{paper.id} p", "資料不足 · 按「用掉 1 捲」或更新數量"
+    assert_select "#row_supply_#{soap.id} button", "用掉 1 包"
+    get household_supply_path(@home, soap)
+    assert_select "button[aria-label='Dish soap 用掉 1 包']", "用掉 1 包"
+    assert_select "li", "開始使用新的日用品時按「用掉 1 包」，或定期更新一下數量。"
+
+    users(:alex).update!(locale: "en")
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{paper.id} button[aria-label='Used 1 roll: Toilet paper']", "Used 1 roll"
+    assert_select "#row_supply_#{paper.id} p", 'Not enough data yet · tap "Used 1 roll" or update the count'
+    assert_select "#row_supply_#{soap.id} button", "Used 1 pack"
+  end
+
   test "−1 at 0 stays at 0, and the button is off" do
     supply = create_item(level: 0)
     post household_supply_counts_path(@home, supply), params: { used_one: 1 }, as: :turbo_stream
     assert_equal 0, supply.reload.level
     get household_supply_path(@home, supply)
-    assert_select "button[disabled][aria-label*='用掉一個']"
+    assert_select "button[disabled][aria-label*='用掉 1 捲']"
   end
 
   test "using the last one turns −1 off and asks to restock" do
@@ -76,7 +98,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_match "Toilet paper 用完了", response.body
     assert_match new_household_supply_purchase_path(@home, supply), response.body
     assert_match household_supply_count_path(@home, supply, supply.counts.order(:id).last), response.body
-    assert_match(/<button[^>]*disabled[^>]*aria-label="Toilet paper 用掉一個"/, response.body)
+    assert_match(/<button[^>]*disabled[^>]*aria-label="Toilet paper 用掉 1 捲"/, response.body)
 
     get household_supplies_path(@home, tab: "all")
     assert_select "div[title*='已經用完了'] button[disabled]"
@@ -90,11 +112,11 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   test "an estimate of nothing left also turns −1 off, and says to update the count if some are left" do
     supply = create_item(level: 2, guess_days_per_unit: 1, level_at: 3.days.ago)
     get household_supply_path(@home, supply)
-    assert_select "button[disabled][aria-label*='用掉一個']"
+    assert_select "button[disabled][aria-label*='用掉 1 捲']"
     post household_supply_counts_path(@home, supply), params: { supply_count: { level: 1 } }, as: :turbo_stream
     assert_no_match "dialog data-controller", response.body
     get household_supply_path(@home, supply)
-    assert_select "button[disabled][aria-label*='用掉一個']", 0
+    assert_select "button[disabled][aria-label*='用掉 1 捲']", 0
   end
 
   test "negative or decimal counts and quantities are refused" do
@@ -574,7 +596,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get household_supplies_path(@home, tab: "all")
     assert_select "#row_supply_#{shampoo.id}" do
       assert_select "p", "2 Lux Shampoo 750ml · 1 Pantene 700ml"
-      assert_select "details summary[aria-label='Shampoo 用掉一個']", /−1/
+      assert_select "details summary[aria-label='Shampoo 用掉 1 瓶']", "用掉 1 瓶"
       assert_select "details p", "用掉哪一個？"
       assert_select "details form[action=?]", counts, 2
       assert_select "details form:first-of-type button", /Pantene 700ml\s+最早買的.*剩 1 · .*購買 · Coupang/m
@@ -585,6 +607,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     end
     assert_select "#row_supply_#{paper.id} details", 0, "one brand: −1 stays a single tap"
     assert_select "#row_supply_#{paper.id} form[action=?]", household_supply_counts_path(@home, paper), 1
+    assert_select "#row_supply_#{paper.id} form[action=?] button", household_supply_counts_path(@home, paper), "用掉 1 捲"
 
     get household_supplies_path(@home, tab: "stocked")
     assert_select "#card_supply_#{shampoo.id}" do

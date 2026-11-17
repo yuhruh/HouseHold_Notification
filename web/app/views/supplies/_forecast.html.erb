@@ -24,7 +24,7 @@
     <% if forecast.buy_by && !forecast.out? %>
       <li><%= t("supplies.show.alert_on", date: l([ forecast.buy_by, forecast.today ].max, format: :short)) %></li>
     <% end %>
-    <li class="text-gray-600"><%= forecast.samples.any? ? t("supplies.show.based_on", count: forecast.samples.size) : t("supplies.show.learning_hint") %></li>
+    <li class="text-gray-600"><%= forecast.samples.any? ? t("supplies.show.based_on", count: forecast.samples.size) : t("supplies.show.learning_hint", button: supply_used_one(supply)) %></li>
   </ul>
   <% if brands.several? %>
     <%# What is left of each brand, with its own −1; the item's count above is their total %>

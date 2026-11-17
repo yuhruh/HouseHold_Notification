@@ -1186,6 +1186,20 @@ each can opt out (same as Bill paid).
   prefilled from the last purchase of that product, so another brand's price isn't offered. Edit
   lists the barcodes with Remove (`Supplies::BarcodesController`). Not done: merging two items, and
   size-aware usage (a 500 ml and a 1 L bottle both count as one).
+- **Which brand was used** (1.18.0): the item's one count is also split by brand
+  (`Supplies::Brands`), for showing and for saying which brand a bottle was; the usage rate, run-out
+  date and alert stay per item. The purchases and counts are replayed as lots, one per purchase: a
+  purchase adds to its product ("" = no brand named), −1 with a brand (`supply_counts.used_product`)
+  takes from that brand, a count made brand by brand (`supply_counts.by_product`, product → number)
+  sets each brand, and anything else (a plain count, what was left before a purchase, the forecast's
+  estimate between counts) takes from the lot bought first. Stock no purchase explains joins the
+  brand bought last. So the brands always add up to the number shown. With two or more brands in
+  stock at the last count: the lists show each brand's number, **−1** opens **Which one did you
+  use?** (a button per brand with stock, the one bought first on top, marked Oldest; no "not sure"),
+  and the item's page has **In stock by brand** (a −1 per brand) and Inventory with a number per
+  brand. One brand in stock: −1 is a single tap, as before. A brand with none left on an old page is
+  refused, not taken from another brand. Correcting a purchase's product on Edit renames it in the
+  counts that named it (`Supplies::Brands.renamed`).
 - Viewers see Supplies; owners and co-owners write (`SupplyPolicy`).
 
 **Scanning** (read in the browser with `BarcodeDetector` or ZXing; camera, still photo, pasted
@@ -1228,7 +1242,7 @@ screenshot or typed number; photos are never uploaded)
   receipt_import_id null, expiry_alerted_at, created_by_id null)`
 - `supply_prices (household_id, supply_id, product_name null = the item's name, store, quantity > 0,
   total_price decimal(12,2) ≥ 0, currency, purchased_on, created_by_id null)`: old prices, comparing only
-- `supply_counts (supply_id, counted_at, level ≥ 0, created_by_id null)`
+- `supply_counts (supply_id, counted_at, level ≥ 0, used_product null, by_product jsonb null, created_by_id null)`
 - `supply_barcodes (household_id, supply_id, code, product_name null)` unique(household_id, code)
 - `supply_favorites (supply_id, user_id, created_at)` unique(supply_id, user_id); both foreign keys
   delete with their row

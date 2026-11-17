@@ -29,8 +29,10 @@ module Supplies
       purchase.assign_attributes(attributes)
       return purchase unless purchase.valid?
 
+      was = purchase.product_name_was
       SupplyPurchase.transaction do
         purchase.save!
+        Brands.renamed(supply, from: was, to: purchase.product_name)
         sync_ledger(purchase, add_to_ledger:, user:)
         StockChanged.call(supply)
       end

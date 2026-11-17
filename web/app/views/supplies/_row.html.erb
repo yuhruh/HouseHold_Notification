@@ -1,14 +1,16 @@
 <%# One item in the list: a card on a phone, a table row from 1024px. Replaced in place after −1.
+    Several brands in stock: how many of each under the category, and −1 opens its menu under the row.
     Your star in front of the name, other people's (tags) after the category.
     Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too %>
 <% status = forecast.status %>
 <% last = supply.latest_purchase %>
-<li id="<%= dom_id(supply, :row) %>" class="rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_18rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4">
+<li id="<%= dom_id(supply, :row) %>" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_18rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
   <div class="flex items-start gap-2.5 lg:items-center">
     <%= render "supplies/favorite", supply:, tags: false %>
     <div class="min-w-0 flex-1">
       <%= link_to supply.name, household_supply_path(Current.household, supply), class: "font-bold hover:underline" %>
       <p class="flex flex-wrap items-center gap-1.5 text-xs text-gray-600"><span><%= supply_kind(supply.kind) %></span><%= supply_star_tags(supply) %></p>
+      <%= supply_brand_split(supply, forecast) %>
     </div>
     <span class="lg:hidden"><%= supply_badge(status) %></span>
   </div>
@@ -24,6 +26,6 @@
   <div class="mt-3 flex flex-wrap items-center justify-between gap-2 lg:mt-0 lg:justify-end">
     <%= link_to household_supply_path(Current.household, supply), "aria-label": t("supplies.index.details_label", item: supply.name),
           class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-0 lg:px-3 lg:py-1.5 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
-    <%= render "supplies/actions", supply:, forecast:, compact: true %>
+    <%= render "supplies/actions", supply:, forecast:, compact: true, menu: :row %>
   </div>
 </li>

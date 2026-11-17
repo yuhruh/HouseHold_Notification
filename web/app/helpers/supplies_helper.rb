@@ -28,6 +28,37 @@ module SuppliesHelper
 
   def supply_left(supply, forecast) = supply_count(supply, forecast.on_hand_rounded, estimate: forecast.estimated?)
 
+  # What is left of each brand of an item (Supplies::Brands), worked out once per item on a page
+  def supply_brands(supply, forecast) = (@supply_brands ||= {})[supply.id] ||= supply.brands(forecast)
+
+  def supply_brand_name(brand) = brand.name || t("supplies.brands.unnamed")
+
+  # Under an item with several brands in stock: "2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml", the
+  # brand bought last first. They add up to the number left shown beside it
+  def supply_brand_split(supply, forecast)
+    brands = supply_brands(supply, forecast)
+    return unless brands.several?
+
+    parts = brands.list.select { it.left.positive? }.reverse.map do |brand|
+      safe_join([ tag.strong(number_with_delimiter(brand.left), class: "text-gray-900"), supply_brand_name(brand) ], " ")
+    end
+    tag.p(safe_join(parts, " · "), class: "text-xs text-gray-600 [overflow-wrap:anywhere]") if parts.any?
+  end
+
+  # A brand in the −1 menu and on the item page: its name, and "Oldest" on the one bought first
+  def supply_brand_title(brand)
+    oldest = tag.span(t("supplies.brands.oldest"), class: "ml-1 rounded-full bg-sky-100 px-1.5 py-px text-[11px] font-bold whitespace-nowrap text-sky-900") if brand.oldest
+    tag.span(safe_join([ supply_brand_name(brand), oldest ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
+  end
+
+  # "Bought Sep 28 · Coupang" (and the price per unit on the item page): the purchase its oldest stock is from
+  def supply_brand_source(brand, price: false)
+    purchase = brand.purchase
+    return unless purchase
+    safe_join([ t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), purchase.store.presence,
+                (t("supplies.brands.each", unit_price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) if price) ].compact, " · ")
+  end
+
   # Each person's star colour (Supplies::Starrers::COLORS): the fill and text of their button and tag,
   # the star itself and the tag's outline
   STAR_TONE = {
@@ -175,11 +206,14 @@ module SuppliesHelper
     end
   end
 
-  # A History line: "+12 · NT$289 · Costco" or "Counted: 4 rolls"
+  # A History line: "+12 · NT$289 · Costco", "Counted: 4 rolls", or with the brand a −1 named
+  # "Used 1 · Pantene Shampoo 700ml · 1 bottle left"
   def supply_history_line(supply, event)
     if event.is_a?(SupplyPurchase)
       safe_join([ "+#{supply_count(supply, event.quantity)}", money(event.total_price, event.currency), event.store.presence,
                   (tag.span(event.product_name, class: "font-semibold") if event.product_name) ].compact, " · ")
+    elsif event.used_product.present?
+      safe_join([ t("supplies.show.used_line"), tag.span(event.used_product, class: "font-semibold"), t("supplies.show.left_line", left: supply_count(supply, event.level)) ], " · ")
     else
       t("supplies.show.counted_line", left: supply_count(supply, event.level))
     end

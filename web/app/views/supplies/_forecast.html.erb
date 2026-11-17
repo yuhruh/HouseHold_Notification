@@ -1,14 +1,18 @@
 <%# The Forecast card: what's left now and the bar's Total over its right end, how fast it goes, when it
     runs out and when the alert comes, with −1 / Restocked at its top right and "Inventory: __ left".
+    With several brands in stock: "In stock by brand" (each brand's share and its own −1) and Inventory
+    asks a number per brand.
     Replaced in place after a count %>
 <% status = forecast.status %>
+<% brands = supply_brands(supply, forecast) %>
+<% writer = policy(supply).update? && supply.archived_at.nil? %>
 <section id="<%= dom_id(supply, :forecast) %>" class="card-raised space-y-3 rounded-2xl p-4 <%= supply_tone(status, :card) %>" aria-labelledby="<%= dom_id(supply, :forecast_title) %>">
-  <div class="flex flex-wrap items-start justify-between gap-3">
+  <div class="relative flex flex-wrap items-start justify-between gap-3">
     <div class="flex items-center gap-2">
       <h2 id="<%= dom_id(supply, :forecast_title) %>" class="text-lg font-bold"><%= t("supplies.show.forecast") %></h2>
       <%= supply_badge(status) %>
     </div>
-    <%= render "supplies/actions", supply:, forecast: %>
+    <%= render "supplies/actions", supply:, forecast:, menu: :page %>
   </div>
   <p class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><span class="text-2xl font-extrabold"><%= t("supplies.show.now", left: supply_left(supply, forecast)) %></span><%= supply_total(supply, forecast) %></p>
   <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
@@ -22,7 +26,49 @@
     <% end %>
     <li class="text-gray-600"><%= forecast.samples.any? ? t("supplies.show.based_on", count: forecast.samples.size) : t("supplies.show.learning_hint") %></li>
   </ul>
-  <% if policy(supply).update? && supply.archived_at.nil? %>
+  <% if brands.several? %>
+    <%# What is left of each brand, with its own −1; the item's count above is their total %>
+    <div class="rounded-xl border border-gray-300 bg-white/60 px-3 pt-2.5 pb-1">
+      <h3 class="text-sm font-extrabold"><%= t("supplies.brands.title") %></h3>
+      <ul class="divide-y divide-gray-200">
+        <% brands.list.each do |brand| %>
+          <li class="flex items-center justify-between gap-3 py-2">
+            <span class="min-w-0">
+              <%= supply_brand_title(brand) %>
+              <span class="block text-xs text-gray-600"><%= supply_brand_source(brand, price: true) %></span>
+            </span>
+            <span class="flex shrink-0 items-center gap-3 pb-1">
+              <% if brand.left.positive? %>
+                <span class="font-extrabold"><%= supply_count(supply, brand.left) %></span>
+              <% else %>
+                <span class="text-sm font-semibold text-gray-600"><%= t("supplies.brands.probably_used") %></span>
+              <% end %>
+              <% if writer %>
+                <%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
+                      form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
+                      class: "btn-press min-w-12 cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% if writer && brands.several? %>
+    <%# One number per brand; the count saved is their sum %>
+    <%= form_with url: household_supply_counts_path(Current.household, supply), data: { turbo_stream: true }, class: "flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-gray-200 pt-3" do |form| %>
+      <span class="text-sm font-semibold"><%= t("supplies.show.counted") %></span>
+      <% brands.list.each do |brand| %>
+        <label class="inline-flex items-center gap-1.5 text-sm">
+          <span class="[overflow-wrap:anywhere]"><%= supply_brand_name(brand) %></span>
+          <%= hidden_field_tag "supply_count[brands][][name]", brand.key, id: nil %>
+          <%= number_field_tag "supply_count[brands][][left]", brand.left, min: 0, step: 1, required: true, inputmode: "numeric", id: nil, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %>
+        </label>
+      <% end %>
+      <span class="text-sm"><%= t("supplies.show.left_unit", unit: t("supplies.units.#{supply.unit}_other")) %></span>
+      <%= form.button t("supplies.show.update_count"), type: "submit", name: nil, class: "btn-press cursor-pointer rounded-xl bg-blue-200 px-3 py-1.5 text-sm font-bold text-gray-900" %>
+    <% end %>
+  <% elsif writer %>
     <%= form_with model: SupplyCount.new, url: household_supply_counts_path(Current.household, supply), data: { turbo_stream: true }, class: "flex flex-wrap items-center gap-2 border-t border-gray-200 pt-3" do |form| %>
       <%= form.label :level, t("supplies.show.counted"), class: "text-sm font-semibold" %>
       <span class="inline-flex items-center gap-1 text-sm">

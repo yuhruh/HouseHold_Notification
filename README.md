@@ -222,8 +222,11 @@ Home Screen.
 - **One item, several brands:** an item (say Shampoo) keeps one count, one usage rate and one
   restock alert for every brand bought as it. A purchase can carry a **Product or brand** (filled in
   by a scan, taken from a receipt line, or typed), which shows in History, Price history, Where to
-  buy and the lists' Last bought, and which the All search finds. The brand is only a label for
-  comparing prices; the app doesn't count each brand separately.
+  buy and the lists' Last bought, and which the All search finds. With two or
+  more brands in stock, the lists say how many of each ("2 Lux Shampoo 750ml · 1 Pantene Shampoo
+  700ml"), **−1** asks **Which one did you use?** (only the brands that still have some), and the
+  item's page has **In stock by brand** with a −1 for each and an Inventory number per brand. The
+  total, the run-out date and the alert are still one for the item.
 - **New item** can include **I already bought these** (date, how many, price, store, expiry), so an
   item bought a while ago has a usage rate from the first day. **Also add to Ledger** on any purchase
   creates a paid expense in the 日用品 category.

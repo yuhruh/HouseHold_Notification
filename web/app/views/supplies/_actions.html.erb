@@ -1,12 +1,44 @@
 <%# −1 Used one (in place, with a toast; off once nothing is left, saying why) and Bought more (a dialog on a
-    computer) %>
+    computer). With several brands in stock −1 opens "Which one did you use?": a button per brand that still
+    has some, the one bought first on top. `menu` places that menu: under the card or row on a phone
+    (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
+    view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar %>
 <% if policy(supply).update? && supply.archived_at.nil? %>
   <% used_up = supply_used_up?(forecast) %>
+  <% brands = supply_brands(supply, forecast) %>
+  <% minus = "btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
+  <% place = { card: "inset-x-3 top-full -mt-2 lg:inset-x-auto lg:top-auto lg:mt-2 lg:w-80",
+               row: "inset-x-3 top-full -mt-2 lg:left-auto lg:right-4 lg:-mt-1 lg:w-80",
+               page: "inset-x-0 top-full mt-2 lg:left-auto lg:w-80" }.fetch(local_assigns.fetch(:menu, :card)) %>
   <div class="flex shrink-0 items-center gap-2" title="<%= t("supplies.actions.used_up_hint") if used_up %>">
-    <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1 }, disabled: used_up,
-          form: { data: { turbo_stream: true } }, "aria-label": t("supplies.actions.used_one_label", item: supply.name),
-          class: "btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900 disabled:cursor-not-allowed disabled:opacity-50" do %>
-      −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>
+    <% if brands.several? && !used_up %>
+      <details class="group" data-controller="dropdown" data-action="toggle->dropdown#reveal">
+        <summary aria-label="<%= t("supplies.actions.used_one_label", item: supply.name) %>" class="<%= minus %> block list-none group-open:bg-gray-200 [&::-webkit-details-marker]:hidden">
+          −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>
+        </summary>
+        <div data-dropdown-target="panel" class="pointer-events-none absolute z-10 pb-28 <%= place %>">
+        <div class="card-raised pointer-events-auto flex flex-col gap-2.5 rounded-2xl bg-white p-3 pr-3.5 pb-4 text-left text-gray-900">
+          <p class="text-sm font-extrabold"><%= t("supplies.brands.which") %></p>
+          <% brands.list.each do |brand| %>
+            <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
+                  form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
+                  class: "btn-press flex min-h-13 w-full cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-1.5 text-left text-gray-900 [--press:3px]" do %>
+              <span class="min-w-0">
+                <%= supply_brand_title(brand) %>
+                <span class="block text-xs text-gray-700"><%= safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand) ].compact, " · ") %></span>
+              </span>
+              <span class="shrink-0 text-sm font-extrabold" aria-hidden="true">−1</span>
+            <% end %>
+          <% end %>
+        </div>
+        </div>
+      </details>
+    <% else %>
+      <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1 }, disabled: used_up,
+            form: { data: { turbo_stream: true } }, "aria-label": t("supplies.actions.used_one_label", item: supply.name),
+            class: "#{minus} disabled:cursor-not-allowed disabled:opacity-50" do %>
+        −1<span class="<%= 'sr-only' if local_assigns[:compact] %>"> <%= t("supplies.actions.used_one") %></span>
+      <% end %>
     <% end %>
     <%= link_to new_household_supply_purchase_path(Current.household, supply), data: modal_link_data,
           class: "btn-press rounded-xl bg-green-100 px-3 py-1.5 text-sm font-bold text-green-900" do %>

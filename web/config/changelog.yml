@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.18.0"
+  date: 2026-11-17
+  en:
+    - "New: when an item has two or more brands in stock, −1 asks \"Which one did you use?\" and lists only the brands that still have some, the one bought first on top. Pick the bottle you finished and that brand goes down by one. An item with one brand keeps the single tap."
+    - "The lists show how many of each brand are left under the item's name (2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml). The total, the run-out date and the restock alert are still one for the whole item."
+    - "An item's page has a new \"In stock by brand\" box: each brand with what is left, where it was bought, its price and its own −1. Inventory asks one number per brand, and History says which brand each used one was."
+  zh-TW:
+    - "新功能：一個項目有兩個以上的品牌有庫存時，按 −1 會問「用掉哪一個？」，只列出還有庫存的品牌，最早買的排在最上面。選用完的那一個，該品牌就減一。只有一個品牌的項目還是按一下就好。"
+    - "清單會在項目名稱下方顯示各品牌還剩幾個（2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml）。總數、用完日期和補貨提醒仍然是整個項目共用一個。"
+    - "項目頁面多了「各品牌庫存」：每個品牌剩多少、在哪裡買、價格，以及各自的 −1。盤點時每個品牌各填一個數字，記錄也會寫用掉的是哪個品牌。"
 - version: "1.17.0"
   date: 2026-11-17
   en:

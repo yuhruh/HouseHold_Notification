@@ -556,6 +556,139 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /會記在「Shampoo」上/, count: 0
   end
 
+  # Shampoo with 1 Pantene (bought a month ago) and 2 Lux (bought today)
+  def two_brands
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 145, store: "Coupang", purchased_on: @home.today - 30, left_before: 0, product_name: "Pantene 700ml" }, user: users(:alex))
+    Supplies::LogPurchase.call(shampoo, { quantity: 2, total_price: 398, store: "PX Mart", purchased_on: @home.today, left_before: 1, product_name: "Lux Shampoo 750ml" }, user: users(:alex))
+    shampoo.reload
+  end
+
+  test "several brands in stock: the lists show each brand's number, and −1 asks which one" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = two_brands
+    paper = create_item
+    counts = household_supply_counts_path(@home, shampoo)
+    assert_equal 3, shampoo.level
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id}" do
+      assert_select "p", "2 Lux Shampoo 750ml · 1 Pantene 700ml"
+      assert_select "details summary[aria-label='Shampoo 用掉一個']", /−1/
+      assert_select "details p", "用掉哪一個？"
+      assert_select "details form[action=?]", counts, 2
+      assert_select "details form:first-of-type button", /Pantene 700ml\s+最早買的.*剩 1 · .*購買 · Coupang/m
+      assert_select "details form:first-of-type input[name=product][value='Pantene 700ml']"
+      assert_select "details form:last-of-type button", /Lux Shampoo 750ml.*剩 2 · .*購買 · PX Mart/m
+      assert_select "details form:last-of-type button", text: /最早買的/, count: 0
+      assert_select "form[action=?]", counts, 2, "no one-tap −1 beside the menu"
+    end
+    assert_select "#row_supply_#{paper.id} details", 0, "one brand: −1 stays a single tap"
+    assert_select "#row_supply_#{paper.id} form[action=?]", household_supply_counts_path(@home, paper), 1
+
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "#card_supply_#{shampoo.id}" do
+      assert_select "p", "2 Lux Shampoo 750ml · 1 Pantene 700ml"
+      assert_select "details form input[name=product]", 2
+    end
+
+    # the bottle goes from the brand picked, and from the item's one count
+    post counts, params: { used_one: 1, product: "Lux Shampoo 750ml" }, as: :turbo_stream
+    assert_response :success
+    assert_match "用掉 1（Lux Shampoo 750ml）· 剩 2 瓶", response.body
+    assert_equal 2, shampoo.reload.level
+    assert_equal "Lux Shampoo 750ml", shampoo.counts.order(:id).last.used_product
+    assert_equal [ [ "Pantene 700ml", 1 ], [ "Lux Shampoo 750ml", 1 ] ], shampoo.brands.list.map { [ it.name, it.known ] }
+    assert_match "1</strong> Lux Shampoo 750ml · <strong class=\"text-gray-900\">1</strong> Pantene 700ml", response.body
+
+    # Undo puts it back on that brand
+    delete household_supply_count_path(@home, shampoo, shampoo.counts.order(:id).last), as: :turbo_stream
+    assert_equal [ 1, 2 ], shampoo.reload.brands.list.map(&:known)
+
+    # the last Pantene: one brand left, so the menu is gone and −1 is a single tap again
+    post counts, params: { used_one: 1, product: "Pantene 700ml" }, as: :turbo_stream
+    assert_equal [ [ "Lux Shampoo 750ml", 2 ] ], shampoo.reload.brands.list.map { [ it.name, it.known ] }
+    assert_no_match "用掉哪一個", response.body
+    assert_no_match "Pantene 700ml</p>", response.body
+
+    # an old page still offering Pantene: refused, nothing taken from Lux instead
+    assert_no_difference -> { shampoo.counts.count } do
+      post counts, params: { used_one: 1, product: "Pantene 700ml" }, as: :turbo_stream
+    end
+    assert_response :unprocessable_content
+    assert_match "這個品牌已經沒有庫存了", response.body
+    post counts, params: { used_one: 1 }, as: :turbo_stream
+    assert_equal 1, shampoo.reload.level
+    assert_nil shampoo.counts.order(:id).last.used_product
+  end
+
+  test "an item's page with several brands: In stock by brand, a −1 for each, Inventory by brand, and History names the brand" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = two_brands
+    counts = household_supply_counts_path(@home, shampoo)
+
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id}" do
+      assert_select "h3", "各品牌庫存"
+      assert_select "h3 + ul li", 2
+      assert_select "h3 + ul li:first-child", /Pantene 700ml\s+最早買的.*購買 · Coupang · 每瓶 NT\$145.*1 瓶/m
+      assert_select "h3 + ul li:first-child form[action=?] input[name=product][value='Pantene 700ml']", counts
+      assert_select "h3 + ul li:last-child", /Lux Shampoo 750ml.*PX Mart · 每瓶 NT\$199.*2 瓶/m
+      assert_select "input[name='supply_count[brands][][name]'][value='Pantene 700ml'] + input[name='supply_count[brands][][left]'][value='1']"
+      assert_select "input[name='supply_count[brands][][name]'][value='Lux Shampoo 750ml'] + input[name='supply_count[brands][][left]'][value='2']"
+      assert_select "input[name='supply_count[level]']", 0
+      assert_select "details p", "用掉哪一個？"
+    end
+
+    post counts, params: { used_one: 1, product: "Pantene 700ml" }, as: :turbo_stream
+    assert_match "用掉 1 · <span class=\"font-semibold\">Pantene 700ml</span> · 剩 2 瓶", response.body
+    assert_no_match "各品牌庫存", response.body
+
+    # Inventory, one number per brand: the count is their sum
+    post counts, params: { supply_count: { brands: [ { name: "Pantene 700ml", left: "2" }, { name: "Lux Shampoo 750ml", left: "3" } ] } }, as: :turbo_stream
+    assert_response :success
+    assert_equal 5, shampoo.reload.level
+    assert_equal({ "Pantene 700ml" => 2, "Lux Shampoo 750ml" => 3 }, shampoo.counts.order(:id).last.by_product)
+    assert_equal [ [ "Pantene 700ml", 2 ], [ "Lux Shampoo 750ml", 3 ] ], shampoo.brands.list.map { [ it.name, it.known ] }
+    assert_match "各品牌庫存", response.body
+
+    post counts, params: { supply_count: { brands: [ { name: "Pantene 700ml", left: "1.5" }, { name: "Lux Shampoo 750ml", left: "3" } ] } }, as: :turbo_stream
+    assert_response :unprocessable_content
+    post counts, params: { supply_count: { brands: [ { name: "Not a brand of it", left: "9" } ] } }, as: :turbo_stream
+    assert_response :unprocessable_content
+    assert_equal 5, shampoo.reload.level
+
+    # a viewer sees each brand's number, with nothing to press
+    sign_in_as users(:google_only)
+    get household_supply_path(@home, shampoo)
+    assert_select "h3", "各品牌庫存"
+    assert_select "h3 + ul li", 2
+    assert_select "form[action=?]", counts, 0
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id} p", "3 Lux Shampoo 750ml · 2 Pantene 700ml"
+    assert_select "#row_supply_#{shampoo.id} details", 0
+    post counts, params: { used_one: 1, product: "Pantene 700ml" }
+    assert_response :forbidden
+  end
+
+  test "a purchase with no product is a brand of its own, shown as No brand named" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 145, purchased_on: @home.today - 30, left_before: 0 }, user: users(:alex))
+    Supplies::LogPurchase.call(shampoo, { quantity: 2, total_price: 398, purchased_on: @home.today, left_before: 1, product_name: "Lux Shampoo 750ml" }, user: users(:alex))
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id} p", "2 Lux Shampoo 750ml · 1 未填品牌"
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type input[name=product][value='']"
+
+    post household_supply_counts_path(@home, shampoo), params: { used_one: 1, product: "" }, as: :turbo_stream
+    assert_match "用掉 1 · 剩 2 瓶", response.body
+    assert_equal "", shampoo.counts.order(:id).last.used_product
+    assert_equal [ [ "Lux Shampoo 750ml", 2 ] ], shampoo.reload.brands.list.map { [ it.name, it.known ] }
+    get household_supply_path(@home, shampoo)
+    assert_select "li", /數量：2 瓶/
+  end
+
   test "a purchase's product: empty or the item's own name is no product, and over 80 characters is refused" do
     supply = create_item(name: "Shampoo", unit: "bottle")
     post household_supply_purchases_path(@home, supply), params: { supply_purchase: { product_name: " Shampoo ", quantity: 1, total_price: 100, purchased_on: @home.today, left_before: 4 } }

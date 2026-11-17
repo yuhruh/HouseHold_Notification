@@ -36,6 +36,9 @@ class Supply < ApplicationRecord
 
   def forecast(today: household.today) = Supplies::Forecast.new(self, today:)
 
+  # What is left of each brand (an item can be several brands; they share its count and forecast)
+  def brands(forecast = self.forecast) = Supplies::Brands.new(self, forecast)
+
   def latest_purchase = purchases.max_by { [ it.purchased_on, it.created_at ] }
 
   # Purchases and counts, newest first (the item page's History)

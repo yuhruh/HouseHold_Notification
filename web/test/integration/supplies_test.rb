@@ -686,6 +686,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "h3 + ul li:last-child", text: /最快到期|最早買的/, count: 0
       assert_select "details > summary + form label:first-of-type", /Lux Shampoo 750ml/, "Inventory lists them in the same order"
     end
+    assert_select "#history_supply_#{shampoo.id} li", /Lux Shampoo 750ml\s+#{I18n.l(lux.expires_on, format: :supply_date, locale: :"zh-TW")} 到期/, "History writes the expiry date with its year"
     get household_supplies_path(@home, tab: "all")
     assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /Lux Shampoo 750ml\s+最快到期.*剩 2 · .*到期 · .*購買/m
     assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", text: /PX Mart/, count: 0, msg: "with an expiry date the menu's line drops the store"

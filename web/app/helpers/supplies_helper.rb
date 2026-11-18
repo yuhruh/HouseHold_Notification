@@ -49,17 +49,26 @@ module SuppliesHelper
     tag.p(safe_join(parts, " · "), class: "text-xs text-gray-600 [overflow-wrap:anywhere]") if parts.any?
   end
 
-  # A brand in the −1 menu and on the item page: its name, and "Oldest" on the one bought first
+  # A brand in the −1 menu and on the item page: its name, and on the one to use first why it is
+  # first: "Expires first" (or "Expired") when its stock has an expiry date, else "Oldest"
   def supply_brand_title(brand)
-    oldest = tag.span(t("supplies.brands.oldest"), class: "ml-1 rounded-full bg-sky-100 px-1.5 py-px text-[11px] font-bold whitespace-nowrap text-sky-900") if brand.oldest
-    tag.span(safe_join([ supply_brand_name(brand), oldest ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
+    first = if !brand.first then nil
+    elsif brand.expires_on.nil? then [ "oldest", "bg-sky-100 text-sky-900" ]
+    elsif brand.expires_on < Current.household.today then [ "expired", "bg-red-100 text-red-900" ]
+    else [ "expires_first", "bg-amber-100 text-amber-900" ]
+    end
+    first &&= tag.span(t("supplies.brands.#{first.first}"), class: "ml-1 rounded-full px-1.5 py-px text-[11px] font-bold whitespace-nowrap #{first.last}")
+    tag.span(safe_join([ supply_brand_name(brand), first ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
   end
 
-  # "Bought Sep 28 · Coupang" (and the price per unit on the item page): the purchase its oldest stock is from
-  def supply_brand_source(brand, price: false)
+  # "Expires Mar 12, 2027 · Bought Sep 28 · Coupang" (and the price per unit on the item page): the
+  # purchase its stock to use first is from. The expiry date only when that purchase has one
+  def supply_brand_source(brand, price: false, store: true)
     purchase = brand.purchase
     return unless purchase
-    safe_join([ t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), purchase.store.presence,
+    expiry = purchase.expires_on
+    safe_join([ (t("supplies.brands.#{expiry < Current.household.today ? "expired_on" : "expires_on"}", date: l(expiry, format: :supply_date)) if expiry),
+                t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), (purchase.store.presence if store),
                 (t("supplies.brands.each", unit_price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) if price) ].compact, " · ")
   end
 

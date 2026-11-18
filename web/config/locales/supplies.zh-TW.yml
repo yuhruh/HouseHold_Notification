@@ -2,6 +2,7 @@ zh-TW:
   date:
     formats:
       supply_month: "%Y年%-m月"
+      supply_date: "%Y年%m月%d日"
   activerecord:
     models:
       supply: "日用品"
@@ -152,6 +153,10 @@ zh-TW:
     brands:
       which: "用掉哪一個？"
       oldest: "最早買的"
+      expires_first: "最快到期"
+      expired: "已過期"
+      expires_on: "%{date} 到期"
+      expired_on: "%{date} 已過期"
       title: "各品牌庫存"
       unnamed: "未填品牌"
       left: "剩 %{count}"
@@ -275,6 +280,8 @@ zh-TW:
       counted: "盤點: "
       left_unit: "%{unit}"
       update_count: "更新"
+      inventory: "盤點"
+      open_count: "更新數量"
       counted_line: "數量：%{left}"
       used_line: "用掉 1"
       left_line: "剩 %{left}"

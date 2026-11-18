@@ -334,6 +334,20 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "nav a[aria-current=page]", /全部/
   end
 
+  test "the item running out first comes first; without a run-out date, the fewest left" do
+    create_item(name: "Later", level: 50, guess_days_per_unit: 3)
+    create_item(name: "Sooner", level: 3, guess_days_per_unit: 3)
+    { "Apple" => 4, "Banana" => 1, "Cherry" => 3, "Date" => 0, "Elder" => 1 }.each { |name, level| create_item(name:, level:, guess_days_per_unit: nil) }
+
+    # Dated items by date, then the ones without data by what is left (ties A to Z), not A to Z
+    get household_supplies_path(@home)
+    assert_equal %w[Sooner Later Date Banana Elder Cherry Apple], css_select("main li[id^=row_] div.min-w-0 > a").map(&:text)
+    get household_supplies_path(@home, tab: "stocked")
+    assert_select "section", text: /資料不足/ do
+      assert_equal %w[Date Banana Elder Cherry Apple], css_select("section li a.text-lg").map(&:text).last(5)
+    end
+  end
+
   test "All's filters are switches: several categories at once, each chip flips itself and keeps the others" do
     create_item(name: "Paper", kind: "toiletries")
     create_item(name: "Soap", kind: "cleaning")

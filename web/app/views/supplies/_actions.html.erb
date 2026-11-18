@@ -3,14 +3,17 @@
     opens "Which one did you use?": a −1 button per brand that still
     has some, the one to use first on top (with an expiry date its line drops the store, to stay short). `menu` places that menu: under the card or row on a phone
     (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
-    view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar %>
+    view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar.
+    In the lists (:card, :row) both buttons are 44px tall on a phone, as tall as Details beside them %>
 <% if policy(supply).update? && supply.archived_at.nil? %>
   <% used_up = supply_used_up?(forecast) %>
   <% brands = supply_brands(supply, forecast) %>
-  <% minus = "btn-press cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
+  <% menu = local_assigns.fetch(:menu, :card) %>
+  <% size = menu == :page ? "py-1.5" : "py-2.5 lg:py-1.5" %>
+  <% minus = "btn-press cursor-pointer rounded-xl bg-white px-3 #{size} text-sm font-bold text-gray-900" %>
   <% place = { card: "inset-x-3 top-full -mt-2 lg:inset-x-auto lg:top-auto lg:mt-2 lg:w-80",
                row: "inset-x-3 top-full -mt-2 lg:left-auto lg:right-4 lg:-mt-1 lg:w-80",
-               page: "inset-x-0 top-full mt-2 lg:left-auto lg:w-80" }.fetch(local_assigns.fetch(:menu, :card)) %>
+               page: "inset-x-0 top-full mt-2 lg:left-auto lg:w-80" }.fetch(menu) %>
   <div class="flex shrink-0 items-center gap-2" title="<%= t("supplies.actions.used_up_hint") if used_up %>">
     <% if brands.several? && !used_up %>
       <details class="group" data-controller="dropdown" data-action="toggle->dropdown#reveal">
@@ -42,7 +45,7 @@
       <% end %>
     <% end %>
     <%= link_to new_household_supply_purchase_path(Current.household, supply), data: modal_link_data,
-          class: "btn-press rounded-xl bg-green-100 px-3 py-1.5 text-sm font-bold text-green-900" do %>
+          class: "btn-press rounded-xl bg-green-100 px-3 #{size} text-sm font-bold text-green-900" do %>
       <%= t("supplies.actions.bought_more") %>
     <% end %>
   </div>

@@ -36,7 +36,8 @@ module SuppliesHelper
 
   def supply_brand_name(brand) = brand.name || t("supplies.brands.unnamed")
 
-  # Under an item with several brands in stock: "2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml", the
+  # On a To Buy, Stocked or Favorites card (not an All row, which has only the category under the
+  # name), under an item with several brands in stock: "2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml", the
   # brand bought last first. They add up to the number left shown beside it
   def supply_brand_split(supply, forecast)
     brands = supply_brands(supply, forecast)

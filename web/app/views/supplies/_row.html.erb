@@ -1,5 +1,7 @@
 <%# One item in the list: a card on a phone, a table row from 1024px. Replaced in place after −1.
-    Several brands in stock: how many of each under the category, and −1 opens its menu under the row.
+    Under the name only its category, and Last bought is the store and price without the product's name.
+    Several brands in stock: −1 opens its menu under the row, which says how many of each (the cards and
+    the item's page show the numbers and the products too).
     Your star in front of the name, other people's (tags) after the category.
     Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too %>
 <% status = forecast.status %>
@@ -10,7 +12,6 @@
     <div class="min-w-0 flex-1">
       <%= link_to supply.name, household_supply_path(Current.household, supply), class: "font-bold hover:underline" %>
       <p class="flex flex-wrap items-center gap-1.5 text-xs text-gray-600"><span><%= supply.category.name %></span><%= supply_star_tags(supply) %></p>
-      <%= supply_brand_split(supply, forecast) %>
     </div>
     <span class="lg:hidden"><%= supply_badge(status) %></span>
   </div>
@@ -22,7 +23,7 @@
     <span class="hidden lg:inline"><%= supply_badge(status) %></span>
     <p class="text-sm <%= supply_line_class(forecast) %>"><%= supply_line(supply, forecast) %></p>
   </div>
-  <p class="mt-1 text-xs text-gray-600 lg:mt-0"><% if last&.product_name %><span class="block font-bold text-gray-900 [overflow-wrap:anywhere]"><%= last.product_name %></span><% end %><%= last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase") %></p>
+  <p class="mt-1 text-xs text-gray-600 lg:mt-0"><%= last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase") %></p>
   <div class="mt-3 flex flex-wrap items-center justify-between gap-2 lg:mt-0 lg:justify-end">
     <%= link_to household_supply_path(Current.household, supply), "aria-label": t("supplies.index.details_label", item: supply.name),
           class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-0 lg:px-3 lg:py-1.5 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>

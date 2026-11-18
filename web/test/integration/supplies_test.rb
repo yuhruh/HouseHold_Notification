@@ -582,13 +582,14 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "4710000000031", "Lux Shampoo 750ml" ] ], shampoo.barcodes.map { [ it.code, it.product_name ] }
     assert_equal [ "Pantene 700ml", "Lux Shampoo 750ml" ], shampoo.purchases.order(:purchased_on).map(&:product_name)
 
-    # the item's page names each brand; the lists name the one bought last and the search finds it
+    # the item's page names each brand; an All row's Last bought is the store and price alone, and the search still finds a brand
     follow_redirect!
     assert_select "li", /PX Mart.*Lux Shampoo 750ml/m
     assert_select "td span", "Pantene 700ml"
     assert_select "li", /\+2 瓶.*PX Mart.*Lux Shampoo 750ml/m
     get household_supplies_path(@home, tab: "all")
-    assert_select "#row_supply_#{shampoo.id} p span", "Lux Shampoo 750ml"
+    assert_select "#row_supply_#{shampoo.id} > p", /\APX Mart · /
+    assert_select "#row_supply_#{shampoo.id} > p", text: /Lux Shampoo 750ml/, count: 0
     get household_supplies_path(@home, q: "pantene")
     assert_select "main li", 1
     assert_select "#row_supply_#{shampoo.id}"
@@ -610,7 +611,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     shampoo.reload
   end
 
-  test "several brands in stock: the lists show each brand's number, and −1 asks which one" do
+  test "several brands in stock: the cards show each brand's number, an All row only the category, and −1 asks which one" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = two_brands
     paper = create_item
@@ -619,7 +620,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home, tab: "all")
     assert_select "#row_supply_#{shampoo.id}" do
-      assert_select "p", "2 Lux Shampoo 750ml · 1 Pantene 700ml"
+      assert_select "p", text: /Lux Shampoo 750ml · /, count: 0, msg: "under the name: the category, not each brand's number"
+      assert_select "a + p", "盥洗用品"
       assert_select "details summary[aria-label='Shampoo 用掉 1 瓶']", "用掉 1 瓶"
       assert_select "details p", "用掉哪一個？"
       assert_select "details form[action=?]", counts, 2
@@ -712,7 +714,6 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "h3 + ul li", 2
     assert_select "form[action=?]", counts, 0
     get household_supplies_path(@home, tab: "all")
-    assert_select "#row_supply_#{shampoo.id} p", "3 Lux Shampoo 750ml · 2 Pantene 700ml"
     assert_select "#row_supply_#{shampoo.id} details", 0
     post counts, params: { used_one: 1, product: "Pantene 700ml" }
     assert_response :forbidden
@@ -725,7 +726,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     Supplies::LogPurchase.call(shampoo, { quantity: 2, total_price: 398, purchased_on: @home.today, left_before: 1, product_name: "Lux Shampoo 750ml" }, user: users(:alex))
 
     get household_supplies_path(@home, tab: "all")
-    assert_select "#row_supply_#{shampoo.id} p", "2 Lux Shampoo 750ml · 1 未填品牌"
+    assert_select "#row_supply_#{shampoo.id} details form:last-of-type button", /Lux Shampoo 750ml.*剩 2/m
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /未填品牌.*剩 1/m
     assert_select "#row_supply_#{shampoo.id} details form:first-of-type input[name=product][value='']"
 
     post household_supply_counts_path(@home, shampoo), params: { used_one: 1, product: "" }, as: :turbo_stream

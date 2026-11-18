@@ -10,9 +10,9 @@ class SuppliesController < ApplicationController
   # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
-  # Four tabs, like Bills: To Buy (what to buy now, opens first), Stocked (enough for now, by the
+  # Four tabs, like Bills: To Buy (what to buy now), Stocked (enough for now, by the
   # month each moves to To Buy), Favorites (the items anyone starred, or one person's with `by`) and
-  # All (every item, with filters and search). A filter, category, search or the archived list is always All. All's filters
+  # All (every item, with filters and search; Supplies opens on it). A filter, category, search or the archived list is always All. All's filters
   # are switches, any number at once: several categories show the items in any of them, and Expiring
   # keeps only the expiring ones among them
   def index
@@ -30,7 +30,8 @@ class SuppliesController < ApplicationController
     @query = params[:q].to_s.strip
     @narrowed = @expiring || @chosen.any? || @query.present?
     all_only = @narrowed || params[:archived].present?
-    @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || "to_buy")
+    # Supplies opens on All; an old "Buy soon" filter link opens To Buy, where those items are
+    @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || (params[:filter] == "buy_soon" ? "to_buy" : "all"))
     @archived_count = Current.household.supplies.where.not(archived_at: nil).count
     @items = all.select { |supply, forecast| shown?(supply, forecast) }.sort_by { |supply, forecast| urgency(supply, forecast) }
     to_buy_and_stocked(all)

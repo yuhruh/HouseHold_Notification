@@ -33,7 +33,7 @@ class SupplyAlertsJobTest < ActiveJob::TestCase
     notice = notices.sole
     assert_equal @alex, notice.user
     assert_match "Shampoo", notice.body
-    assert_equal "/h/#{@home.id}/supplies", notice.url
+    assert_equal "/h/#{@home.id}/supplies?tab=to_buy", notice.url
     assert_equal 1, @calls.size
     assert_no_difference(-> { notices.count }) { with_push { SupplyAlertsJob.perform_now } }
   end

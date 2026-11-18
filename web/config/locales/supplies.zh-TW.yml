@@ -144,12 +144,11 @@ zh-TW:
       yahoo_japan: "Yahoo! JAPAN 購物"
       unknown: "商品資料庫"
     actions:
-      used_up_hint: "已經用完了：補貨後按「已補貨」，或還有剩的話更新數量"
+      used_up_hint: "已經用完了：買了之後按「補貨」，或還有剩的話更新數量"
       used_one: "用掉 %{amount}"
       used_one_label: "%{item} %{button}"
-      bought: "更新"
-      bought_more: "已補貨"
-      edit: "編輯"
+      bought_more: "補貨"
+      edit: "編輯品項"
     brands:
       which: "用掉哪一個？"
       oldest: "最早買的"
@@ -164,7 +163,7 @@ zh-TW:
     restock_prompt:
       title: "%{item} 用完了"
       title_estimate: "%{item} 可能用完了"
-      body: "該補貨了。補貨後按「已補貨」，App 才能繼續計算用得多快。"
+      body: "該補貨了。買了之後按「補貨」，App 才能繼續計算用得多快。"
       later: "稍後"
       still_have: "還有剩？更新數量"
     toast:
@@ -306,7 +305,7 @@ zh-TW:
     new:
       title: "新增日用品"
     edit:
-      title: "編輯 %{item}"
+      title: "編輯品項：%{item}"
       barcodes:
         title: "條碼"
         hint: "掃描這些條碼會打開「%{item}」。連結錯的可以移除。"
@@ -391,7 +390,7 @@ zh-TW:
         link_note_product_html: "條碼 %{code}（<strong>%{product}</strong>）會記在你選的項目上，下次掃描就會直接到那個項目。"
         link_taken: "條碼 %{code} 已經屬於你的某個項目。請選你買的東西。"
       new:
-        title: "已補貨：%{item}"
+        title: "補貨：%{item}"
       create:
         saved: "已記錄 %{item} %{unit}。"
         saved_with_ledger: "已記錄 %{item} %{unit}，並加入帳本。"

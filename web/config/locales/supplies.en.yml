@@ -144,12 +144,11 @@ en:
       yahoo_japan: "Yahoo! JAPAN Shopping"
       unknown: "a product database"
     actions:
-      used_up_hint: "Nothing left: log a purchase with Restocked, or update the count if you still have some"
+      used_up_hint: "Nothing left: tap Restock after you buy more, or update the count if you still have some"
       used_one: "Used %{amount}"
       used_one_label: "%{button}: %{item}"
-      bought: "Updated"
-      bought_more: "Restocked"
-      edit: "Edit"
+      bought_more: "Restock"
+      edit: "Edit item"
     brands:
       which: "Which one did you use?"
       oldest: "Oldest"
@@ -164,7 +163,7 @@ en:
     restock_prompt:
       title: "%{item} is used up"
       title_estimate: "%{item} is probably used up"
-      body: "Time to restock. Tap Restocked after you buy some, so the app keeps learning how fast it goes."
+      body: "Time to restock. Tap Restock after you buy some, so the app keeps learning how fast it goes."
       later: "Later"
       still_have: "Still have some? Update the count"
     toast:
@@ -306,7 +305,7 @@ en:
     new:
       title: "New supply item"
     edit:
-      title: "Edit %{item}"
+      title: "Edit item: %{item}"
       barcodes:
         title: "Barcodes"
         hint: "Scanning one of these opens %{item}. Remove one that was linked by mistake."
@@ -391,7 +390,7 @@ en:
         link_note_product_html: "Barcode %{code} (<strong>%{product}</strong>) will be remembered for the item you pick, so the next scan goes straight to it."
         link_taken: "Barcode %{code} already belongs to one of your items. Pick what you bought."
       new:
-        title: "Restocked: %{item}"
+        title: "Restock: %{item}"
       create:
         saved: "Saved %{unit} of %{item}."
         saved_with_ledger: "Saved %{unit} of %{item}, and added it to the Ledger."

@@ -508,7 +508,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#modal dialog[data-controller=modal] form[data-turbo-frame=_top]"
     get new_household_supply_purchase_path(@home, supply)
     assert_select "dialog[data-controller=modal]", 0
-    assert_select "h1", /已補貨/
+    assert_select "h1", /補貨：/
   end
 
   test "Log a purchase: buy-soon items first, then the rest" do
@@ -634,6 +634,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "#row_supply_#{paper.id} details", 0, "one brand: −1 stays a single tap"
     assert_select "#row_supply_#{paper.id} form[action=?]", household_supply_counts_path(@home, paper), 1
     assert_select "#row_supply_#{paper.id} form[action=?] button", household_supply_counts_path(@home, paper), "用掉 1 捲"
+    assert_select "#row_supply_#{paper.id} a[href=?]", new_household_supply_purchase_path(@home, paper), "補貨", "the same name as on the cards and the item's page: it opens the same form"
 
     get household_supplies_path(@home, tab: "stocked")
     assert_select "#card_supply_#{shampoo.id}" do

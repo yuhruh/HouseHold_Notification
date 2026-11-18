@@ -672,6 +672,34 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_nil shampoo.counts.order(:id).last.used_product
   end
 
+  test "brands with expiry dates: the one that expires first is on top, tagged, with the dates on each line" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = two_brands
+    pantene, lux = shampoo.purchases.order(:id).to_a
+    pantene.update!(expires_on: @home.today + 600)
+    lux.update!(expires_on: @home.today + 100)
+
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id}" do
+      assert_select "h3 + ul li:first-child", /Lux Shampoo 750ml\s+最快到期.*#{I18n.l(lux.expires_on, format: :supply_date, locale: :"zh-TW")} 到期 · .*購買 · PX Mart · 每瓶 NT\$199/m
+      assert_select "h3 + ul li:last-child", /Pantene 700ml.*#{I18n.l(pantene.expires_on, format: :supply_date, locale: :"zh-TW")} 到期 · .*購買 · Coupang/m
+      assert_select "h3 + ul li:last-child", text: /最快到期|最早買的/, count: 0
+      assert_select "details > summary + form label:first-of-type", /Lux Shampoo 750ml/, "Inventory lists them in the same order"
+    end
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /Lux Shampoo 750ml\s+最快到期.*剩 2 · .*到期 · .*購買/m
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", text: /PX Mart/, count: 0, msg: "with an expiry date the menu's line drops the store"
+
+    lux.update!(expires_on: @home.today - 1)
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id} h3 + ul li:first-child", /Lux Shampoo 750ml\s+已過期.*#{I18n.l(lux.expires_on, format: :supply_date, locale: :"zh-TW")} 已過期/m
+
+    paper = create_item
+    get household_supply_path(@home, paper)
+    assert_select "section#forecast_supply_#{paper.id} details", 0, "one brand: Inventory stays an open line"
+    assert_select "section#forecast_supply_#{paper.id} input[name='supply_count[level]']"
+  end
+
   test "an item's page with several brands: In stock by brand, a −1 for each, Inventory by brand, and History names the brand" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = two_brands
@@ -684,8 +712,11 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "h3 + ul li:first-child", /Pantene 700ml\s+最早買的.*購買 · Coupang · 每瓶 NT\$145.*1 瓶/m
       assert_select "h3 + ul li:first-child form[action=?] input[name=product][value='Pantene 700ml']", counts
       assert_select "h3 + ul li:last-child", /Lux Shampoo 750ml.*PX Mart · 每瓶 NT\$199.*2 瓶/m
-      assert_select "input[name='supply_count[brands][][name]'][value='Pantene 700ml'] + input[name='supply_count[brands][][left]'][value='1']"
-      assert_select "input[name='supply_count[brands][][name]'][value='Lux Shampoo 750ml'] + input[name='supply_count[brands][][left]'][value='2']"
+      assert_select "details:not([open]) > summary", /盤點\s+更新數量/, "Inventory is one closed line"
+      assert_select "details > summary + form label", 2
+      assert_select "details label:first-of-type", /Pantene 700ml.*瓶/m
+      assert_select "details input[name='supply_count[brands][][name]'][value='Pantene 700ml'] + input[name='supply_count[brands][][left]'][value='1']"
+      assert_select "details input[name='supply_count[brands][][name]'][value='Lux Shampoo 750ml'] + input[name='supply_count[brands][][left]'][value='2']"
       assert_select "input[name='supply_count[level]']", 0
       assert_select "details p", "用掉哪一個？"
     end

@@ -1,7 +1,7 @@
 <%# Used 1 bottle, in the item's own unit (in place, with a toast; off once nothing is left, saying why) and
     Restock (a dialog on a computer; the same name on every list and on the item's page, since it opens the same form). With several brands in stock the first one
     opens "Which one did you use?": a −1 button per brand that still
-    has some, the one bought first on top. `menu` places that menu: under the card or row on a phone
+    has some, the one to use first on top (with an expiry date its line drops the store, to stay short). `menu` places that menu: under the card or row on a phone
     (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
     view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar %>
 <% if policy(supply).update? && supply.archived_at.nil? %>
@@ -26,7 +26,7 @@
                   class: "btn-press flex min-h-13 w-full cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-1.5 text-left text-gray-900 [--press:3px]" do %>
               <span class="min-w-0">
                 <%= supply_brand_title(brand) %>
-                <span class="block text-xs text-gray-700"><%= safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand) ].compact, " · ") %></span>
+                <span class="block text-xs text-gray-700"><%= safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand, store: brand.expires_on.nil?) ].compact, " · ") %></span>
               </span>
               <span class="shrink-0 text-sm font-extrabold" aria-hidden="true">−1</span>
             <% end %>

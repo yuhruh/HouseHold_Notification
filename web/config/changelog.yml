@@ -3,18 +3,22 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
-- version: "1.20.1"
+- version: "1.21.0"
   date: 2026-11-18
   en:
     - "Supplies: Combine now works the way round you would expect. The item you opened is the one that is kept, and the item you pick moves into it as a brand. Before, it was the other way round: opening \"Face Wash\" and picking a product removed Face Wash. The button is now called \"Combine another item into this one\", and the page and the question it asks say which item keeps its name."
     - "Supplies: restocking with a purchase date in the past no longer makes the item look used up. Logging a face wash bought in September used to show \"0 now · Probably out\" and a made-up usage rate, because the purchase was placed before the count you already had. Now the stock is added to what you have today; the purchase date is only used for prices and expiry."
     - "Supplies › All: a shorter list. Under an item's name there is only its category, and Last bought shows the store and price without the product's name. Each brand's number and name are still on the To Buy, Stocked and Favorites cards, when you tap \"Used 1\", and on the item's page."
     - "Supplies: clearer button names. The green button is \"Restock\" everywhere; it used to say \"Updated\" in the All list and \"Restocked\" elsewhere, although both open the same form. \"Edit\" on an item's page is now \"Edit item\". The forms they open are titled to match."
+    - "Supplies: with several brands of one item, the one to use first is now the one that expires first. It is on top with an \"Expires first\" tag, and each brand's line shows its expiry date. With no expiry dates it is still the one bought first, tagged \"Oldest\". The \"Which one did you use?\" menu follows the same order."
+    - "Supplies: on an item with several brands, Inventory is now one line. Tap \"Update the count\" to open one row per brand."
   zh-TW:
     - "日用品：合併的方向改成比較直覺的方式。你打開的品項會保留，你選的品項會搬進來變成它的一個品牌。之前剛好相反：打開「洗面乳」再選一個商品，被移除的是「洗面乳」。按鈕改名為「把另一個品項合併進來」，頁面和確認訊息都會寫出哪個品項保留名稱。"
     - "日用品：補貨時填過去的購買日期，不會再讓品項看起來已經用完。之前記錄一瓶九月買的洗面乳，會顯示「目前 0 個 · 可能用完了」和一個憑空算出來的用量，因為那筆購買被排在你已經盤點的數量之前。現在補貨的數量會直接加到你目前的庫存上，購買日期只用於價格和到期日。"
     - "日用品 › 全部：清單更精簡。品項名稱下方只顯示分類，「上次購買」只顯示商店和價格，不再顯示商品名稱。各品牌的名稱和數量仍然會顯示在「該補貨」、「還夠用」和「我的最愛」的卡片上、按「用掉 1」時，以及品項頁面裡。"
     - "日用品：按鈕名稱更清楚。綠色按鈕一律叫「補貨」；之前在「全部」清單寫「更新」、其他地方寫「已補貨」，但打開的是同一個表單。品項頁面的「編輯」改為「編輯品項」。打開的表單標題也跟著改。"
+    - "日用品：同一個品項有好幾個品牌時，現在會把最快到期的排在最上面，標上「最快到期」，每個品牌也會顯示到期日。沒有填到期日時，仍然是最早買的排最上面，標「最早買的」。「用掉哪一個？」選單也是同樣的順序。"
+    - "日用品：有好幾個品牌的品項，「盤點」現在收成一行。點「更新數量」就會打開，每個品牌一列。"
 - version: "1.20.0"
   date: 2026-11-17
   en:

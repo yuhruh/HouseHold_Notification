@@ -12,9 +12,9 @@ class Supplies::BrandsTest < ActiveSupport::TestCase
 
   teardown { travel_back }
 
-  def buy(quantity, on:, left_before:, product: nil)
+  def buy(quantity, on:, left_before:, product: nil, expires: nil)
     travel_to(on.in_time_zone.change(hour: 10)) do
-      Supplies::LogPurchase.call(@supply, { quantity:, total_price: 289, purchased_on: Date.current, left_before:, product_name: product }, user: nil).tap { assert it.persisted?, it.errors.full_messages.inspect }
+      Supplies::LogPurchase.call(@supply, { quantity:, total_price: 289, purchased_on: Date.current, left_before:, product_name: product, expires_on: expires }, user: nil).tap { assert it.persisted?, it.errors.full_messages.inspect }
     end
   end
 
@@ -44,17 +44,53 @@ class Supplies::BrandsTest < ActiveSupport::TestCase
       Supplies::LogPurchase.call(@supply.reload, { quantity: 1, total_price: 120, purchased_on: Date.new(2026, 9, 3), left_before: 1, product_name: PANTENE }, user: nil)
     end
     assert_equal 2, @supply.reload.level
-    assert_equal [ [ PANTENE, 1, true ], [ LUX, 1, false ] ], brands.list.map { [ it.name, it.known, it.oldest ] }
+    assert_equal [ [ PANTENE, 1, true ], [ LUX, 1, false ] ], brands.list.map { [ it.name, it.known, it.first ] }
 
     at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil) }
     assert_equal({ LUX => 1 }, known(Date.new(2026, 11, 2)), "a plain −1 takes the one bought in September")
   end
 
-  test "each purchase adds to its brand; the one bought first is on top, marked oldest" do
+  test "with expiry dates the brand that expires first is on top, whichever was bought first, and usage is taken from it" do
+    buy(2, on: Date.new(2026, 9, 28), left_before: 0, product: PANTENE, expires: Date.new(2028, 6, 30))
+    buy(2, on: Date.new(2026, 10, 30), left_before: 2, product: LUX, expires: Date.new(2027, 3, 12))
+    list = brands.list
+    assert_equal [ [ LUX, 2, true ], [ PANTENE, 2, false ] ], list.map { [ it.name, it.known, it.first ] }
+    assert_equal [ Date.new(2027, 3, 12), Date.new(2028, 6, 30) ], list.map(&:expires_on)
+
+    at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil) }
+    assert_equal({ PANTENE => 2, LUX => 1 }, known(Date.new(2026, 11, 2)), "a plain −1 takes the one that expires first")
+    at(Date.new(2026, 11, 3)) { Supplies::RecordCount.call(@supply.reload, 1, user: nil) }
+    assert_equal({ PANTENE => 1 }, known(Date.new(2026, 11, 3)), "a count of the whole item empties it before the other")
+  end
+
+  test "a brand with an expiry date comes before one with none, even when the other was bought earlier" do
+    buy(1, on: Date.new(2026, 9, 28), left_before: 0, product: PANTENE)
+    buy(1, on: Date.new(2026, 10, 30), left_before: 1, product: LUX, expires: Date.new(2027, 3, 12))
+    assert_equal [ [ LUX, true, Date.new(2027, 3, 12) ], [ PANTENE, false, nil ] ], brands.list.map { [ it.name, it.first, it.expires_on ] }
+  end
+
+  test "a brand bought twice goes by its batch that expires first and still has some left" do
+    buy(1, on: Date.new(2026, 9, 1), left_before: 0, product: LUX, expires: Date.new(2027, 1, 31))
+    buy(1, on: Date.new(2026, 9, 28), left_before: 1, product: PANTENE, expires: Date.new(2027, 6, 30))
+    buy(1, on: Date.new(2026, 10, 30), left_before: 2, product: LUX, expires: Date.new(2028, 1, 31))
+    assert_equal [ [ LUX, Date.new(2027, 1, 31) ], [ PANTENE, Date.new(2027, 6, 30) ] ], brands.list.map { [ it.name, it.expires_on ] }
+
+    at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil, product: LUX) }
+    assert_equal [ [ PANTENE, Date.new(2027, 6, 30) ], [ LUX, Date.new(2028, 1, 31) ] ], brands(Date.new(2026, 11, 2)).list.map { [ it.name, it.expires_on ] },
+                 "the Lux that expired first is used, so the Lux left is the 2028 one"
+  end
+
+  test "with no expiry dates, two brands bought the same day: the one entered first is on top" do
+    buy(1, on: Date.new(2026, 9, 3), left_before: 0, product: PANTENE)
+    travel_to(Time.zone.local(2026, 9, 3, 11)) { Supplies::LogPurchase.call(@supply.reload, { quantity: 1, total_price: 120, purchased_on: Date.new(2026, 9, 3), left_before: 1, product_name: LUX }, user: nil) }
+    assert_equal [ [ PANTENE, true, nil ], [ LUX, false, nil ] ], brands.list.map { [ it.name, it.first, it.expires_on ] }
+  end
+
+  test "each purchase adds to its brand; the one bought first is on top, marked first" do
     two_brands
     assert_equal 3, @supply.reload.level
     list = brands.list
-    assert_equal [ [ PANTENE, 1, true ], [ LUX, 2, false ] ], list.map { [ it.name, it.known, it.oldest ] }
+    assert_equal [ [ PANTENE, 1, true ], [ LUX, 2, false ] ], list.map { [ it.name, it.known, it.first ] }
     assert_equal [ Date.new(2026, 9, 28), Date.new(2026, 10, 30) ], list.map { it.purchase.purchased_on }
     assert brands.several?
     assert_equal [ PANTENE, LUX ], brands.keys

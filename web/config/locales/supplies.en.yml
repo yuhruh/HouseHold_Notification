@@ -2,6 +2,7 @@ en:
   date:
     formats:
       supply_month: "%b %Y"
+      supply_date: "%b %d, %Y"
   activerecord:
     models:
       supply: "Supply item"
@@ -152,6 +153,10 @@ en:
     brands:
       which: "Which one did you use?"
       oldest: "Oldest"
+      expires_first: "Expires first"
+      expired: "Expired"
+      expires_on: "Expires %{date}"
+      expired_on: "Expired %{date}"
       title: "In stock by brand"
       unnamed: "No brand named"
       left: "%{count} left"
@@ -275,6 +280,8 @@ en:
       counted: "Inventory: "
       left_unit: "%{unit} left"
       update_count: "Update"
+      inventory: "Inventory"
+      open_count: "Update the count"
       counted_line: "Counted: %{left}"
       used_line: "Used 1"
       left_line: "%{left} left"

@@ -6,18 +6,24 @@ module Supplies
   # The item's purchases and counts are replayed in time order as lots, one per purchase:
   # - a purchase adds its quantity under its product ("" when none was named);
   # - −1 with a brand takes one from that brand, a count made brand by brand sets each brand;
-  # - any other change (a plain count, what was left before a purchase) takes from the lot bought
-  #   first, the same guess the forecast makes for expiry dates. Stock no purchase explains goes to
-  #   the brand bought last, or to the first brand bought when there was none yet.
+  # - any other change (a plain count, what was left before a purchase) takes from the lot to use
+  #   first. Stock no purchase explains goes to the brand bought last, or to the first brand bought
+  #   when there was none yet.
+  # The lot to use first is the one that expires first; lots with no expiry date come after those
+  # with one, in the order they were bought (the same day: the one entered first).
   # `known` is a brand's share of the last count. `left` is its share of the number shown now: the
-  # usage the forecast estimates since that count is also taken from the lot bought first, so the
+  # usage the forecast estimates since that count is also taken from the lot to use first, so the
   # brands always add up to the total on screen.
   class Brands
     NO_BRAND = "".freeze
 
     Lot = Struct.new(:key, :left, :purchase)
-    Brand = Data.define(:key, :name, :known, :left, :purchase, :oldest) do
+    # `purchase` is the one its stock to use first is from; `first` marks the brand to use first
+    Brand = Data.define(:key, :name, :known, :left, :purchase, :first) do
       def named? = name.present?
+
+      # When the stock of it to use first expires, if that purchase had a date
+      def expires_on = purchase&.expires_on
     end
 
     def self.key(product_name) = product_name.to_s
@@ -45,14 +51,14 @@ module Supplies
       @forecast = forecast
     end
 
-    # The brands with some left at the last count, the one bought first on top
+    # The brands with some left at the last count, the one to use first on top
     def list
       @list ||= begin
         shown = lots.map(&:dup)
         take(shown, shown.sum(&:left) - @forecast.on_hand_rounded)
         now = shown.group_by(&:key).transform_values { |mine| mine.sum(&:left) }
-        lots.select { it.left.positive? }.group_by(&:key).each_with_index.map do |(key, mine), index|
-          Brand.new(key:, name: key.presence, known: mine.sum(&:left), left: now.fetch(key, 0), purchase: mine.first.purchase, oldest: index.zero?)
+        use_first(lots).select { it.left.positive? }.group_by(&:key).each_with_index.map do |(key, mine), index|
+          Brand.new(key:, name: key.presence, known: mine.sum(&:left), left: now.fetch(key, 0), purchase: mine.first.purchase, first: index.zero?)
         end
       end
     end
@@ -99,13 +105,18 @@ module Supplies
     def events = @events ||= (@supply.purchases.to_a + @supply.counts.to_a).reject(&:new_record?).sort_by(&:at)
 
     # Lots stay in the order they were bought, not logged: a restock logged today for something
-    # bought in September is still the older stock, used first and marked Oldest
+    # bought in September is still the older stock
     def add(lots, lot)
       later = lots.index { it.purchase && it.purchase.purchased_on > lot.purchase.purchased_on }
       lots.insert(later || lots.size, lot)
     end
 
-    # Bring the lots to a count of the whole item: too many go from the lot bought first, extra ones
+    # The order stock is used in: lots with an expiry date by that date, then the rest as bought
+    def use_first(lots)
+      lots.each_with_index.sort_by { |lot, index| [ lot.purchase&.expires_on ? 0 : 1, lot.purchase&.expires_on, index ] }.map(&:first)
+    end
+
+    # Bring the lots to a count of the whole item: too many go from the lot to use first, extra ones
     # join the brand bought last
     def settle(lots, target)
       extra = lots.sum(&:left) - target
@@ -116,7 +127,7 @@ module Supplies
     end
 
     def take(lots, amount)
-      lots.each do |lot|
+      use_first(lots).each do |lot|
         break unless amount.positive?
         used = [ lot.left, amount ].min
         lot.left -= used

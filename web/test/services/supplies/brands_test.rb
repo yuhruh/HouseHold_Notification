@@ -38,6 +38,18 @@ class Supplies::BrandsTest < ActiveSupport::TestCase
     assert_not brands.several?
   end
 
+  test "a restock logged late is still the older stock when it was bought first" do
+    buy(1, on: Date.new(2026, 10, 30), left_before: 0, product: LUX)
+    at(Date.new(2026, 11, 1)) do
+      Supplies::LogPurchase.call(@supply.reload, { quantity: 1, total_price: 120, purchased_on: Date.new(2026, 9, 3), left_before: 1, product_name: PANTENE }, user: nil)
+    end
+    assert_equal 2, @supply.reload.level
+    assert_equal [ [ PANTENE, 1, true ], [ LUX, 1, false ] ], brands.list.map { [ it.name, it.known, it.oldest ] }
+
+    at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil) }
+    assert_equal({ LUX => 1 }, known(Date.new(2026, 11, 2)), "a plain −1 takes the one bought in September")
+  end
+
   test "each purchase adds to its brand; the one bought first is on top, marked oldest" do
     two_brands
     assert_equal 3, @supply.reload.level

@@ -15,9 +15,14 @@ class SupplyPurchase < ApplicationRecord
 
   def old_price? = false
 
-  # When it happened, for ordering against counts: the moment it was logged when it was logged the
-  # same day, else midday of the purchase date in the household's zone
+  # When its stock joined the count, for ordering against counts. A restock counts from the moment
+  # it was logged (stocked_at), whatever its purchase date: what was left before it was answered
+  # then, and counts made since the purchase date didn't include it. A purchase entered as history
+  # (Supplies::PurchaseDetails) has no stocked_at and counts from its purchase date: the moment it
+  # was logged when it was logged the same day, else midday of that date in the household's zone
   def at
+    return stocked_at if stocked_at
+
     zone = ActiveSupport::TimeZone[household.time_zone] || Time.zone
     logged = (created_at || Time.current).in_time_zone(zone)
     logged.to_date == purchased_on ? logged : zone.local(purchased_on.year, purchased_on.month, purchased_on.day, 12)

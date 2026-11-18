@@ -954,6 +954,29 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal 597, supply.purchases.sole.reload.total_price
   end
 
+  test "Restocked with a purchase date weeks back: the stock counts from now, and the count made since isn't read as usage" do
+    post household_supplies_path(@home), params: { supply: { name: "Face wash", supply_category_id: category("toiletries").id, unit: "piece", level: 0 } }
+    supply = @home.supplies.sole
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: { product_name: "Perfect Whip", quantity: 1, total_price: 120,
+      store: "Matsukiyo", purchased_on: @home.today - 75, left_before: 1 } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal 2, supply.reload.level, "1 left before + 1 bought"
+    assert_empty supply.forecast.samples, "not 2 used in 75 days"
+    assert_not supply.forecast.out?
+
+    follow_redirect!
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :forecast)}", /2 pieces now|目前 2 ?個/
+    assert_select "##{ActionView::RecordIdentifier.dom_id(supply, :forecast)}", text: /Probably out|可能用完了/, count: 0
+
+    # Correcting its date on Edit doesn't move it before that count either
+    patch household_supply_path(@home, supply), params: { supply: { name: "Face wash" },
+      purchase: { purchased_on: @home.today - 80, quantity: 1, total_price: 120, store: "Matsukiyo", product_name: "Perfect Whip" } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal 2, supply.reload.level
+    assert_equal @home.today - 80, supply.purchases.sole.purchased_on
+    assert_empty supply.forecast.samples
+  end
+
   test "Edit › Delete item removes it for good with its history; Ledger expenses stay, and a receipt with nothing left can be added again" do
     supply = create_item
     other = create_item(name: "Dish soap")

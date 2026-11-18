@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -903,6 +903,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_190000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "product_name"
+    t.datetime "stocked_at"
     t.index ["created_by_id"], name: "index_supply_purchases_on_created_by_id"
     t.index ["household_id"], name: "index_supply_purchases_on_household_id"
     t.index ["receipt_import_id"], name: "index_supply_purchases_on_receipt_import_id"

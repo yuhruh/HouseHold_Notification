@@ -83,7 +83,7 @@ module Supplies
           settle(lots, event.left_before)
           key = self.class.key(event.product_name)
           lots.each { it.key ||= key }
-          lots << Lot.new(key, event.quantity, event)
+          add(lots, Lot.new(key, event.quantity, event))
         else
           if event.by_product.present?
             assign(lots, event.by_product)
@@ -97,6 +97,13 @@ module Supplies
     end
 
     def events = @events ||= (@supply.purchases.to_a + @supply.counts.to_a).reject(&:new_record?).sort_by(&:at)
+
+    # Lots stay in the order they were bought, not logged: a restock logged today for something
+    # bought in September is still the older stock, used first and marked Oldest
+    def add(lots, lot)
+      later = lots.index { it.purchase && it.purchase.purchased_on > lot.purchase.purchased_on }
+      lots.insert(later || lots.size, lot)
+    end
 
     # Bring the lots to a count of the whole item: too many go from the lot bought first, extra ones
     # join the brand bought last

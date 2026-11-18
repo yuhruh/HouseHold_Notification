@@ -1,5 +1,5 @@
 <%# Used 1 bottle, in the item's own unit (in place, with a toast; off once nothing is left, saying why) and
-    Restocked (a dialog on a computer; "Updated" in an All row). With several brands in stock the first one
+    Restock (a dialog on a computer; the same name on every list and on the item's page, since it opens the same form). With several brands in stock the first one
     opens "Which one did you use?": a −1 button per brand that still
     has some, the one bought first on top. `menu` places that menu: under the card or row on a phone
     (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
@@ -43,7 +43,7 @@
     <% end %>
     <%= link_to new_household_supply_purchase_path(Current.household, supply), data: modal_link_data,
           class: "btn-press rounded-xl bg-green-100 px-3 py-1.5 text-sm font-bold text-green-900" do %>
-      <%= local_assigns[:compact] ? t("supplies.actions.bought") : t("supplies.actions.bought_more") %>
+      <%= t("supplies.actions.bought_more") %>
     <% end %>
   </div>
 <% end %>

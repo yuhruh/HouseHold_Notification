@@ -72,7 +72,7 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     Supplies::LogPurchase.call(shampoo, { quantity: 3, total_price: 897, purchased_on: home.today - 5, product_name: "PDRN Care" }, user: alex)
     sign_in
     visit household_supply_path(home, shampoo)
-    click_on "Edit"
+    click_on "Edit item"
     within("dialog[open]", wait: 5) { click_on "Combine another item into this one" }
     assert_text "Which item joins Shampoo?", wait: 5
     asked = dismiss_confirm { find("button", text: /\APromise Volume Shampoo/).click }
@@ -84,7 +84,7 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     assert_text "In stock by brand"
     assert_not Supply.exists?(promise.id)
 
-    click_on "Edit"
+    click_on "Edit item"
     asked = within("dialog[open]", wait: 5) { accept_confirm { click_on "Delete item" } }
     assert_match "Delete Shampoo for good? Its history (2 purchases)", asked
     assert_text "Deleted Shampoo.", wait: 5

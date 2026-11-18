@@ -27,6 +27,6 @@
   <div class="mt-3 flex flex-wrap items-center justify-between gap-2 lg:mt-0 lg:justify-end">
     <%= link_to household_supply_path(Current.household, supply), "aria-label": t("supplies.index.details_label", item: supply.name),
           class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-0 lg:px-3 lg:py-1.5 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
-    <%= render "supplies/actions", supply:, forecast:, compact: true, menu: :row %>
+    <%= render "supplies/actions", supply:, forecast:, menu: :row %>
   </div>
 </li>

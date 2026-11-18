@@ -1,5 +1,5 @@
 <%# Log a purchase…: which item? The ones to buy soon first, then the rest; a search narrows both.
-    From a scan ("It's one of my items"): which item is this barcode? It goes along to the Restocked
+    From a scan ("It's one of my items"): which item is this barcode? It goes along to the Restock
     form, which remembers it for the item picked %>
 <% scan = { barcode: @barcode, product_name: @product_name }.compact %>
 <% title = t(@barcode ? "supplies.purchases.pick.link_title" : "supplies.purchases.pick.title") %>

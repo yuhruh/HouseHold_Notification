@@ -7,8 +7,10 @@
   date: 2026-11-18
   en:
     - "Supplies: Combine now works the way round you would expect. The item you opened is the one that is kept, and the item you pick moves into it as a brand. Before, it was the other way round: opening \"Face Wash\" and picking a product removed Face Wash. The button is now called \"Combine another item into this one\", and the page and the question it asks say which item keeps its name."
+    - "Supplies: Restocked with a purchase date in the past no longer makes the item look used up. Logging a face wash bought in September used to show \"0 now · Probably out\" and a made-up usage rate, because the purchase was placed before the count you already had. Now the stock is added to what you have today; the purchase date is only used for prices and expiry."
   zh-TW:
     - "日用品：合併的方向改成比較直覺的方式。你打開的品項會保留，你選的品項會搬進來變成它的一個品牌。之前剛好相反：打開「洗面乳」再選一個商品，被移除的是「洗面乳」。按鈕改名為「把另一個品項合併進來」，頁面和確認訊息都會寫出哪個品項保留名稱。"
+    - "日用品：按「已補貨」並填過去的購買日期，不會再讓品項看起來已經用完。之前記錄一瓶九月買的洗面乳，會顯示「目前 0 個 · 可能用完了」和一個憑空算出來的用量，因為那筆購買被排在你已經盤點的數量之前。現在補貨的數量會直接加到你目前的庫存上，購買日期只用於價格和到期日。"
 - version: "1.20.0"
   date: 2026-11-17
   en:

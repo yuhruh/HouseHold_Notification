@@ -14,7 +14,7 @@ module Supplies
     def self.given?(attributes) = attributes.values_at(:quantity, :total_price).any?(&:present?)
 
     def self.for_new(supply, attributes, level:, user:, add_to_ledger:)
-      purchase = LogPurchase.call(supply, attributes.merge(left_before: 0), user:, add_to_ledger:)
+      purchase = LogPurchase.call(supply, attributes.merge(left_before: 0), user:, add_to_ledger:, dated_back: true)
       return purchase unless purchase.persisted?
 
       # What's left now; on the day of purchase, only when some are already used
@@ -40,14 +40,15 @@ module Supplies
     end
 
     # Added after the fact: it goes before the item's first count when bought on or before that day,
-    # with nothing left before it, so the count becomes a usage reading
+    # with nothing left before it, so the count becomes a usage reading. Bought after that count, it
+    # is a restock like any other and counts from now
     def self.first_purchase(supply, attributes, user:, add_to_ledger:)
       first = supply.counts.min_by(&:at)
       zone = ActiveSupport::TimeZone[supply.household.time_zone] || Time.zone
       bought_on = attributes[:purchased_on].presence && Date.parse(attributes[:purchased_on].to_s)
       before_first = first && bought_on && bought_on <= first.at.in_time_zone(zone).to_date
       attributes = attributes.merge(left_before: 0, created_at: first.at - 1.second) if before_first
-      LogPurchase.call(supply, attributes, user:, add_to_ledger:)
+      LogPurchase.call(supply, attributes, user:, add_to_ledger:, dated_back: before_first)
     rescue Date::Error
       supply.purchases.new(attributes.merge(household: supply.household, purchased_on: nil)).tap(&:validate)
     end

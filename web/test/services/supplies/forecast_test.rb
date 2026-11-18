@@ -68,6 +68,28 @@ class Supplies::ForecastTest < ActiveSupport::TestCase
     assert_equal [ 5, 10 ], samples.map(&:consumed)
   end
 
+  test "a restock dated weeks back counts from when it's logged: the count made since isn't read as usage" do
+    count(0, on: Date.new(2026, 11, 17))
+    travel_to Time.zone.local(2026, 11, 18, 0, 27)
+    Supplies::LogPurchase.call(@supply.reload, { quantity: 1, total_price: 120, purchased_on: Date.new(2026, 9, 3), left_before: 1 }, user: nil)
+    f = forecast(Date.current)
+    assert_equal 2, @supply.level, "1 left before + 1 bought, from now"
+    assert_empty f.samples, "not 2 used since September"
+    assert_equal 2, f.on_hand_rounded
+    assert_not f.out?
+    assert_equal :not_enough_data, f.status
+  end
+
+  test "a restock dated a few days back doesn't lose those days to the usage rate" do
+    @supply.update!(guess_days_per_unit: 3)
+    count(0, on: Date.new(2026, 11, 10))
+    travel_to Time.zone.local(2026, 11, 18, 10)
+    Supplies::LogPurchase.call(@supply.reload, { quantity: 1, total_price: 120, purchased_on: Date.new(2026, 11, 12), left_before: 0 }, user: nil)
+    f = forecast(Date.current)
+    assert_equal 1, f.on_hand_rounded, "one roll now, not one roll six days ago"
+    assert_not f.out?
+  end
+
   test "−1 taps within a day add up to one sample" do
     buy(6, on: Date.new(2026, 11, 1), left_before: 0)
     travel_to(Time.zone.local(2026, 11, 3, 9)) { Supplies::RecordCount.used_one(@supply, user: nil) }

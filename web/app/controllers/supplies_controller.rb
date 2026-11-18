@@ -200,8 +200,10 @@ class SuppliesController < ApplicationController
     [ supply.name ] + supply.purchases.flat_map { [ it.store, it.product_name ] } + supply.barcodes.map(&:product_name)
   end
 
+  # The item running out first comes first: by status, then the earliest buy-by date. Items without a
+  # date (not enough data yet) and ties go fewest left first, then A to Z
   def urgency(supply, forecast)
-    [ SuppliesHelper::STATUS_ORDER.index(forecast.status), forecast.buy_by || forecast.run_out_on || Date.new(9999), supply.name ]
+    [ SuppliesHelper::STATUS_ORDER.index(forecast.status), forecast.buy_by || forecast.run_out_on || Date.new(9999), forecast.on_hand_rounded, supply.name ]
   end
 
   # To Buy's three groups, Stocked's months (by the day each item moves to To Buy) and Not enough

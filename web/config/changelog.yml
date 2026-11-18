@@ -15,6 +15,7 @@
     - "Supplies on a phone: Details, \"Used 1\" and Restock are now the same size, and on most phones they fit on one line in English as they already did in Chinese, so each item takes less room. On narrow phones (375px wide and under) the longer English buttons still take two lines."
     - "Supplies now opens on the All tab, with every item, instead of To Buy. To Buy is still the first tab, and the low-stock reminder still opens it."
     - "Supplies › All: \"Edit categories\" is now a button on its own line under the category filters, instead of a small link after the last one."
+    - "Supplies: items the app cannot forecast yet (\"Not enough data yet\") are now listed with the fewest left first, instead of A to Z, on All, Favorites and Stocked. Items with a forecast still come first, the one running out soonest on top."
   zh-TW:
     - "日用品：合併的方向改成比較直覺的方式。你打開的品項會保留，你選的品項會搬進來變成它的一個品牌。之前剛好相反：打開「洗面乳」再選一個商品，被移除的是「洗面乳」。按鈕改名為「把另一個品項合併進來」，頁面和確認訊息都會寫出哪個品項保留名稱。"
     - "日用品：補貨時填過去的購買日期，不會再讓品項看起來已經用完。之前記錄一瓶九月買的洗面乳，會顯示「目前 0 個 · 可能用完了」和一個憑空算出來的用量，因為那筆購買被排在你已經盤點的數量之前。現在補貨的數量會直接加到你目前的庫存上，購買日期只用於價格和到期日。"
@@ -25,6 +26,7 @@
     - "日用品（手機）：「查看明細」、「用掉 1」和「補貨」現在一樣大。英文介面在大部分手機上也和中文一樣排成一行，每個品項佔的空間更小。在比較窄的手機（寬度 375px 以下）上，較長的英文按鈕仍然會排成兩行。"
     - "日用品現在一打開就是「全部」分頁，顯示所有品項，不再是「該補貨」。「該補貨」仍然是第一個分頁，快用完的提醒也還是會打開它。"
     - "日用品 › 全部：「編輯類別」改成按鈕，自己一行，放在類別篩選的下方，不再是最後一個類別後面的小連結。"
+    - "日用品：還無法預估的品項（「資料不足」）現在照剩餘數量排序，剩最少的排前面，不再照名稱排，適用於「全部」、「我的最愛」和「還夠用」。可以預估的品項仍然排在前面，最快用完的在最上面。"
 - version: "1.20.0"
   date: 2026-11-17
   en:

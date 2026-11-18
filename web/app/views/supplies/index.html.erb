@@ -41,8 +41,8 @@
       <% if @tab == "all" %>
         <%# The filters are switches, any number at once; each link keeps the others (and the search) and flips its own %>
         <% view = ->(categories: @chosen, expiring: @expiring) { household_supplies_path(Current.household, { tab: "all", filter: ("expiring" if expiring), category: categories.map(&:id).presence, q: @query.presence }.compact) } %>
-        <div class="flex flex-wrap items-center gap-2">
-          <nav aria-label="<%= t(".filters") %>" class="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+        <div class="space-y-2.5">
+          <nav aria-label="<%= t(".filters") %>" class="flex flex-wrap items-center gap-2">
             <span aria-hidden="true" class="text-sm font-semibold text-gray-700"><%= t(".filters") %></span>
             <% if @summary[:expiring].positive? || @expiring %>
               <%= supply_filter_chip(t(".expiring"), view.(expiring: !@expiring), chosen: @expiring, count: @summary[:expiring]) %>
@@ -51,25 +51,28 @@
               <% chosen = @chosen.include?(category) %>
               <%= supply_filter_chip(category.name, view.(categories: (chosen ? @chosen - [ category ] : @chosen + [ category ]).sort_by { [ it.position, it.id ] }), chosen:) %>
             <% end %>
-            <%# The ledger's own categories are added, renamed and archived in Settings %>
-            <% if policy(SupplyCategory).write? %>
-              <%= link_to t(".edit_categories"), household_categories_path(Current.household, anchor: "supplies"), class: "inline-flex min-h-9 items-center px-1 text-sm font-semibold text-blue-700 underline" %>
-            <% end %>
           </nav>
-          <% if @narrowed %>
-            <p class="flex items-center gap-3 text-sm font-semibold text-gray-700 lg:ml-2">
-              <span><%= t(".showing", shown: @items.size, total: @summary[:total]) %></span>
-              <%= link_to t(".clear_all"), household_supplies_path(Current.household, tab: "all"), class: "inline-flex min-h-9 items-center text-blue-700 hover:underline" %>
-            </p>
-          <% else %>
-            <p class="text-sm font-semibold text-gray-700 lg:ml-2"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
-          <% end %>
-          <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
-            <%= form.hidden_field :tab, value: "all", id: nil %>
-            <% if @expiring %><%= form.hidden_field :filter, value: "expiring", id: nil %><% end %>
-            <% @chosen.each do |category| %><%= hidden_field_tag "category[]", category.id, id: nil %><% end %>
-            <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-72 rounded-xl border border-gray-400 px-3 py-1.5" %>
-          <% end %>
+          <%# Under the chips: Edit categories (the ledger's own categories are added, renamed and archived in Settings), then
+              what the list adds up to or how much of it is showing, and on a computer the search at the right %>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <% if policy(SupplyCategory).write? %>
+              <%= link_to nav_label("edit.png", t(".edit_categories")), household_categories_path(Current.household, anchor: "supplies"), class: "btn-press press-sm inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-white px-3 text-sm font-bold text-gray-900 lg:min-h-9" %>
+            <% end %>
+            <% if @narrowed %>
+              <p class="flex w-full items-center gap-3 text-sm font-semibold text-gray-700 lg:w-auto">
+                <span><%= t(".showing", shown: @items.size, total: @summary[:total]) %></span>
+                <%= link_to t(".clear_all"), household_supplies_path(Current.household, tab: "all"), class: "inline-flex min-h-9 items-center text-blue-700 hover:underline" %>
+              </p>
+            <% else %>
+              <p class="w-full text-sm font-semibold text-gray-700 lg:w-auto"><%= t(".monthly") %> ~<%= money(@summary[:monthly].round, Current.household.default_currency) %></p>
+            <% end %>
+            <%= form_with url: household_supplies_path(Current.household), method: :get, class: "ml-auto hidden lg:block" do |form| %>
+              <%= form.hidden_field :tab, value: "all", id: nil %>
+              <% if @expiring %><%= form.hidden_field :filter, value: "expiring", id: nil %><% end %>
+              <% @chosen.each do |category| %><%= hidden_field_tag "category[]", category.id, id: nil %><% end %>
+              <%= form.search_field :q, value: @query, placeholder: t(".search"), "aria-label": t(".search"), class: "w-72 rounded-xl border border-gray-400 px-3 py-1.5" %>
+            <% end %>
+          </div>
         </div>
         <% if @items.any? %>
           <div aria-hidden="true" class="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_22.5rem] gap-4 rounded-t-2xl border-x-2 border-t-2 border-b-2 border-(--card-line) bg-gray-50 px-4 py-2 text-xs font-bold text-gray-700 shadow-[4px_0_0_var(--card-line)] lg:grid">

@@ -301,12 +301,14 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     create_item(name: "Plenty", level: 50, guess_days_per_unit: 3)
     create_item(name: "Unknown", level: 5, guess_days_per_unit: nil)
 
+    # Supplies opens on All
     get household_supplies_path(@home)
-    assert_select "nav a[aria-current=page]", /該補貨/
-    get household_supplies_path(@home, tab: "all")
+    assert_select "nav a[aria-current=page]", /全部/
     soon = @home.supplies.find_by!(name: "Soon")
     assert_select "li#row_supply_#{soon.id} a.btn-press[href=?]", household_supply_path(@home, soon), text: /查看明細/
-    get household_supplies_path(@home)
+    assert_select "nav a[href=?]", household_supplies_path(@home, tab: "to_buy"), text: /該補貨/
+    get household_supplies_path(@home, tab: "to_buy")
+    assert_select "nav a[aria-current=page]", /該補貨/
     # All shows its count on a phone too, like To Buy and Stocked
     assert_select "nav a[href=?] span.rounded-full:not(.max-sm\\:hidden)", household_supplies_path(@home, tab: "all"), text: @home.supplies.active.count.to_s
     assert_select "section", text: /用完或現在就補貨/ do
@@ -344,7 +346,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "nav[aria-label=篩選] a[aria-current]", 0
     assert_select "nav[aria-label=篩選] a", text: /準備補貨|全部|快過期/, count: 0
     assert_select "a[href=?]", household_supplies_path(@home, tab: "all", category: [ cleaning ]), text: /清潔/
-    assert_select "nav[aria-label=篩選] a[href=?]", household_categories_path(@home, anchor: "supplies"), text: "編輯類別"
+    # Edit categories is a button under the chips, not one of the filters
+    assert_select "nav[aria-label=篩選] a[href=?]", household_categories_path(@home, anchor: "supplies"), count: 0
+    assert_select "nav[aria-label=篩選] + div a.btn-press[href=?]", household_categories_path(@home, anchor: "supplies"), text: "編輯類別"
     assert_select "p", text: /每月約/
     assert_select "a", text: "全部清除", count: 0
 

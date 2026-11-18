@@ -43,7 +43,7 @@ class SupplyAlertsJob < ApplicationJob
       Notification.create!(household:, user:, kind: "supplies",
         title: I18n.t("supplies.alerts.title", household: household.name, count: lines.size),
         body: lines.map(&:text).join("\n"),
-        url: Rails.application.routes.url_helpers.household_supplies_path(household))
+        url: Rails.application.routes.url_helpers.household_supplies_path(household, tab: "to_buy"))
     end
     pushed = pref.web_push && push(user, notification)
     self.class.email_fallback!(notification) unless pushed

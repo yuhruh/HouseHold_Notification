@@ -13,6 +13,8 @@
     - "Supplies: with several brands of one item, the one to use first is now the one that expires first. It is on top with an \"Expires first\" tag, and each brand's line shows its expiry date. With no expiry dates it is still the one bought first, tagged \"Oldest\". The \"Which one did you use?\" menu follows the same order, and History now shows an expiry date with its year."
     - "Supplies: on an item with several brands, Inventory is now one line. Tap \"Update the count\" to open one row per brand."
     - "Supplies on a phone: Details, \"Used 1\" and Restock are now the same size, and on most phones they fit on one line in English as they already did in Chinese, so each item takes less room. On narrow phones (375px wide and under) the longer English buttons still take two lines."
+    - "Supplies now opens on the All tab, with every item, instead of To Buy. To Buy is still the first tab, and the low-stock reminder still opens it."
+    - "Supplies › All: \"Edit categories\" is now a button on its own line under the category filters, instead of a small link after the last one."
   zh-TW:
     - "日用品：合併的方向改成比較直覺的方式。你打開的品項會保留，你選的品項會搬進來變成它的一個品牌。之前剛好相反：打開「洗面乳」再選一個商品，被移除的是「洗面乳」。按鈕改名為「把另一個品項合併進來」，頁面和確認訊息都會寫出哪個品項保留名稱。"
     - "日用品：補貨時填過去的購買日期，不會再讓品項看起來已經用完。之前記錄一瓶九月買的洗面乳，會顯示「目前 0 個 · 可能用完了」和一個憑空算出來的用量，因為那筆購買被排在你已經盤點的數量之前。現在補貨的數量會直接加到你目前的庫存上，購買日期只用於價格和到期日。"
@@ -21,6 +23,8 @@
     - "日用品：同一個品項有好幾個品牌時，現在會把最快到期的排在最上面，標上「最快到期」，每個品牌也會顯示到期日。沒有填到期日時，仍然是最早買的排最上面，標「最早買的」。「用掉哪一個？」選單也是同樣的順序，「記錄」裡的到期日也會顯示年份。"
     - "日用品：有好幾個品牌的品項，「盤點」現在收成一行。點「更新數量」就會打開，每個品牌一列。"
     - "日用品（手機）：「查看明細」、「用掉 1」和「補貨」現在一樣大。英文介面在大部分手機上也和中文一樣排成一行，每個品項佔的空間更小。在比較窄的手機（寬度 375px 以下）上，較長的英文按鈕仍然會排成兩行。"
+    - "日用品現在一打開就是「全部」分頁，顯示所有品項，不再是「該補貨」。「該補貨」仍然是第一個分頁，快用完的提醒也還是會打開它。"
+    - "日用品 › 全部：「編輯類別」改成按鈕，自己一行，放在類別篩選的下方，不再是最後一個類別後面的小連結。"
 - version: "1.20.0"
   date: 2026-11-17
   en:

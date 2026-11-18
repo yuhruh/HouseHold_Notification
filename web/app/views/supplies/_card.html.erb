@@ -1,5 +1,6 @@
 <%# One item on To Buy, Stocked or Favorites, like a bill card on Bills › To Pay: what it needs in its group's
-    colour, the item, and at the top right its stars (supplies/favorite: other people's tags, then your button), then Details, Used 1 bottle (the item's unit) and Restock. Replaced in place after it (counts/update) %>
+    colour, the item, and at the top right its stars (supplies/favorite: other people's tags, then your button), then Details, Used 1 bottle (the item's unit) and Restock:
+    one size on a phone (44px tall, 14px text; Details without its arrow), so they fit on one line. Replaced in place after it (counts/update) %>
 <% status = forecast.status %>
 <% left = supply_left(supply, forecast) %>
 <% headline = case status
@@ -31,8 +32,8 @@
       <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-gray-200" aria-hidden="true"><div class="h-full rounded-full <%= SuppliesHelper::BAR.fetch(status) %>" style="width: <%= forecast.fill_percent %>%"></div></div>
     <% end %>
   </div>
-  <div class="flex flex-wrap items-center gap-3 lg:gap-2">
-    <%= link_to household_supply_path(Current.household, supply), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= link_to household_supply_path(Current.household, supply), class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3 py-2 text-sm font-medium text-gray-900 lg:min-h-9 lg:py-1" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="hidden h-5 w-5 lg:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
     <%= render "supplies/actions", supply:, forecast:, menu: :card %>
   </div>
 </li>

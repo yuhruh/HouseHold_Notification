@@ -3,7 +3,9 @@
     Several brands in stock: −1 opens its menu under the row, which says how many of each (the cards and
     the item's page show the numbers and the products too).
     Your star in front of the name, other people's (tags) after the category.
-    Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too %>
+    Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too.
+    On a phone Details, Used 1 and Restock are one size (44px tall, 14px text) and Details has no arrow, so the
+    three fit on one line in English from 390px wide %>
 <% status = forecast.status %>
 <% last = supply.latest_purchase %>
 <li id="<%= dom_id(supply, :row) %>" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_22.5rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
@@ -26,7 +28,7 @@
   <p class="mt-1 text-xs text-gray-600 lg:mt-0"><%= last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase") %></p>
   <div class="mt-3 flex flex-wrap items-center justify-between gap-2 lg:mt-0 lg:justify-end">
     <%= link_to household_supply_path(Current.household, supply), "aria-label": t("supplies.index.details_label", item: supply.name),
-          class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 lg:min-h-0 lg:px-3 lg:py-1.5 lg:text-sm" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
+          class: "btn-press inline-flex min-h-11 items-center gap-1 rounded-xl bg-blue-200 px-3 py-2 text-sm font-medium text-gray-900 lg:min-h-0 lg:py-1.5" do %><%= image_tag("icons/details.png", alt: "", class: "h-5 w-5 object-contain") %><span><%= t("records.index.open") %></span><svg class="hidden h-5 w-5 lg:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><% end %>
     <%= render "supplies/actions", supply:, forecast:, menu: :row %>
   </div>
 </li>

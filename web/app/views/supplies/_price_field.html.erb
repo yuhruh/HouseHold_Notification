@@ -1,0 +1,26 @@
+<%# A price box with a currency menu in front of it (paid_currency_controller; its panel is
+    supplies/_paid_panel). The menu starts on the household's currency, so something bought at home
+    is typed as before. Another currency takes the price as the receipt prints it (JP¥1,196).
+    Closed, the menu shows only the three letters, so it stays narrow on a phone: the real <select>
+    lies see-through over them. locals: form, record, label, required %>
+<% paid = supply_paid_form(record) %>
+<% names = ->(codes) { codes.map { [ "#{it} · #{t("supplies.currencies.#{it}")}", it ] } } %>
+<% used = Supplies::Currency.used_by(Current.household) - [ paid[:home].code ] %>
+<div>
+  <%= form.label :total_price, label, class: "block text-sm font-medium" %>
+  <div class="flex">
+    <span class="relative shrink-0 rounded-l-md focus-within:outline-2 focus-within:outline-blue-600">
+      <span data-paid-currency-target="code" aria-hidden="true" class="flex h-full w-[4.875rem] items-center rounded-l-md border border-r-0 border-gray-400 bg-gray-100 pr-5 pl-2.5 font-semibold text-gray-900"><%= paid[:entry].code %></span>
+      <span aria-hidden="true" class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-xs text-gray-700">▾</span>
+      <%= form.select :paid_currency, nil, {}, "aria-label": t("supplies.paid.currency"), class: "absolute inset-0 h-full w-full cursor-pointer opacity-0",
+            data: { paid_currency_target: "currency", action: "change->paid-currency#refresh" } do %>
+        <%= options_for_select(names.([ paid[:home].code ]), paid[:entry].code) %>
+        <% if used.any? %><optgroup label="<%= t("supplies.paid.used_before") %>"><%= options_for_select(names.(used), paid[:entry].code) %></optgroup><% end %>
+        <optgroup label="<%= t("supplies.paid.others") %>"><%= options_for_select(names.(Supplies::Currency::CODES - used - [ paid[:home].code ]), paid[:entry].code) %></optgroup>
+      <% end %>
+    </span>
+    <%= form.number_field :total_price, value: supply_amount_value(paid[:price]), min: 0, step: paid[:entry].step, required: local_assigns[:required], inputmode: "decimal",
+          class: "block w-full min-w-0 rounded-r-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600",
+          data: { paid_currency_target: "price", action: "input->paid-currency#render" } %>
+  </div>
+</div>

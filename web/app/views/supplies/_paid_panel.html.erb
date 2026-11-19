@@ -1,0 +1,57 @@
+<%# Under a price typed in another currency (supplies/_price_field): how it was paid, and the amount
+    in the household's currency that is saved. Hidden while the menu is on the household's own.
+      Credit card: a Card fee box (1.5% to start with) and two amounts, without the fee and with it;
+                   the one chosen is saved.
+      Cash:        one amount, the rate alone.
+    Under them the rate and the day it is for (the day of the purchase, not today). An amount can be
+    typed over; "Use the app's figure" brings the app's back. With no rate to be had the panel turns
+    amber and asks for the amount. paid_currency_controller fills all of it in; saving works the
+    amount out again (Supplies::PaidAmount). locals: form, record %>
+<% paid = supply_paid_form(record) %>
+<% symbol = paid[:home].symbol %>
+<% chip = "relative inline-flex min-h-10 cursor-pointer items-center rounded-full border-2 border-(--card-line) bg-white px-3 text-sm font-semibold whitespace-nowrap text-gray-900 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-100 has-[:checked]:font-bold has-[:checked]:text-blue-900 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-600" %>
+<% row = "flex min-h-[3.125rem] items-center justify-between gap-2 rounded-lg border border-gray-400 px-2.5 py-0.5 has-[input:checked:enabled]:border-blue-700 has-[input:checked:enabled]:bg-white has-[input:checked:enabled]:font-bold has-[input:checked:enabled]:ring-1 has-[input:checked:enabled]:ring-blue-700 group-data-[single]:min-h-0 group-data-[single]:border-0 group-data-[single]:p-0" %>
+<% box = "w-24 rounded-md border border-gray-400 bg-white px-2.5 py-2 font-normal text-gray-900 focus:outline-blue-600 group-data-[single]:w-full" %>
+<% amount = { min: 0, step: paid[:home].step, inputmode: "decimal", class: box } %>
+<div data-paid-currency-target="panel" class="rounded-lg bg-sky-50 p-3 text-sky-900" <%= "hidden" if paid[:entry] == paid[:home] %>>
+  <div class="mb-2.5 flex flex-wrap items-end gap-x-3 gap-y-2.5">
+    <fieldset class="min-w-0">
+      <legend class="text-sm font-semibold"><%= t("supplies.paid.paid_with") %></legend>
+      <div class="mt-1 flex gap-2">
+        <% { "card" => paid[:card], "cash" => !paid[:card] }.each do |how, chosen| %>
+          <label class="<%= chip %>"><%= form.radio_button :paid_by, how, checked: chosen, class: "absolute opacity-0", data: { paid_currency_target: "paidBy", action: "change->paid-currency#render" } %><%= t("supplies.paid.#{how}") %></label>
+        <% end %>
+      </div>
+    </fieldset>
+    <label data-paid-currency-target="feeField" class="block text-sm font-semibold"><%= t("supplies.paid.card_fee") %>
+      <span class="mt-1 flex items-center gap-1.5">
+        <%= form.number_field :card_fee_percent, value: supply_amount_value(paid[:fee]), min: 0, max: Supplies::PaidAmount::MAX_CARD_FEE, step: "0.1", inputmode: "decimal",
+              class: "w-[4.25rem] rounded-md border border-gray-400 bg-white px-2.5 py-2 font-normal text-gray-900 focus:outline-blue-600", data: { paid_currency_target: "fee", action: "input->paid-currency#render" } %>
+        <span>%</span>
+      </span>
+    </label>
+  </div>
+  <fieldset data-paid-currency-target="amounts" class="group min-w-0">
+    <legend data-paid-currency-target="legend" class="text-sm font-semibold"><%= t("supplies.paid.amount_to_save", symbol:) %></legend>
+    <div class="mt-1.5 flex flex-col gap-2 sm:max-w-sm sm:group-data-[single]:max-w-48">
+      <div class="<%= row %>">
+        <label data-paid-currency-target="choiceLabel" class="flex items-center gap-2 text-sm text-gray-900"><%= form.radio_button :card_fee_included, "0", checked: !paid[:included], class: "h-[18px] w-[18px] shrink-0", data: { paid_currency_target: "choice", action: "change->paid-currency#render" } %><span><%= t("supplies.paid.without_fee") %></span></label>
+        <%= form.number_field :home_total, value: supply_amount_value(paid[:home_total]), "aria-label": t("supplies.paid.amount_without_fee", symbol:), **amount,
+              data: { paid_currency_target: "without", action: "input->paid-currency#typedOver change->paid-currency#settled" } %>
+      </div>
+      <div data-paid-currency-target="withRow" class="<%= row %>">
+        <label class="flex items-center gap-2 text-sm text-gray-900"><%= form.radio_button :card_fee_included, "1", checked: paid[:included], class: "h-[18px] w-[18px] shrink-0", data: { paid_currency_target: "choice", action: "change->paid-currency#render" } %><span data-paid-currency-target="withLabel"><%= t("supplies.paid.with_fee", percent: number_with_precision(paid[:fee], precision: 2, strip_insignificant_zeros: true)) %></span></label>
+        <%= form.number_field :home_total_with_fee, value: supply_amount_value(paid[:home_total_with_fee]), "aria-label": t("supplies.paid.amount_with_fee", symbol:), **amount,
+              data: { paid_currency_target: "withFee", action: "input->paid-currency#typedOver change->paid-currency#settled" } %>
+      </div>
+    </div>
+  </fieldset>
+  <p class="mt-1.5 text-xs" aria-live="polite">
+    <strong data-paid-currency-target="rateLine" class="block text-[13px]" hidden></strong>
+    <span data-paid-currency-target="rateDay" class="block" hidden><%= t("supplies.paid.rate_day") %></span>
+    <span data-paid-currency-target="hint" class="mt-1 block" hidden></span>
+    <span data-paid-currency-target="noRate" class="block" hidden></span>
+  </p>
+  <button type="button" data-paid-currency-target="useApp" data-action="paid-currency#useApp" hidden class="btn-press press-sm mt-2 mb-1 inline-flex min-h-10 cursor-pointer items-center rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900"></button>
+  <button type="button" data-paid-currency-target="retry" data-action="paid-currency#retry" hidden class="btn-press press-sm mt-2 mb-1 inline-flex min-h-10 cursor-pointer items-center rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900"><%= t("supplies.paid.try_again") %></button>
+</div>

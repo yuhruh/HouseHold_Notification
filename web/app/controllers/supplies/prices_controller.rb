@@ -12,7 +12,9 @@ class Supplies::PricesController < ApplicationController
 
   def create
     authorize @supply, :update?
-    @price = @supply.prices.new(price_params.merge(household: Current.household, currency: Current.household.default_currency, created_by: Current.user))
+    # A price typed in another currency is saved as what it came to in the household's own
+    attributes = Supplies::PaidAmount.resolve(price_params, household: Current.household)
+    @price = @supply.prices.new(attributes.merge(household: Current.household, currency: Current.household.default_currency, created_by: Current.user))
     if @price.save
       redirect_to household_supply_path(Current.household, @supply), notice: t(".saved", item: @price.display_name), status: :see_other
     else
@@ -33,6 +35,6 @@ class Supplies::PricesController < ApplicationController
   end
 
   def price_params
-    params.expect(supply_price: %i[product_name store quantity total_price purchased_on])
+    params.expect(supply_price: %i[product_name store quantity total_price purchased_on] + Supplies::PaidAmount::KEYS)
   end
 end

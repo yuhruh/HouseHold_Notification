@@ -60,6 +60,6 @@ class Supplies::PurchasesController < ApplicationController
   end
 
   def purchase_params
-    params.expect(supply_purchase: %i[quantity total_price store purchased_on expires_on left_before product_name])
+    params.expect(supply_purchase: %i[quantity total_price store purchased_on expires_on left_before product_name] + Supplies::PaidAmount::KEYS)
   end
 end

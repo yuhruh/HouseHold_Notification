@@ -9,6 +9,8 @@ module Supplies
   # from its purchase date
   class LogPurchase
     def self.call(supply, attributes, user:, add_to_ledger: false, dated_back: false)
+      # A price typed in another currency: total_price becomes the amount in the household's own
+      attributes = PaidAmount.resolve(attributes, household: supply.household)
       purchase = supply.purchases.new(attributes.merge(household: supply.household, created_by: user))
       purchase.currency ||= supply.household.default_currency
       purchase.stocked_at ||= Time.current unless dated_back

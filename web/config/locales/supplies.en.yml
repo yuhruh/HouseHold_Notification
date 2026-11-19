@@ -28,12 +28,22 @@ en:
         purchased_on: "Date"
         expires_on: "Expires"
         left_before: "How many were left before"
+        paid_currency: "Currency"
+        paid_total: "Total price"
+        paid_by: "Paid with"
+        card_fee_percent: "Card fee"
+        home_total: "The amount to save"
       supply_price:
         product_name: "Product name"
         quantity: "Amount"
         total_price: "Price"
         store: "Store"
         purchased_on: "Bought on"
+        paid_currency: "Currency"
+        paid_total: "Price"
+        paid_by: "Paid with"
+        card_fee_percent: "Card fee"
+        home_total: "The amount to save"
       supply_count:
         level: "Count"
     errors:
@@ -44,14 +54,26 @@ en:
               name_missing: "Give the category a name in at least one language."
         supply_purchase:
           attributes:
+            base:
+              home_amount_missing: "The rate for %{paid} couldn't be fetched. Type the amount in %{symbol} to save."
             total_price:
               whole_number: "must be a whole number of dollars"
+            home_total:
+              whole_number: "must be a whole number of dollars"
+            paid_total:
+              whole_number: "must be a whole number in this currency"
             purchased_on:
               in_the_future: "can't be in the future"
         supply_price:
           attributes:
+            base:
+              home_amount_missing: "The rate for %{paid} couldn't be fetched. Type the amount in %{symbol} to save."
             total_price:
               whole_number: "must be a whole number of dollars"
+            home_total:
+              whole_number: "must be a whole number of dollars"
+            paid_total:
+              whole_number: "must be a whole number in this currency"
             purchased_on:
               in_the_future: "can't be in the future"
   layouts:
@@ -416,6 +438,53 @@ en:
         product_name_hint: "What you bought this time, like a brand and size. It shows in Price history, so you can compare brands; every brand shares this item's count. Leave it empty for plain \"%{item}\"."
         product_name_scanned: "Filled in from the barcode you scanned. Every brand shares this item's count."
         barcode_note_html: "Barcode %{code} will be remembered for <strong>%{item}</strong> when you save."
+    paid:
+      currency: "Currency"
+      used_before: "Used before"
+      others: "Others"
+      paid_with: "Paid with"
+      card: "Credit card"
+      cash: "Cash"
+      card_fee: "Card fee"
+      amount: "Amount in %{symbol}"
+      amount_to_save: "Amount in %{symbol} to save"
+      without_fee: "Without the card fee"
+      with_fee: "With the %{percent}% card fee"
+      amount_without_fee: "Amount in %{symbol} without the card fee"
+      amount_with_fee: "Amount in %{symbol} with the card fee"
+      rate_line: "%{one} = %{rate} · rate for %{date}"
+      rate_day: "The rate is for the day you bought it, not today. Change the date and it follows."
+      hint:
+        card: "The one you choose is saved: %{price} a %{unit}. Type over an amount if your statement says something else."
+        card_plain: "The one you choose is saved. Type over an amount if your statement says something else."
+        cash: "No card fee. That is %{price} a %{unit}. Change the amount if you got a different rate."
+        cash_plain: "No card fee. Change the amount if you got a different rate."
+        typed: "You typed %{typed}, so the app's %{app} isn't used. That is %{price} a %{unit}."
+        typed_plain: "You typed %{typed}, so the app's %{app} isn't used."
+      use_app: "Use the app's figure: %{app}"
+      no_rate: "The rate for %{currency} couldn't be fetched just now. Type the %{symbol} amount to save, or try again."
+      try_again: "Try again"
+      line:
+        card_with_fee: "Paid %{amount} by card, with fee"
+        card_without_fee: "Paid %{amount} by card, without fee"
+        card: "Paid %{amount} by card"
+        cash: "Paid %{amount} in cash"
+        plain: "Paid %{amount}"
+    currencies:
+      TWD: "New Taiwan dollar"
+      JPY: "Japanese yen"
+      USD: "US dollar"
+      KRW: "South Korean won"
+      CNY: "Chinese yuan"
+      HKD: "Hong Kong dollar"
+      EUR: "Euro"
+      GBP: "British pound"
+      THB: "Thai baht"
+      SGD: "Singapore dollar"
+      MYR: "Malaysian ringgit"
+      VND: "Vietnamese dong"
+      AUD: "Australian dollar"
+      CAD: "Canadian dollar"
     barcodes:
       destroy:
         removed: "Removed barcode %{code} from %{item}."

@@ -100,6 +100,7 @@ Rails.application.routes.draw do
         get :restock, to: "supplies/purchases#pick"
         get :scan, to: "supplies/scans#show"
         get "scan/barcode", to: "supplies/scans#barcode", as: :scan_barcode
+        get :exchange_rate, to: "supplies/exchange_rates#show"
         post :receipt, to: "supplies/receipts#new", as: :receipt_review
         post "receipt/save", to: "supplies/receipts#create", as: :receipt
       end

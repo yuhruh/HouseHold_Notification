@@ -26,7 +26,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
 | v1 extras | Google Sheet import, photo attachments, dashboard & charts |
 | Charts | **Apache ECharts** (via Stimulus) with click-to-drill-down into the raw records |
 | File storage | **Active Storage `Disk` service on a Railway Volume** mounted on the web service. No Cloudflare R2 or other external object storage. Photos are served only through a membership-checked controller. Moving to S3-compatible storage later is a `Mirror`-service migration (see `adr/0004-storage-volume.md`) |
-| Deferred to v2 | Native Android shell, 保養記錄, 電池更換紀錄, currency conversion, budgets, OCR, bank sync |
+| Deferred to v2 | Native Android shell, 保養記錄, 電池更換紀錄, currency conversion (except a Supplies purchase made abroad, see Out of scope), budgets, OCR, bank sync |
 
 ## Diagrams
 
@@ -492,7 +492,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
 17. **i18n:** zh-TW and en for all strings, mailers and push text; locale-aware dates and money.
     - **Language switch (added 2026-10-19):** a button in the header (and top right on signed-out pages) switches between 中文 and English, each label written in its own language. Signed in, it saves `users.locale`, the same setting as My account; signed out, it sets a `locale` cookie. Order: the user's setting → the cookie → the browser's Accept-Language → zh-TW. It returns to the same page (internal referers only).
 
-**Out of scope (v1):** native apps, currency conversion, budgets, OCR, bank sync, cross-household views (combined dashboards, moving records between households; switching between households **is** in scope), offline mode, 保養記錄 / 電池更換紀錄.
+**Out of scope (v1):** native apps, currency conversion (one exception, added 2026-11-19: a Supplies purchase typed in another currency is converted once, when it is entered, at the rate for the day it was bought, with an optional card fee, and saved in the household's currency; Bills and the Ledger convert nothing), budgets, OCR, bank sync, cross-household views (combined dashboards, moving records between households; switching between households **is** in scope), offline mode, 保養記錄 / 電池更換紀錄.
 
 ### Review resolutions log
 Every review finding raised so far, and where the plan now resolves it. Status: **Resolved** = specified in this plan and covered by tests in Verification.

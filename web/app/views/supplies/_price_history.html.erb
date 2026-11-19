@@ -1,5 +1,7 @@
 <%# Price history: purchases and old prices, newest first. Two-line rows on a phone, a table from sm up.
-    ★ marks the lowest price per unit; old prices (comparing only, no stock change) can be deleted %>
+    ★ marks the lowest price per unit; old prices (comparing only, no stock change) can be deleted.
+    Every price is in the household's currency; one paid abroad has the price there under it, and how
+    it was paid ("Paid JP¥1,196 by card, with fee") %>
 <% lowest = price_history.min_by(&:unit_price) %>
 <% unit_one = t("supplies.units.#{supply.unit}_one") %>
 <% can_edit = policy(supply).update? && !supply.archived_at %>
@@ -29,6 +31,7 @@
           <span class="text-right font-bold tabular-nums"><%= money(entry.total_price, entry.currency) %></span>
           <span class="min-w-0 text-gray-600"><%= [ entry.store.presence || "—", supply_count(supply, entry.quantity), l(entry.purchased_on, format: :long) ].join(" · ") %></span>
           <span class="whitespace-nowrap text-right text-gray-600 tabular-nums"><%= supply_unit_price(entry) %>/<%= unit_one %></span>
+          <% if (paid = supply_paid_line(entry)) %><span class="col-span-2 text-right text-xs text-gray-600 tabular-nums"><%= paid %></span><% end %>
           <span class="col-span-2 mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %><span class="ml-auto"><% delete.(entry) %></span></span>
         </li>
       <% end %>
@@ -52,7 +55,7 @@
               <td class="px-3 py-2.5"><span class="font-semibold"><%= entry.display_name %></span><span class="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %></span></td>
               <td class="px-3 py-2.5"><%= entry.store.presence || "—" %></td>
               <td class="whitespace-nowrap px-3 py-2.5 text-right"><%= supply_count(supply, entry.quantity) %></td>
-              <td class="whitespace-nowrap px-3 py-2.5 text-right"><span class="font-bold"><%= money(entry.total_price, entry.currency) %></span><span class="block text-xs text-gray-600"><%= supply_unit_price(entry) %>/<%= unit_one %></span></td>
+              <td class="whitespace-nowrap px-3 py-2.5 text-right"><span class="font-bold"><%= money(entry.total_price, entry.currency) %></span><span class="block text-xs text-gray-600"><%= supply_unit_price(entry) %>/<%= unit_one %></span><% if (paid = supply_paid_line(entry)) %><span class="block text-xs text-gray-600"><%= paid %></span><% end %></td>
               <td class="px-2 py-2"><% delete.(entry) %></td>
             </tr>
           <% end %>

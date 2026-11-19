@@ -3,6 +3,18 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.22.0"
+  date: 2026-11-19
+  en:
+    - "Supplies: something bought abroad can be typed in its own currency. The price box on Restock, a new item's first purchase, Edit and \"Add an old price\" has a currency menu (JPY, USD, KRW and 10 more; the ones you used before come first). Type the price as the receipt prints it, and the app works out the NT$ amount from the exchange rate for the day you bought it, not the day you type it in. Under the amount it says which day the rate is for; change the date and the rate follows."
+    - "Supplies: for a purchase in another currency, choose Credit card or Cash. With a card there is a Card fee box (1.5% to start with, change it to your card's) and two amounts to choose from, without the fee and with it; the one you choose is saved. Cash has no fee. You can type over an amount if your statement says something else, and the form remembers what you chose for next time."
+    - "Supplies: the lists, Where to buy, the lowest price and the Ledger expense all use the NT$ amount you saved, card fee included when you chose it. History and Price history also show what was paid abroad, for example \"NT$250 (JP¥1,196)\" and \"Paid JP¥1,196 by card, with fee\"."
+    - "If the exchange rate can't be fetched (no connection), the form asks for the NT$ amount instead, so you can always save. Only two currency codes and a date are sent to the rate service; nothing about you or what you bought."
+  zh-TW:
+    - "日用品：在國外買的東西，可以直接用當地幣別輸入。「補貨」、新品項的第一筆購買、「編輯」和「新增舊價格」的價格欄位多了幣別選單（JPY、USD、KRW 和另外 10 種；用過的排在前面）。照收據上的金額輸入，App 會用購買當天的匯率換算成台幣，不是輸入當天的匯率。金額下方會寫出是哪一天的匯率；改日期，匯率會跟著換。"
+    - "日用品：用外幣購買時，可以選「信用卡」或「現金」。刷卡會多一個「刷卡手續費」欄位（預設 1.5%，可以改成你的卡的費率），並列出兩個金額讓你選：不含手續費和含手續費，選哪一個就記哪一個。現金沒有手續費。帳單上的金額不一樣的話可以直接改，表單也會記住你這次的選擇。"
+    - "日用品：清單、「去哪買」、最低價和帳本的支出，用的都是你記下的台幣金額，選了含手續費就是含手續費的。「記錄」和「價格記錄」也會顯示在國外實際付的金額，例如「NT$250 (JP¥1,196)」和「刷卡實付 JP¥1,196（含手續費）」。"
+    - "查不到匯率時（沒有網路），表單會改請你輸入台幣金額，所以隨時都能儲存。送到匯率服務的只有兩個幣別代碼和一個日期，不含你的資料或買了什麼。"
 - version: "1.21.0"
   date: 2026-11-18
   en:

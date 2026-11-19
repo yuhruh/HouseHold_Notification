@@ -3,7 +3,8 @@
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% stores = Current.household.supply_purchases.where.not(store: nil).distinct.pluck(:store) | Current.household.supply_prices.where.not(store: nil).distinct.pluck(:store) %>
 <%= render layout: "shared/modal_or_page", locals: { title: t("supplies.prices.new.title", item: @supply.name), icon: "expense.png" } do %>
-  <%= form_with model: @price, url: household_supply_prices_path(Current.household, @supply), class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
+  <%= form_with model: @price, url: household_supply_prices_path(Current.household, @supply), class: "space-y-4",
+        data: { turbo_frame: "_top", **supply_paid_data(unit: t("supplies.units.#{@supply.unit}_one")) } do |form| %>
     <% if @price.errors.any? %>
       <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @price.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
     <% end %>
@@ -20,17 +21,14 @@
     <div class="grid grid-cols-2 gap-3">
       <div>
         <%= form.label :quantity, t("supplies.prices.new.quantity", unit: t("supplies.units.#{@supply.unit}_other")), class: "block text-sm font-medium" %>
-        <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field %>
+        <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field, data: { paid_currency_target: "quantity", action: "input->paid-currency#render" } %>
       </div>
-      <div>
-        <%= form.label :total_price, t("supplies.prices.new.total_price"), class: "block text-sm font-medium" %>
-        <% currency = Current.household.default_currency %>
-        <%= form.number_field :total_price, value: (Household::WHOLE_CURRENCIES.include?(currency) && @price.total_price == @price.total_price&.round ? @price.total_price&.to_i : @price.total_price), min: 0, step: (currency == "USD" ? "0.01" : "1"), required: true, inputmode: "decimal", class: field %>
-      </div>
+      <%= render "supplies/price_field", form:, record: @price, label: t("supplies.prices.new.total_price"), required: true %>
     </div>
+    <%= render "supplies/paid_panel", form:, record: @price %>
     <div>
       <%= form.label :purchased_on, t("supplies.prices.new.purchased_on"), class: "block text-sm font-medium" %>
-      <%= form.date_field :purchased_on, required: true, max: Current.household.today, class: field %>
+      <%= form.date_field :purchased_on, required: true, max: Current.household.today, class: field, data: { paid_currency_target: "date", action: "change->paid-currency#refresh" } %>
     </div>
     <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= t("supplies.prices.new.hint") %></p>
     <div class="flex flex-wrap items-center gap-3">

@@ -165,7 +165,7 @@ module SuppliesHelper
   def supply_unit_price(purchase)
     price = purchase.unit_price
     precision = price >= 100 || price == price.round ? 0 : 1
-    prefix = purchase.currency == "USD" ? "US$" : "NT$"
+    prefix = (Supplies::Currency[purchase.currency] || Supplies::Currency["TWD"]).symbol
     precision = 2 if purchase.currency == "USD" && price < 100
     "#{prefix}#{number_with_delimiter(number_with_precision(price, precision:))}"
   end
@@ -219,11 +219,74 @@ module SuppliesHelper
     end
   end
 
+  # What a purchase cost: "NT$250", and for one made abroad the price there in brackets,
+  # "NT$250 (JP¥1,196)"
+  def supply_cost(entry)
+    home = money(entry.total_price, entry.currency)
+    return home unless entry.paid_abroad?
+    safe_join([ home, tag.span("(#{money(entry.paid_total, entry.paid_currency)})", class: "text-gray-600") ], " ")
+  end
+
+  # Price history, under a price paid abroad: "Paid JP¥1,196 by card, with fee" (the card's fee is in
+  # the amount), "… by card, without fee", "… in cash"
+  def supply_paid_line(entry)
+    return unless entry.paid_abroad?
+    how = if entry.paid_by == "cash" then "cash"
+    elsif entry.paid_by != "card" then "plain"
+    elsif entry.card_fee_included.nil? then "card"
+    else entry.card_fee_included ? "card_with_fee" : "card_without_fee"
+    end
+    t("supplies.paid.line.#{how}", amount: money(entry.paid_total, entry.paid_currency))
+  end
+
+  # What the price field opens on (supplies/_price_field): the currency and the price as typed, how
+  # it was paid, and the two home-currency boxes. A price paid abroad opens as it was saved (or as it
+  # was typed, when the form was refused); anything else on what this household chose last time
+  def supply_paid_form(record)
+    home = Supplies::Currency[Current.household.default_currency]
+    abroad = record.paid_abroad? && record.paid_currency != home.code
+    last = Supplies::PaidAmount.defaults(Current.household)
+    card = abroad && record.paid_by ? record.paid_by == "card" : last[:paid_by] == "card"
+    included = abroad && !record.card_fee_included.nil? ? record.card_fee_included : last[:card_fee_included]
+    # Saved, total_price is the home amount and paid_total the price; as typed, total_price is the price
+    saved = record.total_price if abroad && record.paid_total
+    { home:, entry: (Supplies::Currency[record.paid_currency] if abroad) || home, card:, included:,
+      price: abroad ? record.paid_total || record.total_price : record.total_price,
+      fee: (record.card_fee_percent if abroad) || last[:card_fee_percent],
+      home_total: record.home_total.presence || (saved unless card && included),
+      home_total_with_fee: record.home_total_with_fee.presence || (saved if card && included) }
+  end
+
+  # On a form with a price field: what paid_currency_controller works with. The currencies, where
+  # to ask for a rate, and the lines it writes under the amounts, with the numbers left for it to
+  # fill in. unit: the item's unit ("piece"), for "NT$125 a piece"; without one (a new item, whose
+  # unit can still change) the lines leave the price per unit out
+  def supply_paid_data(unit: nil)
+    home = Supplies::Currency[Current.household.default_currency]
+    blank = { price: "%{price}", typed: "%{typed}", app: "%{app}" }
+    texts = %w[card cash typed].flat_map do |mode|
+      [ [ "#{mode}Plain", t("supplies.paid.hint.#{mode}_plain", **blank) ], ([ mode, t("supplies.paid.hint.#{mode}", unit:, **blank) ] if unit) ].compact
+    end.to_h
+    texts.merge!(rate: t("supplies.paid.rate_line", one: "%{one}", rate: "%{rate}", date: "%{date}"), useApp: t("supplies.paid.use_app", app: "%{app}"),
+                 noRate: t("supplies.paid.no_rate", currency: "%{currency}", symbol: home.symbol), withFee: t("supplies.paid.with_fee", percent: "%{percent}"),
+                 amount: t("supplies.paid.amount", symbol: home.symbol), amountToSave: t("supplies.paid.amount_to_save", symbol: home.symbol))
+    { controller: "paid-currency", paid_currency_home_value: home.code, paid_currency_locale_value: I18n.locale,
+      paid_currency_url_value: exchange_rate_household_supplies_path(Current.household), paid_currency_texts_value: texts.to_json,
+      paid_currency_currencies_value: Supplies::Currency::ALL.transform_values { { symbol: it.symbol, decimals: it.decimals } }.to_json }
+  end
+
+  # A number box's value without a pointless ".0": 1196, 18.99
+  def supply_amount_value(amount)
+    return if amount.blank?
+    amount = amount.to_d
+    amount == amount.round ? amount.to_i : amount
+  end
+
   # A History line: "+12 · NT$289 · Costco", "Counted: 4 rolls", or with the brand a −1 named
   # "Used 1 · Pantene Shampoo 700ml · 1 bottle left"
   def supply_history_line(supply, event)
     if event.is_a?(SupplyPurchase)
-      safe_join([ "+#{supply_count(supply, event.quantity)}", money(event.total_price, event.currency), event.store.presence,
+      safe_join([ "+#{supply_count(supply, event.quantity)}", supply_cost(event), event.store.presence,
                   (tag.span(event.product_name, class: "font-semibold") if event.product_name) ].compact, " · ")
     elsif event.used_product.present?
       safe_join([ t("supplies.show.used_line"), tag.span(event.used_product, class: "font-semibold"), t("supplies.show.left_line", left: supply_count(supply, event.level)) ], " · ")

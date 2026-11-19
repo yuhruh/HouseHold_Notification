@@ -1152,4 +1152,236 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert_equal 2, @home.supplies.count
   end
+
+  # Bought abroad: a rate already kept for a day, so the rate service isn't asked
+  def keep_rate(base, on, rate)
+    ExchangeRate.create!(base:, quote: "TWD", rated_on: on, published_on: on, rate:, fetched_at: Time.current)
+  end
+
+  # The rate service can't be reached
+  def without_rate_service
+    real = Supplies::ExchangeRateLookup.method(:fetch)
+    Supplies::ExchangeRateLookup.define_singleton_method(:fetch) { |_url| nil }
+    yield
+  ensure
+    Supplies::ExchangeRateLookup.define_singleton_method(:fetch, real)
+  end
+
+  def face_wash = @home.supplies.create!(name: "Face Wash", kind: "toiletries", unit: "piece", level: 2)
+
+  def dom_id(...) = ActionView::RecordIdentifier.dom_id(...)
+
+  test "bought abroad by card: the yen price is saved in NT$ with the 1.5% card fee, and the Ledger, the lists and the item's page use it" do
+    supply = face_wash
+    day = @home.today - 2
+    keep_rate("JPY", day, "0.20612")
+
+    get new_household_supply_purchase_path(@home, supply)
+    assert_select "form[data-controller='paid-currency'][data-paid-currency-home-value='TWD']" do
+      assert_select "select[name='supply_purchase[paid_currency]']" do
+        assert_select "option", 14
+        assert_select "option[selected][value='TWD']", "TWD · 新台幣"
+        assert_select "optgroup[label='用過的']", 0
+        assert_select "optgroup[label='其他'] option[value='JPY']", "JPY · 日圓"
+      end
+      assert_select "input[name='supply_purchase[total_price]'][step='1'][data-paid-currency-target='price']"
+      assert_select "input[name='supply_purchase[quantity]'][data-paid-currency-target='quantity']"
+      assert_select "input[name='supply_purchase[purchased_on]'][data-paid-currency-target='date']"
+      # Hidden on the household's own currency: something bought at home is typed as before
+      assert_select "[data-paid-currency-target='panel'][hidden]" do
+        assert_select "input[name='supply_purchase[paid_by]'][value='card'][checked]"
+        assert_select "input[name='supply_purchase[paid_by]'][value='cash']:not([checked])"
+        assert_select "input[name='supply_purchase[card_fee_percent]'][value='1.5'][max='10']"
+        assert_select "legend", "要記下的 NT$ 金額"
+        assert_select "input[name='supply_purchase[card_fee_included]'][value='1'][checked]"
+        assert_select "label", /不含刷卡手續費/
+        assert_select "label", /含 1.5% 刷卡手續費/
+        assert_select "input[name='supply_purchase[home_total]']"
+        assert_select "input[name='supply_purchase[home_total_with_fee]']"
+        assert_select "span", "用的是購買當天的匯率，不是今天的。改日期，匯率會跟著換。"
+      end
+    end
+
+    # The rate the form shows is the one for the day it was bought
+    get exchange_rate_household_supplies_path(@home, from: "JPY", on: day.iso8601)
+    assert_equal({ "rate" => "0.20612", "on" => day.iso8601 }, response.parsed_body.to_h)
+
+    assert_difference -> { @home.records.count } do
+      post household_supply_purchases_path(@home, supply), params: { add_to_ledger: "1", supply_purchase: { quantity: 2, total_price: 1196, paid_currency: "JPY",
+        paid_by: "card", card_fee_percent: "1.5", card_fee_included: "1", home_total: "247", home_total_with_fee: "250", store: "松本清", purchased_on: day, left_before: 2 } }
+    end
+    assert_redirected_to household_supply_path(@home, supply)
+    purchase = supply.purchases.sole
+    assert_equal [ 250, "TWD", "JPY", 1196, BigDecimal("0.20612"), "card", BigDecimal("1.5"), true ],
+                 purchase.values_at(:total_price, :currency, :paid_currency, :paid_total, :exchange_rate, :paid_by, :card_fee_percent, :card_fee_included)
+    assert_equal [ 250, "TWD" ], purchase.record.values_at(:amount_paid, :currency), "the Ledger expense is the NT$ amount, card fee and all"
+
+    get household_supply_path(@home, supply)
+    assert_match "NT$250 買 2 · 每個 NT$125", response.body
+    assert_select "details##{dom_id(supply, :history)} li", /\+2 個 · NT\$250 \(JP¥1,196\) · 松本清/
+    assert_select "details##{dom_id(supply, :price_history)}" do
+      assert_select "li", /刷卡實付 JP¥1,196（含手續費）/
+      assert_select "td", /NT\$250.*每個|NT\$250.*NT\$125\/個.*刷卡實付 JP¥1,196（含手續費）/m
+    end
+    get household_supplies_path(@home, tab: "all")
+    assert_select "li##{dom_id(supply, :row)}", /NT\$250 買 2 · 每個 NT\$125/
+    assert_select "li##{dom_id(supply, :row)}", text: /JP¥/, count: 0
+  end
+
+  test "bought abroad: the amount without the card fee, a 3% fee, and cash; the next form opens on what was chosen last" do
+    supply = face_wash
+    day = @home.today - 2
+    keep_rate("JPY", day, "0.20612")
+    bought = { quantity: 2, total_price: 1196, paid_currency: "JPY", store: "松本清", purchased_on: day, left_before: 0 }
+
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(paid_by: "card", card_fee_percent: "3", card_fee_included: "1", home_total: "247", home_total_with_fee: "254") }
+    assert_equal [ 254, BigDecimal("3"), true ], supply.purchases.order(:id).last.values_at(:total_price, :card_fee_percent, :card_fee_included)
+
+    travel 1.minute
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(paid_by: "card", card_fee_percent: "3", card_fee_included: "0", home_total: "247", home_total_with_fee: "254") }
+    assert_equal [ 247, BigDecimal("3"), false, BigDecimal("0.20612") ], supply.purchases.order(:id).last.values_at(:total_price, :card_fee_percent, :card_fee_included, :exchange_rate)
+    get household_supply_path(@home, supply)
+    assert_select "details##{dom_id(supply, :price_history)} li", /刷卡實付 JP¥1,196（不含手續費）/
+
+    get new_household_supply_purchase_path(@home, supply)
+    assert_select "select[name='supply_purchase[paid_currency]']" do
+      assert_select "option[selected][value='TWD']"
+      assert_select "optgroup[label='用過的'] option[value='JPY']"
+      assert_select "optgroup[label='其他'] option[value='JPY']", 0
+      assert_select "option", 14
+    end
+    assert_select "input[name='supply_purchase[paid_by]'][value='card'][checked]"
+    assert_select "input[name='supply_purchase[card_fee_percent]'][value='3']"
+    assert_select "input[name='supply_purchase[card_fee_included]'][value='0'][checked]"
+    assert_select "label", /含 3% 刷卡手續費/
+
+    travel 1.minute
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(paid_by: "cash", home_total: "247") }
+    assert_equal [ 247, "cash", nil, nil, BigDecimal("0.20612") ], supply.purchases.order(:id).last.values_at(:total_price, :paid_by, :card_fee_percent, :card_fee_included, :exchange_rate)
+    get household_supply_path(@home, supply)
+    assert_select "details##{dom_id(supply, :price_history)} li", /現金實付 JP¥1,196/
+    get new_household_supply_purchase_path(@home, supply)
+    assert_select "input[name='supply_purchase[paid_by]'][value='cash'][checked]"
+    assert_select "input[name='supply_purchase[card_fee_percent]'][value='3']", 1, "the card's fee is kept for the next card purchase"
+  end
+
+  test "bought abroad: an amount typed over the app's is saved as typed; with no rate the form asks for the amount" do
+    supply = face_wash
+    day = @home.today - 2
+    keep_rate("JPY", day, "0.20612")
+    bought = { quantity: 2, total_price: 1196, paid_currency: "JPY", store: "松本清", left_before: 0 }
+
+    post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(purchased_on: day, paid_by: "card", card_fee_percent: "1.5", card_fee_included: "1", home_total: "247", home_total_with_fee: "252") }
+    assert_equal [ 252, nil, 1196 ], supply.purchases.sole.values_at(:total_price, :exchange_rate, :paid_total)
+
+    without_rate_service do
+      get exchange_rate_household_supplies_path(@home, from: "JPY", on: (day - 1).iso8601)
+      assert_equal({ "rate" => nil }, response.parsed_body.to_h)
+
+      assert_no_difference -> { supply.purchases.count } do
+        post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(purchased_on: day - 1, paid_by: "card", card_fee_percent: "1.5", card_fee_included: "1") }
+      end
+      assert_response :unprocessable_content
+      assert_select "ul li", "目前查不到 JPY 的匯率。請輸入要記下的 NT$ 金額。"
+      # Sent back as it was typed: yen in the price box, the panel open
+      assert_select "select[name='supply_purchase[paid_currency]'] option[selected][value='JPY']"
+      assert_select "input[name='supply_purchase[total_price]'][value='1196']"
+      assert_select "[data-paid-currency-target='panel']:not([hidden])"
+
+      travel 1.minute
+      post household_supply_purchases_path(@home, supply), params: { supply_purchase: bought.merge(purchased_on: day - 1, paid_by: "card", home_total: "250") }
+      assert_redirected_to household_supply_path(@home, supply)
+      assert_equal [ 250, 1196, nil, "card", nil, nil ], supply.purchases.order(:id).last.values_at(:total_price, :paid_total, :exchange_rate, :paid_by, :card_fee_percent, :card_fee_included)
+    end
+    get household_supply_path(@home, supply)
+    # No fee was worked out, so the line says neither "with fee" nor "without fee"
+    assert_select "details##{dom_id(supply, :price_history)} li", /NT\$250.*刷卡實付 JP¥1,196(?!（)/m
+  end
+
+  test "bought abroad: Edit switches the latest purchase to yen and back, and its Ledger expense follows" do
+    supply = face_wash
+    day = @home.today - 2
+    keep_rate("JPY", day, "0.20612")
+    purchase = Supplies::LogPurchase.call(supply, { quantity: 2, total_price: 169, store: "屈臣氏", purchased_on: day }, user: users(:alex), add_to_ledger: true)
+
+    get edit_household_supply_path(@home, supply)
+    assert_select "details[open] [data-controller='paid-currency']" do
+      assert_select "select[name='purchase[paid_currency]'] option[selected][value='TWD']"
+      assert_select "input[name='purchase[total_price]'][value='169']"
+      assert_select "input[name='purchase[purchased_on]'][data-paid-currency-target='date']"
+      assert_select "[data-paid-currency-target='panel'][hidden]"
+    end
+
+    patch household_supply_path(@home, supply), params: { supply: { name: supply.name },
+      purchase: { purchased_on: day, quantity: 2, total_price: 1196, paid_currency: "JPY", paid_by: "cash", home_total: "247", store: "松本清" } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal [ 247, "JPY", 1196, "cash", "松本清" ], purchase.reload.values_at(:total_price, :paid_currency, :paid_total, :paid_by, :store)
+    assert_equal 247, purchase.record.reload.amount_paid
+
+    get edit_household_supply_path(@home, supply)
+    assert_select "select[name='purchase[paid_currency]'] option[selected][value='JPY']"
+    assert_select "input[name='purchase[total_price]'][value='1196']", 1, "the price box shows the yen price again"
+    assert_select "input[name='purchase[paid_by]'][value='cash'][checked]"
+    assert_select "input[name='purchase[home_total]'][value='247']"
+    assert_select "[data-paid-currency-target='panel']:not([hidden])"
+
+    patch household_supply_path(@home, supply), params: { supply: { name: supply.name },
+      purchase: { purchased_on: day, quantity: 2, total_price: 169, paid_currency: "TWD", store: "屈臣氏" } }
+    assert_equal [ 169, nil, nil, nil, nil ], purchase.reload.values_at(:total_price, :paid_currency, :paid_total, :paid_by, :exchange_rate)
+    assert_equal 169, purchase.record.reload.amount_paid
+    assert_equal 1, supply.purchases.count
+  end
+
+  test "bought abroad: a new item's first purchase and an old price take another currency too, at the rate for their own day" do
+    day = @home.today - 2
+    long_ago = @home.today - 76
+    keep_rate("JPY", day, "0.20612")
+    keep_rate("JPY", long_ago, "0.20124")
+
+    get new_household_supply_path(@home)
+    assert_select "select[name='purchase[paid_currency]'] option[selected][value='TWD']"
+    post household_supplies_path(@home), params: { supply: { name: "Face Wash", supply_category_id: category("toiletries").id, unit: "piece", level: 2, lead_days: 3, alert_when_left: 0 },
+      purchase: { purchased_on: day, quantity: 2, total_price: 1196, paid_currency: "JPY", paid_by: "card", card_fee_percent: "1.5", card_fee_included: "1", store: "松本清" } }
+    supply = @home.supplies.sole
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal [ 250, "JPY", 1196 ], supply.purchases.sole.values_at(:total_price, :paid_currency, :paid_total)
+
+    get new_household_supply_price_path(@home, supply)
+    assert_select "form[data-controller='paid-currency']" do
+      assert_select "select[name='supply_price[paid_currency]'] option[selected][value='TWD']"
+      assert_select "optgroup[label='用過的'] option[value='JPY']"
+      assert_select "input[name='supply_price[purchased_on]'][data-paid-currency-target='date']"
+      assert_select "[data-paid-currency-target='panel'][hidden]"
+    end
+    assert_no_difference -> { supply.counts.count } do
+      post household_supply_prices_path(@home, supply), params: { supply_price: { product_name: "Face Wash", store: "松本清", quantity: 1, total_price: 598,
+        paid_currency: "JPY", paid_by: "cash", home_total: "120", purchased_on: long_ago } }
+    end
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal [ 120, "TWD", "JPY", 598, BigDecimal("0.20124"), "cash" ], supply.prices.sole.values_at(:total_price, :currency, :paid_currency, :paid_total, :exchange_rate, :paid_by)
+
+    get household_supply_path(@home, supply)
+    assert_select "details##{dom_id(supply, :price_history)}" do
+      assert_select "li", /現金實付 JP¥598/
+      assert_select "li", /刷卡實付 JP¥1,196（含手續費）/
+    end
+    # Where to buy compares in NT$: the old price is the cheaper one
+    assert_match "每個 NT$120", response.body
+  end
+
+  test "bought abroad: a viewer can't ask for a rate, and a day that hasn't come or isn't a date has none" do
+    keep_rate("JPY", @home.today, "0.20612")
+    get exchange_rate_household_supplies_path(@home, from: "JPY", on: (@home.today + 1).iso8601)
+    assert_equal({ "rate" => nil }, response.parsed_body.to_h)
+    get exchange_rate_household_supplies_path(@home, from: "JPY", on: "tomorrow")
+    assert_equal({ "rate" => nil }, response.parsed_body.to_h)
+    get exchange_rate_household_supplies_path(@home, from: "XXX", on: @home.today.iso8601)
+    assert_equal({ "rate" => nil }, response.parsed_body.to_h)
+    get exchange_rate_household_supplies_path(@home, from: "JPY", on: @home.today.iso8601)
+    assert_equal "0.20612", response.parsed_body["rate"]
+
+    sign_in_as users(:google_only)
+    get exchange_rate_household_supplies_path(@home, from: "JPY", on: @home.today.iso8601)
+    assert_response :forbidden
+  end
 end

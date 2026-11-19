@@ -28,12 +28,22 @@ zh-TW:
         purchased_on: "日期"
         expires_on: "到期日"
         left_before: "買之前還剩"
+        paid_currency: "幣別"
+        paid_total: "總價"
+        paid_by: "付款方式"
+        card_fee_percent: "刷卡手續費"
+        home_total: "要記下的金額"
       supply_price:
         product_name: "品名"
         quantity: "數量"
         total_price: "價格"
         store: "商店"
         purchased_on: "購買日期"
+        paid_currency: "幣別"
+        paid_total: "價格"
+        paid_by: "付款方式"
+        card_fee_percent: "刷卡手續費"
+        home_total: "要記下的金額"
       supply_count:
         level: "數量"
     errors:
@@ -44,14 +54,26 @@ zh-TW:
               name_missing: "請至少輸入一種語言的名稱。"
         supply_purchase:
           attributes:
+            base:
+              home_amount_missing: "目前查不到 %{paid} 的匯率。請輸入要記下的 %{symbol} 金額。"
             total_price:
               whole_number: "必須是整數"
+            home_total:
+              whole_number: "必須是整數"
+            paid_total:
+              whole_number: "這個幣別必須是整數"
             purchased_on:
               in_the_future: "不能是未來的日期"
         supply_price:
           attributes:
+            base:
+              home_amount_missing: "目前查不到 %{paid} 的匯率。請輸入要記下的 %{symbol} 金額。"
             total_price:
               whole_number: "必須是整數"
+            home_total:
+              whole_number: "必須是整數"
+            paid_total:
+              whole_number: "這個幣別必須是整數"
             purchased_on:
               in_the_future: "不能是未來的日期"
   layouts:
@@ -416,6 +438,53 @@ zh-TW:
         product_name_hint: "這次買的是什麼，例如品牌和容量。會顯示在價格記錄，方便比較各品牌；所有品牌共用這個項目的數量。留空就是「%{item}」。"
         product_name_scanned: "已從你掃描的條碼填入。所有品牌共用這個項目的數量。"
         barcode_note_html: "儲存後，條碼 %{code} 會記在<strong>「%{item}」</strong>上。"
+    paid:
+      currency: "幣別"
+      used_before: "用過的"
+      others: "其他"
+      paid_with: "付款方式"
+      card: "信用卡"
+      cash: "現金"
+      card_fee: "刷卡手續費"
+      amount: "%{symbol} 金額"
+      amount_to_save: "要記下的 %{symbol} 金額"
+      without_fee: "不含刷卡手續費"
+      with_fee: "含 %{percent}% 刷卡手續費"
+      amount_without_fee: "不含刷卡手續費的 %{symbol} 金額"
+      amount_with_fee: "含刷卡手續費的 %{symbol} 金額"
+      rate_line: "%{one} = %{rate} · %{date}的匯率"
+      rate_day: "用的是購買當天的匯率，不是今天的。改日期，匯率會跟著換。"
+      hint:
+        card: "選哪一個就記哪一個：每%{unit} %{price}。帳單上的金額不一樣的話，可以直接改。"
+        card_plain: "選哪一個就記哪一個。帳單上的金額不一樣的話，可以直接改。"
+        cash: "沒有刷卡手續費。每%{unit} %{price}。換到的匯率不一樣的話，可以直接改金額。"
+        cash_plain: "沒有刷卡手續費。換到的匯率不一樣的話，可以直接改金額。"
+        typed: "你輸入了 %{typed}，所以不會用 App 算的 %{app}。每%{unit} %{price}。"
+        typed_plain: "你輸入了 %{typed}，所以不會用 App 算的 %{app}。"
+      use_app: "改用 App 算的金額：%{app}"
+      no_rate: "目前查不到 %{currency} 的匯率。請輸入要記下的 %{symbol} 金額，或再試一次。"
+      try_again: "再試一次"
+      line:
+        card_with_fee: "刷卡實付 %{amount}（含手續費）"
+        card_without_fee: "刷卡實付 %{amount}（不含手續費）"
+        card: "刷卡實付 %{amount}"
+        cash: "現金實付 %{amount}"
+        plain: "實付 %{amount}"
+    currencies:
+      TWD: "新台幣"
+      JPY: "日圓"
+      USD: "美元"
+      KRW: "韓元"
+      CNY: "人民幣"
+      HKD: "港幣"
+      EUR: "歐元"
+      GBP: "英鎊"
+      THB: "泰銖"
+      SGD: "新加坡幣"
+      MYR: "馬來西亞令吉"
+      VND: "越南盾"
+      AUD: "澳幣"
+      CAD: "加拿大幣"
     barcodes:
       destroy:
         removed: "已從「%{item}」移除條碼 %{code}。"

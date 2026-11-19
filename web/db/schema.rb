@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_19_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -150,6 +150,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_090000) do
     t.index ["household_id"], name: "index_drive_backups_on_household_id", unique: true
     t.check_constraint "problem::text = ANY (ARRAY['reconnect'::character varying, 'storage_full'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_problem"
     t.check_constraint "restore_state::text = ANY (ARRAY['running'::character varying, 'finished'::character varying, 'failed'::character varying]::text[])", name: "drive_backups_restore_state"
+  end
+
+  create_table "exchange_rates", force: :cascade do |t|
+    t.string "base", null: false
+    t.string "quote", null: false
+    t.date "rated_on", null: false
+    t.decimal "rate", precision: 18, scale: 8, null: false
+    t.date "published_on", null: false
+    t.datetime "fetched_at", null: false
+    t.index ["base", "quote", "rated_on"], name: "index_exchange_rates_on_base_and_quote_and_rated_on", unique: true
   end
 
   create_table "forwarding_inboxes", force: :cascade do |t|
@@ -879,9 +889,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_090000) do
     t.bigint "created_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "paid_currency"
+    t.decimal "paid_total", precision: 12, scale: 2
+    t.decimal "exchange_rate", precision: 18, scale: 8
+    t.string "paid_by"
+    t.decimal "card_fee_percent", precision: 4, scale: 2
+    t.boolean "card_fee_included"
     t.index ["created_by_id"], name: "index_supply_prices_on_created_by_id"
     t.index ["household_id"], name: "index_supply_prices_on_household_id"
     t.index ["supply_id"], name: "index_supply_prices_on_supply_id"
+    t.check_constraint "(paid_currency IS NULL) = (paid_total IS NULL)", name: "supply_prices_paid_currency_and_total"
+    t.check_constraint "paid_by::text = ANY (ARRAY['card'::character varying, 'cash'::character varying]::text[])", name: "supply_prices_paid_by_known"
     t.check_constraint "quantity > 0", name: "supply_prices_quantity_positive"
     t.check_constraint "total_price >= 0::numeric", name: "supply_prices_total_not_negative"
   end
@@ -904,12 +922,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_090000) do
     t.datetime "updated_at", null: false
     t.string "product_name"
     t.datetime "stocked_at"
+    t.string "paid_currency"
+    t.decimal "paid_total", precision: 12, scale: 2
+    t.decimal "exchange_rate", precision: 18, scale: 8
+    t.string "paid_by"
+    t.decimal "card_fee_percent", precision: 4, scale: 2
+    t.boolean "card_fee_included"
     t.index ["created_by_id"], name: "index_supply_purchases_on_created_by_id"
     t.index ["household_id"], name: "index_supply_purchases_on_household_id"
     t.index ["receipt_import_id"], name: "index_supply_purchases_on_receipt_import_id"
     t.index ["record_id"], name: "index_supply_purchases_on_record_id"
     t.index ["supply_id"], name: "index_supply_purchases_on_supply_id"
+    t.check_constraint "(paid_currency IS NULL) = (paid_total IS NULL)", name: "supply_purchases_paid_currency_and_total"
     t.check_constraint "left_before >= 0", name: "supply_purchases_left_before_not_negative"
+    t.check_constraint "paid_by::text = ANY (ARRAY['card'::character varying, 'cash'::character varying]::text[])", name: "supply_purchases_paid_by_known"
     t.check_constraint "quantity > 0", name: "supply_purchases_quantity_positive"
     t.check_constraint "total_price >= 0::numeric", name: "supply_purchases_total_not_negative"
   end

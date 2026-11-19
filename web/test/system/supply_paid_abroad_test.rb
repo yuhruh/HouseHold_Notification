@@ -3,7 +3,10 @@ require "test_helper"
 # Restock in another currency (paid_currency_controller): the NT$ amounts follow the price, the date,
 # Paid with and the Card fee as they are typed
 class SupplyPaidAbroadTest < ActionDispatch::SystemTestCase
-  driven_by :selenium, using: :headless_chrome, screen_size: [ 390, 844 ]
+  # Every system test shares one browser, and the first to run sets its window. So this asks for
+  # the same window as the others (where Edit and Restock open as dialogs) and is a phone only
+  # while it runs
+  driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 900 ]
 
   setup do
     @home = households(:home)
@@ -16,9 +19,13 @@ class SupplyPaidAbroadTest < ActionDispatch::SystemTestCase
     Supplies::ExchangeRateLookup.define_singleton_method(:fetch) { |_url| nil }
   end
 
-  teardown { Supplies::ExchangeRateLookup.define_singleton_method(:fetch, @fetch) }
+  teardown do
+    Supplies::ExchangeRateLookup.define_singleton_method(:fetch, @fetch)
+    page.current_window.resize_to(1400, 900)
+  end
 
   def sign_in
+    page.current_window.resize_to(390, 844)
     visit new_session_path
     find("input[type=email]").set("alex@example.com")
     find("input[type=password]").set("password123")

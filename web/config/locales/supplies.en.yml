@@ -221,7 +221,6 @@ en:
     switch:
       label: "Supplies views"
       to_buy: "To Buy"
-      stocked: "Stocked"
       favorites: "Favorites"
       all: "All"
     card:
@@ -237,14 +236,12 @@ en:
       title: "Supplies"
       intro:
         to_buy: "What to buy now. Open an item's Details to see its forecast and where it's cheapest."
-        stocked: "Enough for now. Each item says when it moves to To Buy."
         favorites: "Starred items, the ones to restock soonest first."
         favorites_whose: "Items anyone starred, the ones to restock soonest first. Each star says whose it is."
         all: "Every item. Tap one or more filters to narrow the list, tap one again to clear it."
       next_up: "Next up: %{item} moves here on %{date}"
-      see_stocked: "Stocked"
+      see_all: "All"
       nothing_to_buy: "Nothing to buy right now."
-      nothing_stocked: "Nothing here yet."
       no_favorites: "No favorites yet. Tap the star on an item to add it here."
       no_favorites_viewer: "No favorites yet."
       no_favorites_mine: "You haven't starred anything yet. Tap the star on an item to add yours."
@@ -256,13 +253,10 @@ en:
         now: "Out Or Buy Now"
         soon: "Buy In The Next 7 Days"
         expiring: "Expiring"
-        no_data: "Not Enough Data Yet"
-        later: "Later"
       hints:
         now: "Past the buy-by date, or probably out."
         soon: "Buy these before they run out."
         expiring: "Some will expire before you use them."
-        no_data: "Tap an item's \"Used 1\" button now and then, or count them, so the app learns."
       add_first: "Add your first supply"
       empty_title: "Nothing tracked yet"
       empty_body: "Add the things your household keeps in stock. The app learns how fast you use them and tells you when to buy more."

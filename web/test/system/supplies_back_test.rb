@@ -26,12 +26,13 @@ class SuppliesBackTest < ActionDispatch::SystemTestCase
     find(back).click
     assert_current_path household_supplies_path(home, tab: "all")
 
-    visit household_supplies_path(home, tab: "stocked")
+    supply.favorites.create!(user: users(:alex))
+    visit household_supplies_path(home, tab: "favorites")
     find("li#card_supply_#{supply.id} a.btn-press[href='#{item}']").click
     assert_selector "h1", text: "Toilet paper"
     visit new_household_supply_purchase_path(home, supply)
     find(back).click
-    assert_current_path household_supplies_path(home, tab: "stocked")
+    assert_current_path household_supplies_path(home, tab: "favorites")
 
     visit household_supplies_path(home, q: "Toilet")
     find("li#row_supply_#{supply.id} a.btn-press[href='#{item}']").click

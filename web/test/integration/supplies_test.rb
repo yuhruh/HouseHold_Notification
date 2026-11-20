@@ -66,10 +66,11 @@ class SuppliesTest < ActionDispatch::IntegrationTest
   test "the take-one-off button and the hints name the item's own unit, on cards, All rows and the item's page" do
     paper = create_item(guess_days_per_unit: nil)
     soap = create_item(name: "Dish soap", unit: "pack", guess_days_per_unit: 30)
-    get household_supplies_path(@home, tab: "stocked")
+    # The cards are on To Buy and Favorites
+    [ paper, soap ].each { it.favorites.create!(user: users(:alex)) }
+    get household_supplies_path(@home, tab: "favorites")
     assert_select "#card_supply_#{paper.id} button[aria-label='Toilet paper 用掉 1 捲']", "用掉 1 捲"
     assert_select "#card_supply_#{soap.id} button[aria-label='Dish soap 用掉 1 包']", "用掉 1 包"
-    assert_select "p", "偶爾按品項上的「用掉 1」按鈕，或數一下，App 才能計算。"
     get household_supplies_path(@home, tab: "all")
     assert_select "#row_supply_#{paper.id} button", "用掉 1 捲"
     assert_select "#row_supply_#{paper.id} p", "資料不足 · 按「用掉 1 捲」或更新數量"
@@ -166,7 +167,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "li#row_supply_#{empty.id}", text: /總數/, count: 0
     assert_select "a[data-supplies-view-target]", 0
 
-    get household_supplies_path(@home, tab: "stocked")
+    item.favorites.create!(user: users(:alex))
+    get household_supplies_path(@home, tab: "favorites")
     assert_select "li#card_supply_#{item.id} span", text: "總數：25"
   end
 
@@ -184,9 +186,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "li[id^=card_]", 0
     assert_select "nav[aria-label=誰加的星]", 0
 
-    # The star is on the cards (Stocked), the All rows and the item page
-    get household_supplies_path(@home, tab: "stocked")
-    assert_select "li#card_supply_#{coffee.id} form[action=?] button[aria-pressed=false]", household_supply_favorite_path(@home, coffee)
+    # The star is on the All rows and the item page (and on the cards, further down)
     get household_supplies_path(@home, tab: "all")
     assert_select "li#row_supply_#{coffee.id} form[action=?] button[aria-label=?]", household_supply_favorite_path(@home, coffee), "我的最愛：Coffee"
     get household_supply_path(@home, coffee)
@@ -294,7 +294,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal [ users(:alex) ], star.favorites.reload.map(&:user)
   end
 
-  test "To Buy, Stocked and All tabs, like Bills" do
+  test "To Buy, Favorites and All tabs, like Bills; All is every item and replaced Stocked" do
     out = create_item(name: "Out", level: 0, guess_days_per_unit: 3)
     out.purchases.create!(household: @home, purchased_on: 10.days.ago.to_date, quantity: 1, total_price: 10, left_before: 0)
     create_item(name: "Soon", level: 3, guess_days_per_unit: 3)
@@ -307,9 +307,12 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     soon = @home.supplies.find_by!(name: "Soon")
     assert_select "li#row_supply_#{soon.id} a.btn-press[href=?]", household_supply_path(@home, soon), text: /查看明細/
     assert_select "nav a[href=?]", household_supplies_path(@home, tab: "to_buy"), text: /該補貨/
+    # Three tabs: no Stocked
+    assert_select "nav[aria-label=日用品檢視] a", 3
+    assert_select "nav[aria-label=日用品檢視] a", text: /還夠用/, count: 0
     get household_supplies_path(@home, tab: "to_buy")
     assert_select "nav a[aria-current=page]", /該補貨/
-    # All shows its count on a phone too, like To Buy and Stocked
+    # All shows its count on a phone too, like To Buy
     assert_select "nav a[href=?] span.rounded-full:not(.max-sm\\:hidden)", household_supplies_path(@home, tab: "all"), text: @home.supplies.active.count.to_s
     assert_select "section", text: /用完或現在就補貨/ do
       assert_select "li[id^=card_]", text: /Out/
@@ -318,18 +321,22 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "li", text: /Soon/
     end
     assert_select "li", text: /Plenty/, count: 0
-    assert_select "a[href=?]", household_supplies_path(@home, tab: "stocked"), text: /下一個：Plenty/
+    # Next up opens All
+    assert_select "main a[href=?]", household_supplies_path(@home, tab: "all"), text: /下一個：Plenty.*全部/m
 
-    get household_supplies_path(@home, tab: "stocked")
-    assert_select "li", text: /Plenty/
-    assert_select "li", text: /移到「該補貨」/
-    assert_select "section", text: /資料不足/ do
-      assert_select "li", text: /Unknown/
-    end
-    assert_select "li", text: /Soon/, count: 0
-
+    # All: every item once. Only the one with enough for now says when it moves to To Buy
     get household_supplies_path(@home, tab: "all")
     assert_select "main li", 4
+    plenty, unknown = %w[Plenty Unknown].map { @home.supplies.find_by!(name: it) }
+    assert_select "li#row_supply_#{plenty.id} p", text: /移到「該補貨」/
+    assert_select "main li p", text: /移到「該補貨」/, count: 1
+    assert_select "li#row_supply_#{unknown.id} span", text: "資料不足"
+
+    # An old link to Stocked opens All
+    get household_supplies_path(@home, tab: "stocked")
+    assert_response :success
+    assert_select "nav a[aria-current=page]", /全部/
+    assert_select "main li[id^=row_]", 4
     get household_supplies_path(@home, q: "Plen")
     assert_select "nav a[aria-current=page]", /全部/
   end
@@ -342,10 +349,6 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     # Dated items by date, then the ones without data by what is left (ties A to Z), not A to Z
     get household_supplies_path(@home)
     assert_equal %w[Sooner Later Date Banana Elder Cherry Apple], css_select("main li[id^=row_] div.min-w-0 > a").map(&:text)
-    get household_supplies_path(@home, tab: "stocked")
-    assert_select "section", text: /資料不足/ do
-      assert_equal %w[Date Banana Elder Cherry Apple], css_select("section li a.text-lg").map(&:text).last(5)
-    end
   end
 
   test "All's filters are switches: several categories at once, each chip flips itself and keeps the others" do
@@ -654,7 +657,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "#row_supply_#{paper.id} form[action=?] button", household_supply_counts_path(@home, paper), "用掉 1 捲"
     assert_select "#row_supply_#{paper.id} a[href=?]", new_household_supply_purchase_path(@home, paper), "補貨", "the same name as on the cards and the item's page: it opens the same form"
 
-    get household_supplies_path(@home, tab: "stocked")
+    shampoo.favorites.create!(user: users(:alex))
+    get household_supplies_path(@home, tab: "favorites")
     assert_select "#card_supply_#{shampoo.id}" do
       assert_select "p", "2 Lux Shampoo 750ml · 1 Pantene 700ml"
       assert_select "details form input[name=product]", 2

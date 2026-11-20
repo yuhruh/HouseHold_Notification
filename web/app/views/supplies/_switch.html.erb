@@ -1,18 +1,17 @@
-<%# Supplies: four views under the title, like Bills (records/_bills_switch): To Buy, Stocked,
-    Favorites (a star; on a phone the star alone) and All (Supplies opens on it), each with its count. A phone gets one full-width
-    four-part switch (44px taps). From 640px they're tabs on a line (tab-row): the current one filled in its
-    colour over an underline (red To Buy, sky Stocked, amber Favorites, grey All), and under the pointer a tab
+<%# Supplies: three views under the title, like Bills (records/_bills_switch): To Buy,
+    Favorites (a star; on a phone the star alone) and All (every item; Supplies opens on it), each with its count. A phone gets one full-width
+    three-part switch (44px taps). From 640px they're tabs on a line (tab-row): the current one filled in its
+    colour over an underline (red To Buy, amber Favorites, grey All), and under the pointer a tab
     stands on the line as a press-button card in its own colour (tab-card; both in application.css) %>
 <% household = Current.household %>
 <% tabs = [ [ "to_buy", household_supplies_path(household, tab: "to_buy"), counts[:to_buy], "bg-red-600 text-white", "bg-red-100 text-red-900 sm:bg-red-50 sm:border-red-600", "[--tab-card:var(--tab-rose)]" ],
-            [ "stocked", household_supplies_path(household, tab: "stocked"), counts[:stocked], "bg-sky-100 text-sky-900", "bg-sky-100 text-sky-900 sm:border-sky-700", "[--tab-card:var(--tab-sky)]" ],
             [ "favorites", household_supplies_path(household, tab: "favorites"), counts[:favorites], nil, "bg-amber-100 text-amber-900 sm:border-amber-700", "[--tab-card:var(--tab-amber)]" ],
             [ "all", household_supplies_path(household, tab: "all"), counts[:all], "bg-gray-200 text-gray-800", "bg-gray-200 text-gray-900 sm:border-gray-800", "[--tab-card:var(--tab-gray)]" ] ] %>
 <div class="space-y-3">
   <%# No add button here: as on Bills, the header's New (tab bar's New on a phone) is the one place to add %>
   <%= page_title("ledger.png", t("supplies.index.title")) %>
   <nav aria-label="<%= t("supplies.switch.label") %>"
-       class="tab-row grid grid-cols-4 gap-1 rounded-2xl border-2 border-(--card-line) bg-white p-1 sm:flex sm:gap-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:border-transparent sm:bg-transparent sm:p-0">
+       class="tab-row grid grid-cols-3 gap-1 rounded-2xl border-2 border-(--card-line) bg-white p-1 sm:flex sm:gap-1 sm:rounded-none sm:border-0 sm:border-b-2 sm:border-transparent sm:bg-transparent sm:p-0">
     <% tabs.each do |view, path, count, badge, here_class, card| %>
       <% here = view == current %>
       <%= link_to path, class: "tab-card #{card} flex min-h-11 items-center justify-center gap-1.5 rounded-xl text-sm sm:-mb-0.5 sm:border-b-4 sm:px-5 sm:text-base #{here ? "font-extrabold sm:rounded-b-none #{here_class}" : 'font-semibold text-gray-700 max-sm:hover:bg-gray-50 sm:rounded-none sm:border-transparent'}", "aria-current": (here ? "page" : nil) do %>

@@ -4,15 +4,16 @@ class SuppliesController < ApplicationController
   include HouseholdScoped
   before_action :set_supply, only: %i[show edit update archive destroy]
 
-  TABS = %w[to_buy stocked favorites all].freeze
+  TABS = %w[to_buy favorites all].freeze
   # The form's Category choice that makes a new one, named in new_category_name
   NEW_CATEGORY = "new".freeze
   # To Buy's groups, one under another: out or past the buy-by date, buy within 7 days, expiring
   TO_BUY = { now: %i[out buy_now], soon: %i[buy_soon], expiring: %i[expiring] }.freeze
 
-  # Four tabs, like Bills: To Buy (what to buy now), Stocked (enough for now, by the
-  # month each moves to To Buy), Favorites (the items anyone starred, or one person's with `by`) and
-  # All (every item, with filters and search; Supplies opens on it). A filter, category, search or the archived list is always All. All's filters
+  # Three tabs: To Buy (what to buy now), Favorites (the items anyone starred, or one person's with
+  # `by`) and All (every item, with filters and search; Supplies opens on it, and each item with
+  # enough for now says when it moves to To Buy). A filter, category, search or the archived list is
+  # always All, and so is an old link to the Stocked tab, which All replaced. All's filters
   # are switches, any number at once: several categories show the items in any of them, and Expiring
   # keeps only the expiring ones among them
   def index
@@ -34,7 +35,7 @@ class SuppliesController < ApplicationController
     @tab = all_only ? "all" : (params[:tab].presence_in(TABS) || (params[:filter] == "buy_soon" ? "to_buy" : "all"))
     @archived_count = Current.household.supplies.where.not(archived_at: nil).count
     @items = all.select { |supply, forecast| shown?(supply, forecast) }.sort_by { |supply, forecast| urgency(supply, forecast) }
-    to_buy_and_stocked(all)
+    to_buy_and_favorites(all)
   end
 
   def show
@@ -206,22 +207,18 @@ class SuppliesController < ApplicationController
     [ SuppliesHelper::STATUS_ORDER.index(forecast.status), forecast.buy_by || forecast.run_out_on || Date.new(9999), forecast.on_hand_rounded, supply.name ]
   end
 
-  # To Buy's three groups, Stocked's months (by the day each item moves to To Buy) and Not enough
-  # data yet, Next up: the stocked item that moves to To Buy first, and Favorites: the items with
-  # anyone's star (an item two people starred counts once), the ones to restock soonest first; with
-  # `by`, one person's
-  def to_buy_and_stocked(all)
+  # To Buy's three groups, Next up: the item with enough for now that moves to To Buy first, and
+  # Favorites: the items with anyone's star (an item two people starred counts once), the ones to
+  # restock soonest first; with `by`, one person's
+  def to_buy_and_favorites(all)
     sorted = all.sort_by { |supply, forecast| urgency(supply, forecast) }
     @to_buy = TO_BUY.transform_values { |statuses| sorted.select { statuses.include?(it.last.status) } }
-    ok = sorted.select { it.last.status == :ok }.sort_by { |supply, forecast| [ forecast.to_buy_on || Date.new(9999), supply.name ] }
-    @stocked = ok.group_by { it.last.to_buy_on&.beginning_of_month }
-    @no_data = sorted.select { it.last.status == :not_enough_data }
-    @next_up = ok.find { it.last.to_buy_on }
+    @next_up = sorted.select { it.last.status == :ok && it.last.to_buy_on }.min_by { |supply, forecast| [ forecast.to_buy_on, supply.name ] }
     starred = sorted.select { @supply_starrers.starred?(it.first) }
     @by = (@supply_starrers.find(params[:by]) if @tab == "favorites")
     @favorites = @by ? starred.select { @supply_starrers.starred_by?(it.first, @by.user) } : starred
     @star_counts = @supply_starrers.people.index_with { |person| starred.count { @supply_starrers.starred_by?(it.first, person.user) } }
-    @counts = { to_buy: @to_buy.values.sum(&:size), stocked: ok.size + @no_data.size, favorites: starred.size, all: all.size }
+    @counts = { to_buy: @to_buy.values.sum(&:size), favorites: starred.size, all: all.size }
   end
 
   # Expiring, an estimated monthly spend (usage × the last price per unit) and the count

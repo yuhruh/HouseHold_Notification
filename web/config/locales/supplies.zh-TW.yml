@@ -221,7 +221,6 @@ zh-TW:
     switch:
       label: "日用品檢視"
       to_buy: "該補貨"
-      stocked: "還夠用"
       favorites: "我的最愛"
       all: "全部"
     card:
@@ -237,14 +236,12 @@ zh-TW:
       title: "日用品"
       intro:
         to_buy: "現在該補貨的東西。打開「詳情」可以看預測和哪裡最便宜。"
-        stocked: "目前還夠用。每項都會顯示什麼時候移到「該補貨」。"
         favorites: "加上星星的品項，最快要補貨的排在前面。"
         favorites_whose: "有人加上星星的品項，最快要補貨的排在前面。每顆星星都標出是誰加的。"
         all: "所有項目。點一個或多個篩選條件來縮小清單，再點一次就取消。"
       next_up: "下一個：%{item} 將在 %{date} 移到「該補貨」"
-      see_stocked: "還夠用"
+      see_all: "全部"
       nothing_to_buy: "現在沒有要補貨的東西。"
-      nothing_stocked: "這裡還沒有項目。"
       no_favorites: "還沒有我的最愛。點一下品項上的星星就能加入。"
       no_favorites_viewer: "還沒有我的最愛。"
       no_favorites_mine: "你還沒有加星的品項。點一下品項上的星星就能加上你的。"
@@ -256,13 +253,10 @@ zh-TW:
         now: "用完或現在就補貨"
         soon: "7 天內要補貨"
         expiring: "快過期"
-        no_data: "資料不足"
-        later: "之後"
       hints:
         now: "已過建議補貨日，或可能用完了。"
         soon: "在用完前補貨。"
         expiring: "有些會在用完前過期。"
-        no_data: "偶爾按品項上的「用掉 1」按鈕，或數一下，App 才能計算。"
       add_first: "新增第一項日用品"
       empty_title: "還沒有紀錄任何東西"
       empty_body: "加入家裡常備的東西。App 會計算你們用多快，並在該補貨時提醒你。"

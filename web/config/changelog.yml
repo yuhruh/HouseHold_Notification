@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.23.0"
+  date: 2026-11-20
+  en:
+    - "Supplies has three tabs now: To Buy, Favorites and All. The Stocked tab is gone, because it listed the same items as All in a different layout. All is the one place for every item, and To Buy is still the short list of what needs buying."
+    - "Supplies › All: an item with enough for now (OK) also says when it moves to To Buy, under when it runs out, for example \"Runs out ~Dec 12\" and \"Moves to To Buy on Nov 28\". That date used to be only on the Stocked tab."
+    - "Supplies › To Buy: the \"Next up\" line now opens All. An old link or bookmark to the Stocked tab opens All too."
+  zh-TW:
+    - "日用品現在是三個分頁：「該補貨」、「我的最愛」和「全部」。「還夠用」分頁拿掉了，因為它和「全部」列的是同一批品項，只是排法不同。所有品項都在「全部」，「該補貨」仍然是現在要買的短清單。"
+    - "日用品 › 全部：目前還夠用（充足）的品項，在「約什麼時候用完」下面會多一行什麼時候移到「該補貨」，例如「約 12月12日 用完」和「11月28日 移到「該補貨」」。這個日期之前只有「還夠用」分頁才有。"
+    - "日用品 › 該補貨：「下一個」那一行現在會打開「全部」。舊的「還夠用」連結或書籤也會打開「全部」。"
 - version: "1.22.0"
   date: 2026-11-19
   en:

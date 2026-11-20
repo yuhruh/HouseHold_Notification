@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <% writer = policy(Supply).create? %>
 <% card_list = "flex flex-col space-y-3 lg:space-y-2" %>
-<%# To Buy, Stocked and Favorites: their groups or cards one under another in one column at every width, as wide as an item's page %>
+<%# To Buy and Favorites: their groups or cards one under another in one column at every width, as wide as an item's page %>
 <% column = "mx-auto w-full max-w-3xl" %>
 <div class="w-full space-y-6 py-4 lg:space-y-3">
   <% if @summary[:total].zero? && params[:archived].blank? %>
@@ -85,9 +85,10 @@
     <% case @tab %>
     <% when "to_buy" %>
       <% if @next_up %>
-        <%= link_to household_supplies_path(Current.household, tab: "stocked"), class: "#{column} flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border-2 border-sky-300 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-900 hover:bg-sky-100 dark:bg-sky-50/60" do %>
+        <%# The item with enough for now that moves here first. The line opens All, where every such item says its date %>
+        <%= link_to household_supplies_path(Current.household, tab: "all"), class: "#{column} flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border-2 border-sky-300 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-900 hover:bg-sky-100 dark:bg-sky-50/60" do %>
           <span><%= t(".next_up", item: @next_up.first.name, date: l(@next_up.last.to_buy_on, format: :short)) %></span>
-          <span class="whitespace-nowrap"><%= t(".see_stocked") %> ›</span>
+          <span class="whitespace-nowrap"><%= t(".see_all") %> ›</span>
         <% end %>
       <% end %>
       <% groups = @to_buy.select { |_, list| list.any? } %>
@@ -103,33 +104,6 @@
               </div>
               <ul class="<%= card_list %>">
                 <% list.each do |supply, forecast| %><%= render "supplies/card", supply:, forecast: %><% end %>
-              </ul>
-            </section>
-          <% end %>
-        </div>
-      <% end %>
-
-    <% when "stocked" %>
-      <% if @stocked.empty? && @no_data.empty? %>
-        <p class="<%= column %> text-gray-600"><%= t(".nothing_stocked") %></p>
-      <% else %>
-        <div class="<%= column %> flex flex-col gap-6">
-          <% @stocked.each do |month, list| %>
-            <section class="space-y-3 lg:space-y-2">
-              <h2 class="text-lg font-semibold"><%= month ? l(month, format: :supply_month) : t(".groups.later") %> (<%= list.size %>)</h2>
-              <ul class="<%= card_list %>">
-                <% list.each do |supply, forecast| %><%= render "supplies/card", supply:, forecast: %><% end %>
-              </ul>
-            </section>
-          <% end %>
-          <% if @no_data.any? %>
-            <section class="space-y-3 lg:space-y-2">
-              <div>
-                <h2 class="text-lg font-semibold"><%= t(".groups.no_data") %> (<%= @no_data.size %>)</h2>
-                <p class="text-sm text-gray-600"><%= t(".hints.no_data") %></p>
-              </div>
-              <ul class="<%= card_list %>">
-                <% @no_data.each do |supply, forecast| %><%= render "supplies/card", supply:, forecast: %><% end %>
               </ul>
             </section>
           <% end %>

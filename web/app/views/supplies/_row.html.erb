@@ -3,7 +3,8 @@
     Several brands in stock: −1 opens its menu under the row, which says how many of each (the cards and
     the item's page show the numbers and the products too).
     Your star in front of the name, other people's (tags) after the category.
-    Details (the same button as the To Buy / Stocked cards) shows where to open the item; the name opens it too.
+    An item with enough for now (OK) also says the day it moves to To Buy, under when it runs out.
+    Details (the same button as the To Buy / Favorites cards) shows where to open the item; the name opens it too.
     On a phone Details, Used 1 and Restock are one size (44px tall, 14px text) and Details has no arrow, so the
     three fit on one line in English from 390px wide %>
 <% status = forecast.status %>
@@ -24,6 +25,7 @@
   <div class="mt-2 lg:mt-0">
     <span class="hidden lg:inline"><%= supply_badge(status) %></span>
     <p class="text-sm <%= supply_line_class(forecast) %>"><%= supply_line(supply, forecast) %></p>
+    <% if status == :ok && forecast.to_buy_on %><p class="text-sm text-gray-700"><%= t("supplies.card.moves_on", date: l(forecast.to_buy_on, format: :short)) %></p><% end %>
   </div>
   <p class="mt-1 text-xs text-gray-600 lg:mt-0"><%= last ? safe_join([ last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase") %></p>
   <div class="mt-3 flex flex-wrap items-center justify-between gap-2 lg:mt-0 lg:justify-end">

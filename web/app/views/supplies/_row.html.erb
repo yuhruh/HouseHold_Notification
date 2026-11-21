@@ -1,4 +1,4 @@
-<%# One item in the list: a card on a phone, a table row from 1024px. Replaced in place after −1.
+<%# One item in the list: a card on a phone, a table row from 1024px. Replaced in place after −1, then moved to its new place in the order (supplies-order).
     Under the name only its category, and Last bought is the store and price without the product's name.
     Several brands in stock: −1 opens its menu under the row, which says how many of each (the cards and
     the item's page show the numbers and the products too).
@@ -9,7 +9,7 @@
     three fit on one line in English from 390px wide %>
 <% status = forecast.status %>
 <% last = supply.latest_purchase %>
-<li id="<%= dom_id(supply, :row) %>" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_22.5rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
+<li id="<%= dom_id(supply, :row) %>" data-supplies-order-target="item" class="relative rounded-2xl border-2 border-(--card-line) p-3 <%= supply_tone(status, :card) %> lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1.8fr)_minmax(0,1.6fr)_22.5rem] lg:items-center lg:gap-4 lg:rounded-none lg:border-0 lg:border-b lg:px-4 lg:last:rounded-b-[0.875rem]">
   <div class="flex items-start gap-2.5 lg:items-center">
     <%= render "supplies/favorite", supply:, tags: false %>
     <div class="min-w-0 flex-1">

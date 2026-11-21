@@ -3,7 +3,8 @@
 <% card_list = "flex flex-col space-y-3 lg:space-y-2" %>
 <%# To Buy and Favorites: their groups or cards one under another in one column at every width, as wide as an item's page %>
 <% column = "mx-auto w-full max-w-3xl" %>
-<div class="w-full space-y-6 py-4 lg:space-y-3">
+<%# supplies-order: after Used 1 or Undo the list is fetched again and morphed, so the item moves to its place without a refresh %>
+<div id="supplies_list" data-controller="supplies-order" data-action="turbo:submit-end->supplies-order#changed" class="w-full space-y-6 py-4 lg:space-y-3">
   <% if @summary[:total].zero? && params[:archived].blank? %>
     <div class="flex items-center justify-between gap-3">
       <%= page_title("ledger.png", t(".title")) %>

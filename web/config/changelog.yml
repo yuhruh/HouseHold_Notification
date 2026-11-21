@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.23.1"
+  date: 2026-11-21
+  en:
+    - "Supplies: after you tap \"Used 1\" (or Undo), the lists put themselves in order right away. The item moves to its new place on All, To Buy and Favorites, and the To Buy count, To Buy's group headings, \"Next up\" and \"About a month\" update with it. You no longer need to refresh the page."
+  zh-TW:
+    - "日用品：按「用掉 1 瓶」這類按鈕（或「復原」）之後，清單會馬上重新排序。品項會移到它在「全部」、「該補貨」和「我的最愛」的新位置，「該補貨」的數字、「該補貨」的分組標題、「下一個」和「每月約」也會一起更新，不用再重新整理頁面。"
 - version: "1.23.0"
   date: 2026-11-20
   en:

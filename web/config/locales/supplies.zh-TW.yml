@@ -375,6 +375,10 @@ zh-TW:
       bought_on: "購買日期"
       bought_quantity: "買了幾個"
       last_purchase_title: "上次購買（%{date}）"
+      correct_purchase_title: "修正購買紀錄 · %{count} 種商品"
+      which_product: "哪一種商品？"
+      product_latest_title: "%{product} 最近一次購買（%{date}）"
+      no_brand: "未指定品牌"
       last_purchase_hint: "可以修改價格、商店、日期或數量。這次購買的帳本支出也會一起更新。"
       add_purchase_title: "補上購買資料"
       add_purchase_hint: "購買日期、數量和價格。不填就略過。"
@@ -558,6 +562,7 @@ zh-TW:
         not_einvoice: "這看起來不像台灣電子發票。請改掃描商品條碼。"
     receipts:
       already: "這張發票已經在 %{date} 加入過了。"
+      already_items: "品項在%{items}裡。"
       not_einvoice: "這看起來不像台灣電子發票。請改掃描商品條碼。"
       no_pdfs: "請至少選一個發票 PDF。"
       invoice:
@@ -576,6 +581,14 @@ zh-TW:
           skipped: "略過"
           fee: "運費等 · 略過"
           not_found: "找不到"
+          brand: "已知品牌"
+        why:
+          remembered: "%{store}上次同一行是%{item}"
+          suggested: "這一行有品項名稱「%{item}」"
+          brand: "%{item}的品牌：以前買過「%{brand}」"
+          not_found: "沒有這個名稱的品項或品牌"
+        this_store: "這家店"
+        choose_or_skip: "請選擇，或略過"
         is: "這一行是"
         choose: "請選擇…"
         add_new: "新增為日用品…"
@@ -604,6 +617,20 @@ zh-TW:
         unmatched:
           one: "有 1 個品項對不到你的日用品。請為它選一項，或選「新增為日用品…」並輸入名稱。"
           other: "有 %{count} 個品項對不到你的日用品。請為每一項選一個，或選「新增為日用品…」並輸入名稱。"
+        undecided_title:
+          one: "還有 1 項是「請選擇…」"
+          other: "還有 %{count} 項是「請選擇…」"
+        undecided:
+          one: "尚未儲存任何資料。請選擇它是哪個品項、「新增為日用品…」，或略過。"
+          other: "尚未儲存任何資料。請為每一項選擇它是哪個品項、「新增為日用品…」，或略過。"
+        already_title: "已經加入過，沒有新的東西"
+        already_body:
+          one: "這張發票之前已經加入，品項都已經在日用品裡了。"
+          other: "這些發票之前已經加入，品項都已經在日用品裡了。"
+        now_in: "現在在「%{item}」裡"
+        now_in_brand: "現在在「%{item}」裡，是它的一個品牌"
+        open_item: "打開%{item} ›"
+        done: "完成"
         add_to_ledger: "同時記到帳本（每張發票一筆）"
         hint: "每個選擇都會記住這家店的對應。「個／行」是一行有幾個，例如 1 包 = 12 捲。"
         not_included: "沒有加入（%{count}）"

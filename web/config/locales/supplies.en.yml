@@ -375,6 +375,10 @@ en:
       bought_on: "Bought on"
       bought_quantity: "How many you bought"
       last_purchase_title: "Last purchase (%{date})"
+      correct_purchase_title: "Correct a purchase · %{count} products"
+      which_product: "Which product?"
+      product_latest_title: "Latest purchase of %{product} (%{date})"
+      no_brand: "No brand named"
       last_purchase_hint: "Correct the price, store, date or quantity. A Ledger expense from this purchase is updated too."
       add_purchase_title: "Add what you paid"
       add_purchase_hint: "When you bought them, how many and the price. Leave empty to skip."
@@ -558,6 +562,7 @@ en:
         not_einvoice: "This doesn't look like a Taiwan e-invoice. Scan the product barcodes instead."
     receipts:
       already: "This receipt was already added on %{date}."
+      already_items: "Its items are in %{items}."
       not_einvoice: "This doesn't look like a Taiwan e-invoice. Scan the product barcodes instead."
       no_pdfs: "Choose at least one invoice PDF."
       invoice:
@@ -576,6 +581,14 @@ en:
           skipped: "Skipped"
           fee: "Fee · skipped"
           not_found: "Not found"
+          brand: "Known brand"
+        why:
+          remembered: "%{store}'s same line went to %{item} last time"
+          suggested: "The item name \"%{item}\" is in the line"
+          brand: "A brand of %{item}: bought before as \"%{brand}\""
+          not_found: "No item or brand has this name"
+        this_store: "This store"
+        choose_or_skip: "Choose one, or Skip"
         is: "This line is"
         choose: "Choose…"
         add_new: "Add as new supply…"
@@ -604,6 +617,20 @@ en:
         unmatched:
           one: "1 item doesn't match any of your supplies. Choose one for it, or choose \"Add as new supply…\" and type its name."
           other: "%{count} items don't match any of your supplies. For each, choose one, or choose \"Add as new supply…\" and type its name."
+        undecided_title:
+          one: "1 item still on \"Choose…\""
+          other: "%{count} items still on \"Choose…\""
+        undecided:
+          one: "Nothing was saved yet. Choose what it is, \"Add as new supply…\", or Skip."
+          other: "Nothing was saved yet. For each, choose what it is, \"Add as new supply…\", or Skip."
+        already_title: "Already added, nothing new"
+        already_body:
+          one: "This invoice was added before. Its items are already in your supplies."
+          other: "These invoices were added before. Their items are already in your supplies."
+        now_in: "now in %{item}"
+        now_in_brand: "now in %{item}, as a brand of it"
+        open_item: "Open %{item} ›"
+        done: "Done"
         add_to_ledger: "Also add to Ledger (1 expense per invoice)"
         hint: "Each choice is remembered for this store. \"units each\" is how many one line holds, e.g. 1 pack = 12 rolls."
         not_included: "Not included (%{count})"

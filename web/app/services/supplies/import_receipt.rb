@@ -9,8 +9,15 @@ module Supplies
       def initialize(existing) = (@existing = existing) && super()
     end
 
-    # One review row: the receipt line, and what it is (a supply, :new, or :skip) and why
-    Row = Data.define(:index, :item, :supply, :choice, :tag, :units_per_line)
+    # One review row: the receipt line, and what it is (a supply, :new, or :skip) and why. `matched` is
+    # the name that matched it: the item's own name (:suggested) or one of its brands (:brand)
+    Row = Data.define(:index, :item, :supply, :choice, :tag, :units_per_line, :matched) do
+      def initialize(matched: nil, **rest) = super(matched:, **rest)
+    end
+
+    # A brand name shorter than this (or a line shorter than this inside a brand name) is too vague to
+    # match on: "咖啡" is inside every coffee's name
+    BRAND_MIN = 3
 
     def self.already(household, receipt) = household.receipt_imports.find_by(invoice_no: receipt.invoice_no)
 
@@ -23,9 +30,11 @@ module Supplies
     FEE = /運費|運送費|配送費|手續費|處理費|包裝費|shipping|delivery fee|handling/i
 
     # What each line probably is: remembered from an earlier receipt from this store, else a fee
-    # (skipped), else a name that matches one of the household's supplies, else nothing chosen yet
+    # (skipped), else a name that matches one of the household's supplies or one of their brands, else
+    # nothing chosen yet
     def self.rows(household, receipt)
       supplies = household.supplies.active.to_a
+      brands = brand_names(household, supplies)
       matches = household.receipt_item_matches.where(seller_tax_id: receipt.seller_tax_id.to_s, receipt_text: receipt.items.map(&:text)).index_by(&:receipt_text)
       receipt.items.each_with_index.map do |item, index|
         if (match = matches[item.text])
@@ -33,18 +42,49 @@ module Supplies
           Row.new(index:, item:, supply:, choice: supply ? supply.id.to_s : "skip", tag: supply ? :remembered : :skipped, units_per_line: match.units_per_line)
         elsif item.text.match?(FEE)
           Row.new(index:, item:, supply: nil, choice: "skip", tag: :fee, units_per_line: 1)
-        elsif (supply = suggest(supplies, item.text))
-          Row.new(index:, item:, supply:, choice: supply.id.to_s, tag: :suggested, units_per_line: 1)
+        elsif (guessed = guess(supplies, brands, item.text))
+          supply, matched, tag = guessed
+          Row.new(index:, item:, supply:, choice: supply.id.to_s, tag:, units_per_line: 1, matched:)
         else
           Row.new(index:, item:, supply: nil, choice: "", tag: nil, units_per_line: 1)
         end
       end
     end
 
-    def self.suggest(supplies, text)
-      text = text.downcase
-      supplies.find { text.include?(it.name.downcase) || it.name.downcase.include?(text) } ||
-        supplies.max_by { overlap(it.name.downcase, text) }.then { it if it && overlap(it.name.downcase, text) >= 0.6 }
+    # [supply, name] for every product the items were bought or saved as (purchases, old prices,
+    # barcodes) and every item combined into them (Supply#former_names): what an item is also called.
+    # When two items share a name, the one bought most recently comes first
+    def self.brand_names(household, supplies)
+      by_id = supplies.index_by(&:id)
+      saved = [ household.supply_purchases, household.supply_prices, household.supply_barcodes ].flat_map do |scope|
+        scope.where(supply_id: by_id.keys).where.not(product_name: [ nil, "" ]).distinct.pluck(:supply_id, :product_name)
+      end
+      combined = supplies.flat_map { |supply| supply.former_names.map { [ supply.id, it ] } }
+      latest = household.supply_purchases.where(supply_id: by_id.keys).group(:supply_id).maximum(:purchased_on)
+      (saved + combined).map { |id, name| [ by_id[id], name.squish ] }.uniq
+                        .reject { |supply, name| name.casecmp?(supply.name) }
+                        .sort_by { |supply, _| [ -(latest[supply.id]&.jd || 0), supply.id ] }
+    end
+
+    # [supply, the name that matched, tag], or nil. In order: an item's or a brand's name exactly; then
+    # the longest item or brand name inside the line, or the line inside it (receipt names are cut
+    # short), so "Promise Volume Shampoo" wins over "Shampoo"; then a loose guess from the letters an
+    # item's name shares with the line. That last one uses item names only, so brands don't add wrong
+    # guesses
+    def self.guess(supplies, brands, text)
+      line = text.to_s.squish.downcase
+      return if line.empty?
+
+      named = supplies.map { [ it, it.name, :suggested ] } + brands.map { |supply, name| [ supply, name, :brand ] }
+      exact = named.find { |_, name, _| name.downcase == line }
+      return exact if exact
+
+      inside = named.select do |_, name, tag|
+        name = name.downcase
+        (name.include?(line) || line.include?(name)) && (tag == :suggested || [ name.length, line.length ].min >= BRAND_MIN)
+      end
+      inside.max_by.with_index { |(_, name, _), index| [ name.length, -index ] } ||
+        supplies.max_by { overlap(it.name.downcase, line) }.then { [ it, it.name, :suggested ] if it && overlap(it.name.downcase, line) >= 0.6 }
     end
 
     # Share of the name's characters that also appear in the receipt text (receipt names are cut short)

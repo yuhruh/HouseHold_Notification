@@ -1,18 +1,31 @@
 <% content_for :title, t(".title") %>
 <%# Review items: every invoice that will be added, item by item (supplies/receipts/_invoice), then the
-    ones that won't under Not included, each with why. Saving posts the same QR text or PDF text again %>
+    ones that won't under Not included, each with why. Saving posts the same QR text or PDF text again.
+    Save with a line still on "Choose…" brings this back as it was left (@undecided: [key, line index]),
+    the line in red. An invoice added before lists where its items are now %>
 <% currency = Current.household.default_currency %>
 <% shown = @batch.shown %>
 <% unmatched = shown.sum { |entry| entry.rows.count { it.choice.blank? } } %>
+<% undecided = @undecided || Set.new %>
 <% items = shown.sum { it.rows.count { |row| row.choice != "skip" } } %>
 <div class="mx-auto w-full max-w-5xl space-y-5 py-4">
   <%= page_title("import.png", t(".title")) %>
-  <% if unmatched.positive? %>
+  <% if undecided.any? %>
+    <div role="alert" class="rounded-2xl border-2 border-red-700 bg-red-50 px-4 py-3 text-red-900">
+      <p class="font-bold"><%= t(".undecided_title", count: undecided.size) %></p>
+      <p class="text-sm"><%= t(".undecided", count: undecided.size) %></p>
+    </div>
+  <% elsif @batch.all_already? %>
+    <div role="status" class="rounded-2xl border-2 border-sky-700 bg-sky-50 px-4 py-3 text-sky-900">
+      <p class="font-bold"><%= t(".already_title") %></p>
+      <p class="text-sm"><%= t(".already_body", count: @batch.entries.count { it.status == :already }) %></p>
+    </div>
+  <% elsif unmatched.positive? %>
     <% first = shown.find { it.rows.any? { |row| row.choice.blank? } } %>
     <%= render "shared/notice", title: t(".unmatched_title", count: unmatched), body: t(".unmatched", count: unmatched),
           focus: "#invoice_#{first.key}_line_#{first.rows.find { it.choice.blank? }.index}_choice" %>
   <% end %>
-  <p class="text-center text-gray-700">
+  <p class="text-center text-gray-700 <%= "hidden" if @batch.all_already? %>">
     <% if @batch.pdfs? %>
       <%= t(".intro_pdfs", pdfs: t(".pdfs", count: @batch.entries.size), invoices: t(".invoices", count: shown.size), items: t(".items", count: items)) %>
     <% else %>
@@ -35,10 +48,10 @@
 
     <% if shown.any? %>
       <label class="flex items-center justify-end gap-2 text-sm font-semibold">
-        <%= check_box_tag :add_to_ledger, "1", false %> <%= t(".add_to_ledger") %>
+        <%= check_box_tag :add_to_ledger, "1", params[:add_to_ledger] == "1" %> <%= t(".add_to_ledger") %>
       </label>
       <% shown.each do |entry| %>
-        <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories %>
+        <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories, undecided: %>
       <% end %>
       <p class="text-xs text-gray-600"><%= t(".hint") %></p>
     <% end %>
@@ -55,21 +68,22 @@
             <div class="<%= folded %> border-amber-400 bg-amber-50 text-amber-900">
               <p><span class="font-bold"><%= label %></span> · <%= t(@batch.pdfs? ? ".why.total_only_pdf" : ".why.total_only_qr") %></p>
               <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
-                <%= check_box_tag "invoices[#{entry.key}][ledger_total]", "1", !@batch.pdfs?, id: "invoice_#{entry.key}_ledger_total" %> <%= t(".ledger_total") %>
+                <%= check_box_tag "invoices[#{entry.key}][ledger_total]", "1", @batch.posted ? @batch.posted_for(entry)["ledger_total"] == "1" : !@batch.pdfs?, id: "invoice_#{entry.key}_ledger_total" %> <%= t(".ledger_total") %>
               </label>
               <%= hidden_field_tag "invoices[#{entry.key}][store]", entry.store, id: nil %>
             </div>
           <% when :skip_store %>
-            <details class="rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 text-gray-700">
+            <% included = @batch.posted_for(entry)["include"] == "1" %>
+            <details class="rounded-2xl border-2 border-dashed border-gray-400 bg-gray-50 text-gray-700" <%= "open" if included %>>
               <summary class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <span><span class="font-bold"><%= label %></span> · <%= t(".why.skip_store") %></span>
                 <span class="text-sm text-blue-700 underline"><%= t(".show_items") %></span>
               </summary>
               <div class="space-y-3 px-4 pb-4">
                 <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
-                  <%= check_box_tag "invoices[#{entry.key}][include]", "1", false, id: "invoice_#{entry.key}_include" %> <%= t(".include_anyway") %>
+                  <%= check_box_tag "invoices[#{entry.key}][include]", "1", included, id: "invoice_#{entry.key}_include" %> <%= t(".include_anyway") %>
                 </label>
-                <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories %>
+                <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories, undecided: %>
               </div>
             </details>
           <% else %>
@@ -80,6 +94,25 @@
                 <% else %><%= t(".why.duplicate") %><% end %>
               </p>
               <% if entry.file.present? && receipt %><span class="text-xs"><%= entry.file %></span><% end %>
+              <%# Added before: where its items are now (after a combine, the item they went into) %>
+              <% purchases = entry.status == :already ? entry.already.purchases.includes(:supply).to_a : [] %>
+              <% if purchases.any? %>
+                <ul class="w-full space-y-1 border-t border-gray-300 pt-2">
+                  <% purchases.each do |purchase| %>
+                    <% supply = purchase.supply %>
+                    <% brand = purchase.product_name.presence %>
+                    <li class="flex flex-wrap items-center justify-between gap-2">
+                      <span class="min-w-0 text-sm">
+                        <span class="block font-semibold text-gray-900 [overflow-wrap:anywhere]"><%= brand || supply.name %></span>
+                        <span class="block text-xs"><%= safe_join([ t("supplies.units.#{supply.unit}", count: purchase.quantity),
+                                                                   t(brand && !brand.casecmp?(supply.name) ? ".now_in_brand" : ".now_in", item: supply.name) ], " · ") %></span>
+                      </span>
+                      <%= link_to t(".open_item", item: supply.name), household_supply_path(Current.household, supply), data: { turbo_frame: "_top" },
+                            class: "btn-press inline-flex min-h-11 items-center rounded-xl bg-sky-100 px-3 py-1.5 text-sm font-bold text-sky-900" %>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
             </div>
           <% end %>
         <% end %>
@@ -91,8 +124,12 @@
         <%= link_to t(".more_pdfs"), scan_household_supplies_path(Current.household, mode: "pdf"), class: "btn-press inline-flex items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
       <% else %><span></span><% end %>
       <div class="flex flex-wrap items-center gap-3">
-        <%= cancel_link(scan_household_supplies_path(Current.household, mode: @batch.pdfs? ? "pdf" : "receipt")) %>
-        <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
+        <% if @batch.all_already? %>
+          <%= link_to t(".done"), household_supplies_path(Current.household), class: "btn-press inline-flex items-center rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" %>
+        <% else %>
+          <%= cancel_link(scan_household_supplies_path(Current.household, mode: @batch.pdfs? ? "pdf" : "receipt")) %>
+          <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
+        <% end %>
       </div>
     </div>
   <% end %>

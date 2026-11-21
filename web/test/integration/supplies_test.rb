@@ -881,6 +881,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     post receipt_review_household_supplies_path(@home), params: { source: "qr", left: }
     assert_redirected_to scan_household_supplies_path(@home, mode: "receipt")
     assert_match "已經在", flash[:alert]
+    assert_match(/品項在.*衛生紙/, flash[:alert], "and says where its items are")
 
     other = left.sub("AB12345678", "AB12345679")
     post receipt_review_household_supplies_path(@home), params: { source: "qr", left: other }
@@ -951,6 +952,55 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='invoices[0][include]']"
   end
 
+  test "invoice PDFs after a combine: Save keeps every line, the brand is known, and the same invoice says where its items are now" do
+    brand = create_item(name: "魔術靈馬桶清潔劑", unit: "bottle")
+    cleaner = create_item(name: "Toilet cleaner", unit: "bottle")
+    words = file_fixture("einvoice/invoice_pdf_words.json").read
+    pdfs = { "0" => { name: "a.pdf", words: } }
+
+    # A line left on Choose…: nothing is saved, and the review comes back as it was left
+    assert_no_difference -> { @home.receipt_imports.count } do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:, add_to_ledger: "1",
+        invoices: { "0" => { store: "徠樂", lines: { "0" => { choice: "", quantity: 3, units_per_line: 1 }, "1" => { choice: "skip" } } } } }
+    end
+    assert_response :unprocessable_content
+    assert_select "[role=alert]", text: /還有 1 項是「請選擇…」/
+    assert_select "select[name='invoices[0][lines][0][choice]'][aria-invalid=true][autofocus] option[selected][value='']"
+    assert_select "p", "請選擇，或略過"
+    assert_select "select[name='invoices[0][lines][1][choice]']:not([aria-invalid]) option[selected][value=skip]"
+    assert_select "input[name='invoices[0][lines][0][quantity]'][value='3']"
+    assert_select "input[name='invoices[0][store]'][value=徠樂]"
+    assert_select "input[name=add_to_ledger][checked]"
+
+    # An excluded invoice isn't checked
+    assert_no_difference -> { @home.receipt_imports.count } do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:, invoices: { "0" => { exclude: "1", lines: { "0" => { choice: "" } } } } }
+    end
+    assert_redirected_to household_supplies_path(@home)
+
+    post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
+      invoices: { "0" => { store: "徠樂", lines: { "0" => { choice: brand.id, quantity: 2, units_per_line: 1 }, "1" => { choice: "skip" } } } } }
+    assert_redirected_to household_supplies_path(@home)
+    Supplies::Combine.call(brand.reload, into: cleaner.reload, user: users(:alex))
+
+    # The same PDF again: added before, and its item is in Toilet cleaner now
+    assert_no_difference -> { @home.receipt_imports.count } do
+      post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: }
+    end
+    assert_select "[role=status]", text: /已經加入過，沒有新的東西/
+    assert_match "現在在「Toilet cleaner」裡，是它的一個品牌", response.body
+    assert_select "a[href=?]", household_supply_path(@home, cleaner), text: "打開Toilet cleaner ›"
+    assert_select "form[action=?] button[type=submit]", receipt_household_supplies_path(@home), 0, "nothing to save"
+    assert_select "a[href=?]", household_supplies_path(@home), text: "完成"
+
+    # Another store's invoice with the same product: matched to Toilet cleaner as a brand of it
+    other = { "0" => { name: "b.pdf", words: words.gsub("HX45765353", "HX45765399").gsub("85627834", "12345675") } }
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: other }
+    assert_select "select[name='invoices[0][lines][0][choice]'] option[selected][value=?]", cleaner.id.to_s
+    assert_select "span", text: "已知品牌"
+    assert_match "Toilet cleaner的品牌：以前買過", response.body
+  end
+
   test "a new item bought a while ago with some used: the forecast has a usage rate straight away" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon # a purchase on a past day counts from its midday
     bought_on = @home.today - 10
@@ -994,6 +1044,53 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal [ 259, "家樂福" ], purchase.reload.values_at(:total_price, :store)
     assert_equal 259, purchase.record.reload.amount_paid
     assert_equal 1, supply.purchases.count
+  end
+
+  test "edit: an item bought as two products lists them, and the one chosen is the purchase corrected" do
+    supply = create_item(name: "Coffee", unit: "bag")
+    kirkland = Supplies::LogPurchase.call(supply, { quantity: 1, total_price: 529, store: "Costco", purchased_on: @home.today - 10, left_before: 0,
+                                                    product_name: "Kirkland Espresso 1.13kg" }, user: users(:alex), add_to_ledger: true)
+    starbucks = Supplies::LogPurchase.call(supply, { quantity: 2, total_price: 700, store: "家樂福", purchased_on: @home.today, left_before: 1,
+                                                     product_name: "Starbucks House Blend" }, user: users(:alex))
+
+    get edit_household_supply_path(@home, supply)
+    assert_select "turbo-frame#supply_purchase details[open]" do
+      assert_select "summary", "修正購買紀錄 · 2 種商品"
+      assert_select "a[data-turbo-frame=supply_purchase]", 2
+      assert_select "a[aria-current=true][href=?]", edit_household_supply_path(@home, supply, purchase_id: starbucks.id), text: /Starbucks House Blend/
+      assert_select "a[href=?]", edit_household_supply_path(@home, supply, purchase_id: kirkland.id), text: /Kirkland Espresso 1.13kg.*Costco/m
+      assert_select "input[type=hidden][name=purchase_id][value=?]", starbucks.id.to_s
+      assert_select "input[name='purchase[total_price]'][value='700']"
+    end
+
+    get edit_household_supply_path(@home, supply, purchase_id: kirkland.id), headers: { "Turbo-Frame" => "supply_purchase" }
+    assert_select "turbo-frame#supply_purchase" do
+      assert_select "a[aria-current=true]", text: /Kirkland/
+      assert_select "input[type=hidden][name=purchase_id][value=?]", kirkland.id.to_s
+      assert_select "input[name='purchase[product_name]'][value=?]", "Kirkland Espresso 1.13kg"
+      assert_select "p", text: /Kirkland Espresso 1.13kg 最近一次購買/
+    end
+
+    patch household_supply_path(@home, supply), params: { supply: { name: "Coffee" }, purchase_id: kirkland.id,
+      purchase: { purchased_on: kirkland.purchased_on, quantity: 1, total_price: 499, store: "Costco", product_name: "Kirkland Espresso 1.13kg" } }
+    assert_redirected_to household_supply_path(@home, supply)
+    assert_equal 499, kirkland.reload.total_price
+    assert_equal 499, kirkland.record.reload.amount_paid, "its Ledger expense follows"
+    assert_equal 700, starbucks.reload.total_price, "the latest purchase is left alone"
+
+    other = create_item(name: "Rice")
+    get edit_household_supply_path(@home, supply, purchase_id: Supplies::LogPurchase.call(other, { quantity: 1, total_price: 1, purchased_on: @home.today }, user: users(:alex)).id)
+    assert_response :not_found
+  end
+
+  test "edit: an item bought as one product has no list" do
+    supply = create_item
+    Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 289, purchased_on: @home.today - 3, left_before: 0 }, user: users(:alex))
+    Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 299, purchased_on: @home.today, left_before: 4 }, user: users(:alex))
+    get edit_household_supply_path(@home, supply)
+    assert_select "summary", text: /上次購買/
+    assert_select "a[data-turbo-frame=supply_purchase]", 0
+    assert_select "input[name=purchase_id]", 0
   end
 
   test "edit: an item added without a purchase can get one afterwards, before its first count" do

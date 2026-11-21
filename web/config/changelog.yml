@@ -3,11 +3,17 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
-- version: "1.23.1"
+- version: "1.24.0"
   date: 2026-11-21
   en:
+    - "Supplies › Add a receipt: an item you combined into another is still recognized. A receipt line with its name (or any brand you bought an item as) goes to the item it is now part of, tagged \"Known brand\", from any store. Under each line it now says why it was matched, for example \"A brand of Coffee: bought before as Kirkland Espresso 1.13kg\"."
+    - "Supplies › Add a receipt: Save no longer leaves a line behind. With a line still on \"Choose…\", nothing is saved and the page comes back as you left it, that line in red, so no purchase is lost. Uploading an invoice that was already added says so clearly and shows where its items are now, with no Save button to press."
+    - "Supplies › Edit item: an item bought as two or more products (brands) lists them, each with its latest date, quantity, price and store. Choose one to correct its latest purchase; what you already changed above stays."
     - "Supplies: after you tap \"Used 1\" (or Undo), the lists put themselves in order right away. The item moves to its new place on All, To Buy and Favorites, and the To Buy count, To Buy's group headings, \"Next up\" and \"About a month\" update with it. You no longer need to refresh the page."
   zh-TW:
+    - "日用品 › 新增發票：合併到其他品項的東西還是認得出來。發票上出現它的名稱（或你買過的任何品牌名稱），不論哪家店，都會對到它現在所在的品項，標示「已知品牌」。每一行下面也會寫出為什麼這樣對，例如「咖啡的品牌：以前買過「Kirkland Espresso 1.13kg」」。"
+    - "日用品 › 新增發票：按「儲存」不會再漏掉任何一行。還有一行是「請選擇…」時，什麼都不會儲存，頁面會照你離開時的樣子回來，那一行標成紅色，不會有購買紀錄遺失。上傳已經加入過的發票時，會清楚告訴你，並顯示品項現在在哪裡，也不會出現「儲存」按鈕。"
+    - "日用品 › 編輯品項：買過兩種以上商品（品牌）的品項，會先列出每一種，附上最近一次的日期、數量、價格和商店。選一種就能修正它最近一次的購買；上面已經改好的內容會保留。"
     - "日用品：按「用掉 1 瓶」這類按鈕（或「復原」）之後，清單會馬上重新排序。品項會移到它在「全部」、「該補貨」和「我的最愛」的新位置，「該補貨」的數字、「該補貨」的分組標題、「下一個」和「每月約」也會一起更新，不用再重新整理頁面。"
 - version: "1.23.0"
   date: 2026-11-20

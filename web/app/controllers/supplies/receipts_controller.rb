@@ -10,28 +10,47 @@ class Supplies::ReceiptsController < ApplicationController
     authorize Supply, :create?
     return if performed?
     if !@batch.pdfs? && (already = @batch.entries.first.already)
-      return redirect_to back_path, alert: t("supplies.receipts.already", date: l(already.created_at.to_date, format: :long)), status: :see_other
+      return redirect_to back_path, alert: already_message(already), status: :see_other
     end
-    @stores = Current.household.supply_purchases.where.not(store: nil).distinct.order(:store).pluck(:store)
-    @supplies = Current.household.supplies.active.includes(:category).order(:name)
-    @categories = Current.household.supply_categories.active.ordered.to_a
+    load_review
   end
 
   def create
     authorize Supply, :create?
     return if performed?
-    result = @batch.save(params.fetch(:invoices, {}).to_unsafe_h, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
+    choices = params.fetch(:invoices, {}).to_unsafe_h
+    # A line still on "Choose…": nothing is saved and the review comes back as it was left
+    if (undecided = @batch.undecided(choices)).any?
+      @undecided = undecided.to_set
+      @batch.posted = choices
+      load_review
+      return render :new, status: :unprocessable_content
+    end
+    result = @batch.save(choices, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
     notice = if result.invoices.zero? then t(".nothing")
     else t(".saved", count: result.purchases, invoices: t(".invoices", count: result.invoices), ledger: result.ledger.positive? ? t(".with_ledger", count: result.ledger) : "")
     end
     redirect_to household_supplies_path(Current.household), notice:, status: :see_other
   rescue Supplies::ImportReceipt::Duplicate => error
-    redirect_to back_path, alert: t("supplies.receipts.already", date: l((error.existing&.created_at || Time.current).to_date, format: :long)), status: :see_other
+    redirect_to back_path, alert: already_message(error.existing), status: :see_other
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
     redirect_to back_path, alert: t(".failed", reason: error.message), status: :see_other
   end
 
   private
+
+  def load_review
+    @stores = Current.household.supply_purchases.where.not(store: nil).distinct.order(:store).pluck(:store)
+    @supplies = Current.household.supplies.active.includes(:category).order(:name)
+    @categories = Current.household.supply_categories.active.ordered.to_a
+  end
+
+  # "Already added on …", and where its items are now (after a combine, the item they went into)
+  def already_message(import)
+    message = t("supplies.receipts.already", date: l((import&.created_at || Time.current).to_date, format: :long))
+    items = import ? import.purchases.includes(:supply).map { it.supply.name }.uniq : []
+    items.any? ? "#{message} #{t('supplies.receipts.already_items', items: items.to_sentence)}" : message
+  end
 
   def set_batch
     @batch = Supplies::ReceiptBatch.from(Current.household, params)

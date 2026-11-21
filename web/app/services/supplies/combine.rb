@@ -2,7 +2,8 @@ module Supplies
   # Two items that are the same thing (one saved per product: "Promise Volume Shampoo", "PDRN Care
   # Shampoo") become one: `source` moves into `target` and becomes a brand of it. Purchases, counts,
   # old prices, barcodes, stars and what receipts remembered go along; a purchase with no product
-  # named takes the source's name. The target keeps its name, category, unit and settings.
+  # named takes the source's name, and the target remembers that name (former_names) so a receipt
+  # line with it is matched to the target. The target keeps its name, category, unit and settings.
   #
   # The two histories become one timeline. At every purchase and count, the other item still had
   # what it last knew, so that is added to the number the event recorded: the counts add up and the
@@ -33,6 +34,7 @@ module Supplies
         plan.each { |event, mine, other| move(event, mine, other) }
         move_the_rest
         @source.reload.destroy!
+        @target.update!(former_names: former_names)
         @target.update!(guess_days_per_unit: @source.guess_days_per_unit) if @target.guess_days_per_unit.nil? && @source.guess_days_per_unit
         StockChanged.call(@target)
         pin(expected)
@@ -43,6 +45,10 @@ module Supplies
     private
 
     def events(supply) = supply.purchases.to_a + supply.counts.to_a
+
+    # The source's name (and the names of items combined into it before) stay known to the target, so
+    # a receipt line with one is still matched here even when no purchase, price or barcode carries it
+    def former_names = (@target.former_names + [ @source.name ] + @source.former_names).uniq - [ @target.name ]
 
     # The source's stock with no product named is now the brand called after it
     def key(name, supply) = supply.id == @source.id && name.to_s.empty? ? Brands.key(@brand) : name.to_s

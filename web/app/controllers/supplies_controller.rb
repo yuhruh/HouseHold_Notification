@@ -86,20 +86,25 @@ class SuppliesController < ApplicationController
     end
   end
 
+  # With two or more products (brands), Edit lists them and corrects the latest purchase of the one
+  # chosen (purchase_id); choosing another reloads only that part (the supply_purchase frame)
   def edit
     authorize @supply
-    @purchase = @supply.latest_purchase || SupplyPurchase.new(purchased_on: Current.household.today)
+    @purchase = editing_purchase || SupplyPurchase.new(purchased_on: Current.household.today)
+    @products = products
   end
 
-  # The item's settings, and its latest purchase (price, store, date…), or the first one if none yet
+  # The item's settings, and the purchase being corrected (the latest, or the product's chosen on the
+  # form: price, store, date…), or the first one if none yet
   def update
     authorize @supply
     attributes = purchase_params
-    @purchase = @supply.latest_purchase || SupplyPurchase.new(attributes)
+    editing = editing_purchase
+    @purchase = editing || SupplyPurchase.new(attributes)
     saved = Supply.transaction do
       raise ActiveRecord::Rollback unless new_category_for(@supply) && @supply.update(supply_params.except(:level))
-      if @supply.latest_purchase || Supplies::PurchaseDetails.given?(attributes)
-        @purchase = Supplies::PurchaseDetails.for_edit(@supply, attributes, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
+      if editing || Supplies::PurchaseDetails.given?(attributes)
+        @purchase = Supplies::PurchaseDetails.for_edit(@supply, attributes, purchase: editing, user: Current.user, add_to_ledger: params[:add_to_ledger] == "1")
         purchase_failed! unless @purchase.persisted? && @purchase.errors.empty?
       end
       Supplies::StockChanged.call(@supply)
@@ -110,6 +115,7 @@ class SuppliesController < ApplicationController
       redirect_to household_supply_path(Current.household, @supply), notice: t(".saved")
     else
       @open_purchase = true
+      @products = products
       render :edit, status: :unprocessable_content
     end
   end
@@ -137,6 +143,20 @@ class SuppliesController < ApplicationController
 
   def set_supply
     @supply = Current.household.supplies.includes(:category, :purchases, :counts, :prices, :barcodes, :favorites).find(params[:id])
+  end
+
+  # The purchase Edit corrects: the one chosen (purchase_id, one of this item's), else the latest
+  def editing_purchase
+    return @supply.latest_purchase if params[:purchase_id].blank?
+
+    @supply.purchases.find { it.id == params[:purchase_id].to_i } || raise(ActiveRecord::RecordNotFound)
+  end
+
+  # The latest purchase of each product the item was bought as, newest first; nil with only one
+  def products
+    latest = @supply.purchases.reject(&:new_record?).group_by { Supplies::Brands.key(it.product_name) }
+                    .map { |_, purchases| purchases.max_by { [ it.purchased_on, it.created_at ] } }
+    latest.sort_by { [ -it.purchased_on.jd, -it.created_at.to_f ] } if latest.size > 1
   end
 
   def supply_params

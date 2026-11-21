@@ -1,15 +1,39 @@
 <%# The purchase on the item forms (Supplies::PurchaseDetails). New item: "I already bought these",
     when, how many and the price, so with "how many now" the forecast has a usage rate from day one.
     Edit: the latest purchase to correct (its Ledger expense follows), or "Add what you paid" when
-    there is none yet %>
+    there is none yet. An item bought as two or more products lists them first (@products): choosing one
+    reloads only this part (the supply_purchase frame) with its latest purchase, and purchase_id says
+    which one Save corrects %>
 <% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
 <% editing = purchase.persisted? %>
+<% products = @products if editing %>
 <% title = if supply.new_record? then t("supplies.form.bought_title")
+           elsif products then t("supplies.form.correct_purchase_title", count: products.size)
            elsif editing then t("supplies.form.last_purchase_title", date: l(purchase.purchased_on, format: :long))
            else t("supplies.form.add_purchase_title") end %>
 <% open = @open_purchase || editing || params[:log_purchase] == "1" %>
+<% section = capture do %>
 <details class="rounded-xl border border-gray-300 p-3" <%= "open" if open %>>
   <summary class="cursor-pointer text-sm font-semibold"><%= title %></summary>
+  <% if products %>
+    <%= hidden_field_tag :purchase_id, purchase.id, id: nil %>
+    <div class="mt-3 space-y-1.5" role="group" aria-labelledby="supply-which-product">
+      <p id="supply-which-product" class="text-sm font-bold"><%= t("supplies.form.which_product") %></p>
+      <% products.each do |product| %>
+        <% chosen = product.id == purchase.id %>
+        <%= link_to edit_household_supply_path(Current.household, supply, purchase_id: product.id), data: { turbo_frame: "supply_purchase" }, "aria-current": ("true" if chosen),
+              class: "flex min-h-13 items-start gap-2.5 rounded-xl px-3 py-2 #{chosen ? 'border-2 border-blue-700 bg-blue-50' : 'border border-gray-400 bg-white'}" do %>
+          <span aria-hidden="true" class="mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border-2 <%= chosen ? 'border-blue-700' : 'border-gray-500' %>"><% if chosen %><span class="h-2 w-2 rounded-full bg-blue-700"></span><% end %></span>
+          <span class="min-w-0">
+            <span class="block text-sm font-bold [overflow-wrap:anywhere]"><%= product.product_name.presence || supply.name %></span>
+            <span class="block text-xs text-gray-700"><%= safe_join([ (t("supplies.form.no_brand") if product.product_name.blank?), l(product.purchased_on, format: :short),
+                                                                   supply_count(supply, product.quantity), supply_cost(product), product.store.presence ].compact, " · ") %></span>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+    <p class="mt-3 border-t border-gray-200 pt-2 text-sm font-bold [overflow-wrap:anywhere]"><%= t("supplies.form.product_latest_title", product: purchase.product_name.presence || supply.name, date: l(purchase.purchased_on, format: :long)) %></p>
+  <% end %>
   <%# The price can be in another currency (supplies/_price_field): its panel opens under the price
       and the store. A new item's unit can still change, so the panel leaves the price per unit out %>
   <%= tag.div class: "mt-3 space-y-3", data: supply_paid_data(unit: (t("supplies.units.#{supply.unit}_one") unless supply.new_record?)) do %>
@@ -50,3 +74,5 @@
     <% end %>
   <% end %>
 </details>
+<% end %>
+<%= supply.persisted? ? turbo_frame_tag("supply_purchase") { section } : section %>

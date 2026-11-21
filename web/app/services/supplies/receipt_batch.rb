@@ -22,6 +22,8 @@ module Supplies
     end
 
     attr_reader :entries, :source
+    # What was posted (invoices[key][…]) when Save was refused: the review comes back as it was left
+    attr_accessor :posted
 
     def initialize(household, params)
       @household = household
@@ -35,23 +37,14 @@ module Supplies
 
     # choices: { "<key>" => { exclude: "1", skip_store: "1", include: "1", ledger_total: "1", store:, lines: { … } } }
     def save(choices, user:, add_to_ledger:)
-      choices = choices.to_h.stringify_keys
       invoices = purchases = ledger = 0
       ::ReceiptImport.transaction do
         @entries.each do |entry|
-          choice = choices[entry.key].to_h.stringify_keys
-          import = case entry.status
-          when :ok
-            if choice["exclude"] == "1"
-              mark_not_supplies(entry, choice) if choice["skip_store"] == "1"
-              nil
-            else
-              import(entry, choice, user:, add_to_ledger:)
-            end
-          when :skip_store then import(entry, choice, user:, add_to_ledger:) if choice["include"] == "1"
-          when :total_only then import(entry, choice, user:, add_to_ledger: true) if choice["ledger_total"] == "1"
-          end
-          next unless import
+          choice = choice_for(choices, entry)
+          mark_not_supplies(entry, choice) if entry.status == :ok && choice["exclude"] == "1" && choice["skip_store"] == "1"
+          next unless importing?(entry, choice)
+
+          import = import(entry, choice, user:, add_to_ledger: add_to_ledger || entry.status == :total_only)
           invoices += 1
           purchases += import.purchases.count
           ledger += 1 if import.record
@@ -60,7 +53,38 @@ module Supplies
       Result.new(invoices:, purchases:, ledger:)
     end
 
+    # The lines still on "Choose…" on the invoices Save would add, as [entry key, line index]. Save is
+    # refused while there are any: a line left out would be lost, since the invoice then counts as added
+    def undecided(choices)
+      @entries.flat_map do |entry|
+        choice = choice_for(choices, entry)
+        next [] unless importing?(entry, choice)
+
+        lines = choice["lines"].to_h.stringify_keys
+        entry.rows.filter_map { |row| [ entry.key, row.index ] if lines[row.index.to_s].to_h.stringify_keys["choice"].to_s.empty? }
+      end
+    end
+
+    # What was posted for one invoice, when the review is shown again ({} the first time)
+    def posted_for(entry) = choice_for(@posted, entry)
+
+    # Every invoice whose items could be added was added before (or is the same one twice): nothing new
+    def all_already? = @entries.any? { it.status == :already } && @entries.all? { it.status.in?(%i[already duplicate]) }
+
     private
+
+    def choice_for(choices, entry) = choices.to_h.stringify_keys[entry.key].to_h.stringify_keys
+
+    # Whether Save adds this invoice: a listed one unless excluded, one from a store marked "not a
+    # supplies store" only when included anyway, one with only a total when its total goes to the Ledger
+    def importing?(entry, choice)
+      case entry.status
+      when :ok then choice["exclude"] != "1"
+      when :skip_store then choice["include"] == "1"
+      when :total_only then choice["ledger_total"] == "1"
+      else false
+      end
+    end
 
     def parsed(params)
       if pdfs?

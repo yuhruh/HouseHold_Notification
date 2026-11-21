@@ -5,8 +5,9 @@ module Supplies
   # left before it, then what's left now as a count, so bought 12 on Nov 1 and 5 left today is a
   # usage reading straight away (7 in N days) and the forecast has a rate from day one.
   #
-  # Edit: corrects the latest purchase (its price, store, date, quantity or expiry, and the Ledger
-  # expense linked to it), or, when there is none yet, adds the purchase the item started from.
+  # Edit: corrects a purchase, the latest unless another product's is chosen (its price, store, date,
+  # quantity or expiry, and the Ledger expense linked to it), or, when there is none yet, adds the
+  # purchase the item started from.
   class PurchaseDetails
     FIELDS = (%i[purchased_on quantity total_price store expires_on product_name] + PaidAmount::KEYS).freeze
 
@@ -22,8 +23,7 @@ module Supplies
       purchase
     end
 
-    def self.for_edit(supply, attributes, user:, add_to_ledger:)
-      purchase = supply.latest_purchase
+    def self.for_edit(supply, attributes, user:, add_to_ledger:, purchase: supply.latest_purchase)
       return first_purchase(supply, attributes, user:, add_to_ledger:) unless purchase
 
       purchase.assign_attributes(PaidAmount.resolve(attributes, household: supply.household))

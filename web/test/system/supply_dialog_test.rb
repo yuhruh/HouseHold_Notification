@@ -90,4 +90,29 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     assert_text "Deleted Shampoo.", wait: 5
     assert_equal 0, home.supplies.count
   end
+
+  test "Edit: an item with two products asks which one to correct; switching keeps what was typed above" do
+    home = households(:home)
+    alex = users(:alex)
+    coffee = home.supplies.create!(name: "Coffee", unit: "bag", level: 0, level_at: Time.current)
+    kirkland = Supplies::LogPurchase.call(coffee, { quantity: 1, total_price: 529, store: "Costco", purchased_on: home.today - 10, product_name: "Kirkland Espresso" }, user: alex)
+    Supplies::LogPurchase.call(coffee, { quantity: 2, total_price: 700, store: "Carrefour", purchased_on: home.today, product_name: "Starbucks House Blend" }, user: alex)
+    sign_in
+    visit household_supply_path(home, coffee)
+    click_on "Edit item"
+    within("dialog[open]", wait: 5) do
+      assert_text "Correct a purchase · 2 products"
+      assert_field "purchase[total_price]", with: "700"
+      fill_in "supply[name]", with: "Coffee beans"
+      find("a", text: /Kirkland Espresso/).click
+      assert_selector "a[aria-current=true]", text: /Kirkland Espresso/, wait: 5
+      assert_field "purchase[total_price]", with: "529"
+      assert_field "supply[name]", with: "Coffee beans"
+      fill_in "purchase[total_price]", with: "499"
+      click_on "Save"
+    end
+    assert_text "Coffee beans", wait: 5
+    assert_equal 499, kirkland.reload.total_price
+    assert_equal [ 700 ], coffee.reload.purchases.where.not(id: kirkland.id).pluck(:total_price).map(&:to_i)
+  end
 end

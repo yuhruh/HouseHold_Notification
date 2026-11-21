@@ -16,7 +16,7 @@
       <p class="text-sm"><%= t(".undecided", count: undecided.size) %></p>
     </div>
   <% elsif @batch.all_already? %>
-    <div role="status" class="rounded-2xl border-2 border-sky-700 bg-sky-50 px-4 py-3 text-sky-900">
+    <div role="status" class="rounded-2xl border-2 border-amber-700 bg-amber-50 px-4 py-3 text-amber-900">
       <p class="font-bold"><%= t(".already_title") %></p>
       <p class="text-sm"><%= t(".already_body", count: @batch.entries.count { it.status == :already }) %></p>
     </div>

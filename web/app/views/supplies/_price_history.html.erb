@@ -2,7 +2,7 @@
     ★ marks the lowest price per unit; old prices (comparing only, no stock change) can be deleted.
     Every price is in the household's currency; one paid abroad has the price there under it, and how
     it was paid ("Paid JP¥1,196 by card, with fee") %>
-<% lowest = price_history.min_by(&:unit_price) %>
+<% lowest = price_history.min_by(&supply.cheaper_first) %>
 <% can_edit = policy(supply).update? && !supply.archived_at %>
 <% old_tag = "whitespace-nowrap rounded-full bg-[#fef3c7] px-2 py-0.5 text-xs font-semibold text-[#92400e] dark:bg-[#443617] dark:text-[#f2d995]" %>
 <% low_tag = "whitespace-nowrap rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800" %>
@@ -20,7 +20,7 @@
 <details id="<%= dom_id(supply, :price_history) %>" class="card-raised rounded-2xl bg-white">
   <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
     <span class="font-bold"><%= t("supplies.show.price_history") %></span>
-    <span class="min-w-0 truncate text-sm text-gray-600"><%= lowest ? t("supplies.show.lowest_price", prices: supply_unit_prices(lowest, supply)) : t("supplies.show.no_history") %> ▾</span>
+    <span class="min-w-0 truncate text-sm text-gray-600"><%= lowest ? t("supplies.show.lowest_price", prices: supply_unit_prices(lowest)) : t("supplies.show.no_history") %> ▾</span>
   </summary>
   <% if price_history.any? %>
     <ul class="divide-y divide-gray-200 border-t border-gray-200 px-4 sm:hidden">
@@ -29,7 +29,7 @@
           <span class="min-w-0 font-semibold [overflow-wrap:anywhere]"><%= entry.display_name %></span>
           <span class="text-right font-bold tabular-nums"><%= money(entry.total_price, entry.currency) %></span>
           <span class="min-w-0 text-gray-600"><%= [ entry.store.presence || "—", supply_count(supply, entry.quantity), l(entry.purchased_on, format: :long) ].join(" · ") %></span>
-          <span class="whitespace-nowrap text-right text-gray-600 tabular-nums"><%= supply_unit_prices(entry, supply) %></span>
+          <span class="whitespace-nowrap text-right text-gray-600 tabular-nums"><%= supply_unit_prices(entry) %></span>
           <% if (paid = supply_paid_line(entry)) %><span class="col-span-2 text-right text-xs text-gray-600 tabular-nums"><%= paid %></span><% end %>
           <span class="col-span-2 mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %><span class="ml-auto"><% delete.(entry) %></span></span>
         </li>
@@ -54,7 +54,7 @@
               <td class="px-3 py-2.5"><span class="font-semibold"><%= entry.display_name %></span><span class="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden"><% tags.(entry) %></span></td>
               <td class="px-3 py-2.5"><%= entry.store.presence || "—" %></td>
               <td class="whitespace-nowrap px-3 py-2.5 text-right"><%= supply_count(supply, entry.quantity) %></td>
-              <td class="whitespace-nowrap px-3 py-2.5 text-right"><span class="font-bold"><%= money(entry.total_price, entry.currency) %></span><span class="block text-xs text-gray-600"><%= supply_unit_prices(entry, supply) %></span><% if (paid = supply_paid_line(entry)) %><span class="block text-xs text-gray-600"><%= paid %></span><% end %></td>
+              <td class="whitespace-nowrap px-3 py-2.5 text-right"><span class="font-bold"><%= money(entry.total_price, entry.currency) %></span><span class="block text-xs text-gray-600"><%= supply_unit_prices(entry) %></span><% if (paid = supply_paid_line(entry)) %><span class="block text-xs text-gray-600"><%= paid %></span><% end %></td>
               <td class="px-2 py-2"><% delete.(entry) %></td>
             </tr>
           <% end %>

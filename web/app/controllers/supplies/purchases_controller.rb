@@ -27,6 +27,8 @@ class Supplies::PurchasesController < ApplicationController
     @purchase = @supply.purchases.new(purchased_on: Current.household.today, quantity: from&.quantity, total_price: (product ? same : last)&.total_price,
                                       store: from&.store, currency: Current.household.default_currency, left_before: @supply.forecast.on_hand_rounded,
                                       product_name: product)
+    # Counted in packs: the size this brand came in last time (Supply#pack_sizes)
+    @pack_prefilled = @purchase.fill_pack_size
     @scanned_name = @purchase.product_name.present?
   end
 
@@ -60,6 +62,6 @@ class Supplies::PurchasesController < ApplicationController
   end
 
   def purchase_params
-    params.expect(supply_purchase: %i[quantity total_price store purchased_on expires_on left_before product_name] + Supplies::PaidAmount::KEYS)
+    params.expect(supply_purchase: %i[quantity total_price store purchased_on expires_on left_before product_name pack_size pack_unit] + Supplies::PaidAmount::KEYS)
   end
 end

@@ -952,37 +952,57 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='invoices[0][include]']"
   end
 
-  test "counted in packs with a pack size: Used 1 pack, the pieces inside, and the price per pack and per piece" do
+  test "pack size per brand: Brand A in packs of 4 and Brand B in packs of 20, each with its own price per piece" do
     snack = create_item(name: "寵物零食", unit: "pack", level: 0)
     get edit_household_supply_path(@home, snack)
-    assert_select "[data-controller~=pack-size] [data-pack-size-target=row]:not([hidden])" do
-      assert_select "[data-pack-size-target=label]", "每包有"
-      assert_select "input[name='supply[pack_size]']:not([disabled])"
-      assert_select "select[name='supply[pack_unit]'] option", 4
-    end
-    patch household_supply_path(@home, snack), params: { supply: { name: "寵物零食", unit: "pack", pack_size: "4", pack_unit: "piece", supply_category_id: snack.supply_category_id } }
-    assert_equal [ 4, "piece" ], [ snack.reload.pack_size, snack.pack_unit ]
+    assert_select "form[data-controller~=pack-size]"
+    assert_select "input[name='supply[pack_size]']", 0
+    assert_select "[data-pack-size-target=row]:not([hidden]) input[name='purchase[pack_size]']:not([disabled])"
 
-    post household_supply_purchases_path(@home, snack), params: { supply_purchase: { quantity: 6, total_price: 360, store: "Costco", purchased_on: @home.today } }
-    get household_supply_path(@home, snack)
-    assert_select "span", "· 共 24 個"
-    assert_match "Costco 最便宜：每包 NT$60 · 每個 NT$15", response.body
-    assert_match "最低每包 NT$60 · 每個 NT$15", response.body
-    assert_match "NT$360 買 6 · 每包 NT$60 · 每個 NT$15", response.body
-    assert_select "button", text: /用掉 1 包/
     get new_household_supply_purchase_path(@home, snack)
-    assert_select "p", "每包有 4 個。"
-    get household_supplies_path(@home, view: "all")
-    assert_match "每包 NT$60 · 每個 NT$15", response.body
+    assert_select "form[data-controller='paid-currency pack-size'][data-pack-size-sizes-value='{}']"
+    assert_select "[data-pack-size-target=row] [data-pack-size-target=label]", "每包有"
+    assert_select "select[name='supply_purchase[pack_unit]'] option", 4
+    post household_supply_purchases_path(@home, snack), params: { supply_purchase: { product_name: "Brand A", quantity: 6, total_price: 360, store: "Costco", purchased_on: @home.today - 10, pack_size: 4, pack_unit: "piece" } }
+    post household_supply_purchases_path(@home, snack), params: { supply_purchase: { product_name: "Brand B", quantity: 2, total_price: 480, store: "全聯", purchased_on: @home.today, pack_size: 20 } }
+    assert_equal [ [ "Brand A", 4 ], [ "Brand B", 20 ] ], snack.purchases.order(:purchased_on).pluck(:product_name, :pack_size)
 
-    # Counted in pieces again: no size, and prices as before
-    patch household_supply_path(@home, snack), params: { supply: { unit: "piece", pack_size: "4", supply_category_id: snack.supply_category_id } }
-    assert_nil snack.reload.pack_size
     get household_supply_path(@home, snack)
-    assert_match "最低每個 NT$60", response.body
-    assert_no_match "共 24", response.body
+    assert_select "span", "· 共 64 個"
+    assert_select "li span.text-right", text: /6 包\s*（24 個）/
+    assert_select "li span.text-right", text: /2 包\s*（40 個）/
+    assert_match "全聯 最便宜：每包 NT$240 · 每個 NT$12", response.body
+    assert_match "最低每包 NT$240 · 每個 NT$12", response.body
+    assert_match "每包 NT$60 · 每個 NT$15", response.body
+    assert_match "用掉 1 包", response.body # a menu of the two brands
+
+    # Bought again: the form knows each brand's size, and fills in the last one's
+    get new_household_supply_purchase_path(@home, snack)
+    assert_equal({ "Brand A" => [ 4, "piece" ], "Brand B" => [ 20, "piece" ] }, JSON.parse(css_select("form[data-pack-size-sizes-value]").first["data-pack-size-sizes-value"]))
+    get new_household_supply_price_path(@home, snack)
+    assert_select "input[name='supply_price[pack_size]']"
     get edit_household_supply_path(@home, snack)
-    assert_select "[data-pack-size-target=row][hidden] input[name='supply[pack_size]'][disabled]"
+    assert_select "input[name='purchase[pack_size]'][value='20']"
+
+    # Counted in pieces: the sizes are set aside, and come back with packs
+    patch household_supply_path(@home, snack), params: { supply: { unit: "piece", supply_category_id: snack.supply_category_id } }
+    get household_supply_path(@home, snack)
+    assert_no_match "每個 NT$12", response.body
+    assert_no_match "共 64", response.body
+    get edit_household_supply_path(@home, snack)
+    assert_select "[data-pack-size-target=row][hidden] input[name='purchase[pack_size]'][disabled]"
+    patch household_supply_path(@home, snack), params: { supply: { unit: "pack", supply_category_id: snack.supply_category_id } }
+    get household_supply_path(@home, snack)
+    assert_select "span", "· 共 64 個"
+  end
+
+  test "pack size: an item in packs with no sizes looks as before" do
+    tissues = create_item(name: "面紙", unit: "pack", level: 0)
+    post household_supply_purchases_path(@home, tissues), params: { supply_purchase: { quantity: 6, total_price: 360, store: "Costco", purchased_on: @home.today } }
+    get household_supply_path(@home, tissues)
+    assert_match "最低每包 NT$60", response.body
+    assert_no_match "每個 NT$", response.body
+    assert_no_match "· 共", response.body
   end
 
   test "invoice PDFs: Add as new supply opens a New supply box whose Category can be a new one, made on Save and listed in Settings" do
@@ -1360,7 +1380,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     keep_rate("JPY", day, "0.20612")
 
     get new_household_supply_purchase_path(@home, supply)
-    assert_select "form[data-controller='paid-currency'][data-paid-currency-home-value='TWD']" do
+    assert_select "form[data-controller~='paid-currency'][data-paid-currency-home-value='TWD']" do
       assert_select "select[name='supply_purchase[paid_currency]']" do
         assert_select "option", 14
         assert_select "option[selected][value='TWD']", "TWD · 新台幣"
@@ -1530,7 +1550,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal [ 250, "JPY", 1196 ], supply.purchases.sole.values_at(:total_price, :paid_currency, :paid_total)
 
     get new_household_supply_price_path(@home, supply)
-    assert_select "form[data-controller='paid-currency']" do
+    assert_select "form[data-controller~='paid-currency']" do
       assert_select "select[name='supply_price[paid_currency]'] option[selected][value='TWD']"
       assert_select "optgroup[label='用過的'] option[value='JPY']"
       assert_select "input[name='supply_price[purchased_on]'][data-paid-currency-target='date']"

@@ -1,0 +1,19 @@
+<%# Counted in a pack, box or bag: "Each pack has [4] [pieces]" (optional), what this purchase's pack
+    held, for the price per piece. Each brand keeps its own (Priced): typing a brand bought before fills
+    it in (pack-size, from Supply#pack_sizes). On the item forms Counted in can still change, so the
+    row follows it there and isn't sent while hidden; elsewhere it is only shown for packs %>
+<%# locals: (form:, supply:, hidden: false) %>
+<% labels = supply_pack_labels %>
+<% label_id = "#{form.object_name}_pack_size_label" %>
+<div data-pack-size-target="row" <%= "hidden" if hidden %>>
+  <p id="<%= label_id %>" class="text-sm font-medium"><span data-pack-size-target="label"><%= labels[supply.unit] || labels["pack"] %></span>
+    <span class="font-normal text-gray-600"><%= t("supplies.form.pack_size_optional") %></span></p>
+  <div class="mt-1 flex items-center gap-2">
+    <%= form.number_field :pack_size, min: 2, max: 999, step: 1, inputmode: "numeric", disabled: hidden, "aria-labelledby": label_id,
+          data: { pack_size_target: "size", action: "input->pack-size#typed" },
+          class: "w-24 rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+    <%= form.select :pack_unit, Supply::PACK_UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, disabled: hidden, "aria-label": t("supplies.form.pack_unit"),
+          data: { pack_size_target: "inner" }, class: "rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+  </div>
+  <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.pack_size_hint") %></p>
+</div>

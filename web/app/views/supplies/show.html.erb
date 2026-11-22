@@ -23,7 +23,7 @@
   <details class="card-raised rounded-2xl bg-white">
     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
       <span class="font-bold"><%= t("supplies.show.where_to_buy") %></span>
-      <span class="min-w-0 truncate text-sm text-gray-600"><%= @stores.any? ? t("supplies.show.cheapest_at", store: @stores.first[:store], prices: supply_unit_prices(@stores.first[:best], @supply)) : t("supplies.show.no_purchases") %> ▾</span>
+      <span class="min-w-0 truncate text-sm text-gray-600"><%= @stores.any? ? t("supplies.show.cheapest_at", store: @stores.first[:store], prices: supply_unit_prices(@stores.first[:best])) : t("supplies.show.no_purchases") %> ▾</span>
     </summary>
     <% if @stores.any? %>
       <ul class="divide-y divide-gray-200 border-t border-gray-200 px-4">

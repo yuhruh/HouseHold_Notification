@@ -83,4 +83,12 @@ class Supplies::ImportReceiptTest < ActiveSupport::TestCase
     assert_equal [ [ "Shampoo", :brand, "Promise Volume Shampoo" ], [ "Shampoo", :brand, "PDRN Care Shampoo" ], [ nil, nil, nil ] ],
                  rows(receipt("Promise Volume Shampoo 500ml", "PDRN Care Shampoo", "Dove Beauty Bar"))
   end
+
+  test "a brand bought before in packs gets the size it came in then" do
+    snack = item("Pet snack")
+    Supplies::LogPurchase.call(snack, { quantity: 6, total_price: 360, purchased_on: @home.today, product_name: "Brand A chicken", pack_size: 4 }, user: @alex)
+    Supplies::ImportReceipt.call(@home, receipt("Brand A chicken", "Brand B tuna"), lines: { "0" => { choice: snack.id.to_s }, "1" => { choice: snack.id.to_s } }, store: "PX Mart", user: @alex)
+
+    assert_equal [ [ "Brand A chicken", 4 ], [ "Brand B tuna", nil ] ], snack.purchases.where(store: "PX Mart").order(:id).pluck(:product_name, :pack_size)
+  end
 end

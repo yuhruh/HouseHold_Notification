@@ -47,9 +47,9 @@
         <div>
           <%= p.label :quantity, t("supplies.form.bought_quantity"), class: "block text-sm font-medium" %>
           <%= p.number_field :quantity, min: 1, step: 1, inputmode: "numeric", class: field, data: { paid_currency_target: "quantity", action: "input->paid-currency#render" } %>
-          <% if supply.packed? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.pack_hint", unit: t("supplies.units.#{supply.unit}_one"), count: supply_inside(supply, 1)) %></p><% end %>
         </div>
         <%= render "supplies/price_field", form: p, record: purchase, label: t("supplies.purchases.form.total_price") %>
+        <div class="col-span-2 has-[>[hidden]]:hidden"><%= render "supplies/pack_size_field", form: p, supply:, hidden: !supply.in_packs? %></div>
         <div>
           <%= p.label :store, t("supplies.purchases.form.store"), class: "block text-sm font-medium" %>
           <%= p.text_field :store, maxlength: 60, class: field %>
@@ -62,7 +62,8 @@
         <% unless supply.new_record? %>
           <div class="col-span-2">
             <%= p.label :product_name, t("supplies.purchases.form.product_name"), class: "block text-sm font-medium" %>
-            <%= p.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, placeholder: supply.name, class: field %>
+            <%= p.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, placeholder: supply.name, class: field,
+                  data: { pack_size_target: "product", action: "input->pack-size#fill" } %>
             <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.product_name_hint") %></p>
           </div>
         <% end %>

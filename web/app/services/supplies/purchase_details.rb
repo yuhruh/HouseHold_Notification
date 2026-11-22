@@ -9,7 +9,7 @@ module Supplies
   # quantity or expiry, and the Ledger expense linked to it), or, when there is none yet, adds the
   # purchase the item started from.
   class PurchaseDetails
-    FIELDS = (%i[purchased_on quantity total_price store expires_on product_name] + PaidAmount::KEYS).freeze
+    FIELDS = (%i[purchased_on quantity total_price store expires_on product_name pack_size pack_unit] + PaidAmount::KEYS).freeze
 
     # The person filled in a purchase (the date alone, prefilled with today, doesn't count)
     def self.given?(attributes) = attributes.values_at(:quantity, :total_price).any?(&:present?)

@@ -160,7 +160,7 @@ class SuppliesController < ApplicationController
   end
 
   def supply_params
-    params.expect(supply: %i[name supply_category_id unit pack_size pack_unit level guess_days_per_unit lead_days alert_when_left]).tap do |attrs|
+    params.expect(supply: %i[name supply_category_id unit level guess_days_per_unit lead_days alert_when_left]).tap do |attrs|
       attrs.delete(:supply_category_id) if adding_category?
     end
   end
@@ -250,12 +250,13 @@ class SuppliesController < ApplicationController
     { expiring: all.count { it.last.expiring? }, monthly:, total: all.size }
   end
 
-  # Where to buy: each store's cheapest price per unit (purchases and old prices) and how often it
-  # was used, cheapest first
+  # Where to buy: each store's cheapest price per unit, or per piece when every price says what was
+  # in its pack (Supply#cheaper_first; purchases and old prices), and how often it was used, cheapest first
   def stores(supply)
+    cheaper = supply.cheaper_first
     supply.priced.group_by { it.store.presence || "—" }.map do |store, purchases|
-      best = purchases.min_by(&:unit_price)
+      best = purchases.min_by(&cheaper)
       { store:, best:, times: purchases.size }
-    end.sort_by { it[:best].unit_price }
+    end.sort_by { cheaper.(it[:best]) }
   end
 end

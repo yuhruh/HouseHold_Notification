@@ -4,13 +4,15 @@
 <% stores = Current.household.supply_purchases.where.not(store: nil).distinct.pluck(:store) | Current.household.supply_prices.where.not(store: nil).distinct.pluck(:store) %>
 <%= render layout: "shared/modal_or_page", locals: { title: t("supplies.prices.new.title", item: @supply.name), icon: "expense.png" } do %>
   <%= form_with model: @price, url: household_supply_prices_path(Current.household, @supply), class: "space-y-4",
-        data: { turbo_frame: "_top", **supply_paid_data(unit: t("supplies.units.#{@supply.unit}_one")) } do |form| %>
+        data: { turbo_frame: "_top", **supply_paid_data(unit: t("supplies.units.#{@supply.unit}_one")), **supply_pack_data(@supply, prefilled: @pack_prefilled),
+                controller: "paid-currency pack-size" } do |form| %>
     <% if @price.errors.any? %>
       <ul class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"><% @price.errors.full_messages.each do |m| %><li><%= m %></li><% end %></ul>
     <% end %>
     <div>
       <%= form.label :product_name, t("supplies.prices.new.product_name"), class: "block text-sm font-medium" %>
-      <%= form.text_field :product_name, value: @price.product_name || @supply.name, maxlength: 80, class: field %>
+      <%= form.text_field :product_name, value: @price.product_name || @supply.name, maxlength: 80, class: field,
+            data: { pack_size_target: "product", action: "input->pack-size#fill" } %>
       <p class="mt-1 text-xs text-gray-600"><%= t("supplies.prices.new.product_name_hint") %></p>
     </div>
     <div>
@@ -25,6 +27,7 @@
       </div>
       <%= render "supplies/price_field", form:, record: @price, label: t("supplies.prices.new.total_price"), required: true %>
     </div>
+    <% if @supply.in_packs? %><%= render "supplies/pack_size_field", form:, supply: @supply %><% end %>
     <%= render "supplies/paid_panel", form:, record: @price %>
     <div>
       <%= form.label :purchased_on, t("supplies.prices.new.purchased_on"), class: "block text-sm font-medium" %>

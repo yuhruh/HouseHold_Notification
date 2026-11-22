@@ -186,7 +186,7 @@ en:
       left: "%{count} left"
       probably_used: "Probably used up"
       bought: "Bought %{date}"
-      each: "%{unit_price}/%{unit}"
+      inside: "(%{count})"
       used_one_label: "Used one %{product}"
       gone: "None of that brand is left any more. Pick again."
     restock_prompt:
@@ -362,8 +362,7 @@ en:
       pack_size: "Each %{unit} has"
       pack_size_optional: "(optional)"
       pack_unit: "What's inside"
-      pack_size_hint: "For the price per piece. \"Used 1\" still takes a whole one. Leave it empty if you don't need it."
-      pack_hint: "Each %{unit} has %{count}."
+      pack_size_hint: "This purchase only, for the price per piece; each brand keeps its own. A brand you bought before fills it in. \"Used 1\" still takes a whole one."
       new_category_name: "New category name"
       new_category_hint: "Saved with this item, as the category's English name. Add its Chinese name in Settings › Categories."
       new_category_blank: "Type a name for the new category."

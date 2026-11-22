@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -820,8 +820,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
     t.datetime "updated_at", null: false
     t.bigint "supply_category_id", null: false
     t.string "former_names", default: [], null: false, array: true
-    t.integer "pack_size"
-    t.string "pack_unit"
     t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
     t.index ["household_id"], name: "index_supplies_on_household_id"
     t.index ["supply_category_id"], name: "index_supplies_on_supply_category_id"
@@ -830,8 +828,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
     t.check_constraint "guess_days_per_unit IS NULL OR guess_days_per_unit >= 1", name: "supplies_guess_days"
     t.check_constraint "lead_days >= 0 AND lead_days <= 30", name: "supplies_lead_days"
     t.check_constraint "level >= 0", name: "supplies_level_not_negative"
-    t.check_constraint "pack_size IS NULL OR pack_size >= 2", name: "supplies_pack_size"
-    t.check_constraint "pack_unit IS NULL OR (pack_unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying]::text[]))", name: "supplies_pack_unit"
     t.check_constraint "unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying, 'pack'::character varying, 'box'::character varying, 'bag'::character varying]::text[])", name: "supplies_unit"
   end
 
@@ -900,10 +896,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
     t.string "paid_by"
     t.decimal "card_fee_percent", precision: 4, scale: 2
     t.boolean "card_fee_included"
+    t.integer "pack_size"
+    t.string "pack_unit"
     t.index ["created_by_id"], name: "index_supply_prices_on_created_by_id"
     t.index ["household_id"], name: "index_supply_prices_on_household_id"
     t.index ["supply_id"], name: "index_supply_prices_on_supply_id"
     t.check_constraint "(paid_currency IS NULL) = (paid_total IS NULL)", name: "supply_prices_paid_currency_and_total"
+    t.check_constraint "pack_size IS NULL OR pack_size >= 2", name: "supply_prices_pack_size"
+    t.check_constraint "pack_unit IS NULL OR (pack_unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying]::text[]))", name: "supply_prices_pack_unit"
     t.check_constraint "paid_by::text = ANY (ARRAY['card'::character varying, 'cash'::character varying]::text[])", name: "supply_prices_paid_by_known"
     t.check_constraint "quantity > 0", name: "supply_prices_quantity_positive"
     t.check_constraint "total_price >= 0::numeric", name: "supply_prices_total_not_negative"
@@ -933,6 +933,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
     t.string "paid_by"
     t.decimal "card_fee_percent", precision: 4, scale: 2
     t.boolean "card_fee_included"
+    t.integer "pack_size"
+    t.string "pack_unit"
     t.index ["created_by_id"], name: "index_supply_purchases_on_created_by_id"
     t.index ["household_id"], name: "index_supply_purchases_on_household_id"
     t.index ["receipt_import_id"], name: "index_supply_purchases_on_receipt_import_id"
@@ -940,6 +942,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
     t.index ["supply_id"], name: "index_supply_purchases_on_supply_id"
     t.check_constraint "(paid_currency IS NULL) = (paid_total IS NULL)", name: "supply_purchases_paid_currency_and_total"
     t.check_constraint "left_before >= 0", name: "supply_purchases_left_before_not_negative"
+    t.check_constraint "pack_size IS NULL OR pack_size >= 2", name: "supply_purchases_pack_size"
+    t.check_constraint "pack_unit IS NULL OR (pack_unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying]::text[]))", name: "supply_purchases_pack_unit"
     t.check_constraint "paid_by::text = ANY (ARRAY['card'::character varying, 'cash'::character varying]::text[])", name: "supply_purchases_paid_by_known"
     t.check_constraint "quantity > 0", name: "supply_purchases_quantity_positive"
     t.check_constraint "total_price >= 0::numeric", name: "supply_purchases_total_not_negative"

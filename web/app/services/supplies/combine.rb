@@ -36,7 +36,6 @@ module Supplies
         @source.reload.destroy!
         @target.update!(former_names: former_names)
         @target.update!(guess_days_per_unit: @source.guess_days_per_unit) if @target.guess_days_per_unit.nil? && @source.guess_days_per_unit
-        @target.update!(pack_size: @source.pack_size, pack_unit: @source.pack_unit) if !@target.packed? && @source.packed? && @target.unit == @source.unit
         StockChanged.call(@target)
         pin(expected)
         @target

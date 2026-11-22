@@ -8,6 +8,8 @@ class Supplies::PricesController < ApplicationController
     authorize @supply, :update?
     last = @supply.price_history.first
     @price = @supply.prices.new(product_name: @supply.name, store: last&.store, quantity: last&.quantity, purchased_on: Current.household.today)
+    # Counted in packs: the size it came in last time
+    @pack_prefilled = @price.fill_pack_size
   end
 
   def create
@@ -35,6 +37,6 @@ class Supplies::PricesController < ApplicationController
   end
 
   def price_params
-    params.expect(supply_price: %i[product_name store quantity total_price purchased_on] + Supplies::PaidAmount::KEYS)
+    params.expect(supply_price: %i[product_name store quantity total_price purchased_on pack_size pack_unit] + Supplies::PaidAmount::KEYS)
   end
 end

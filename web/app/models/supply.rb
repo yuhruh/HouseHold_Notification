@@ -4,8 +4,8 @@
 # restock alert go once (Supplies::Alerts).
 class Supply < ApplicationRecord
   UNITS = %w[piece roll bottle can pack box bag].freeze
-  # Counted in one of these, an item can say what's in each ("Each pack has 4 pieces"): pack_size
-  # pack_units, for the price per piece. "Used 1 pack", the count and the forecast stay in packs
+  # Counted in one of these, each purchase can say what was in each ("Each pack has 4 pieces", per
+  # brand: Priced), for the price per piece. "Used 1 pack", the count and the forecast stay in packs
   PACKS = %w[pack box bag].freeze
   PACK_UNITS = %w[piece roll bottle can].freeze
   ALERT_STATES = %w[ok low out].freeze
@@ -32,18 +32,15 @@ class Supply < ApplicationRecord
   validates :level, :alert_when_left, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100_000 }
   validates :lead_days, numericality: { only_integer: true, in: 0..30 }
   validates :guess_days_per_unit, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than: 10_000 }, allow_nil: true
-  validates :pack_size, numericality: { only_integer: true, in: 2..999 }, allow_nil: true
-  validates :pack_unit, inclusion: { in: PACK_UNITS }, allow_nil: true
 
   validate { errors.add(:category, :invalid) if category && category.household_id != household_id }
 
   before_validation { self.level_at ||= Time.current }
   before_validation :settle_category
-  before_validation :settle_pack
 
   scope :active, -> { where(archived_at: nil) }
 
-  def packed? = pack_size.present?
+  def in_packs? = unit.in?(PACKS)
 
   def expiry_window_days = category.perishable? ? PERISHABLE_EXPIRY_WINDOW_DAYS : DEFAULT_EXPIRY_WINDOW_DAYS
 
@@ -78,12 +75,21 @@ class Supply < ApplicationRecord
   def priced = purchases.to_a + prices.to_a
   def price_history = priced.sort_by { [ -it.purchased_on.jd, -(it.created_at || Time.current).to_f ] }
 
-  # Only a pack, box or bag has a size; given one, what's inside is pieces unless said otherwise
-  def settle_pack
-    if unit.in?(PACKS) && pack_size.present?
-      self.pack_unit = "piece" if pack_unit.blank?
-    else
-      self.pack_size = self.pack_unit = nil
-    end
+  # Each brand's pack size, from its newest purchase or old price that has one: { "Brand A" => [4,
+  # "piece"] } ("" for no brand). Fills in the size when that brand is bought again
+  def pack_sizes
+    price_history.select(&:pack_size).reverse.to_h { [ Supplies::Brands.key(it.product_name), [ it.pack_size, it.pack_unit ] ] }
+  end
+
+  # The size a brand came in last time, [4, "piece"], or nil; the item's own name is no brand
+  def pack_size_for(product_name) = pack_sizes[Supplies::Brands.key(product_name == name ? nil : product_name&.squish)]
+
+  # What "cheapest" compares: the price per piece when every purchase and old price says what's in
+  # its pack (and the same kind: pieces, rolls…), so a pack of 20 at NT$12 a piece beats a pack of 4
+  # at NT$15; otherwise the price per pack, box or bag, as for any other unit
+  def cheaper_first
+    all = priced
+    by_piece = all.any? && all.all?(&:packed?) && all.map(&:pack_unit).uniq.one?
+    by_piece ? :piece_price.to_proc : :unit_price.to_proc
   end
 end

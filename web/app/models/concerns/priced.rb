@@ -1,6 +1,8 @@
 # What a purchase and an old price share: how many, the total, the store and the day, with the
 # price per unit worked out from the total, and the product it was (the brand or pack, when it
-# differs from the item's name: one item can be several brands)
+# differs from the item's name: one item can be several brands). Counted in packs, boxes or bags, it
+# can also say what was in each ("Each pack has 4 pieces"), for the price per piece: each brand keeps
+# its own size, so it's on the purchase, not the item
 module Priced
   extend ActiveSupport::Concern
 
@@ -13,12 +15,16 @@ module Priced
 
     # The item's own name isn't a product name: it would go stale when the item is renamed
     before_validation { self.product_name = nil if product_name && product_name == supply&.name }
+    # Given a size, what's inside is pieces unless said otherwise; with none, nothing is inside
+    before_validation { pack_size.present? ? self.pack_unit = pack_unit.presence || "piece" : self.pack_unit = nil }
 
     # The two home-currency boxes of a price typed in another currency (Supplies::PaidAmount), kept
     # only so the form shows them again when it is refused
     attr_accessor :home_total, :home_total_with_fee
 
     validates :product_name, length: { maximum: PRODUCT_NAME_MAX }
+    validates :pack_size, numericality: { only_integer: true, in: 2..999 }, allow_nil: true
+    validates :pack_unit, inclusion: { in: Supply::PACK_UNITS }, allow_nil: true
     validates :purchased_on, presence: true
     validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than: 100_000 }
     validates :total_price, numericality: { greater_than_or_equal_to: 0, less_than: MAX_TOTAL }, unless: :home_amount_missing?
@@ -36,6 +42,20 @@ module Priced
   def unit_price = total_price / quantity
 
   def display_name = product_name || supply.name
+
+  # A size only counts while the item is counted in packs, boxes or bags: switched to pieces it is
+  # set aside, not lost, and switching back brings it back
+  def packed? = pack_size.present? && supply.in_packs?
+
+  def piece_price = unit_price / pack_size
+
+  # A new one of a brand bought before in packs: the size it came in then (Supply#pack_size_for).
+  # True when there was one
+  def fill_pack_size
+    size, inner = supply.pack_size_for(product_name)
+    self.pack_size, self.pack_unit = size, inner if size
+    size.present?
+  end
 
   # Bought in another currency: paid_total in paid_currency, and total_price is what that came to
   def paid_abroad? = paid_currency.present?

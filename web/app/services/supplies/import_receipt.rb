@@ -154,9 +154,12 @@ module Supplies
       total = item.amount
       total = total.round if Household::WHOLE_CURRENCIES.include?(@household.default_currency)
       quantity = line["quantity"].to_s.match?(/\A\d+\z/) && line["quantity"].to_i.positive? ? line["quantity"].to_i : [ item.quantity.round, 1 ].max
+      product_name = item.text.to_s.squish.truncate(Priced::PRODUCT_NAME_MAX, omission: "")
+      # Bought this product before in packs: the same size as then
+      pack_size, pack_unit = supply.pack_size_for(product_name)
       purchase = LogPurchase.call(supply, { quantity: quantity * units, total_price: total, store: @store,
                                             purchased_on: @receipt.issued_on, receipt_import: import,
-                                            product_name: item.text.to_s.squish.truncate(Priced::PRODUCT_NAME_MAX, omission: "") }, user: @user)
+                                            product_name:, pack_size:, pack_unit: }, user: @user)
       raise ActiveRecord::RecordInvalid, purchase unless purchase.persisted?
     end
 

@@ -186,7 +186,7 @@ zh-TW:
       left: "剩 %{count}"
       probably_used: "可能已用完"
       bought: "%{date} 購買"
-      each: "每%{unit} %{unit_price}"
+      inside: "（%{count}）"
       used_one_label: "%{product} 用掉一個"
       gone: "這個品牌已經沒有庫存了，請重新選擇。"
     restock_prompt:
@@ -362,8 +362,7 @@ zh-TW:
       pack_size: "每%{unit}有"
       pack_size_optional: "（可不填）"
       pack_unit: "裡面是"
-      pack_size_hint: "用來算每個多少錢。「用掉 1」還是扣一整個包裝。不需要就留空。"
-      pack_hint: "每%{unit}有 %{count}。"
+      pack_size_hint: "只算這次購買，用來算每個多少錢；每個品牌各自記。以前買過的品牌會自動帶入。「用掉 1」還是扣一整個包裝。"
       new_category_name: "新類別名稱"
       new_category_hint: "會和這個品項一起儲存，存成類別的中文名稱。英文名稱可以在「設定 › 類別」補上。"
       new_category_blank: "請輸入新類別的名稱。"

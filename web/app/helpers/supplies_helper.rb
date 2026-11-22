@@ -44,7 +44,7 @@ module SuppliesHelper
     return unless brands.several?
 
     parts = brands.list.select { it.left.positive? }.reverse.map do |brand|
-      safe_join([ tag.strong(number_with_delimiter(brand.left), class: "text-gray-900"), supply_brand_name(brand) ], " ")
+      safe_join([ tag.strong(number_with_delimiter(brand.left), class: "text-gray-900"), supply_brand_name(brand), supply_brand_inside(supply, brand) ].compact, " ")
     end
     tag.p(safe_join(parts, " · "), class: "text-xs text-gray-600 [overflow-wrap:anywhere]") if parts.any?
   end
@@ -69,7 +69,7 @@ module SuppliesHelper
     expiry = purchase.expires_on
     safe_join([ (t("supplies.brands.#{expiry < Current.household.today ? "expired_on" : "expires_on"}", date: l(expiry, format: :supply_date)) if expiry),
                 t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), (purchase.store.presence if store),
-                (t("supplies.brands.each", unit_price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) if price) ].compact, " · ")
+                (supply_unit_prices(purchase) if price) ].compact, " · ")
   end
 
   # Each person's star colour (Supplies::Starrers::COLORS): the fill and text of their button and tag,
@@ -171,17 +171,46 @@ module SuppliesHelper
     "#{prefix}#{number_with_delimiter(number_with_precision(price, precision:))}"
   end
 
-  # "NT$24.1/roll"; an item with a pack size adds the price of what's inside: "NT$60/pack · NT$15/piece"
-  def supply_unit_prices(purchase, supply = purchase.supply)
-    prices = [ t("supplies.unit_price", price: supply_unit_price(purchase), unit: t("supplies.units.#{supply.unit}_one")) ]
-    if supply.packed?
-      prices << t("supplies.unit_price", price: supply_price(purchase.unit_price / supply.pack_size, purchase.currency), unit: t("supplies.units.#{supply.pack_unit}_one"))
+  # "NT$24.1/roll"; a purchase that says what was in its pack adds the price of one: "NT$60/pack ·
+  # NT$15/piece" (each brand its own)
+  def supply_unit_prices(purchase)
+    prices = [ t("supplies.unit_price", price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) ]
+    if purchase.packed?
+      prices << t("supplies.unit_price", price: supply_price(purchase.piece_price, purchase.currency), unit: t("supplies.units.#{purchase.pack_unit}_one"))
     end
     prices.join(" · ")
   end
 
-  # What's inside that many packs, boxes or bags: "24 pieces" (nil without a pack size)
-  def supply_inside(supply, count) = (t("supplies.units.#{supply.pack_unit}", count: count * supply.pack_size) if supply.packed?)
+  # What's inside the packs left: "44 pieces", each brand's packs times its own size (Supply#pack_sizes).
+  # Nil when a brand in stock has no size, or the brands hold different things (rolls and pieces)
+  def supply_inside(supply, forecast)
+    sizes = supply.pack_sizes
+    return if sizes.empty? || !supply.in_packs?
+
+    stocked = supply_brands(supply, forecast).list.select { it.left.positive? }
+    return if stocked.empty? || stocked.any? { !sizes.key?(it.key) }
+
+    sizes = stocked.map { sizes[it.key] }
+    return unless sizes.map(&:last).uniq.one?
+
+    t("supplies.units.#{sizes.first.last}", count: stocked.zip(sizes).sum { |brand, (size, _)| brand.left * size })
+  end
+
+  # One brand's packs left in pieces, on the brand line: "(12 pieces)", or nil when it has no size
+  def supply_brand_inside(supply, brand)
+    size, inner = supply.pack_sizes[brand.key] if supply.in_packs?
+    t("supplies.brands.inside", count: t("supplies.units.#{inner}", count: brand.left * size)) if size
+  end
+
+  # "Each pack has" / "Each box has": the pack size row's label for each unit that has one
+  def supply_pack_labels = Supply::PACKS.to_h { [ it, t("supplies.form.pack_size", unit: t("supplies.units.#{it}_one")) ] }
+
+  # The pack-size controller's values on a form with supplies/_pack_size_field; `prefilled`: the size
+  # in it came from the brand already typed in, so typing a new brand clears it
+  def supply_pack_data(supply, prefilled: false)
+    { pack_size_labels_value: supply_pack_labels.to_json, pack_size_sizes_value: supply.pack_sizes.to_json,
+      pack_size_item_name_value: supply.name.to_s, pack_size_prefilled_value: prefilled.present? }
+  end
 
   # "NT$289 for 12 · NT$24.1/roll"
   def supply_price_line(purchase)

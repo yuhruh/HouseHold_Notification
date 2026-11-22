@@ -75,8 +75,11 @@
     </dl>
   </section>
 
-  <%# The rest, quieter: snooze and restart reminders (everyone), Make This Recurring and Delete (writers) %>
-  <div class="flex flex-wrap items-center gap-2">
+  <%= render "photos/gallery", record: @record %>
+
+  <%# The rest, quieter, after the photos and under a thin line so it reads as "this bill", not "these photos":
+      snooze and restart reminders (everyone), Make This Recurring and Delete (writers) %>
+  <div class="flex flex-wrap items-center gap-2 border-t border-gray-300 pt-5">
     <%= render "records/reminder_actions", record: @record, snooze: @snooze&.until_on %>
     <% if writer %>
       <% if @record.recurring_template_id.nil? %>
@@ -85,8 +88,6 @@
       <%= button_to household_record_path(Current.household, @record), method: :delete, form: { data: { turbo_confirm: t(".delete_confirm") } }, class: "#{press} cursor-pointer text-red-700" do %><%= image_tag "icons/delete.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= t(".delete") %></span><% end %>
     <% end %>
   </div>
-
-  <%= render "photos/gallery", record: @record %>
 
   <%= render "past_records", record: @record, past: @past, count: @past_count if @past_count.positive? %>
 

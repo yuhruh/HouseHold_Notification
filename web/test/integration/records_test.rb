@@ -160,6 +160,9 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "section[aria-labelledby=bill_details_heading] a[href=?]", edit_household_record_path(@home, record), text: /編輯帳單資訊/
     assert_select "section[aria-labelledby=payment_details_heading] p", "尚未繳費。"
     assert_select "a[href*='payment=1']", 0
+    # Snooze, Make This Recurring and Delete come after the photos, under a line
+    assert_operator response.body.index('data-controller="photo-upload"'), :<, response.body.index("border-t border-gray-300 pt-5")
+    assert_select "div.border-t form[action=?] button", household_record_path(@home, record), text: /刪除/
     partial = add(amount_required: 580, amount_paid: 200, paid_on: Date.new(2026, 3, 1))
     get household_record_path(@home, partial)
     assert_select "section[aria-labelledby=payment_details_heading]" do

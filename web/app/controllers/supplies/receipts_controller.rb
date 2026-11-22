@@ -19,6 +19,7 @@ class Supplies::ReceiptsController < ApplicationController
     authorize Supply, :create?
     return if performed?
     choices = params.fetch(:invoices, {}).to_unsafe_h
+    authorize SupplyCategory, :create? if @batch.new_categories?(choices)
     # A line still on "Choose…": nothing is saved and the review comes back as it was left
     if (undecided = @batch.undecided(choices)).any?
       @undecided = undecided.to_set
@@ -30,6 +31,7 @@ class Supplies::ReceiptsController < ApplicationController
     notice = if result.invoices.zero? then t(".nothing")
     else t(".saved", count: result.purchases, invoices: t(".invoices", count: result.invoices), ledger: result.ledger.positive? ? t(".with_ledger", count: result.ledger) : "")
     end
+    notice += t(".new_categories", count: result.categories.size, names: I18n.locale == :en ? result.categories.to_sentence : result.categories.join("、")) if result.categories.any?
     redirect_to household_supplies_path(Current.household), notice:, status: :see_other
   rescue Supplies::ImportReceipt::Duplicate => error
     redirect_to back_path, alert: already_message(error.existing), status: :see_other

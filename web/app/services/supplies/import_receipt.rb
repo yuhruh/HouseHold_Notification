@@ -93,7 +93,11 @@ module Supplies
       letters.empty? ? 0 : letters.count { text.include?(it) }.fdiv(letters.size)
     end
 
-    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, supply_category_id:, unit: } }
+    # A new supply's Category choice that makes a new category, named in new_category_name
+    NEW_CATEGORY = "new".freeze
+
+    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, supply_category_id: (an id or
+    # NEW_CATEGORY), new_category_name:, unit: } }
     # (quantity: how many came, when it differs from the receipt; the price stays what the line cost)
     def self.call(household, receipt, lines:, store:, user:, add_to_ledger: false)
       new(household, receipt, lines:, store:, user:, add_to_ledger:).call
@@ -158,8 +162,16 @@ module Supplies
 
     def new_supply(item, line)
       @household.supplies.create!(name: line["name"].presence || item.text.truncate(60, omission: ""),
-                                  category: @household.supply_categories.find_by(id: line["supply_category_id"]), unit: line["unit"].presence_in(Supply::UNITS) || "piece",
+                                  category: new_supply_category(line), unit: line["unit"].presence_in(Supply::UNITS) || "piece",
                                   level: 0, created_by: @user)
+    end
+
+    # "＋ New category…": the one with that name (either language, any case), else a new one at the end of
+    # Settings › Categories › Supplies, made in this save (so a refused save makes none)
+    def new_supply_category(line)
+      return @household.supply_categories.find_by(id: line["supply_category_id"]) unless line["supply_category_id"] == NEW_CATEGORY
+
+      SupplyCategory.named(@household, line["new_category_name"]).tap { raise ActiveRecord::RecordInvalid, it unless it.persisted? }
     end
   end
 end

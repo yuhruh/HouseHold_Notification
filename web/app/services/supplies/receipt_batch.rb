@@ -14,7 +14,7 @@ module Supplies
       def included_by_default? = status == :ok
       def items? = rows.present?
     end
-    Result = Data.define(:invoices, :purchases, :ledger)
+    Result = Data.define(:invoices, :purchases, :ledger, :categories) # categories: names of the ones made by "＋ New category…"
 
     # params: { source: "qr", left:, right: } or { source: "pdf", pdfs: { "0" => { name:, words: } } }
     def self.from(household, params)
@@ -38,6 +38,7 @@ module Supplies
     # choices: { "<key>" => { exclude: "1", skip_store: "1", include: "1", ledger_total: "1", store:, lines: { … } } }
     def save(choices, user:, add_to_ledger:)
       invoices = purchases = ledger = 0
+      before = @household.supply_categories.ids
       ::ReceiptImport.transaction do
         @entries.each do |entry|
           choice = choice_for(choices, entry)
@@ -50,20 +51,20 @@ module Supplies
           ledger += 1 if import.record
         end
       end
-      Result.new(invoices:, purchases:, ledger:)
+      Result.new(invoices:, purchases:, ledger:, categories: @household.supply_categories.where.not(id: before).ordered.map(&:name))
     end
 
-    # The lines still on "Choose…" on the invoices Save would add, as [entry key, line index]. Save is
-    # refused while there are any: a line left out would be lost, since the invoice then counts as added
+    # The lines still on "Choose…", or a new supply on "＋ New category…" with no name, on the invoices
+    # Save would add, as [entry key, line index]. Save is refused while there are any: a line left out
+    # would be lost, since the invoice then counts as added
     def undecided(choices)
-      @entries.flat_map do |entry|
-        choice = choice_for(choices, entry)
-        next [] unless importing?(entry, choice)
-
-        lines = choice["lines"].to_h.stringify_keys
-        entry.rows.filter_map { |row| [ entry.key, row.index ] if lines[row.index.to_s].to_h.stringify_keys["choice"].to_s.empty? }
+      importing_lines(choices).filter_map do |key, index, line|
+        [ key, index ] if line["choice"].to_s.empty? || (new_category?(line) && line["new_category_name"].to_s.squish.empty?)
       end
     end
+
+    # Whether Save would make a supply category ("＋ New category…" on a new supply)
+    def new_categories?(choices) = importing_lines(choices).any? { |_, _, line| new_category?(line) }
 
     # What was posted for one invoice, when the review is shown again ({} the first time)
     def posted_for(entry) = choice_for(@posted, entry)
@@ -74,6 +75,19 @@ module Supplies
     private
 
     def choice_for(choices, entry) = choices.to_h.stringify_keys[entry.key].to_h.stringify_keys
+
+    # [entry key, line index, what was posted for the line] on every invoice Save would add
+    def importing_lines(choices)
+      @entries.flat_map do |entry|
+        choice = choice_for(choices, entry)
+        next [] unless importing?(entry, choice)
+
+        lines = choice["lines"].to_h.stringify_keys
+        entry.rows.map { |row| [ entry.key, row.index, lines[row.index.to_s].to_h.stringify_keys ] }
+      end
+    end
+
+    def new_category?(line) = line["choice"] == "new" && line["supply_category_id"] == ImportReceipt::NEW_CATEGORY
 
     # Whether Save adds this invoice: a listed one unless excluded, one from a store marked "not a
     # supplies store" only when included anyway, one with only a total when its total goes to the Ledger

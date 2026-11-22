@@ -855,8 +855,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "select[name='invoices[0][lines][0][choice]'] optgroup option[value=new]"
     assert_select "span", text: "建議"
     assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
-    assert_select "details[open] input[name='invoices[0][lines][1][name]'][value=鮮奶]"
-    assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option", 6
+    assert_select "div[data-receipt-line-target=box][hidden] input[name='invoices[0][lines][1][name]'][value=鮮奶]", 1, "opens on Add as new supply…"
+    assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option", 7, "the six, then ＋ New category…"
     assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option[selected]", "其他"
     assert_select "span", text: "找不到"
     assert_select "select[name='invoices[0][lines][2][choice]'] option[selected][value=skip]", 1, "shipping starts skipped"
@@ -952,6 +952,55 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='invoices[0][include]']"
   end
 
+  test "invoice PDFs: Add as new supply opens a New supply box whose Category can be a new one, made on Save and listed in Settings" do
+    SupplyCategory.seed(@home)
+    pdfs = { "0" => { name: "a.pdf", words: file_fixture("einvoice/invoice_pdf_words.json").read } }
+    post receipt_review_household_supplies_path(@home), params: { source: "pdf", pdfs: }
+    assert_select "li[data-controller=receipt-line]", 2
+    assert_select "select[name='invoices[0][lines][0][choice]'][data-receipt-line-target=choice] option[value=new]", "新增為日用品…"
+    assert_select "div[data-receipt-line-target=box][hidden]", 2 # nothing chosen yet: no new-supply fields
+    assert_select "select[name='invoices[0][lines][0][supply_category_id]'] option:last-child[value=new]", "＋ 新增類別…"
+    assert_select "div[data-new-category-target=field][hidden] input[name='invoices[0][lines][0][new_category_name]']"
+    assert_select "label[for=invoice_0_line_0_name]", "名稱"
+
+    line = { choice: "new", name: "馬桶清潔劑", supply_category_id: "new", unit: "bottle", quantity: 2, units_per_line: 1 }
+    # "＋ New category…" with no name: nothing is saved, the line comes back in red with its box open
+    assert_no_difference -> { @home.supply_categories.count } => 0, -> { @home.supplies.count } => 0, -> { @home.receipt_imports.count } => 0 do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
+        invoices: { "0" => { store: "徠樂", lines: { "0" => line.merge(new_category_name: " "), "1" => { choice: "skip" } } } } }
+    end
+    assert_response :unprocessable_content
+    assert_select "[role=alert]", text: /還有 1 項要完成/
+    assert_select "div[data-receipt-line-target=box]:not([hidden]) input[name='invoices[0][lines][0][new_category_name]'][aria-invalid=true][required][autofocus]"
+    assert_select "p", "請輸入新類別的名稱。"
+    assert_select "input[name='invoices[0][lines][0][name]'][value=馬桶清潔劑]"
+
+    assert_difference -> { @home.supply_categories.count } => 1, -> { @home.supplies.count } => 1 do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
+        invoices: { "0" => { store: "徠樂", lines: { "0" => line.merge(new_category_name: " 浴室用品 "), "1" => { choice: "skip" } } } } }
+    end
+    bathroom = @home.supply_categories.order(:id).last
+    assert_equal [ "浴室用品", nil ], [ bathroom.name_zh, bathroom.name_en ]
+    assert_equal @home.supply_categories.where.not(id: bathroom.id).maximum(:position) + 1, bathroom.position
+    supply = @home.supplies.find_by!(name: "馬桶清潔劑")
+    assert_equal [ bathroom, "bottle", 2 ], [ supply.category, supply.unit, supply.purchases.sole.quantity ]
+    assert_match "新類別：浴室用品（在「設定 › 類別」）。", flash[:notice]
+    get household_categories_path(@home)
+    assert_match "浴室用品", response.body
+  end
+
+  test "invoice PDFs: a new category named like one the ledger has uses that one" do
+    SupplyCategory.seed(@home)
+    pdfs = { "0" => { name: "a.pdf", words: file_fixture("einvoice/invoice_pdf_words.json").read } }
+    assert_no_difference -> { @home.supply_categories.count } do
+      post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
+        invoices: { "0" => { lines: { "0" => { choice: "new", name: "馬桶清潔劑", supply_category_id: "new", new_category_name: "cleaning", quantity: 1, units_per_line: 1 },
+                                      "1" => { choice: "skip" } } } } }
+    end
+    assert_equal category("cleaning"), @home.supplies.find_by!(name: "馬桶清潔劑").category
+    assert_no_match "新類別", flash[:notice]
+  end
+
   test "invoice PDFs after a combine: Save keeps every line, the brand is known, and the same invoice says where its items are now" do
     brand = create_item(name: "魔術靈馬桶清潔劑", unit: "bottle")
     cleaner = create_item(name: "Toilet cleaner", unit: "bottle")
@@ -964,7 +1013,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
         invoices: { "0" => { store: "徠樂", lines: { "0" => { choice: "", quantity: 3, units_per_line: 1 }, "1" => { choice: "skip" } } } } }
     end
     assert_response :unprocessable_content
-    assert_select "[role=alert]", text: /還有 1 項是「請選擇…」/
+    assert_select "[role=alert]", text: /還有 1 項要完成/
     assert_select "select[name='invoices[0][lines][0][choice]'][aria-invalid=true][autofocus] option[selected][value='']"
     assert_select "p", "請選擇，或略過"
     assert_select "select[name='invoices[0][lines][1][choice]']:not([aria-invalid]) option[selected][value=skip]"

@@ -3,7 +3,9 @@
     has Exclude this invoice (and, once excluded, Not a supplies store); a folded one under Not included
     shows the same rows inside. Field names: invoices[key][…]. Shown again after a refused Save, every
     field has what was posted, and a line still on "Choose…" (undecided: [key, line index]) is in red.
-    Under each line, why it was matched (remembered, an item's name, one of its brands) %>
+    Under each line, why it was matched (remembered, an item's name, one of its brands). "Add as new
+    supply…" opens the New supply box under it (receipt-line), whose Category can be "＋ New category…"
+    (new-category, as on Add Item): its name is typed there and it's made on Save %>
 <% receipt = entry.receipt %>
 <% currency = Current.household.default_currency %>
 <% base = "invoices[#{entry.key}]" %>
@@ -56,7 +58,10 @@
                when :brand then t(".why.brand", item: row.supply.name, brand: row.matched)
                when nil then t(".why.not_found") if row.choice.blank?
                end %>
-      <li class="space-y-2 px-4 py-3 <%= cols %> lg:space-y-0 <%= "bg-red-50" if missing %>">
+      <% adding = choice == "new" %>
+      <% new_category = line["supply_category_id"] == Supplies::ImportReceipt::NEW_CATEGORY %>
+      <% unnamed = missing && adding && new_category %><%# refused: "＋ New category…" with no name %>
+      <li class="space-y-2 px-4 py-3 <%= cols %> lg:space-y-0 <%= "bg-red-50" if missing %>" data-controller="receipt-line">
         <p class="font-semibold"><%= row.item.text %></p>
         <label class="flex items-center gap-2 text-sm lg:block">
           <span class="lg:sr-only"><%= t(".col_qty") %></span>
@@ -69,22 +74,47 @@
             <label class="sr-only" for="<%= id %>_choice"><%= t(".is") %></label>
             <%= select_tag "#{name}[choice]", safe_join([ options_for_select([ [ t(".choose"), "" ] ], choice), grouped_options_for_select(groups, choice),
                                                           content_tag(:optgroup, options_for_select([ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], choice), label: "—") ]),
-                  id: "#{id}_choice", autofocus: first_undecided == [ entry.key, row.index ],
-                  "aria-invalid": (true if missing), "aria-describedby": ("#{id}_missing" if missing),
-                  class: "min-w-0 flex-1 rounded-md px-2 py-1.5 #{missing ? 'border-2 border-red-700 bg-white' : 'border border-gray-400'}" %>
+                  id: "#{id}_choice", autofocus: first_undecided == [ entry.key, row.index ] && !unnamed,
+                  "aria-invalid": (true if missing && !unnamed), "aria-describedby": ("#{id}_missing" if missing && !unnamed),
+                  data: { receipt_line_target: "choice", action: "receipt-line#toggle" },
+                  class: "min-w-0 flex-1 rounded-md px-2 py-1.5 #{missing && !unnamed ? 'border-2 border-red-700 bg-white' : 'border border-gray-400'}" %>
             <% if tag %><span class="rounded-full px-2 py-0.5 text-xs font-bold whitespace-nowrap <%= tags[tag] %>"><%= t(".tags.#{tag}") %></span><% end %>
           </div>
-          <% if missing %><p id="<%= id %>_missing" class="text-sm font-bold text-red-700"><%= t(".choose_or_skip") %></p><% end %>
+          <% if missing && !unnamed %><p id="<%= id %>_missing" class="text-sm font-bold text-red-700"><%= t(".choose_or_skip") %></p><% end %>
           <% if why %><p class="text-xs text-gray-700 [overflow-wrap:anywhere]"><%= why %></p><% end %>
           <label class="flex items-center gap-1 text-sm text-gray-700">× <%= number_field_tag "#{name}[units_per_line]", line.fetch("units_per_line", row.units_per_line), id: "#{id}_units", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
-          <details class="text-sm" <%= "open" if choice.blank? || choice == "new" %>>
-            <summary class="cursor-pointer text-gray-700"><%= t(".new_details") %></summary>
-            <div class="mt-2 grid grid-cols-3 gap-2">
-              <%= text_field_tag "#{name}[name]", line.fetch("name", row.item.text.truncate(60, omission: "")), id: "#{id}_name", maxlength: 60, "aria-label": t(".new_name"), class: "col-span-3 rounded-md border border-gray-400 px-2 py-1" %>
-              <%= select_tag "#{name}[supply_category_id]", options_for_select(categories.map { [ it.name, it.id ] }, line["supply_category_id"].presence&.to_i || categories.find(&:fallback?)&.id), id: "#{id}_kind", "aria-label": t(".new_kind"), class: "col-span-2 rounded-md border border-gray-400 px-2 py-1" %>
-              <%= select_tag "#{name}[unit]", options_for_select(Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, line["unit"].presence || "piece"), id: "#{id}_unit", "aria-label": t(".new_unit"), class: "rounded-md border border-gray-400 px-2 py-1" %>
+          <%# Shown only for "Add as new supply…"; hidden, its fields are left out of Save (receipt-line) %>
+          <div class="space-y-2 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50 p-3 text-sm" data-receipt-line-target="box" <%= "hidden" unless adding %>>
+            <p class="font-bold text-blue-900"><%= t(".new_supply") %></p>
+            <div>
+              <%= label_tag "#{id}_name", t(".new_name"), class: "block text-xs font-semibold" %>
+              <%= text_field_tag "#{name}[name]", line.fetch("name", row.item.text.truncate(60, omission: "")), id: "#{id}_name", maxlength: 60,
+                    class: "w-full rounded-md border border-gray-400 bg-white px-2 py-1", data: { receipt_line_target: "name" } %>
             </div>
-          </details>
+            <div class="space-y-2" data-controller="new-category">
+              <div class="grid grid-cols-3 gap-2">
+                <div class="col-span-2">
+                  <%= label_tag "#{id}_kind", t(".new_kind"), class: "block text-xs font-semibold" %>
+                  <%= select_tag "#{name}[supply_category_id]", options_for_select(categories.map { [ it.name, it.id.to_s ] } + [ [ t("supplies.form.new_category"), Supplies::ImportReceipt::NEW_CATEGORY ] ],
+                                                                                 line["supply_category_id"].presence || categories.find(&:fallback?)&.id.to_s),
+                        id: "#{id}_kind", class: "w-full rounded-md border border-gray-400 bg-white px-2 py-1", data: { new_category_target: "select", action: "new-category#toggle" } %>
+                </div>
+                <div>
+                  <%= label_tag "#{id}_unit", t(".new_unit"), class: "block text-xs font-semibold" %>
+                  <%= select_tag "#{name}[unit]", options_for_select(Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, line["unit"].presence || "piece"), id: "#{id}_unit", class: "w-full rounded-md border border-gray-400 bg-white px-2 py-1" %>
+                </div>
+              </div>
+              <div data-new-category-target="field" <%= "hidden" unless new_category %>>
+                <%= label_tag "#{id}_new_category", t("supplies.form.new_category_name"), class: "block text-xs font-semibold" %>
+                <%= text_field_tag "#{name}[new_category_name]", line["new_category_name"], id: "#{id}_new_category", maxlength: 40, required: adding && new_category,
+                      autofocus: (unnamed if first_undecided == [ entry.key, row.index ]), "aria-invalid": (true if unnamed), "aria-describedby": ("#{id}_missing" if unnamed),
+                      class: "w-full rounded-md bg-white px-2 py-1 #{unnamed ? 'border-2 border-red-700' : 'border border-gray-400'}", data: { new_category_target: "input" } %>
+                <% if unnamed %><p id="<%= id %>_missing" class="mt-1 font-bold text-red-700"><%= t("supplies.form.new_category_blank") %></p><% end %>
+                <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.new_category_hint") %></p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-600"><%= t(".new_supply_hint") %></p>
+          </div>
         </div>
       </li>
     <% end %>

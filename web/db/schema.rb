@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_21_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -820,6 +820,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_21_090000) do
     t.datetime "updated_at", null: false
     t.bigint "supply_category_id", null: false
     t.string "former_names", default: [], null: false, array: true
+    t.integer "pack_size"
+    t.string "pack_unit"
     t.index ["created_by_id"], name: "index_supplies_on_created_by_id"
     t.index ["household_id"], name: "index_supplies_on_household_id"
     t.index ["supply_category_id"], name: "index_supplies_on_supply_category_id"
@@ -828,6 +830,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_21_090000) do
     t.check_constraint "guess_days_per_unit IS NULL OR guess_days_per_unit >= 1", name: "supplies_guess_days"
     t.check_constraint "lead_days >= 0 AND lead_days <= 30", name: "supplies_lead_days"
     t.check_constraint "level >= 0", name: "supplies_level_not_negative"
+    t.check_constraint "pack_size IS NULL OR pack_size >= 2", name: "supplies_pack_size"
+    t.check_constraint "pack_unit IS NULL OR (pack_unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying]::text[]))", name: "supplies_pack_unit"
     t.check_constraint "unit::text = ANY (ARRAY['piece'::character varying, 'roll'::character varying, 'bottle'::character varying, 'can'::character varying, 'pack'::character varying, 'box'::character varying, 'bag'::character varying]::text[])", name: "supplies_unit"
   end
 

@@ -24,6 +24,7 @@
       <div>
         <%= form.label :quantity, t("supplies.purchases.form.quantity", unit: t("supplies.units.#{@supply.unit}_other")), class: "block text-sm font-medium" %>
         <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field, data: { paid_currency_target: "quantity", action: "input->paid-currency#render" } %>
+        <% if @supply.packed? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.pack_hint", unit: t("supplies.units.#{@supply.unit}_one"), count: supply_inside(@supply, 1)) %></p><% end %>
       </div>
       <%= render "supplies/price_field", form:, record: @purchase, label: t("supplies.purchases.form.total_price"), required: true %>
     </div>

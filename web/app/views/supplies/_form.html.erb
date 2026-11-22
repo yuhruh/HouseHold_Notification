@@ -41,7 +41,11 @@
     <%= form.text_field :name, required: true, maxlength: 60, autofocus: supply.name.blank?, class: filled.("name") %>
     <% if scan[:original_name].present? %><p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.original_name", name: scan[:original_name]) %></p><% end %>
   </div>
-  <div class="space-y-4" data-controller="new-category">
+  <%# Counted in a pack, box or bag: "Each pack has [4] [pieces]" (optional), for the price per piece. The
+      word follows Counted in (pack-size); for any other unit the row is hidden and not sent %>
+  <% pack_labels = Supply::PACKS.to_h { [ it, t("supplies.form.pack_size", unit: t("supplies.units.#{it}_one")) ] } %>
+  <% in_packs = supply.unit.in?(Supply::PACKS) %>
+  <div class="space-y-4" data-controller="new-category pack-size" data-pack-size-labels-value="<%= pack_labels.to_json %>">
     <div class="grid grid-cols-2 gap-3">
       <div>
         <%= form.label :supply_category_id, class: "block text-sm font-medium" %>
@@ -51,8 +55,20 @@
       </div>
       <div>
         <%= form.label :unit, class: "block text-sm font-medium" %>
-        <%= form.select :unit, Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, class: filled.("unit") %>
+        <%= form.select :unit, Supply::UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, class: filled.("unit"),
+              data: { pack_size_target: "unit", action: "pack-size#toggle" } %>
       </div>
+    </div>
+    <div data-pack-size-target="row" <%= "hidden" unless in_packs %>>
+      <p id="pack_size_label" class="text-sm font-medium"><span data-pack-size-target="label"><%= pack_labels[supply.unit] || pack_labels["pack"] %></span>
+        <span class="font-normal text-gray-600"><%= t("supplies.form.pack_size_optional") %></span></p>
+      <div class="mt-1 flex items-center gap-2">
+        <%= form.number_field :pack_size, min: 2, max: 999, step: 1, inputmode: "numeric", disabled: !in_packs, "aria-labelledby": "pack_size_label",
+              class: "w-24 rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+        <%= form.select :pack_unit, Supply::PACK_UNITS.map { [ t("supplies.units.#{it}_other"), it ] }, {}, disabled: !in_packs, "aria-label": t("supplies.form.pack_unit"),
+              class: "rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+      </div>
+      <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.pack_size_hint") %></p>
     </div>
     <div data-new-category-target="field" <%= "hidden" unless new_category %>>
       <%= label_tag :new_category_name, t("supplies.form.new_category_name"), class: "block text-sm font-medium" %>

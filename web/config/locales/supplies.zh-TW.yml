@@ -159,7 +159,9 @@ zh-TW:
       not_enough_data: "資料不足 · 按「%{button}」或更新數量"
     notice:
       ok: "好"
-    price_line: "%{total} 買 %{quantity} · 每%{unit} %{unit_price}"
+    price_line: "%{total} 買 %{quantity} · %{prices}"
+    unit_price: "每%{unit} %{price}"
+    inside: "· 共 %{count}"
     sources:
       open_food_facts: "Open Food Facts"
       open_beauty_facts: "Open Beauty Facts"
@@ -302,7 +304,7 @@ zh-TW:
       used_line: "用掉 1"
       left_line: "剩 %{left}"
       where_to_buy: "去哪買"
-      cheapest_at: "%{store} 最便宜：每%{unit} %{price}"
+      cheapest_at: "%{store} 最便宜：%{prices}"
       cheapest: "最便宜"
       times:
         one: "1 次"
@@ -315,7 +317,7 @@ zh-TW:
       in_ledger: "已記帳"
       from_receipt: "來自發票"
       price_history: "價格記錄"
-      lowest_price: "最低每%{unit} %{price}"
+      lowest_price: "最低%{prices}"
       lowest: "最低"
       old_price: "舊價格"
       add_old_price: "新增舊價格"
@@ -357,6 +359,11 @@ zh-TW:
       restored: "%{item} 已放回清單。"
     form:
       new_category: "＋ 新增類別…"
+      pack_size: "每%{unit}有"
+      pack_size_optional: "（可不填）"
+      pack_unit: "裡面是"
+      pack_size_hint: "用來算每個多少錢。「用掉 1」還是扣一整個包裝。不需要就留空。"
+      pack_hint: "每%{unit}有 %{count}。"
       new_category_name: "新類別名稱"
       new_category_hint: "會和這個品項一起儲存，存成類別的中文名稱。英文名稱可以在「設定 › 類別」補上。"
       new_category_blank: "請輸入新類別的名稱。"

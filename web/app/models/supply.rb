@@ -4,6 +4,10 @@
 # restock alert go once (Supplies::Alerts).
 class Supply < ApplicationRecord
   UNITS = %w[piece roll bottle can pack box bag].freeze
+  # Counted in one of these, an item can say what's in each ("Each pack has 4 pieces"): pack_size
+  # pack_units, for the price per piece. "Used 1 pack", the count and the forecast stay in packs
+  PACKS = %w[pack box bag].freeze
+  PACK_UNITS = %w[piece roll bottle can].freeze
   ALERT_STATES = %w[ok low out].freeze
   # Expiry alerts: a week ahead in a category that goes off quickly, everything else a month
   PERISHABLE_EXPIRY_WINDOW_DAYS = 7
@@ -28,13 +32,18 @@ class Supply < ApplicationRecord
   validates :level, :alert_when_left, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100_000 }
   validates :lead_days, numericality: { only_integer: true, in: 0..30 }
   validates :guess_days_per_unit, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than: 10_000 }, allow_nil: true
+  validates :pack_size, numericality: { only_integer: true, in: 2..999 }, allow_nil: true
+  validates :pack_unit, inclusion: { in: PACK_UNITS }, allow_nil: true
 
   validate { errors.add(:category, :invalid) if category && category.household_id != household_id }
 
   before_validation { self.level_at ||= Time.current }
   before_validation :settle_category
+  before_validation :settle_pack
 
   scope :active, -> { where(archived_at: nil) }
+
+  def packed? = pack_size.present?
 
   def expiry_window_days = category.perishable? ? PERISHABLE_EXPIRY_WINDOW_DAYS : DEFAULT_EXPIRY_WINDOW_DAYS
 
@@ -68,4 +77,13 @@ class Supply < ApplicationRecord
   # Purchases and old prices, newest first (the item page's Price history and Where to buy)
   def priced = purchases.to_a + prices.to_a
   def price_history = priced.sort_by { [ -it.purchased_on.jd, -(it.created_at || Time.current).to_f ] }
+
+  # Only a pack, box or bag has a size; given one, what's inside is pieces unless said otherwise
+  def settle_pack
+    if unit.in?(PACKS) && pack_size.present?
+      self.pack_unit = "piece" if pack_unit.blank?
+    else
+      self.pack_size = self.pack_unit = nil
+    end
+  end
 end

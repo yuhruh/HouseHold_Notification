@@ -160,7 +160,7 @@ class SuppliesController < ApplicationController
   end
 
   def supply_params
-    params.expect(supply: %i[name supply_category_id unit level guess_days_per_unit lead_days alert_when_left]).tap do |attrs|
+    params.expect(supply: %i[name supply_category_id unit pack_size pack_unit level guess_days_per_unit lead_days alert_when_left]).tap do |attrs|
       attrs.delete(:supply_category_id) if adding_category?
     end
   end

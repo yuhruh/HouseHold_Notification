@@ -952,6 +952,39 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='invoices[0][include]']"
   end
 
+  test "counted in packs with a pack size: Used 1 pack, the pieces inside, and the price per pack and per piece" do
+    snack = create_item(name: "寵物零食", unit: "pack", level: 0)
+    get edit_household_supply_path(@home, snack)
+    assert_select "[data-controller~=pack-size] [data-pack-size-target=row]:not([hidden])" do
+      assert_select "[data-pack-size-target=label]", "每包有"
+      assert_select "input[name='supply[pack_size]']:not([disabled])"
+      assert_select "select[name='supply[pack_unit]'] option", 4
+    end
+    patch household_supply_path(@home, snack), params: { supply: { name: "寵物零食", unit: "pack", pack_size: "4", pack_unit: "piece", supply_category_id: snack.supply_category_id } }
+    assert_equal [ 4, "piece" ], [ snack.reload.pack_size, snack.pack_unit ]
+
+    post household_supply_purchases_path(@home, snack), params: { supply_purchase: { quantity: 6, total_price: 360, store: "Costco", purchased_on: @home.today } }
+    get household_supply_path(@home, snack)
+    assert_select "span", "· 共 24 個"
+    assert_match "Costco 最便宜：每包 NT$60 · 每個 NT$15", response.body
+    assert_match "最低每包 NT$60 · 每個 NT$15", response.body
+    assert_match "NT$360 買 6 · 每包 NT$60 · 每個 NT$15", response.body
+    assert_select "button", text: /用掉 1 包/
+    get new_household_supply_purchase_path(@home, snack)
+    assert_select "p", "每包有 4 個。"
+    get household_supplies_path(@home, view: "all")
+    assert_match "每包 NT$60 · 每個 NT$15", response.body
+
+    # Counted in pieces again: no size, and prices as before
+    patch household_supply_path(@home, snack), params: { supply: { unit: "piece", pack_size: "4", supply_category_id: snack.supply_category_id } }
+    assert_nil snack.reload.pack_size
+    get household_supply_path(@home, snack)
+    assert_match "最低每個 NT$60", response.body
+    assert_no_match "共 24", response.body
+    get edit_household_supply_path(@home, snack)
+    assert_select "[data-pack-size-target=row][hidden] input[name='supply[pack_size]'][disabled]"
+  end
+
   test "invoice PDFs: Add as new supply opens a New supply box whose Category can be a new one, made on Save and listed in Settings" do
     SupplyCategory.seed(@home)
     pdfs = { "0" => { name: "a.pdf", words: file_fixture("einvoice/invoice_pdf_words.json").read } }

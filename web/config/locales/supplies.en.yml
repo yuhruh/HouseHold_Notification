@@ -159,7 +159,9 @@ en:
       not_enough_data: "Not enough data yet · tap \"%{button}\" or update the count"
     notice:
       ok: "OK"
-    price_line: "%{total} for %{quantity} · %{unit_price}/%{unit}"
+    price_line: "%{total} for %{quantity} · %{prices}"
+    unit_price: "%{price}/%{unit}"
+    inside: "· %{count}"
     sources:
       open_food_facts: "Open Food Facts"
       open_beauty_facts: "Open Beauty Facts"
@@ -302,7 +304,7 @@ en:
       used_line: "Used 1"
       left_line: "%{left} left"
       where_to_buy: "Where to buy"
-      cheapest_at: "Cheapest at %{store}: %{price}/%{unit}"
+      cheapest_at: "Cheapest at %{store}: %{prices}"
       cheapest: "cheapest"
       times:
         one: "1×"
@@ -315,7 +317,7 @@ en:
       in_ledger: "In Ledger"
       from_receipt: "from receipt"
       price_history: "Price history"
-      lowest_price: "Lowest %{price}/%{unit}"
+      lowest_price: "Lowest %{prices}"
       lowest: "lowest"
       old_price: "Old price"
       add_old_price: "Add an old price"
@@ -357,6 +359,11 @@ en:
       restored: "%{item} is back on the list."
     form:
       new_category: "＋ New category…"
+      pack_size: "Each %{unit} has"
+      pack_size_optional: "(optional)"
+      pack_unit: "What's inside"
+      pack_size_hint: "For the price per piece. \"Used 1\" still takes a whole one. Leave it empty if you don't need it."
+      pack_hint: "Each %{unit} has %{count}."
       new_category_name: "New category name"
       new_category_hint: "Saved with this item, as the category's English name. Add its Chinese name in Settings › Categories."
       new_category_blank: "Type a name for the new category."

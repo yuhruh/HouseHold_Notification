@@ -162,18 +162,30 @@ module SuppliesHelper
   end
 
   # Price per unit, worked out from the total: 1 decimal, none from 100 up
-  def supply_unit_price(purchase)
-    price = purchase.unit_price
+  def supply_unit_price(purchase) = supply_price(purchase.unit_price, purchase.currency)
+
+  def supply_price(price, currency)
     precision = price >= 100 || price == price.round ? 0 : 1
-    prefix = (Supplies::Currency[purchase.currency] || Supplies::Currency["TWD"]).symbol
-    precision = 2 if purchase.currency == "USD" && price < 100
+    prefix = (Supplies::Currency[currency] || Supplies::Currency["TWD"]).symbol
+    precision = 2 if currency == "USD" && price < 100
     "#{prefix}#{number_with_delimiter(number_with_precision(price, precision:))}"
   end
 
+  # "NT$24.1/roll"; an item with a pack size adds the price of what's inside: "NT$60/pack · NT$15/piece"
+  def supply_unit_prices(purchase, supply = purchase.supply)
+    prices = [ t("supplies.unit_price", price: supply_unit_price(purchase), unit: t("supplies.units.#{supply.unit}_one")) ]
+    if supply.packed?
+      prices << t("supplies.unit_price", price: supply_price(purchase.unit_price / supply.pack_size, purchase.currency), unit: t("supplies.units.#{supply.pack_unit}_one"))
+    end
+    prices.join(" · ")
+  end
+
+  # What's inside that many packs, boxes or bags: "24 pieces" (nil without a pack size)
+  def supply_inside(supply, count) = (t("supplies.units.#{supply.pack_unit}", count: count * supply.pack_size) if supply.packed?)
+
   # "NT$289 for 12 · NT$24.1/roll"
   def supply_price_line(purchase)
-    t("supplies.price_line", total: money(purchase.total_price, purchase.currency), quantity: purchase.quantity,
-      unit_price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one"))
+    t("supplies.price_line", total: money(purchase.total_price, purchase.currency), quantity: purchase.quantity, prices: supply_unit_prices(purchase))
   end
 
   # The one-line summary under a list item: the run-out and buy-by dates, expiry, or what to do next

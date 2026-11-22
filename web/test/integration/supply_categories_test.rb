@@ -17,7 +17,7 @@ class SupplyCategoriesTest < ActionDispatch::IntegrationTest
     assert_select "#{SELECT} option", 7
     assert_select "#{SELECT} option[selected]", "其他"
     assert_select "#{SELECT} option:last-child[value=new]", "＋ 新增類別…"
-    assert_select "div[data-controller=new-category] div[data-new-category-target=field][hidden] input[name=new_category_name]:not([required])"
+    assert_select "div[data-controller~=new-category] div[data-new-category-target=field][hidden] input[name=new_category_name]:not([required])"
 
     assert_difference -> { @home.supply_categories.count } => 1, -> { @home.supplies.count } => 1 do
       post household_supplies_path(@home), params: { new_category_name: "  洗髮精 ", supply: { name: "Lux", supply_category_id: "new", unit: "bottle", level: 2 } }

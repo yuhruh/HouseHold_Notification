@@ -16,15 +16,36 @@
   <% small = "#{press} text-gray-900" %>
   <% list = "grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm" %>
 
-  <%# Not paid yet: one big button for "I paid it" (maintenance: Mark Done). It opens the payment form, filled
-      in (paid in full, today); the bill's own details are changed from their card with Edit Details %>
-  <% if writer && !@record.settled %>
-    <%= link_to edit_household_record_path(Current.household, @record, pay: 1), class: "btn-press flex min-h-14 w-full items-center gap-3 rounded-xl bg-green-200 px-4 py-2.5 text-green-900" do %>
-      <%= image_tag(task ? "icons/maintenance.png" : "icons/paid.png", alt: "", class: "h-7 w-7 shrink-0 object-contain") %>
-      <span><span class="block text-lg font-bold leading-snug"><%= task ? t(".mark_done") : t(".record_payment") %></span>
-        <span class="block text-sm"><%= task ? t(".mark_done_hint") : t(".record_payment_hint") %></span></span>
+  <section class="<%= card %>" aria-labelledby="payment_details_heading">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="payment_details_heading" class="text-lg font-semibold"><%= t(task ? "records.form.done" : "records.form.payment") %></h2>
+      <% if writer && (paid_any || !@record.settled) %>
+        <div class="ml-auto flex flex-wrap justify-end gap-2">
+          <%# Not paid yet: Record Payment (Mark Done) opens the payment form, filled in. Amber like "Not paid
+              yet", not green: on this page green means paid %>
+          <% unless @record.settled %>
+            <%= link_to edit_household_record_path(Current.household, @record, pay: 1), class: press.sub("bg-white", "bg-amber-100") + " text-amber-900" do %><%= image_tag(task ? "icons/maintenance.png" : "icons/paid.png", alt: "", class: "h-4 w-4 object-contain") %><span><%= task ? t(".mark_done") : t(".record_payment") %></span><% end %>
+          <% end %>
+          <% if paid_any %>
+            <%= link_to edit_household_record_path(Current.household, @record, payment: 1), class: small do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= task ? t(".edit_done") : t(".edit_payment") %></span><% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    <% if paid_any %>
+      <% if !@record.settled && (left = Reminders::Wording.outstanding(@record)) %>
+        <p class="text-sm font-medium text-amber-900"><%= t(".left_to_pay", amount: left) %></p>
+      <% end %>
+      <dl class="<%= list %>">
+        <dt class="text-gray-500"><%= record_attr_label(@record, :amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
+        <dt class="text-gray-500"><%= record_attr_label(@record, :paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
+        <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.label || "–" %></dd>
+        <dt class="text-gray-500"><%= record_attr_label(@record, :payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
+      </dl>
+    <% else %>
+      <p class="text-sm text-gray-600"><%= t(task ? ".not_done" : ".not_paid") %></p>
     <% end %>
-  <% end %>
+  </section>
 
   <section class="<%= card %>" aria-labelledby="bill_details_heading">
     <div class="flex items-center justify-between gap-3">
@@ -52,25 +73,6 @@
         <dd><%= link_to @record.recurring_template.title, (writer ? edit_household_recurring_template_path(Current.household, @record.recurring_template) : household_recurring_templates_path(Current.household)), class: "text-blue-700 underline" %></dd>
       <% end %>
     </dl>
-  </section>
-
-  <section class="<%= card %>" aria-labelledby="payment_details_heading">
-    <div class="flex items-center justify-between gap-3">
-      <h2 id="payment_details_heading" class="text-lg font-semibold"><%= t(task ? "records.form.done" : "records.form.payment") %></h2>
-      <% if writer && paid_any %>
-        <%= link_to edit_household_record_path(Current.household, @record, payment: 1), class: small do %><%= image_tag "icons/edit.png", alt: "", class: "h-4 w-4 object-contain" %><span><%= task ? t(".edit_done") : t(".edit_payment") %></span><% end %>
-      <% end %>
-    </div>
-    <% if paid_any %>
-      <dl class="<%= list %>">
-        <dt class="text-gray-500"><%= record_attr_label(@record, :amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
-        <dt class="text-gray-500"><%= record_attr_label(@record, :paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
-        <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.label || "–" %></dd>
-        <dt class="text-gray-500"><%= record_attr_label(@record, :payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
-      </dl>
-    <% else %>
-      <p class="text-sm text-gray-600"><%= writer ? t(task ? ".not_done_hint" : ".not_paid_hint") : t(task ? ".status_line.not_done" : ".status_line.not_paid") %></p>
-    <% end %>
   </section>
 
   <%# The rest, quieter: snooze and restart reminders (everyone), Make This Recurring and Delete (writers) %>

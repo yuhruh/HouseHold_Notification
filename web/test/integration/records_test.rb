@@ -151,17 +151,27 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_empty diff.keys & %w[details payment_note]
   end
 
-  test "the bill page: one big Record Payment, Edit Details on the bill's card, Edit Payment once something is paid" do
+  test "the bill page: Payment Details comes first with Record Payment in its header (amber), Edit Details on the bill's card, Edit Payment once something is paid" do
     record = add(amount_required: 580)
     get household_record_path(@home, record)
-    assert_select "a.w-full[href=?]", edit_household_record_path(@home, record, pay: 1), text: /記錄繳費/
+    assert_select "section[aria-labelledby=payment_details_heading] a.bg-amber-100[href=?]", edit_household_record_path(@home, record, pay: 1), text: /記錄繳費/
+    assert_select "a[href*='pay=1']", 1
+    assert_operator response.body.index("payment_details_heading"), :<, response.body.index("bill_details_heading")
     assert_select "section[aria-labelledby=bill_details_heading] a[href=?]", edit_household_record_path(@home, record), text: /編輯帳單資訊/
-    assert_select "section[aria-labelledby=payment_details_heading]", text: /尚未繳費。繳了之後按上面的「記錄繳費」/
+    assert_select "section[aria-labelledby=payment_details_heading] p", "尚未繳費。"
     assert_select "a[href*='payment=1']", 0
+    partial = add(amount_required: 580, amount_paid: 200, paid_on: Date.new(2026, 3, 1))
+    get household_record_path(@home, partial)
+    assert_select "section[aria-labelledby=payment_details_heading]" do
+      assert_select "a[href=?]", edit_household_record_path(@home, partial, pay: 1), text: /記錄繳費/
+      assert_select "a[href=?]", edit_household_record_path(@home, partial, payment: 1), text: /編輯繳費/
+      assert_select "p", "還要繳 NT$380。"
+    end
     paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 3, 1))
     get household_record_path(@home, paid)
     assert_select "a[href*='pay=1']", 0
     assert_select "section[aria-labelledby=payment_details_heading] a[href=?]", edit_household_record_path(@home, paid, payment: 1), text: /編輯繳費/
+    assert_select "section[aria-labelledby=payment_details_heading] p", text: /還要繳/, count: 0
   end
 
   test "Edit Details has only the bill; a paid record's Edit Payment isn't filled in and can undo the payment" do
@@ -211,7 +221,8 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "[role=status] p.text-amber-900", "尚未完成"
     assert_select "[role=status] p.text-gray-700", "未設定到期日 · 預計花費 NT$925"
     assert_select "dt", "預計花費"
-    assert_select "a[href=?]", edit_household_record_path(@home, record, pay: 1), text: /標記完成/
+    assert_select "section[aria-labelledby=payment_details_heading] a[href=?]", edit_household_record_path(@home, record, pay: 1), text: /標記完成/
+    assert_select "section[aria-labelledby=payment_details_heading] p", "尚未完成。"
     get household_records_path(@home)
     assert_select "li#record_#{record.id}", text: /待完成.*預計花費 NT\$925/m
   end
@@ -297,6 +308,9 @@ class RecordsTest < ActionDispatch::IntegrationTest
     get household_records_path(@home)
     assert_response :success
     assert_select "a", text: I18n.t("records.index.new", locale: "zh-TW"), count: 0
+    get household_record_path(@home, record)
+    assert_select "section[aria-labelledby=payment_details_heading] a", 0
+    assert_select "section[aria-labelledby=payment_details_heading] p", "尚未繳費。"
     post household_records_path(@home), params: { record: form_params }
     assert_response :forbidden
     get edit_household_record_path(@home, record, pay: 1)

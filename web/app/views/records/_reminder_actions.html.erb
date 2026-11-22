@@ -1,4 +1,4 @@
-<%# Snooze (everyone), restart reminders and maintenance Done (writers) — PRD §6. Snooze is a small cyan
+<%# Snooze (everyone), restart reminders and maintenance Done (writers) — PRD §6. Snooze is a small violet
     press button (softer in dark mode); `big` (Pending cards): larger press buttons (smaller on a computer), and Snooze reads "Remind Me Later" %>
 <% snooze = local_assigns[:snooze] %>
 <% big = local_assigns[:big] %>
@@ -13,11 +13,11 @@
         <summary class="btn-press inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900 lg:min-h-9 lg:px-3 lg:py-1 lg:text-sm [&::-webkit-details-marker]:hidden">
           <%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.remind_later") %></summary>
       <% else %>
-        <summary class="btn-press press-sm inline-flex cursor-pointer list-none items-center gap-1.5 rounded-xl bg-cyan-100 px-3 py-1 font-medium text-cyan-900 dark:bg-cyan-100/70 [&::-webkit-details-marker]:hidden"><%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.snooze") %></summary>
+        <summary class="btn-press press-sm inline-flex cursor-pointer list-none items-center gap-1.5 rounded-xl bg-violet-100 px-3 py-1 font-medium text-violet-900 dark:bg-violet-100/70 [&::-webkit-details-marker]:hidden"><%= image_tag("icons/reminder.png", alt: "", class: "h-5 w-5 object-contain") %><%= t("records.reminders.snooze") %></summary>
       <% end %>
       <div class="absolute z-10 mt-1 flex w-56 text-sm flex-col gap-1 rounded-md border bg-white p-2 shadow">
         <% [ 3, 7, 14 ].each do |days| %>
-          <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-cyan-50 hover:underline hover:text-cyan-600 hover:font-bold" %>
+          <%= button_to t("records.reminders.snooze_days", count: days), snooze_household_record_path(Current.household, record, days:), class: "w-full cursor-pointer rounded px-2 py-1 text-left hover:bg-violet-50 hover:underline hover:text-violet-600 hover:font-bold" %>
         <% end %>
         <%= form_with url: snooze_household_record_path(Current.household, record), method: :post, class: "flex gap-1" do |f| %>
           <%= f.date_field :until_on, min: Date.current + 1, max: Date.current + ReminderSnooze::MAX_DAYS, required: true, class: "w-full rounded border px-1", "aria-label": t("records.reminders.snooze_until") %>

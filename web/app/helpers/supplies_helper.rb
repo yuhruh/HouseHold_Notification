@@ -173,12 +173,14 @@ module SuppliesHelper
 
   # "NT$24.1/roll"; a purchase that says what was in its pack adds the price of one: "NT$60/pack ·
   # NT$15/piece" (each brand its own)
-  def supply_unit_prices(purchase)
+  def supply_unit_prices(purchase) = supply_unit_price_parts(purchase).join(" · ")
+
+  def supply_unit_price_parts(purchase)
     prices = [ t("supplies.unit_price", price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) ]
     if purchase.packed?
       prices << t("supplies.unit_price", price: supply_price(purchase.piece_price, purchase.currency), unit: t("supplies.units.#{purchase.pack_unit}_one"))
     end
-    prices.join(" · ")
+    prices
   end
 
   # What's inside the packs left: "44 pieces", each brand's packs times its own size (Supply#pack_sizes).
@@ -212,10 +214,24 @@ module SuppliesHelper
       pack_size_item_name_value: supply.name.to_s, pack_size_prefilled_value: prefilled.present? }
   end
 
-  # "NT$289 for 12 · NT$24.1/roll"
+  # "NT$289 for 12 · NT$24.1/roll". A narrow card breaks the line only between its parts, never inside
+  # one ("NT$360 ⏎ for 6", "每捲 ⏎ NT$24.1")
   def supply_price_line(purchase)
-    t("supplies.price_line", total: money(purchase.total_price, purchase.currency), quantity: purchase.quantity, prices: supply_unit_prices(purchase))
+    total = t("supplies.price_line", total: money(purchase.total_price, purchase.currency), quantity: purchase.quantity)
+    supply_parts([ total, *supply_unit_price_parts(purchase) ])
   end
+
+  # Parts joined with " · " where the line may break only after a dot, so a dot never starts a line.
+  # Each text part stays whole (a store name, a price) unless listed in `wrap` (a long product name);
+  # a part that is already HTML (another price line) keeps its own breaks. Nils are left out
+  def supply_parts(parts, wrap: [])
+    parts = parts.compact.map do |part|
+      part.html_safe? || wrap.include?(part) ? part : tag.span(part, class: "whitespace-nowrap")
+    end
+    safe_join(parts, PART_SEPARATOR)
+  end
+
+  PART_SEPARATOR = "\u00A0· ".freeze
 
   # The one-line summary under a list item: the run-out and buy-by dates, expiry, or what to do next
   def supply_line(supply, forecast)

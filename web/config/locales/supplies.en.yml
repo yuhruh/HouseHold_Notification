@@ -159,7 +159,7 @@ en:
       not_enough_data: "Not enough data yet · tap \"%{button}\" or update the count"
     notice:
       ok: "OK"
-    price_line: "%{total} for %{quantity} · %{prices}"
+    price_line: "%{total} for %{quantity}"
     unit_price: "%{price}/%{unit}"
     inside: "· %{count}"
     sources:

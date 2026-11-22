@@ -54,7 +54,8 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supply_path(@home, supply)
     assert_select "details summary", /去哪買/
-    assert_match "NT$289 買 12 · 每捲 NT$24.1", response.body
+    assert_select "span.whitespace-nowrap", "NT$289 買 12"
+    assert_select "span.whitespace-nowrap", "每捲 NT$24.1"
     get household_supplies_path(@home, tab: "all")
     assert_select "li##{ActionView::RecordIdentifier.dom_id(supply, :row)}", /Toilet paper/
     # No add button of its own (like Bills): the header's New is the one place to add
@@ -609,7 +610,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "td span", "Pantene 700ml"
     assert_select "li", /\+2 瓶.*PX Mart.*Lux Shampoo 750ml/m
     get household_supplies_path(@home, tab: "all")
-    assert_select "#row_supply_#{shampoo.id} > p", /\APX Mart · /
+    assert_select "#row_supply_#{shampoo.id} > p", /\APX Mart\u00A0· /
     assert_select "#row_supply_#{shampoo.id} > p", text: /Lux Shampoo 750ml/, count: 0
     get household_supplies_path(@home, q: "pantene")
     assert_select "main li", 1
@@ -1420,14 +1421,14 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal [ 250, "TWD" ], purchase.record.values_at(:amount_paid, :currency), "the Ledger expense is the NT$ amount, card fee and all"
 
     get household_supply_path(@home, supply)
-    assert_match "NT$250 買 2 · 每個 NT$125", response.body
+    assert_match "NT$250 買 2</span>\u00A0· <span class=\"whitespace-nowrap\">每個 NT$125", response.body
     assert_select "details##{dom_id(supply, :history)} li", /\+2 個 · NT\$250 \(JP¥1,196\) · 松本清/
     assert_select "details##{dom_id(supply, :price_history)}" do
       assert_select "li", /刷卡實付 JP¥1,196（含手續費）/
       assert_select "td", /NT\$250.*每個|NT\$250.*NT\$125\/個.*刷卡實付 JP¥1,196（含手續費）/m
     end
     get household_supplies_path(@home, tab: "all")
-    assert_select "li##{dom_id(supply, :row)}", /NT\$250 買 2 · 每個 NT\$125/
+    assert_select "li##{dom_id(supply, :row)}", /NT\$250 買 2\u00A0· 每個 NT\$125/
     assert_select "li##{dom_id(supply, :row)}", text: /JP¥/, count: 0
   end
 

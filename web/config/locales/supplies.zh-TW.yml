@@ -159,7 +159,7 @@ zh-TW:
       not_enough_data: "資料不足 · 按「%{button}」或更新數量"
     notice:
       ok: "好"
-    price_line: "%{total} 買 %{quantity} · %{prices}"
+    price_line: "%{total} 買 %{quantity}"
     unit_price: "每%{unit} %{price}"
     inside: "· 共 %{count}"
     sources:

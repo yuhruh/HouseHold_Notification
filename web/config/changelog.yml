@@ -12,6 +12,7 @@
     - "Bills: a new card or account can be added while you record a payment. Choose \"+ Add New…\" at the end of the Payment Method menu (on Record Payment, New Record, Mark Done and Recurring Bills) and type its name, kind and, for a card or bank, the last 4 digits. It's saved with the payment and shows in Settings › Payment Methods right away; a name you already have uses that one. A name that looks like a full card number is refused, so only the last 4 digits are ever kept."
     - "Supplies › Add a receipt: choosing \"Add as new supply…\" now opens a New supply box under the line, with its name, category and unit, labelled. Its Category can be \"＋ New category…\": type a name and it's made when you save, and shows in Settings › Categories › Supplies (a name you already have uses that one)."
     - "Supplies: an item counted in packs, boxes or bags can say what was in each pack you bought (Restock › \"Each pack has 4 pieces\"). Each brand keeps its own size, and typing a brand you bought before fills it in. \"Used 1 pack\" still takes a whole pack; the item page also shows how many pieces are left, and prices show per pack and per piece (\"NT$60/pack · NT$15/piece\"), with Cheapest comparing per piece."
+    - "Supplies: on a phone, the last purchase line on a card breaks only between its parts, so a price is never split (\"NT$360 for 6 ·\" then \"NT$60/pack · NT$15/piece\")."
   zh-TW:
     - "帳單：帳單頁面分成兩張卡片，各有自己的按鈕。「繳費資訊」在上面：還沒繳清時有琥珀色的「記錄繳費」按鈕（保養是「標記完成」），有繳費之後旁邊還有「編輯繳費」，只繳了一部分會寫出還要繳多少。「帳單資訊」在下面，用「編輯帳單資訊」改帳單本身。接著是照片；「稍後提醒」「設為定期帳單」「刪除」移到最後，上面有一條細線隔開。「稍後提醒」改成紫色。"
     - "帳單：「記錄繳費」和「編輯帳單資訊」現在是兩個短表單。「記錄繳費」只有繳費，帳單在上方以摘要顯示，「全額已繳」或「部分繳費」是兩個大選項。「編輯帳單資訊」只有帳單本身，沒有繳費欄位。已全額繳清的帳單改了應繳金額，仍然算全額繳清。"
@@ -19,6 +20,7 @@
     - "帳單：記錄繳費時就能新增卡片或帳戶。在付款方式選單最後選「＋ 新增付款方式…」（記錄繳費、新增記錄、標記完成和定期帳單都有），輸入名稱、種類，信用卡或銀行可再填末四碼。會和繳費一起儲存，也會馬上出現在「設定 › 付款方式」；名稱和已有的一樣時，會直接用那一個。名稱看起來像完整卡號時不會儲存，所以只會留下末四碼。"
     - "日用品 › 加入發票：選「新增為日用品…」後，品項下面會打開「新日用品」，名稱、類別、單位都有標示。類別可以選「＋ 新增類別…」，輸入名稱，儲存時就會建立，並出現在「設定 › 類別 › 日用品」（名稱和已有的一樣時，會直接用那一個）。"
     - "日用品：以包、盒、袋計算的品項，補貨時可以填每包裡有幾個（「每包有 4 個」）。每個品牌各自記，輸入以前買過的品牌會自動帶入。「用掉 1 包」還是扣一整包；品項頁也會寫出共剩幾個，價格顯示每包和每個（「每包 NT$60 · 每個 NT$15」），最便宜用每個的價格比較。"
+    - "日用品：在手機上，卡片的上次購買那一行只在各部分之間換行，價格不會被拆成兩行。"
 - version: "1.24.0"
   date: 2026-11-21
   en:

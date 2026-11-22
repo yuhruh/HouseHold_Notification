@@ -14,14 +14,14 @@
 <% last = supply.latest_purchase %>
 <% details = [ supply.category.name,
                (t("supplies.card.runs_out", date: l(forecast.run_out_on, format: :short)) if forecast.run_out_on && status.in?(%i[buy_now buy_soon])),
-               (last ? safe_join([ last.product_name, last.store.presence, supply_price_line(last) ].compact, " · ") : t("supplies.index.no_purchase")) ].compact %>
+               (last ? supply_parts([ last.product_name, last.store.presence, supply_price_line(last) ], wrap: [ last.product_name ]) : t("supplies.index.no_purchase")) ].compact %>
 <li id="<%= dom_id(supply, :card) %>" data-supplies-order-target="item" class="card-raised relative space-y-3 rounded-xl px-4 py-3 lg:space-y-2 lg:py-2.5 <%= supply_tone(status, :card) %>">
   <div class="space-y-0.5">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0 space-y-0.5">
         <p class="font-bold <%= supply_tone(status, :ink) %>"><%= headline %></p>
         <p><%= link_to supply.name, household_supply_path(Current.household, supply), class: "text-lg font-bold hover:underline lg:text-base" %>
-          <span class="text-sm text-gray-600"><%= safe_join(details, " · ") %></span></p>
+          <span class="text-sm text-gray-600"><%= supply_parts(details, wrap: [ t("supplies.index.no_purchase") ]) %></span></p>
         <%= supply_brand_split(supply, forecast) %>
       </div>
       <%= render "supplies/favorite", supply: %>

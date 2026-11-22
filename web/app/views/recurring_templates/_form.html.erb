@@ -41,13 +41,17 @@
     <p class="col-span-3 text-sm text-gray-500"><%= t("recurring_templates.form.amount_hint") %></p>
   </div>
 
-  <div class="grid grid-cols-2 gap-2">
-    <div><%= form.label :default_reminder_frequency, class: "block text-sm font-medium" %>
-      <%= form.select :default_reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %></div>
-    <div><%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-      <%= form.select :payment_method_id, payment_method_options(template), { include_blank: t("records.form.none") }, class: field %></div>
-    <p class="col-span-2 text-sm text-gray-500"><%= t("recurring_templates.form.reminder_hint") %></p>
-  </div>
+  <%= tag.div class: "space-y-3", data: new_payment_method_data do %>
+    <div class="grid grid-cols-2 gap-2">
+      <div><%= form.label :default_reminder_frequency, class: "block text-sm font-medium" %>
+        <%= form.select :default_reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %></div>
+      <div><%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+        <%= form.select :payment_method_id, payment_method_options(template, add: true), { include_blank: t("records.form.none"), selected: payment_method_choice(template) }, class: field,
+              data: { new_payment_method_target: "menu", action: "new-payment-method#toggle" } %></div>
+      <p class="col-span-2 text-sm text-gray-500"><%= t("recurring_templates.form.reminder_hint") %></p>
+    </div>
+    <%= render "payment_methods/inline_fields", method: @new_payment_method&.new_record? ? @new_payment_method : nil %>
+  <% end %>
 
   <div class="flex gap-3">
     <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>

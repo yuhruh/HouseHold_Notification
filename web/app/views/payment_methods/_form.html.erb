@@ -8,7 +8,8 @@
   <%= form.label :kind, class: "block text-sm font-medium" %>
   <%= form.select :kind, PaymentMethod.kinds.keys.map { |k| [ t("payment_methods.kinds.#{k}"), k ] }, {}, class: field %>
   <%= form.label :last4, class: "block text-sm font-medium" %>
-  <%= form.text_field :last4, maxlength: 4, inputmode: "numeric", pattern: "\\d{4}", class: field %>
+  <%= form.text_field :last4, maxlength: 4, inputmode: "numeric", pattern: "\\d{4}", autocomplete: "off", class: field, "aria-describedby": "last4_hint" %>
+  <p id="last4_hint" class="text-sm text-gray-600"><%= t("payment_methods.inline.last4_hint") %></p>
   <div class="flex gap-3">
     <%= form.button type: "submit", name: nil, class: "btn-press inline-flex items-center gap-1.5 rounded-xl bg-blue-200 text-gray-900 cursor-pointer px-3.5 py-2 font-medium" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
     <%= cancel_link(household_payment_methods_path(Current.household)) %>

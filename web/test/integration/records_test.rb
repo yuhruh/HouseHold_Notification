@@ -334,6 +334,59 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  def pay_with_new_method(record, **method)
+    patch household_record_path(@home, record), params: { pay: 1, record: { amount_paid: "580", paid_on: taipei_today.iso8601, payment_method_id: "new", lock_version: record.lock_version },
+                                                          new_payment_method: { name: "國泰 CUBE", kind: "card", last4: "5678" }.merge(method) }
+  end
+
+  test "Record Payment offers + New payment method; the one typed in is saved with the payment and listed in Settings" do
+    record = add(amount_required: 580)
+    get edit_household_record_path(@home, record, pay: 1)
+    assert_select "select[name='record[payment_method_id]'] option[value=new]", "＋ 新增付款方式…"
+    assert_select "[data-new-payment-method-target=fields][hidden] input[name='new_payment_method[name]']"
+    pay_with_new_method(record)
+    method = @home.payment_methods.sole
+    assert_equal [ "國泰 CUBE", "card", "5678" ], [ method.name, method.kind, method.last4 ]
+    assert_equal method, record.reload.payment_method
+    assert record.settled
+    assert_equal "已儲存「水費」的繳費。已將「國泰 CUBE ··5678」加到付款方式。", flash[:notice]
+    get household_payment_methods_path(@home)
+    assert_select "li", text: /國泰 CUBE ··5678/
+  end
+
+  test "+ New payment method with a name the household has picks that one; Cash keeps no last digits" do
+    card = @home.payment_methods.create!(name: "玉山 ubear", kind: "card", last4: "1234")
+    record = add(amount_required: 580)
+    pay_with_new_method(record, name: "  玉山   UBEAR ", last4: "9999")
+    assert_equal [ card ], @home.payment_methods.to_a
+    assert_equal card, record.reload.payment_method
+    other = add(amount_required: 580)
+    pay_with_new_method(other, name: "LINE Pay", kind: "e_wallet", last4: "1111")
+    assert_nil @home.payment_methods.find_by!(name: "LINE Pay").last4
+  end
+
+  test "+ New payment method: a card number as the name or a bad Last 4 saves nothing, and the form comes back as typed" do
+    record = add(amount_required: 580)
+    pay_with_new_method(record, name: "4123 4567-8901 5678")
+    assert_response :unprocessable_content
+    assert_select "ul.bg-red-50 li", /看起來像卡號/
+    assert_select "option[value=new][selected]"
+    assert_select "[data-new-payment-method-target=fields]:not([hidden]) input[name='new_payment_method[name]'][value=?]", "4123 4567-8901 5678"
+    pay_with_new_method(record, last4: "56a8")
+    assert_response :unprocessable_content
+    assert_empty @home.payment_methods
+    assert_nil record.reload.paid_on
+  end
+
+  test "+ New payment method isn't added when the payment can't be saved" do
+    record = add(amount_required: 580)
+    patch household_record_path(@home, record), params: { pay: 1, record: { amount_paid: "900", paid_on: taipei_today.iso8601, payment_method_id: "new", lock_version: record.lock_version },
+                                                          new_payment_method: { name: "國泰 CUBE", kind: "card" } }
+    assert_response :unprocessable_content
+    assert_empty @home.payment_methods
+    assert_select "option[value=new][selected]"
+  end
+
   test "the list is paged: 20 per page by default, 10 / 20 / 50 or a custom number, remembered on this device" do
     25.times { |i| add(amount_required: 100 + i) }
     get household_records_path(@home)

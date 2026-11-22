@@ -89,9 +89,11 @@ module RecordsHelper
     end
   end
 
-  def payment_method_options(record)
-    Current.household.payment_methods.where(archived_at: nil).or(Current.household.payment_methods.where(id: record.payment_method_id))
-      .order(:name).map { |pm| [ pm.last4.present? ? "#{pm.name} ··#{pm.last4}" : pm.name, pm.id ] }
+  # `add`: the last choice is "+ New payment method…" (InlinePaymentMethod), for those who may add one
+  def payment_method_options(record, add: false)
+    options = Current.household.payment_methods.where(archived_at: nil).or(Current.household.payment_methods.where(id: record.payment_method_id))
+      .order(:name).map { |pm| [ pm.label, pm.id ] }
+    add && policy(PaymentMethod).create? ? options << [ t("payment_methods.inline.add"), InlinePaymentMethod::NEW ] : options
   end
 
   # New records start with the payment method of the household's latest record in the same

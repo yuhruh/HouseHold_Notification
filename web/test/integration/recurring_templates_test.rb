@@ -24,6 +24,17 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a recurring bill can add a payment method from its menu" do
+    travel_to Time.zone.local(2026, 3, 5) do
+      get new_household_recurring_template_path(@home)
+      assert_select "option[value=new]"
+      post household_recurring_templates_path(@home), params: { recurring_template: params(payment_method_id: "new"), new_payment_method: { name: "中信轉帳", kind: "bank", last4: "0042" } }
+      method = @home.payment_methods.sole
+      assert_equal method, @home.recurring_templates.sole.payment_method
+      assert_match "已將「中信轉帳 ··0042」加到付款方式。", flash[:notice]
+    end
+  end
+
   test "changing the fixed amount asks first, then updates only untouched unpaid bills" do
     travel_to Time.zone.local(2026, 3, 5) do
       post household_recurring_templates_path(@home), params: { recurring_template: params }

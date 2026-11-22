@@ -23,19 +23,23 @@
       </div>
       <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.cost_hint") %></p>
     </div>
-    <div class="grid grid-cols-2 gap-2">
-      <div>
-        <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-        <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field %>
-      </div>
-      <% unless record.recurring_template_id %>
+    <%= tag.div class: "space-y-3", data: new_payment_method_data do %>
+      <div class="grid grid-cols-2 gap-2">
         <div>
-          <%= form.label :next_due_on, class: "block text-sm font-medium" %>
-          <%= form.date_field :next_due_on, class: field %>
+          <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+          <%= form.select :payment_method_id, payment_method_options(record, add: true), { include_blank: t("records.form.none"), selected: payment_method_choice(record) }, class: field,
+                data: { new_payment_method_target: "menu", action: "new-payment-method#toggle" } %>
         </div>
-        <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
-      <% end %>
-    </div>
+        <% unless record.recurring_template_id %>
+          <div>
+            <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+            <%= form.date_field :next_due_on, class: field %>
+          </div>
+          <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+        <% end %>
+      </div>
+      <%= render "payment_methods/inline_fields", method: @new_payment_method&.new_record? ? @new_payment_method : nil %>
+    <% end %>
     <div>
       <%= form.label :payment_note, t("records.form.note"), class: "block text-sm font-medium" %>
       <%= form.text_area :payment_note, rows: 2, maxlength: 2000, class: field %>
@@ -86,17 +90,20 @@
     </fieldset>
     <% if mode == :new %><p class="text-sm text-gray-500"><%= t("records.form.amounts_hint") %></p><% end %>
 
-    <div class="grid grid-cols-2 gap-2">
-      <div>
-        <%= form.label :paid_on, class: "block text-sm font-medium" %>
-        <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+    <%= tag.div class: "space-y-3", data: new_payment_method_data do %>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <%= form.label :paid_on, class: "block text-sm font-medium" %>
+          <%= form.date_field :paid_on, class: field, data: { paid_amount_target: "paidOn" } %>
+        </div>
+        <div>
+          <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
+          <%= form.select :payment_method_id, payment_method_options(record, add: true), { include_blank: t("records.form.none"), selected: payment_method_choice(record) }, class: field,
+                data: { default_payment_target: "payment", new_payment_method_target: "menu", action: "new-payment-method#toggle" } %>
+        </div>
       </div>
-      <div>
-        <%= form.label :payment_method_id, class: "block text-sm font-medium" %>
-        <%= form.select :payment_method_id, payment_method_options(record), { include_blank: t("records.form.none") }, class: field,
-              data: { default_payment_target: "payment" } %>
-      </div>
-    </div>
+      <%= render "payment_methods/inline_fields", method: @new_payment_method&.new_record? ? @new_payment_method : nil %>
+    <% end %>
     <% if mode == :pay %><p class="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-900"><%= t("records.form.prefilled") %></p><% end %>
     <div>
       <%= form.label :payment_note, class: "block text-sm font-medium" %>

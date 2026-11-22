@@ -2,6 +2,7 @@
 # record_events row in the same transaction.
 class RecordsController < ApplicationController
   include HouseholdScoped
+  include InlinePaymentMethod
   before_action :set_record, except: %i[index new create]
   helper_method :form_mode
   PAST_SHOWN = 5
@@ -64,13 +65,16 @@ class RecordsController < ApplicationController
     authorize Record
     @record = Current.household.records.new(created_by: Current.user)
     assign(@record)
+    @new_payment_method = inline_payment_method(:record)
     @continues = Current.household.records.find_by(id: params[:continues_id]) if params[:continues_id].present?
-    if save_with_event(@record, :created) { @continues&.update!(next_due_on: nil) }
+    if !inline_payment_method_invalid?(@new_payment_method, @record) &&
+        save_with_event(@record, :created, payment_method: @new_payment_method) { @continues&.update!(next_due_on: nil) }
+      notice = inline_payment_method_notice(t(".created"), @new_payment_method)
       # "Save and Make Recurring": on to New recurring bill, filled in from this record
       if params[:make_recurring].present? && policy(RecurringTemplate).new?
-        redirect_to new_household_recurring_template_path(Current.household, from_record: @record.id), notice: t(".created")
+        redirect_to new_household_recurring_template_path(Current.household, from_record: @record.id), notice:
       else
-        redirect_to household_record_path(Current.household, @record), notice: t(".created")
+        redirect_to household_record_path(Current.household, @record), notice:
       end
     else
       render :new, status: :unprocessable_content
@@ -87,6 +91,7 @@ class RecordsController < ApplicationController
     mode = form_mode # before saving: once the bill is paid it no longer counts as paying
     paid_in_full = @record.amount_paid.present? && @record.amount_paid == @record.amount_required
     assign(@record)
+    @new_payment_method = inline_payment_method(:record)
     if mode == :details
       # Edit Details on a bill paid in full: the payment follows a corrected amount due, as Paid in full does
       @record.amount_paid = @record.amount_required if paid_in_full && !@record.maintenance? && @record.amount_required.present? && @record.amount_required_changed?
@@ -95,13 +100,14 @@ class RecordsController < ApplicationController
       @record.amount_required = @record.amount_paid
     end
     paying = mode == :pay
-    if save_with_event(@record, paying ? :marked_paid : :updated)
+    if !inline_payment_method_invalid?(@new_payment_method, @record) &&
+        save_with_event(@record, paying ? :marked_paid : :updated, payment_method: @new_payment_method)
       notice =
         if !paying then t(".saved")
         elsif @record.maintenance? then t(".done", title: @record.title)
         else t(".paid", title: @record.title)
         end
-      redirect_to household_record_path(Current.household, @record), notice:
+      redirect_to household_record_path(Current.household, @record), notice: inline_payment_method_notice(notice, @new_payment_method)
     else
       render :edit, status: :unprocessable_content
     end
@@ -161,8 +167,13 @@ class RecordsController < ApplicationController
     @record.payment_method_id ||= helpers.last_payment_methods[@record.category_id.to_s]
   end
 
-  def save_with_event(record, action)
+  # `payment_method`: one chosen or typed in with "+ New payment method…", added in the same transaction
+  def save_with_event(record, action, payment_method: nil)
     Record.transaction do
+      if payment_method
+        payment_method.save! if payment_method.new_record?
+        record.payment_method = payment_method
+      end
       record.save!
       RecordEvent.log!(record, action, user: Current.user)
       yield if block_given?

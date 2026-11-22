@@ -69,6 +69,7 @@ en:
         required_with_paid_on: "is required when the paid date is set"
         in_future: "can't be in the future"
         after_due: "can't be after the due date"
+        card_number: "looks like a card number. Type a name such as \"CTBC card\", and only the last 4 digits under Last 4 Digits"
   auth:
     continue_with_google: "Continue With Google"
     or: "or"
@@ -853,6 +854,15 @@ en:
       past_hint: "Earlier records with the same category and details, newest first."
       past_see_all: "See All In Records ›"
   payment_methods:
+    inline:
+      add: "+ Add New…"
+      title: "New payment method"
+      last4: "Last 4 Digits (optional)"
+      last4_hint: "Just the last 4 digits, to tell your cards apart. Never type the full card number, expiry date or security code."
+      to_settings: "It's added to Settings › Payment Methods when you save."
+      already_have: "You already have %{name}. Saving uses that one; nothing new is added."
+      error: "New payment method: %{message}"
+      added: " %{name} was added to Payment Methods."
     kinds:
       card: "Card"
       bank: "Bank"

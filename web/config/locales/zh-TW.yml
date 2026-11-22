@@ -69,6 +69,7 @@ zh-TW:
         required_with_paid_on: "填寫繳費日期時必須填寫"
         in_future: "不能是未來的日期"
         after_due: "不能晚於到期日"
+        card_number: "看起來像卡號。名稱請填例如「中信卡」，卡號只要在「末四碼」填末四碼"
   auth:
     continue_with_google: "使用 Google 繼續"
     or: "或"
@@ -853,6 +854,15 @@ zh-TW:
       past_hint: "同類別、同明細的較早記錄，由新到舊。"
       past_see_all: "在記錄頁看全部 ›"
   payment_methods:
+    inline:
+      add: "＋ 新增付款方式…"
+      title: "新增付款方式"
+      last4: "末四碼（可不填）"
+      last4_hint: "只要末四碼，用來分辨不同的卡。請勿輸入完整卡號、到期日或安全碼。"
+      to_settings: "儲存後會加到「設定 › 付款方式」。"
+      already_have: "你已經有「%{name}」。儲存時會用那一個，不會再新增。"
+      error: "新增付款方式：%{message}"
+      added: "已將「%{name}」加到付款方式。"
     kinds:
       card: "信用卡"
       bank: "銀行"

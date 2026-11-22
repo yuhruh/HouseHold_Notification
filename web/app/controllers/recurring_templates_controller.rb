@@ -2,6 +2,7 @@
 # confirmation listing each bill before → after; deleting keeps every bill, unlinked.
 class RecurringTemplatesController < ApplicationController
   include HouseholdScoped
+  include InlinePaymentMethod
   before_action :set_template, except: %i[index new create]
 
   def index
@@ -23,11 +24,19 @@ class RecurringTemplatesController < ApplicationController
     # A second click on Make This Recurring (or Save) for a record that already repeats
     return redirect_to_already_recurring if already_recurring?
     @template = Current.household.recurring_templates.new(template_params)
+    @new_payment_method = inline_payment_method(:recurring_template)
+    return render(:new, status: :unprocessable_content) if inline_payment_method_invalid?(@new_payment_method, @template)
+
     RecurringTemplate.transaction do
+      if @new_payment_method
+        @new_payment_method.save! if @new_payment_method.new_record?
+        @template.payment_method = @new_payment_method
+      end
       @template.save!
       @result = Recurring::Generator.call(@template, today: owner_today)
     end
-    redirect_to household_recurring_templates_path(Current.household), notice: t(".created", count: @result.created.size + @result.linked.size)
+    notice = inline_payment_method_notice(t(".created", count: @result.created.size + @result.linked.size), @new_payment_method)
+    redirect_to household_recurring_templates_path(Current.household), notice:
   rescue ActiveRecord::RecordInvalid
     render :new, status: :unprocessable_content
   end
@@ -39,12 +48,23 @@ class RecurringTemplatesController < ApplicationController
   def update
     authorize @template
     @submitted = template_params
+    # A method typed in here is added before the bills are compared, so the confirmation can name it
+    @new_payment_method = inline_payment_method(:recurring_template)
+    if @new_payment_method
+      @template.assign_attributes(@submitted)
+      return render(:edit, status: :unprocessable_content) if inline_payment_method_invalid?(@new_payment_method, @template)
+
+      added = @new_payment_method.new_record? && @new_payment_method.save!
+      @submitted = @submitted.merge(payment_method_id: @new_payment_method.id)
+    end
     @change = Recurring::TemplateChange.new(@template, @submitted, today: owner_today)
     return render(:edit, status: :unprocessable_content) unless @change.valid?
     return render(:confirm) if @change.changes.any? && params[:confirmed].blank?
 
     @change.apply!(user: Current.user)
-    redirect_to household_recurring_templates_path(Current.household), notice: t(".saved", count: @change.changes.size)
+    notice = t(".saved", count: @change.changes.size)
+    notice = "#{notice}#{t("payment_methods.inline.added", name: @new_payment_method.label)}" if added
+    redirect_to household_recurring_templates_path(Current.household), notice:
   end
 
   def destroy

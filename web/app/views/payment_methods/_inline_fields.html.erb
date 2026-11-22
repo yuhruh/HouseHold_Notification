@@ -1,0 +1,30 @@
+<%# "+ New payment method…" (InlinePaymentMethod): the fields under a form's Payment Method menu, hidden until
+    that choice is picked (new_payment_method_controller.js). `method`: the one typed in, when the form comes
+    back with errors. Last 4 Digits is only for Card and Bank %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% pm = local_assigns[:method] || PaymentMethod.new(kind: "card") %>
+<% open = local_assigns[:method].present? %>
+<div class="space-y-3 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50 p-3" data-new-payment-method-target="fields" <%= "hidden" unless open %>>
+  <p class="text-sm font-bold text-blue-900"><%= t("payment_methods.inline.title") %></p>
+  <div>
+    <%= label_tag "new_payment_method_name", PaymentMethod.human_attribute_name(:name), class: "block text-sm font-medium" %>
+    <%= text_field_tag "new_payment_method[name]", pm.name, id: "new_payment_method_name", maxlength: 40, autocomplete: "off", class: field,
+          data: { new_payment_method_target: "name", action: "input->new-payment-method#check" } %>
+    <p hidden class="mt-1 rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-900" data-new-payment-method-target="same"></p>
+  </div>
+  <div class="grid grid-cols-2 gap-2">
+    <div>
+      <%= label_tag "new_payment_method_kind", PaymentMethod.human_attribute_name(:kind), class: "block text-sm font-medium" %>
+      <%= select_tag "new_payment_method[kind]", options_for_select(PaymentMethod.kinds.keys.map { |k| [ t("payment_methods.kinds.#{k}"), k ] }, pm.kind),
+            id: "new_payment_method_kind", class: field, data: { new_payment_method_target: "kind", action: "new-payment-method#kind" } %>
+    </div>
+    <div data-new-payment-method-target="last4" <%= "hidden" unless pm.kind.in?(PaymentMethod::KINDS_WITH_LAST4) %>>
+      <%= label_tag "new_payment_method_last4", t("payment_methods.inline.last4"), class: "block text-sm font-medium" %>
+      <%= text_field_tag "new_payment_method[last4]", pm.last4, id: "new_payment_method_last4", maxlength: 4, inputmode: "numeric", pattern: "\\d{4}", autocomplete: "off", class: field %>
+    </div>
+  </div>
+  <p class="flex items-start gap-1.5 text-xs text-blue-900" data-new-payment-method-target="last4Hint" <%= "hidden" unless pm.kind.in?(PaymentMethod::KINDS_WITH_LAST4) %>>
+    <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    <span><%= t("payment_methods.inline.last4_hint") %></span></p>
+  <p class="text-xs text-gray-600"><%= t("payment_methods.inline.to_settings") %></p>
+</div>

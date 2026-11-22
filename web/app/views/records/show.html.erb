@@ -65,7 +65,7 @@
       <dl class="<%= list %>">
         <dt class="text-gray-500"><%= record_attr_label(@record, :amount_paid) %></dt><dd><%= money(@record.amount_paid, @record.currency) %></dd>
         <dt class="text-gray-500"><%= record_attr_label(@record, :paid_on) %></dt><dd><%= @record.paid_on ? l(@record.paid_on) : "–" %></dd>
-        <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.name || "–" %></dd>
+        <dt class="text-gray-500"><%= Record.human_attribute_name(:payment_method) %></dt><dd><%= @record.payment_method&.label || "–" %></dd>
         <dt class="text-gray-500"><%= record_attr_label(@record, :payment_note) %></dt><dd class="whitespace-pre-line"><%= @record.payment_note.presence || "–" %></dd>
       </dl>
     <% else %>

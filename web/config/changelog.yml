@@ -3,6 +3,16 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.25.0"
+  date: 2026-11-22
+  en:
+    - "Bills: a bill's page has one big Record Payment button (Mark Done for maintenance) while it isn't paid. Below it, Bill Details and Payment are two cards, each with its own button: Edit Details changes the bill itself, and Edit Payment, once something is paid, changes the payment."
+    - "Bills: Record Payment and Edit Details are now two short forms. Record Payment shows only the payment, with the bill as a summary on top and Paid In Full or Partly Paid as two big choices. Edit Details shows only the bill, with no payment fields. Correcting the amount due of a bill paid in full keeps it paid in full."
+    - "Photos on a bill: Take Photo opens the camera straight away (on phones and tablets), and Choose Files opens your photo library or files. Photos from both add up, so you can take a few and add more from files, take one out with ✕, then upload them all at once."
+  zh-TW:
+    - "帳單：還沒繳的帳單，頁面上有一個大大的「記錄繳費」按鈕（保養是「標記完成」）。下面分成「帳單資訊」和「繳費資訊」兩張卡片，各有自己的按鈕：「編輯帳單資訊」改帳單本身；有繳費之後，「編輯繳費」改繳費內容。"
+    - "帳單：「記錄繳費」和「編輯帳單資訊」現在是兩個短表單。「記錄繳費」只有繳費，帳單在上方以摘要顯示，「全額已繳」或「部分繳費」是兩個大選項。「編輯帳單資訊」只有帳單本身，沒有繳費欄位。已全額繳清的帳單改了應繳金額，仍然算全額繳清。"
+    - "帳單照片：「拍照」會直接打開相機（手機和平板），「選擇檔案」會打開相簿或檔案。兩邊選的照片會加在一起，可以先拍幾張再從檔案加幾張，不要的按 ✕ 拿掉，再一次全部上傳。"
 - version: "1.24.0"
   date: 2026-11-21
   en:

@@ -1,0 +1,76 @@
+<%# Billing details: what the bill is, how much, and when it can be paid. New Record shows them above the
+    payment; Edit Details shows only these. A done maintenance task hides its expected cost (its Cost,
+    under Edit Done Details, is what counts) %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% hide_amount = record.persisted? && record.maintenance? && record.settled %>
+<div>
+  <%= form.label :category_id, class: "block text-sm font-medium" %>
+  <%= form.select :category_id, grouped_options_for_select(category_options(record), record.category_id), { include_blank: true }, required: true, class: field,
+        data: { default_payment_target: "category", action: "default-payment#apply" } %>
+</div>
+<div>
+  <%= form.label :title, class: "block text-sm font-medium" %>
+  <%= form.text_field :title, maxlength: 100, placeholder: t("records.form.title_hint"), class: field %>
+</div>
+<div>
+  <%= form.label :details, class: "block text-sm font-medium" %>
+  <%= form.text_field :details, maxlength: 200, class: field %>
+  <p class="mt-1 text-sm text-gray-500"><%= t("records.form.details_hint") %></p>
+</div>
+
+<fieldset class="grid grid-cols-3 gap-2">
+  <legend class="mb-1 text-sm font-medium"><%= t("records.form.period") %></legend>
+  <%= form.number_field :period_year, min: 2000, max: 2100, required: true, class: field, "aria-label": Record.human_attribute_name(:period_year) %>
+  <%= form.select :period_start_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_start_month) %>
+  <%= form.select :period_end_month, month_options, {}, class: field, "aria-label": Record.human_attribute_name(:period_end_month) %>
+  <p class="col-span-3 text-sm text-gray-500"><%= t("records.form.period_hint") %></p>
+</fieldset>
+
+<div class="grid grid-cols-2 gap-2">
+  <div class="<%= "col-span-2" if hide_amount %>">
+    <%= form.label :currency, class: "block text-sm font-medium" %>
+    <%= form.select :currency, Household::CURRENCIES, {}, class: field, data: { paid_amount_target: "currency", action: "paid-amount#currency" } %>
+  </div>
+  <% unless hide_amount %>
+    <div>
+      <%= form.label :amount_required, record_attr_label(record, :amount_required), class: "block text-sm font-medium" %>
+      <%= form.number_field :amount_required, value: amount_value(record.amount_required, record.currency), min: 0, step: amount_step(record.currency), class: field,
+            data: { paid_amount_target: "due", action: "input->paid-amount#sync" } %>
+    </div>
+  <% end %>
+</div>
+
+<%# Payment window: many bills can be paid from one date until the due date %>
+<div class="grid grid-cols-2 gap-2">
+  <div>
+    <%= form.label :payable_from, class: "block text-sm font-medium" %>
+    <%= form.date_field :payable_from, class: field %>
+  </div>
+  <div>
+    <%= form.label :due_on, class: "block text-sm font-medium" %>
+    <%= form.date_field :due_on, class: field, data: { due_reminder_target: "due", action: "input->due-reminder#toggle change->due-reminder#toggle" } %>
+  </div>
+  <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.window_hint") %></p>
+</div>
+
+<%# Hidden while a due date is set (due-reminder); due-date bills follow the fixed reminder schedule %>
+<div class="grid grid-cols-2 gap-2" data-due-reminder-target="reminder" <%= "hidden" if record.due_on %>>
+  <div>
+    <%= form.label :reminder_frequency, class: "block text-sm font-medium" %>
+    <%= form.select :reminder_frequency, Record::REMINDER_FREQUENCIES.map { |f| [ t("records.reminder_frequencies.#{f}"), f ] }, {}, class: field %>
+  </div>
+  <div>
+    <%= form.label :reminder_starts_on, class: "block text-sm font-medium" %>
+    <%= form.date_field :reminder_starts_on, class: field %>
+  </div>
+  <p class="col-span-2 text-sm text-gray-500"><%= t("records.form.reminder_hint") %></p>
+</div>
+
+<%# Recurring bills get their next one from the template %>
+<% unless record.recurring_template_id %>
+  <div>
+    <%= form.label :next_due_on, class: "block text-sm font-medium" %>
+    <%= form.date_field :next_due_on, class: field %>
+    <p class="mt-1 text-sm text-gray-500"><%= t("records.form.next_due_hint") %></p>
+  </div>
+<% end %>

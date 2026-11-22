@@ -72,12 +72,15 @@ class PhotosTest < ActionDispatch::IntegrationTest
     assert_not Photos::Fingerprint.same?(Photos::Fingerprint.call(path), Photos::Fingerprint.call(jpeg_fixture(width: 1200, height: 900)))
   end
 
-  test "the photo form is two numbered steps: Choose Photos, then Upload, which waits until photos are chosen" do
+  test "the photo form is two numbered steps: Take Photo or Choose Files, then Upload, which waits until photos are chosen" do
     sign_in_as users(:alex)
     get household_record_path(@home, @record)
     assert_select "form[data-controller=photo-upload]" do
-      assert_select "input[type=file][id=record_photos_input].sr-only"
-      assert_select "label[for=record_photos_input]", /選擇照片/
+      assert_select "input[type=file][id=record_photos_camera][capture=environment]:not([name])", 1, "the camera field isn't submitted; its photos join Choose Files"
+      assert_select "label[for=record_photos_camera]", /拍照/
+      assert_select ".pointer-coarse\\:inline-flex input#record_photos_camera", 1, "Take Photo shows on touch screens only"
+      assert_select "input[type=file][id=record_photos_input][multiple].sr-only"
+      assert_select "label[for=record_photos_input]", /選擇檔案/
       assert_select "button[type=submit][disabled]", /上傳/
     end
   end

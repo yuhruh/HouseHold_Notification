@@ -30,6 +30,8 @@ en:
       invitation:
         role: "Role"
       record:
+        category_id: "Category"
+        payment_method_id: "Payment Method"
         record_type: "Type"
         category: "Category"
         title: "Title"
@@ -780,10 +782,24 @@ en:
       none: "None"
       save: "Save"
       cancel: "Cancel"
+      how_much: "How much did you pay?"
+      tile_none: "Nothing paid"
+      tile_full: "The whole amount due"
+      tile_partial: "Type how much"
+      no_amount_yet: "No amount due yet"
+      wrong_amount: "Wrong amount? Edit details"
+      wrong_task: "Something wrong? Edit details"
+      details_only_unpaid: "Only the bill itself. Paid it? Use Record Payment on the bill's page."
+      details_only_paid: "Only the bill itself. To change the payment, use Edit Payment on the bill's page."
+      task_only_undone: "Only the task itself. Done? Use Mark Done on its page."
+      task_only_done: "Only the task itself. To change when it was done or what it cost, use Edit Done Details on its page."
     new:
       title: "New Record"
     edit:
-      title: "Edit Record"
+      title: "Edit Bill Details"
+      task_title: "Edit Task Details"
+      payment_title: "Edit Payment"
+      done_details_title: "Edit Done Details"
       pay_title: "Record Payment"
       done_title: "Mark Done"
     create:
@@ -799,6 +815,13 @@ en:
       make_recurring: "Make This Recurring"
       record_payment: "Record Payment"
       mark_done: "Mark Done"
+      record_payment_hint: "Paid it? Save the amount, date and how you paid."
+      mark_done_hint: "Done? Save the date and what it cost."
+      edit_details: "Edit Details"
+      edit_payment: "Edit Payment"
+      edit_done: "Edit Done Details"
+      not_paid_hint: "Not paid yet. Use Record Payment above when you've paid."
+      not_done_hint: "Not done yet. Use Mark Done above when it's done."
       labels:
         expected_cost: "Expected Cost"
         cost: "Cost"

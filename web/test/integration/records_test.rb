@@ -113,7 +113,7 @@ class RecordsTest < ActionDispatch::IntegrationTest
 
   def taipei_today = Time.current.in_time_zone("Asia/Taipei").to_date
 
-  test "Record Payment opens the edit form filled in (paid in full, today, last payment method) with Billing Details folded" do
+  test "Record Payment opens only the payment, filled in (paid in full, today, last payment method), with the bill as a summary" do
     card = @home.payment_methods.create!(name: "Card", kind: "card")
     add(amount_required: 100, amount_paid: 100, paid_on: Date.new(2026, 3, 1), payment_method: card)
     record = add(amount_required: 580, due_on: taipei_today + 5)
@@ -121,8 +121,12 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", edit_household_record_path(@home, record, pay: 1)
     get edit_household_record_path(@home, record, pay: 1)
     assert_select "h1", /記錄繳費/
-    assert_select "details:not([open]) #billing_heading"
+    assert_select "#billing_heading", 0
+    assert_select "select[name='record[category_id]'], input[name='record[due_on]']", 0, "the bill's own fields are on Edit Details"
+    assert_select "a[href=?]", edit_household_record_path(@home, record), text: "金額不對？編輯帳單資訊"
     assert_select "input#paid_choice_full[checked]"
+    assert_select "input#paid_choice_partial"
+    assert_select "input#paid_choice_none", 0
     assert_select "input[name='record[amount_paid]'][value=?]", "580"
     assert_select "input[name='record[paid_on]'][value=?]", taipei_today.iso8601
     assert_select "select[name='record[payment_method_id]'] option[selected][value=?]", card.id.to_s
@@ -147,23 +151,56 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_empty diff.keys & %w[details payment_note]
   end
 
-  test "Edit leaves the payment as saved; a paid record has no Record Payment" do
+  test "the bill page: one big Record Payment, Edit Details on the bill's card, Edit Payment once something is paid" do
     record = add(amount_required: 580)
-    get edit_household_record_path(@home, record)
-    assert_select "h1", /編輯/
-    assert_select "input#paid_choice_none[checked]"
-    assert_select "details #billing_heading", 0
+    get household_record_path(@home, record)
+    assert_select "a.w-full[href=?]", edit_household_record_path(@home, record, pay: 1), text: /記錄繳費/
+    assert_select "section[aria-labelledby=bill_details_heading] a[href=?]", edit_household_record_path(@home, record), text: /編輯帳單資訊/
+    assert_select "section[aria-labelledby=payment_details_heading]", text: /尚未繳費。繳了之後按上面的「記錄繳費」/
+    assert_select "a[href*='payment=1']", 0
     paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 3, 1))
     get household_record_path(@home, paid)
     assert_select "a[href*='pay=1']", 0
-    get edit_household_record_path(@home, paid, pay: 1)
-    assert_select "details #billing_heading", 0, "a paid record opens as a plain Edit"
+    assert_select "section[aria-labelledby=payment_details_heading] a[href=?]", edit_household_record_path(@home, paid, payment: 1), text: /編輯繳費/
   end
 
-  test "a bill with no amount due opens with Billing Details unfolded, so the amount can be filled in" do
+  test "Edit Details has only the bill; a paid record's Edit Payment isn't filled in and can undo the payment" do
+    record = add(amount_required: 580)
+    get edit_household_record_path(@home, record)
+    assert_select "h1", /編輯帳單資訊/
+    assert_select "#billing_heading"
+    assert_select "input[name=paid_choice], input[name='record[amount_paid]'], input[name='record[paid_on]']", 0
+    paid = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 3, 1), payment_note: "ATM")
+    [ { payment: 1 }, { pay: 1 } ].each do |param|
+      get edit_household_record_path(@home, paid, **param)
+      assert_select "h1", /編輯繳費/
+      assert_select "input#paid_choice_full[checked]"
+      assert_select "input#paid_choice_none"
+      assert_select "input[name='record[paid_on]'][value=?]", "2026-03-01" # left as saved
+      assert_select "input[name=payment]"
+    end
+    patch household_record_path(@home, paid), params: { payment: 1, record: { amount_paid: "", paid_on: "", payment_note: "ATM", lock_version: paid.lock_version } }
+    assert_not paid.reload.settled
+    assert_nil paid.paid_on
+    assert_equal "updated", RecordEvent.where(record_id: paid.id).sole.action
+  end
+
+  test "Edit Details on a bill paid in full: a corrected amount due keeps it paid in full" do
+    record = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 3, 1))
+    patch household_record_path(@home, record), params: { record: form_params(amount_required: "600", lock_version: record.lock_version).except(:amount_paid) }
+    record.reload
+    assert_equal [ 600, 600 ], [ record.amount_required.to_i, record.amount_paid.to_i ]
+    assert record.settled
+    partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 3, 1))
+    patch household_record_path(@home, partial), params: { record: form_params(amount_required: "650", lock_version: partial.lock_version).except(:amount_paid) }
+    assert_equal 100, partial.reload.amount_paid.to_i, "a part payment stays as it was"
+  end
+
+  test "Record Payment on a bill with no amount due asks for the amount there" do
     record = add
     get edit_household_record_path(@home, record, pay: 1)
-    assert_select "details[open] #billing_heading"
+    assert_select "input[name='record[amount_required]']"
+    assert_select "p", text: "還沒填應繳金額"
   end
 
   def filter(**attrs) = add(record_type: "maintenance", category: @ac, title: "濾網/濾芯更換", amount_required: 925, **attrs)
@@ -371,11 +408,12 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_select "input[type=radio][name=paid_choice][value=none][checked]"
     full = add(amount_required: 580, amount_paid: 580, paid_on: Date.new(2026, 4, 14))
     partial = add(amount_required: 600, amount_paid: 100, paid_on: Date.new(2026, 4, 14))
-    get edit_household_record_path(@home, full)
+    get edit_household_record_path(@home, full, payment: 1)
     assert_select "input[type=radio][name=paid_choice][value=full][checked]"
-    get edit_household_record_path(@home, partial)
+    get edit_household_record_path(@home, partial, payment: 1)
     assert_select "input[type=radio][name=paid_choice][value=partial][checked]"
     assert_select "input[name='record[amount_paid]'][value='100'][step='1']", 1, "TWD amounts are whole numbers"
+    get edit_household_record_path(@home, partial)
     assert_select "input[name='record[amount_required]'][value='600'][step='1']"
     usd = add(amount_required: 12.5, currency: "USD")
     get edit_household_record_path(@home, usd)

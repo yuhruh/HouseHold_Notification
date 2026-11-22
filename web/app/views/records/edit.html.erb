@@ -1,7 +1,12 @@
-<% paying = paying? %>
-<% title = if !paying then t(".title") elsif @record.maintenance? then t(".done_title") else t(".pay_title") end %>
+<% mode = form_mode %>
+<% task = @record.maintenance? %>
+<% title = case mode
+           when :pay then t(task ? ".done_title" : ".pay_title")
+           when :edit_payment then t(task ? ".done_details_title" : ".payment_title")
+           else t(task ? ".task_title" : ".title") end %>
+<% icon = case mode when :pay, :edit_payment then (task ? "maintenance.png" : "paid.png") else "edit.png" end %>
 <% content_for :title, title %>
 <div class="mx-auto w-full max-w-2xl space-y-6 py-4">
-  <%= page_title(!paying ? "edit.png" : (@record.maintenance? ? "maintenance.png" : "paid.png"), title) %>
-  <%= render "form", record: @record, paying: %>
+  <%= page_title(icon, title) %>
+  <%= render "form", record: @record, mode: %>
 </div>

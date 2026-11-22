@@ -30,6 +30,8 @@ zh-TW:
       invitation:
         role: "角色"
       record:
+        category_id: "類別"
+        payment_method_id: "付款方式"
         record_type: "類型"
         category: "類別"
         title: "名稱"
@@ -780,10 +782,24 @@ zh-TW:
       none: "無"
       save: "儲存"
       cancel: "取消"
+      how_much: "繳了多少？"
+      tile_none: "還沒繳"
+      tile_full: "整筆應繳金額"
+      tile_partial: "輸入繳了多少"
+      no_amount_yet: "還沒填應繳金額"
+      wrong_amount: "金額不對？編輯帳單資訊"
+      wrong_task: "內容不對？編輯工作內容"
+      details_only_unpaid: "這裡只改帳單本身。已經繳了？請在帳單頁按「記錄繳費」。"
+      details_only_paid: "這裡只改帳單本身。要改繳費，請在帳單頁按「編輯繳費」。"
+      task_only_undone: "這裡只改工作內容。已經完成了？請在它的頁面按「標記完成」。"
+      task_only_done: "這裡只改工作內容。要改完成日期或花費，請在它的頁面按「編輯完成資訊」。"
     new:
       title: "新增記錄"
     edit:
-      title: "編輯記錄"
+      title: "編輯帳單資訊"
+      task_title: "編輯工作內容"
+      payment_title: "編輯繳費"
+      done_details_title: "編輯完成資訊"
       pay_title: "記錄繳費"
       done_title: "標記完成"
     create:
@@ -799,6 +815,13 @@ zh-TW:
       make_recurring: "設為定期帳單"
       record_payment: "記錄繳費"
       mark_done: "標記完成"
+      record_payment_hint: "已經繳了嗎？記下金額、日期和付款方式。"
+      mark_done_hint: "做完了嗎？記下日期和花費。"
+      edit_details: "編輯帳單資訊"
+      edit_payment: "編輯繳費"
+      edit_done: "編輯完成資訊"
+      not_paid_hint: "尚未繳費。繳了之後按上面的「記錄繳費」。"
+      not_done_hint: "尚未完成。做完之後按上面的「標記完成」。"
       labels:
         expected_cost: "預計花費"
         cost: "花費"

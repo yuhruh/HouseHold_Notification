@@ -8,12 +8,15 @@ zh-TW:
       unreadable: "無法讀取 %{name}。"
     gallery:
       title: "照片"
-      choose: "選擇照片"
+      take_photo: "拍照"
+      choose_files: "選擇檔案"
+      take_another: "再拍一張"
+      add_files: "再加檔案"
+      remove_chosen: "移除 %{name}"
       none_chosen: "尚未選擇照片"
       chosen:
         one: "已選擇 1 張照片"
         other: "已選擇 %{count} 張照片"
-      change: "重新選擇"
       already_added: "已新增過"
       duplicates:
         one: "其中 1 張已經在這筆記錄裡，不會再上傳。"
@@ -26,7 +29,7 @@ zh-TW:
       preparing: "正在處理照片…"
       remove: "移除"
       remove_confirm: "要移除這張照片嗎？"
-      hint: "可拍照或從相簿選取，每筆記錄最多 %{max} 張。位置等隱藏資訊會被移除。"
+      hint: "每筆記錄最多 %{max} 張。位置等隱藏資訊會被移除。"
     avatar:
       label: "個人照片"
       choose: "選擇照片"

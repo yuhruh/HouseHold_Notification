@@ -1,9 +1,9 @@
-# Records CRUD; Record Payment is the edit form with the payment filled in (PRD §1, §2). Every write goes through save! and logs a
+# Records CRUD; Edit Details changes only the bill, Record Payment only the payment, filled in (PRD §1, §2). Every write goes through save! and logs a
 # record_events row in the same transaction.
 class RecordsController < ApplicationController
   include HouseholdScoped
   before_action :set_record, except: %i[index new create]
-  helper_method :paying?
+  helper_method :form_mode
   PAST_SHOWN = 5
 
   def index
@@ -79,15 +79,22 @@ class RecordsController < ApplicationController
 
   def edit
     authorize @record
-    prefill_payment if paying?
+    prefill_payment if form_mode == :pay
   end
 
   def update
     authorize @record
-    paying = paying? # before saving: once the bill is paid it no longer counts as paying
+    mode = form_mode # before saving: once the bill is paid it no longer counts as paying
+    paid_in_full = @record.amount_paid.present? && @record.amount_paid == @record.amount_required
     assign(@record)
-    # Marking maintenance done: the cost entered is what it cost (blank = nothing), not a part payment
-    @record.amount_required = @record.amount_paid if paying && @record.maintenance?
+    if mode == :details
+      # Edit Details on a bill paid in full: the payment follows a corrected amount due, as Paid in full does
+      @record.amount_paid = @record.amount_required if paid_in_full && !@record.maintenance? && @record.amount_required.present? && @record.amount_required_changed?
+    elsif @record.maintenance? && (mode == :pay || @record.paid_on)
+      # Maintenance done: the cost entered is what it cost (blank = nothing), not a part payment
+      @record.amount_required = @record.amount_paid
+    end
+    paying = mode == :pay
     if save_with_event(@record, paying ? :marked_paid : :updated)
       notice =
         if !paying then t(".saved")
@@ -137,8 +144,14 @@ class RecordsController < ApplicationController
     record.record_type = record.category&.record_type
   end
 
-  # Record Payment: the edit form opened with `pay` on a bill that isn't paid yet
-  def paying? = params[:pay].present? && !@record.settled
+  # Which part of the record the edit form shows: Record Payment (`pay` on a bill that isn't paid yet, filled
+  # in), Edit Payment (`payment`, or `pay` on a paid one) or Edit Details (the bill itself)
+  def form_mode
+    @form_mode ||= if params[:pay].present? && !@record.settled then :pay
+    elsif params[:pay].present? || params[:payment].present? then :edit_payment
+    else :details
+    end
+  end
 
   # Paid in full (maintenance: done, at its expected cost), today, with the payment method last used for
   # this category; nothing is saved until Save

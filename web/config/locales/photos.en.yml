@@ -8,12 +8,15 @@ en:
       unreadable: "%{name} couldn't be read as a photo."
     gallery:
       title: "Photos"
-      choose: "Choose Photos"
+      take_photo: "Take Photo"
+      choose_files: "Choose Files"
+      take_another: "Take Another"
+      add_files: "Add Files"
+      remove_chosen: "Remove %{name}"
       none_chosen: "No photos chosen yet"
       chosen:
         one: "1 photo chosen"
         other: "%{count} photos chosen"
-      change: "Change"
       already_added: "Already added"
       duplicates:
         one: "1 of these is already on this record and won't be uploaded again."
@@ -26,7 +29,7 @@ en:
       preparing: "Preparing photos…"
       remove: "Remove"
       remove_confirm: "Remove this photo?"
-      hint: "Take a photo or pick from the gallery, up to %{max} per record. Location and other hidden details are removed."
+      hint: "Up to %{max} per record. Location and other hidden details are removed."
     avatar:
       label: "Profile Photo"
       choose: "Choose Photo"

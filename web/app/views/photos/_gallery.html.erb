@@ -17,11 +17,12 @@
     </ul>
   <% end %>
   <% if writer && record.photos.size < Photos::Upload::MAX_PHOTOS %>
-    <%# Two numbered steps: ① Choose Photos (a button-styled label for the hidden file field), then
-        ② Upload, which stays disabled until photos are chosen; photo_upload_controller.js shows how many
-        were chosen with small previews, tags photos already on the record (left out of the upload) and shrinks
-        the rest before upload. The "other" texts keep %{count} for the
-        script to fill in %>
+    <%# Two numbered steps: ① Take Photo (opens the camera; touch screens only) or Choose Files (photo library
+        or files): button-styled labels for hidden file fields, then ② Upload, which stays disabled until
+        photos are chosen. photo_upload_controller.js adds what each one picks to one list (small previews,
+        each with ✕), tags photos already on the record (left out of the upload) and shrinks the rest before
+        upload; the Choose Files field is the one submitted, so without JavaScript it still works. The
+        "other" texts keep %{count} for the script to fill in %>
     <%= form_with url: household_record_photos_path(Current.household, record), multipart: true,
           class: "space-y-2.5 rounded-xl border-2 border-dashed border-gray-400 bg-white p-3.5 data-[chosen]:border-solid data-[chosen]:border-blue-400",
           data: { controller: "photo-upload", photo_upload_working_value: t("photos.gallery.preparing"),
@@ -29,22 +30,35 @@
                   photo_upload_upload_one_value: t("photos.gallery.upload_count", count: 1), photo_upload_upload_other_value: t("photos.gallery.upload_count", count: "%{count}"),
                   photo_upload_duplicate_one_value: t("photos.gallery.duplicates", count: 1), photo_upload_duplicate_other_value: t("photos.gallery.duplicates", count: "%{count}"),
                   photo_upload_tag_value: t("photos.gallery.already_added"), photo_upload_existing_value: Photos::Fingerprint.of(record).to_json,
+                  photo_upload_take_another_value: t("photos.gallery.take_another"), photo_upload_add_files_value: t("photos.gallery.add_files"),
+                  photo_upload_remove_value: t("photos.gallery.remove_chosen", name: "%{name}"),
                   photo_upload_threshold_value: Photos::Fingerprint::THRESHOLD, photo_upload_margin_value: Photos::Fingerprint::MARGIN } do |f| %>
       <% badge = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-bold" %>
-      <div class="flex items-center gap-2.5">
-        <span class="<%= badge %> bg-blue-700 text-white" data-photo-upload-target="stepOne">1</span>
-        <%= f.file_field :photos, multiple: true, accept: "image/jpeg,image/png,image/webp,image/heic,image/heif", required: true, id: "record_photos_input",
-              data: { photo_upload_target: "input", action: "change->photo-upload#resize" }, class: "peer sr-only" %>
-        <label for="record_photos_input" class="btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600">
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><%= t("photos.gallery.choose") %></span>
-        </label>
+      <% press = "btn-press inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 font-medium text-gray-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-blue-600" %>
+      <% accept = "image/jpeg,image/png,image/webp,image/heic,image/heif" %>
+      <div class="flex items-start gap-2.5">
+        <span class="<%= badge %> mt-2 bg-blue-700 text-white" data-photo-upload-target="stepOne">1</span>
+        <div class="flex flex-wrap gap-2">
+          <%# The camera field isn't submitted: what it takes joins the list on the Choose Files field %>
+          <span class="hidden pointer-coarse:inline-flex">
+            <input type="file" accept="<%= accept %>" capture="environment" id="record_photos_camera" class="peer sr-only"
+                   data-photo-upload-target="camera" data-action="change->photo-upload#add">
+            <label for="record_photos_camera" class="<%= press %> bg-blue-200">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-photo-upload-target="cameraLabel"><%= t("photos.gallery.take_photo") %></span>
+            </label>
+          </span>
+          <span class="inline-flex">
+            <%= f.file_field :photos, multiple: true, accept:, required: true, id: "record_photos_input",
+                  data: { photo_upload_target: "input", action: "change->photo-upload#add" }, class: "peer sr-only" %>
+            <label for="record_photos_input" class="<%= press %> bg-white">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3z"/></svg><span data-photo-upload-target="filesLabel"><%= t("photos.gallery.choose_files") %></span>
+            </label>
+          </span>
+        </div>
       </div>
       <div class="ml-9.5 space-y-2 text-sm">
         <p class="text-gray-600" data-photo-upload-target="status"><%= t("photos.gallery.none_chosen") %></p>
-        <p hidden class="flex items-center gap-2" data-photo-upload-target="summary">
-          <span class="font-medium" data-photo-upload-target="count"></span>
-          <label for="record_photos_input" class="cursor-pointer text-blue-700 underline"><%= t("photos.gallery.change") %></label>
-        </p>
+        <p hidden class="font-medium" data-photo-upload-target="count"></p>
         <div hidden class="flex flex-wrap gap-2" data-photo-upload-target="previews"></div>
         <p hidden class="text-amber-800" data-photo-upload-target="duplicates"></p>
       </div>

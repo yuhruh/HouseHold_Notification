@@ -1257,6 +1257,35 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal 1, supply.purchases.count
   end
 
+  test "edit: two batches of one brand in stock are both listed, with expiry and what is left, and the older one can be corrected" do
+    drink = create_item(name: "Sports drink", unit: "bottle", level: 0)
+    older = Supplies::LogPurchase.call(drink, { quantity: 24, total_price: 385, store: "Coupang", purchased_on: @home.today - 30, left_before: 0,
+                                                expires_on: @home.today + 90, product_name: "Super Supau 590ml" }, user: users(:alex))
+    Supplies::RecordCount.call(drink, 4, user: users(:alex))
+    newer = Supplies::LogPurchase.call(drink.reload, { quantity: 24, total_price: 348, store: "酷澎", purchased_on: @home.today, left_before: 4,
+                                                       expires_on: @home.today + 170, product_name: "Super Supau 590ml" }, user: users(:alex))
+
+    get edit_household_supply_path(@home, drink)
+    assert_select "turbo-frame#supply_purchase details[open]" do
+      assert_select "summary", "修正一筆購買 · 有 2 筆可選"
+      assert_select "p", "要修正哪一筆？"
+      assert_select "a[aria-current=true][href=?]", edit_household_supply_path(@home, drink, purchase_id: newer.id), text: /酷澎.*到期 · 剩 24/m
+      assert_select "a[href=?]", edit_household_supply_path(@home, drink, purchase_id: older.id), text: /Coupang.*到期 · 剩 4/m
+    end
+
+    get edit_household_supply_path(@home, drink, purchase_id: older.id), headers: { "Turbo-Frame" => "supply_purchase" }
+    assert_select "input[name='purchase[store]'][value=Coupang]"
+    patch household_supply_path(@home, drink), params: { supply: { name: "Sports drink" }, purchase_id: older.id,
+      purchase: { purchased_on: older.purchased_on, quantity: 24, total_price: 380, store: "Coupang", expires_on: older.expires_on, product_name: "Super Supau 590ml" } }
+    assert_redirected_to household_supply_path(@home, drink)
+    assert_equal 380, older.reload.total_price
+    assert_equal 348, newer.reload.total_price
+
+    Supplies::RecordCount.call(drink.reload, 24, user: users(:alex))
+    get edit_household_supply_path(@home, drink)
+    assert_select "a[data-turbo-frame=supply_purchase]", 0, "the older batch is used up: only the latest is left to correct"
+  end
+
   test "edit: an item bought as two products lists them, and the one chosen is the purchase corrected" do
     supply = create_item(name: "Coffee", unit: "bag")
     kirkland = Supplies::LogPurchase.call(supply, { quantity: 1, total_price: 529, store: "Costco", purchased_on: @home.today - 10, left_before: 0,
@@ -1266,7 +1295,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get edit_household_supply_path(@home, supply)
     assert_select "turbo-frame#supply_purchase details[open]" do
-      assert_select "summary", "修正購買紀錄 · 2 種商品"
+      assert_select "summary", "修正一筆購買 · 有 2 筆可選"
       assert_select "a[data-turbo-frame=supply_purchase]", 2
       assert_select "a[aria-current=true][href=?]", edit_household_supply_path(@home, supply, purchase_id: starbucks.id), text: /Starbucks House Blend/
       assert_select "a[href=?]", edit_household_supply_path(@home, supply, purchase_id: kirkland.id), text: /Kirkland Espresso 1.13kg.*Costco/m
@@ -1279,7 +1308,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "a[aria-current=true]", text: /Kirkland/
       assert_select "input[type=hidden][name=purchase_id][value=?]", kirkland.id.to_s
       assert_select "input[name='purchase[product_name]'][value=?]", "Kirkland Espresso 1.13kg"
-      assert_select "p", text: /Kirkland Espresso 1.13kg 最近一次購買/
+      assert_select "p", text: /購買的 Kirkland Espresso 1.13kg/
     end
 
     patch household_supply_path(@home, supply), params: { supply: { name: "Coffee" }, purchase_id: kirkland.id,
@@ -1294,10 +1323,10 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "edit: an item bought as one product has no list" do
+  test "edit: an item bought as one product, with the older purchase used up, has no list" do
     supply = create_item
     Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 289, purchased_on: @home.today - 3, left_before: 0 }, user: users(:alex))
-    Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 299, purchased_on: @home.today, left_before: 4 }, user: users(:alex))
+    Supplies::LogPurchase.call(supply, { quantity: 12, total_price: 299, purchased_on: @home.today, left_before: 0 }, user: users(:alex))
     get edit_household_supply_path(@home, supply)
     assert_select "summary", text: /上次購買/
     assert_select "a[data-turbo-frame=supply_purchase]", 0

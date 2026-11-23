@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.28.2"
+  date: 2026-11-23
+  en:
+    - "Supplies › Edit item: \"Correct a purchase\" now lists every purchase still in stock, not just one per brand, with its expiry date and how many are left. Two batches of the same brand can each be corrected."
+  zh-TW:
+    - "日用品 › 編輯品項：「修正一筆購買」現在會列出每一筆還有庫存的購買（不再是每個品牌只列一筆），並顯示到期日和剩下幾個。同一品牌的兩批都可以各自修正。"
 - version: "1.28.1"
   date: 2026-11-23
   en:

@@ -86,12 +86,13 @@ class SuppliesController < ApplicationController
     end
   end
 
-  # With two or more products (brands), Edit lists them and corrects the latest purchase of the one
-  # chosen (purchase_id); choosing another reloads only that part (the supply_purchase frame)
+  # With two or more purchases to choose from (brands, or batches still in stock), Edit lists them and
+  # corrects the one chosen (purchase_id); choosing another reloads only that part (the supply_purchase
+  # frame)
   def edit
     authorize @supply
     @purchase = editing_purchase || SupplyPurchase.new(purchased_on: Current.household.today)
-    @products = products
+    @choices, @left = purchase_choices
   end
 
   # The item's settings, and the purchase being corrected (the latest, or the product's chosen on the
@@ -115,7 +116,7 @@ class SuppliesController < ApplicationController
       redirect_to household_supply_path(Current.household, @supply), notice: t(".saved")
     else
       @open_purchase = true
-      @products = products
+      @choices, @left = purchase_choices
       render :edit, status: :unprocessable_content
     end
   end
@@ -152,11 +153,17 @@ class SuppliesController < ApplicationController
     @supply.purchases.find { it.id == params[:purchase_id].to_i } || raise(ActiveRecord::RecordNotFound)
   end
 
-  # The latest purchase of each product the item was bought as, newest first; nil with only one
-  def products
+  # The purchases Edit can correct: every one with some left (each batch on the item page) and the
+  # latest of each product the item was bought as, newest first, with how many of each are left; nil
+  # with only one, as then Edit corrects the latest
+  def purchase_choices
+    batches = @supply.brands.batches.select(&:purchase)
     latest = @supply.purchases.reject(&:new_record?).group_by { Supplies::Brands.key(it.product_name) }
                     .map { |_, purchases| purchases.max_by { [ it.purchased_on, it.created_at ] } }
-    latest.sort_by { [ -it.purchased_on.jd, -it.created_at.to_f ] } if latest.size > 1
+    choices = (latest + batches.map(&:purchase)).uniq(&:id)
+    return if choices.size < 2
+
+    [ choices.sort_by { [ -it.purchased_on.jd, -it.created_at.to_f ] }, batches.to_h { [ it.purchase.id, it.left ] } ]
   end
 
   def supply_params

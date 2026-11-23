@@ -20,11 +20,11 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
     assert_equal "'self'", policy["default-src"], "signed-in pages too"
   end
 
-  test "scripts: this app's files and the importmap's inline tags, by a nonce that's new each time" do
+  test "scripts: this app's files (and their WebAssembly) and the importmap's inline tags, by a nonce that's new each time" do
     get new_session_path
-    assert_match(/\A'self' 'nonce-([^']{20,})'\z/, policy["script-src"])
+    assert_match(/\A'self' 'wasm-unsafe-eval' 'nonce-([^']{20,})'\z/, policy["script-src"])
     nonce = policy["script-src"][/nonce-([^']+)/, 1]
-    assert_no_match(/unsafe-inline|unsafe-eval|https:|\*/, policy["script-src"])
+    assert_no_match(/unsafe-inline|(?<!wasm-)unsafe-eval|https:|\*/, policy["script-src"])
     assert_select "meta[name=csp-nonce][content=?]", nonce
     assert_select "script[type=importmap][nonce=?]", nonce
     assert_select "script:not([nonce]):not([src]):not([type='application/json'])", 0, "no inline script without the nonce"

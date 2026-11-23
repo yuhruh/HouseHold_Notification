@@ -5,10 +5,12 @@
     bill already recorded (same bill number) or maybe recorded (same category and period) asks first.
     Choose Bill PDF (or drop it on the card): pdf.js reads the PDF on the device, a locked one asks for its
     password here, and only its text goes to bill_pdfs#create; then the same checks and the same asking once.
-    Nothing is uploaded until Save %>
+    Use a Photo: its barcodes when all 3 are there, otherwise its text, read on the device by Tesseract (loaded
+    only then) and sent to bill_pdfs#create like a PDF's. Nothing is uploaded until Save %>
 <% texts = %w[not_found error reading no_camera filled check again from_barcode please_check due_offset not_recorded
                reading_pdf pdf_no_text pdf_unreadable pdf_cant_open password_ask password_wrong bill_read due biller_name
-               filled_pdf from_pdf by_labels by_labels_line period_note choose_another all_read deadline biller scan_another autopay].index_with { t("records.scan.#{it}") } %>
+               filled_pdf from_pdf by_labels by_labels_line period_note choose_another all_read deadline biller scan_another autopay
+               reading_text_first reading_text ocr_unavailable photo_unreadable filled_photo filled_photo_line from_photo take_another the_photo].index_with { t("records.scan.#{it}") } %>
 <section class="card-raised space-y-3 rounded-xl bg-cyan-50 p-4 dark:bg-cyan-50/60" data-bill-scan-target="card"
          data-action="dragover->bill-scan#dragOver dragleave->bill-scan#dragLeave drop->bill-scan#drop">
   <div>

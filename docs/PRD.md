@@ -26,7 +26,7 @@ Project folder: `~/HouseHold_Notification` (empty, greenfield).
 | v1 extras | Google Sheet import, photo attachments, dashboard & charts |
 | Charts | **Apache ECharts** (via Stimulus) with click-to-drill-down into the raw records |
 | File storage | **Active Storage `Disk` service on a Railway Volume** mounted on the web service. No Cloudflare R2 or other external object storage. Photos are served only through a membership-checked controller. Moving to S3-compatible storage later is a `Mirror`-service migration (see `adr/0004-storage-volume.md`) |
-| Deferred to v2 | Native Android shell, 保養記錄, 電池更換紀錄, currency conversion (except a Supplies purchase made abroad, see Out of scope), budgets, OCR, bank sync |
+| Deferred to v2 | Native Android shell, 保養記錄, 電池更換紀錄, currency conversion (except a Supplies purchase made abroad, see Out of scope), budgets, OCR (except a bill photo without barcodes, read on the device since 1.27.0), bank sync |
 
 ## Diagrams
 
@@ -1263,8 +1263,10 @@ screenshot or typed number; photos are never uploaded)
 - **Why not the MOF API:** reading a phone barcode's (手機條碼) invoices or an invoice by number needs
   an AppID and APIKey that only a 營業人 can apply for, and signing in to einvoice.nat.gov.tw on the
   user's behalf isn't allowed; the PDF and QR routes need neither.
-- **Out of scope:** Japanese receipts (no item QR code); reading text from photos (Tesseract OCR was
-  tried and removed as unreliable; outside vision services were declined).
+- **Out of scope:** Japanese receipts (no item QR code); reading text from supply photos (Tesseract OCR was
+  tried on packaging and removed as unreliable; outside vision services were declined). Bills are the
+  exception: since 1.27.0 a bill photo without barcodes is read for its text on the device, as flat
+  printed text reads far better than packaging.
 
 **Data model**
 - `supply_categories (household_id, name_zh null, name_en null (one of the two is required), key toiletries|cleaning|kitchen|food_drink|

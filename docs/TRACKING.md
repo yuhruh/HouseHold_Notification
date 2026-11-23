@@ -113,6 +113,7 @@ M1 code complete 2026-10-19 (PRs #5–#7). Exit criterion "all auth/role/deletio
 | Add a receipt: printed receipt QR or up to 10 invoice PDFs (pdf.js in the browser), Review items by invoice, Not included, Not a supplies store | ☑ | 1.13.0, 2026-11-16 |
 | + New ▾ menu (header) and Add new sheet (phone tab bar); Supplies tab | ☑ | 1.11.0; the Supplies page's Add supply menu in 1.11.1 (8b2bbec) |
 | Product name from a photo (Tesseract OCR) | ➖ | added in 8b2bbec, removed in 5232496 at the owner's request: unreliable on packaging. Claude vision / Cloud Vision declined; names are typed once and remembered with the barcode |
+| New Record › Use a Photo: a bill photo without all 3 barcodes is read for its text (Tesseract 5.1.1 restored under public/vendor, on the device) and read like a bill PDF | ☑ | 1.27.0, 2026-11-23. The photo isn't uploaded, only its words. Numbers and dates are always "please check". CSP gained `'wasm-unsafe-eval'` for it. Supplies still don't read photo text |
 | "Product not found" / "N items not found" pop-ups | ☑ | 1.11.2 (5232496) |
 | New item → "I already bought these"; Edit corrects the last purchase (Ledger expense follows) | ☑ | 1.11.3 (13cbfab) |
 | Price history on the item page, Add an old price (`SupplyPrice`) | ☑ | 1.14.0 (3477b0a) |

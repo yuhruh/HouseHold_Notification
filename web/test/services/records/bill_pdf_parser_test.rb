@@ -19,6 +19,25 @@ class Records::BillPdfParserTest < ActiveSupport::TestCase
     assert_equal Date.new(2026, 9, 16), bill.period_from
   end
 
+  # As bill_scan_controller.js#photoWords sends a photo's text: one piece per character (Tesseract splits
+  # Chinese that way), every piece of a line at the line's place, scaled so a line is about 10 high
+  test "a photo's words read the same" do
+    scale = 10.0 / 26
+    rows = letters(CHT).map { |s, x, y, w, h| { "s" => s, "x" => (x * scale).round(1), "y" => (y * scale).round(1), "w" => (w * scale).round(1), "h" => (h * scale).round(1) } }
+    bill = Records::BillPdfParser.call(rows.to_json)
+    assert_equal [ "中華電信", 1299, Date.new(2026, 11, 10), "用戶號碼 Y123456", "1200000000001" ],
+      [ bill.name, bill.amount, bill.due_on, bill.account, bill.bill_number ]
+    assert_equal [ Date.new(2026, 9, 16), Date.new(2026, 10, 15) ], [ bill.period_from, bill.period_to ]
+  end
+
+  test "a photo's usual misreads: a label without its 費, a 民國 year without its 1, and no 營利事業統一編號 label" do
+    misread = { "繳費期限" => "繳期限", "115/11/10" => "15/11/10", "營利事業統一編號： 19683736" => "： 19683736",
+                "計費期間：115/09/16至115/10/15" => "計期間：115/09/16至15/10/15" }
+    bill = Records::BillPdfParser.call(words(CHT.map { |s, *rest| [ misread.fetch(s, s), *rest ] }))
+    assert_equal [ "中華電信", Date.new(2026, 11, 10) ], [ bill.name, bill.due_on ]
+    assert_equal [ Date.new(2026, 9, 16), Date.new(2026, 10, 15) ], [ bill.period_from, bill.period_to ]
+  end
+
   test "a bill paid at the counter has no autopay" do
     rows = CHT.map { |row| row[0] == "定 期 付 款" ? [ "臨櫃繳費", *row[1..] ] : row }
     assert_nil Records::BillPdfParser.call(words(rows)).autopay

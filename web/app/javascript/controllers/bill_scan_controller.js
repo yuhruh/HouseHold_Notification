@@ -16,11 +16,19 @@ import { Controller } from "@hotwired/stimulus"
 // a biller seen for the first time asks once (its code "T" + its tax ID), then the form is filled, tagged
 // "from PDF" or "please check". A bill the parser hasn't learned comes back read by its labels: every
 // field "please check", no category. A bill paid by itself (定期付款) shows a note in Payment Details.
+//
+// Use a Photo: the barcodes first. A photo without all 3 (a bill with no 超商代收 barcodes, or a photo of
+// its top half) is read for its text on the device with Tesseract (繁體中文 + English, under /vendor, loaded
+// only then), and its words go to bill_pdfs#create like a PDF's. The photo is never uploaded. A photo can be
+// misread, so every number and date it fills is "please check"; only the title and category (from the
+// bill's 統一編號, matched exactly) are "from photo".
 const ZXING_URL = "/vendor/zxing-0.21.3.min.js"
+const TESSERACT = "/vendor/tesseract-5.1.1"
 const FIRST = /^(\d{6})([0-9A-Z]{3})$/
 const THIRD = /^\d{4}[0-9A-Z]{2}\d{9}$/
 const SECOND = /^[0-9A-Z]{6,20}$/
 let zxingLoading = null
+let ocrLoading = null
 
 export default class extends Controller {
   static targets = ["card", "message", "photo", "dialog", "video", "tick", "light", "lightSpacer", "texts",
@@ -65,20 +73,86 @@ export default class extends Controller {
     }
   }
 
+  // The barcodes when all 3 are there; otherwise the bill's text
   async readPhoto() {
     const file = this.photoTarget.files[0]
+    this.photoTarget.value = ""
     if (!file) return
     this.reset()
     this.say(this.texts.reading)
+    let bitmap
     try {
-      const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" })
+      bitmap = await createImageBitmap(file, { imageOrientation: "from-image" })
+    } catch (_) {
+      return this.say(this.texts.photo_unreadable, "warn")
+    }
+    try {
       const decode = await this.decoder()
       this.found(await decode(this.frame(bitmap, bitmap.width, bitmap.height, 2400)))
-      if (!this.complete()) this.say(this.texts.not_found, "warn")
+    } catch (_) { /* no barcode reader: read the text */ }
+    if (!this.complete()) this.readText(bitmap)
+  }
+
+  // ---- A photo's text (no barcodes) ---------------------------------------------------------------
+
+  async readText(bitmap) {
+    this.reset()
+    this.source = "photo"
+    this.say(ocrLoading ? this.texts.reading_text : this.texts.reading_text_first)
+    let worker
+    try {
+      worker = await this.ocr()
     } catch (_) {
-      this.say(this.texts.not_found, "warn")
+      return this.say(this.texts.ocr_unavailable, "warn")
     }
-    this.photoTarget.value = ""
+    this.say(this.texts.reading_text)
+    try {
+      const { data } = await worker.recognize(this.frame(bitmap, bitmap.width, bitmap.height, 2400))
+      this.words = this.photoWords(data)
+    } catch (_) {
+      return this.say(this.texts.photo_unreadable, "warn")
+    }
+    if (!this.words.length) return this.say(this.texts.photo_unreadable, "warn")
+    this.lookUp()
+  }
+
+  // Tesseract's words in the PDF's shape, [{ s, x, y, w, h }], so Records::BillPdfParser reads them the
+  // same way: every word of a line gets the line's place and letter height (a photo taken at a slight
+  // angle still reads as lines), and the page is scaled so a line is about 10 high, as in a PDF (pt)
+  photoWords(data) {
+    const median = (values) => values.sort((a, b) => a - b)[Math.floor(values.length / 2)]
+    const lines = (data?.lines || []).map((line) => {
+      const words = (line.words || []).filter((word) => word.confidence >= 30 && word.text?.trim())
+      if (!words.length) return null
+      const h = median(words.map((word) => word.bbox.y1 - word.bbox.y0))
+      const middle = median(words.map((word) => (word.bbox.y0 + word.bbox.y1) / 2))
+      return { words, h, y: middle - h / 2 }
+    }).filter((line) => line && line.h > 0)
+    if (!lines.length) return []
+    const scale = 10 / median(lines.map((line) => line.h))
+    const round = (v) => Math.round(v * scale * 10) / 10
+    return lines.flatMap((line) => line.words.map((word) => ({
+      s: word.text.trim(), x: round(word.bbox.x0), y: round(line.y), w: round(word.bbox.x1 - word.bbox.x0), h: round(line.h)
+    })))
+  }
+
+  // One reader per page visit, kept for the next photo
+  ocr() {
+    ocrLoading ??= this.loadTesseract().then((Tesseract) => Tesseract.createWorker(["chi_tra", "eng"], 1, {
+      workerPath: `${TESSERACT}/worker.min.js`, corePath: `${TESSERACT}/core`, langPath: `${TESSERACT}/lang`, workerBlobURL: false, gzip: true
+    })).catch((error) => { ocrLoading = null; throw error })
+    return ocrLoading
+  }
+
+  loadTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract)
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script")
+      script.src = `${TESSERACT}/tesseract.min.js`
+      script.onload = () => resolve(window.Tesseract)
+      script.onerror = () => reject(new Error("Tesseract didn't load"))
+      document.head.append(script)
+    })
   }
 
   photoInstead() {
@@ -290,8 +364,8 @@ export default class extends Controller {
 
   async lookUp() {
     try {
-      const response = this.pdf() ? await this.lookUpPdf() : await this.lookUpCodes()
-      if (!response.ok) return this.say(this.pdf() ? this.texts.pdf_unreadable : this.texts.not_found, "warn")
+      const response = this.byText() ? await this.lookUpWords() : await this.lookUpCodes()
+      if (!response.ok) return this.say(this.texts[{ pdf: "pdf_unreadable", photo: "photo_unreadable" }[this.source] ?? "not_found"], "warn")
       this.scan = await response.json()
       if (this.scan.match === "already" && !this.anyway) return this.showMatch("already")
       if (!this.scan.known) return this.askBiller()
@@ -308,21 +382,24 @@ export default class extends Controller {
     return fetch(`${this.scanUrlValue}?${query}`, { headers: { Accept: "application/json" } })
   }
 
-  lookUpPdf() {
+  lookUpWords() {
     return fetch(this.pdfUrlValue, {
       method: "POST", body: JSON.stringify({ words: JSON.stringify(this.words) }),
       headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content }
     })
   }
 
-  pdf() { return this.source === "pdf" }
+  // Read from words (a PDF, or a photo's text), not barcodes
+  byText() { return this.source !== "barcode" }
+
+  photo() { return this.source === "photo" }
 
   // ---- Already (or maybe) recorded ------------------------------------------------------------
 
   showMatch(kind) {
     this.messageTarget.hidden = true
     this.readTitleTargets.forEach((title) => { title.textContent = this.readTitle() })
-    this.againButtonTarget.textContent = this.pdf() ? this.texts.choose_another : this.texts.scan_another
+    this.againButtonTarget.textContent = this.texts[{ pdf: "choose_another", photo: "take_another" }[this.source] ?? "scan_another"]
     this.matchTitleTarget.textContent = this.texts[`${kind}_title`]
     this.matchLineTarget.textContent = this.texts[`${kind}_line`]
     this.matchListTarget.innerHTML = this.scan.matches
@@ -353,17 +430,21 @@ export default class extends Controller {
     this.scan.known ? this.fill() : this.askBiller()
   }
 
-  again() { this.pdf() ? this.choosePdf() : this.open() }
+  again() {
+    if (this.source === "pdf") return this.choosePdf()
+    if (this.photo()) return this.photoTarget.click()
+    this.open()
+  }
 
   // "All 3 barcodes read", or "Bill read: 中華電信"
-  readTitle() { return this.pdf() ? this.texts.bill_read.replace("%{name}", this.scan.biller_name || "PDF") : this.texts.all_read }
+  readTitle() { return this.byText() ? this.texts.bill_read.replace("%{name}", this.scan.biller_name || (this.photo() ? this.texts.the_photo : "PDF")) : this.texts.all_read }
 
   // ---- First time for a biller ------------------------------------------------------------------
 
   askBiller() {
     this.messageTarget.hidden = true
     this.askTarget.hidden = false
-    const pdf = this.pdf()
+    const pdf = this.byText()
     const biller = pdf ? this.scan.biller_name : this.scan.biller
     this.readTitleTargets.forEach((title) => { title.textContent = this.readTitle() })
     this.askAmountTarget.textContent = `NT$${this.scan.amount.toLocaleString()}`
@@ -372,7 +453,7 @@ export default class extends Controller {
     this.askBillerLabelTarget.textContent = pdf ? this.texts.biller_name : this.texts.biller
     this.askBillerTarget.textContent = biller
     this.askOnceTarget.textContent = this.askOnceTarget.dataset.template.replace("%{code}", biller)
-    // A bill PDF's due date is the due date; only barcodes ask what their deadline means
+    // A bill's printed due date is the due date; only barcodes ask what their deadline means
     this.askOffsetBoxTarget.hidden = pdf
     if (pdf && this.scan.suggested_category_id && !this.askCategoryTarget.value) this.askCategoryTarget.value = String(this.scan.suggested_category_id)
     this.askCategoryTarget.focus()
@@ -380,7 +461,7 @@ export default class extends Controller {
 
   async remember() {
     if (!this.askCategoryTarget.value) return this.askCategoryTarget.focus()
-    const offset = this.pdf() ? "0" : (this.askOffsetTargets.find((radio) => radio.checked)?.value ?? "0")
+    const offset = this.byText() ? "0" : (this.askOffsetTargets.find((radio) => radio.checked)?.value ?? "0")
     const body = new URLSearchParams({ code: this.scan.biller, category_id: this.askCategoryTarget.value, deadline_offset_days: offset })
     const response = await fetch(this.rememberUrlValue, {
       method: "POST", body, headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content, Accept: "application/json" }
@@ -395,9 +476,10 @@ export default class extends Controller {
 
   fill() {
     const scan = this.scan
-    const pdf = this.pdf()
-    // Printed on the bill: "from barcode" / "from PDF"; a bill PDF read only by its labels: all guesses
-    const sure = pdf && !scan.learned ? "check" : "filled"
+    const pdf = this.byText()
+    // Printed on the bill: "from barcode" / "from PDF"; a bill read only by its labels, or any number or
+    // date read from a photo: "please check"
+    const sure = pdf && (!scan.learned || this.photo()) ? "check" : "filled"
     this.set("record_category_id", scan.category_id, "filled")
     if (pdf) {
       this.set("record_title", scan.title, "filled")
@@ -424,10 +506,10 @@ export default class extends Controller {
     this.messageTarget.replaceChildren()
     const title = document.createElement("strong")
     title.className = "block text-cyan-900"
-    title.textContent = !pdf ? this.texts.filled : (scan.learned ? this.texts.filled_pdf : this.texts.by_labels)
+    title.textContent = !pdf ? this.texts.filled : (!scan.learned ? this.texts.by_labels : (this.photo() ? this.texts.filled_photo : this.texts.filled_pdf))
     const line = document.createElement("span")
     line.className = "block"
-    line.textContent = pdf && !scan.learned ? this.texts.by_labels_line : this.texts.check
+    line.textContent = pdf && !scan.learned ? this.texts.by_labels_line : (this.photo() ? this.texts.filled_photo_line : this.texts.check)
     this.messageTarget.append(title, line)
     if (!scan.match) {
       const clear = document.createElement("span")
@@ -457,7 +539,7 @@ export default class extends Controller {
     const tag = label?.querySelector("[data-scan-tag]")
     if (tag) {
       tag.className = `whitespace-nowrap rounded px-1.5 text-xs font-bold ${kind === "check" ? "bg-amber-100 text-amber-900" : "bg-cyan-100 text-cyan-800"}`
-      tag.textContent = kind === "check" ? this.texts.please_check : (this.pdf() ? this.texts.from_pdf : this.texts.from_barcode)
+      tag.textContent = kind === "check" ? this.texts.please_check : this.texts[{ pdf: "from_pdf", photo: "from_photo" }[this.source] ?? "from_barcode"]
     }
     field.parentElement.querySelector("[data-scan-note]")?.remove()
     if (note) {

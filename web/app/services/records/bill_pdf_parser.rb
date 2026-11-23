@@ -11,6 +11,10 @@ module Records
   # "115/11/10"). Labels are found in each line's joined text, so a PDF that splits its text into single
   # characters still reads.
   #
+  # A photo of a bill without barcodes (New Record › Use a Photo) comes the same way: Tesseract reads it on
+  # the device and bill_scan_controller sends its words in this shape. A photo can lose a character, so a
+  # label may be missing its 費 (繳期限, 計期間) and a 民國 year its first digit.
+  #
   # Returns a Bill, or raises Invalid when there is no amount due or no due date (not a bill, or a scan).
   class BillPdfParser
     class Invalid < StandardError; end
@@ -42,8 +46,8 @@ module Records
     MONEY = /(?:NT\$|\$)?[\d,]*\d(?:\.\d{1,2})?元?/
     ACCOUNT = /[0-9A-Z]{5,20}/
     AMOUNT_LABELS = /應繳總金額|本期應繳總?金額|應繳金額|應繳總額|繳費金額/
-    DUE_LABELS = /繳費期限|繳款期限|繳費截止日期?|繳款截止日期?|代收期限/
-    PERIOD_LABELS = /計費期間|計費日期|使用期間|帳單期間/
+    DUE_LABELS = /繳費?期限|繳款期限|繳費截止日期?|繳款截止日期?|代收期限/
+    PERIOD_LABELS = /計費?期間|計費日期|使用期間|帳單期間/
     NUMBER_LABELS = /通知單流水號|繳費單號|帳單號碼/
     AUTOPAY = /定期付款|自動扣繳|自動轉帳|帳戶代繳|信用卡代繳/
 
@@ -63,7 +67,7 @@ module Records
       due_on = near(DUE_LABELS, DATE)&.then { date(it) }
       raise Invalid unless amount&.positive? && due_on
 
-      tax_id = inline(/營利事業統一編號:?(\d{8})/)
+      tax_id = inline(/營利事業統一編號:?(\d{8})/) || printed_biller
       biller = BILLERS[tax_id]
       from, to = period
       Bill.new(
@@ -147,10 +151,18 @@ module Records
       from && to && from <= to ? [ from, to ] : [ nil, nil ]
     end
 
-    # "115/11/10" (民國) or "2026/11/10"
+    # A learned biller's tax ID printed anywhere, for a photo whose 營利事業統一編號 label didn't read
+    def printed_biller
+      text = lines.map { |line| line.map(&:s).join }.join("\n")
+      BILLERS.keys.find { text.include?(it) }
+    end
+
+    # "115/11/10" (民國) or "2026/11/10". A two-digit year is 民國 1xx: a photo can lose the first digit
+    # ("15/11/10"), and no bill today is dated 民國 99 or earlier
     def date(string)
       year, month, day = DATE.match(string)&.captures&.compact&.map(&:to_i)
       return unless day
+      year += 100 if year < 100
       year += 1911 if year < 1911
       Date.valid_date?(year, month, day) ? Date.new(year, month, day) : nil
     end

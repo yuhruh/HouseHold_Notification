@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.27.0"
+  date: 2026-11-23
+  en:
+    - "New Record › Use a Photo: a photo of a bill without its 3 barcodes (or a photo of the top half) is now read for its text, the same way a bill PDF is. A 中華電信 bill fills in its title, category, amount due, due date, billing period and account number; other bills are read by their labels. A photo can be misread, so every number and date is marked \"please check\": compare them with the bill before saving. The photo is read on your device and never uploaded; the first time, the text reader is downloaded (about 5 MB). Photos with all 3 barcodes work as before."
+  zh-TW:
+    - "新增記錄 › 用照片：沒有 3 條條碼的帳單照片（或只拍上半部），現在會讀取上面的文字，和 PDF 帳單一樣。中華電信帳單會填入名稱、類別、應繳金額、到期日、帳單期間和用戶號碼；其他帳單依欄位名稱讀取。照片可能讀錯，所以數字和日期都會標示「請確認」，儲存前請對照帳單。照片在你的裝置上讀取，不會上傳；第一次會先下載文字讀取工具（約 5 MB）。有 3 條條碼的照片和以前一樣。"
 - version: "1.26.0"
   date: 2026-11-23
   en:

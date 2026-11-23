@@ -4,12 +4,15 @@
 # ever reached a page as HTML, the browser would still refuse to run it as script, load a script
 # from elsewhere, or send a form anywhere but here.
 #
-# Everything is served from this app (the JavaScript, pdf.js and ZXing under /vendor, the chart
+# Everything is served from this app (the JavaScript, pdf.js, ZXing and Tesseract under /vendor, the chart
 # library, fonts, icons), so no other host is listed, with one exception: a form may end at Google,
 # where "Continue with Google" and "Connect Google Drive" send the browser.
 #
 # Scripts: files from this app, plus the two small inline tags the importmap needs, which carry
 # the request's nonce. There are no inline event handlers (onclick="…"); use a Stimulus action.
+# 'wasm-unsafe-eval' lets this app's own WebAssembly run: Tesseract (New Record › Use a Photo reads a bill
+# without barcodes for its text) is compiled WebAssembly. It allows WebAssembly only, never JavaScript's
+# eval() or new Function(), and the .wasm code can still only come from this app.
 # test/integration/content_security_policy_test.rb keeps the views that way.
 #
 # Styles: 'unsafe-inline' stays, for style="…" attributes (the supplies bars, the chart's tooltip).
@@ -17,7 +20,7 @@
 Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src     :self
-    policy.script_src      :self
+    policy.script_src      :self, :wasm_unsafe_eval
     policy.style_src       :self, :unsafe_inline
     policy.img_src         :self, :data, :blob # blob: a picked photo's preview before it uploads
     policy.font_src        :self, :data

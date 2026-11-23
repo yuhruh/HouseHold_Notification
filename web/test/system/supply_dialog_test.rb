@@ -101,7 +101,7 @@ class SupplyDialogTest < ActionDispatch::SystemTestCase
     visit household_supply_path(home, coffee)
     click_on "Edit item"
     within("dialog[open]", wait: 5) do
-      assert_text "Correct a purchase · 2 products"
+      assert_text "Correct a purchase · 2 to choose from"
       assert_field "purchase[total_price]", with: "700"
       fill_in "supply[name]", with: "Coffee beans"
       find("a", text: /Kirkland Espresso/).click

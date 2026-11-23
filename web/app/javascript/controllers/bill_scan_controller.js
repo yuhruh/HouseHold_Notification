@@ -9,6 +9,13 @@ import { Controller } from "@hotwired/stimulus"
 // household hasn't seen yet asks once which category it is (biller_codes#create). Before filling, a bill
 // already recorded (same bill number) or maybe recorded (same category and period, typed in by hand)
 // shows those records first; saying a similar one is this bill gives it the bill number (bill_scans#update).
+//
+// Choose Bill PDF (or a PDF dropped on the card): pdf.js, loaded only then from /vendor, reads the PDF on
+// the device (a locked one asks for its password in the card; it's used only here). Its text pieces go to
+// bill_pdfs#create (Records::BillPdfParser), and the answer goes through the same steps: already / similar,
+// a biller seen for the first time asks once (its code "T" + its tax ID), then the form is filled, tagged
+// "from PDF" or "please check". A bill the parser hasn't learned comes back read by its labels: every
+// field "please check", no category. A bill paid by itself (定期付款) shows a note in Payment Details.
 const ZXING_URL = "/vendor/zxing-0.21.3.min.js"
 const FIRST = /^(\d{6})([0-9A-Z]{3})$/
 const THIRD = /^\d{4}[0-9A-Z]{2}\d{9}$/
@@ -18,8 +25,10 @@ let zxingLoading = null
 export default class extends Controller {
   static targets = ["card", "message", "photo", "dialog", "video", "tick", "light", "lightSpacer", "texts",
                     "ask", "askAmount", "askDeadline", "askBiller", "askOnce", "askCategory", "askOffset",
-                    "match", "matchTitle", "matchLine", "matchList", "already", "similar", "openRecord"]
-  static values = { scanUrl: String, rememberUrl: String }
+                    "match", "matchTitle", "matchLine", "matchList", "already", "similar", "openRecord",
+                    "pdf", "drop", "lock", "lockName", "lockMessage", "lockInput", "readTitle", "askDeadlineLabel",
+                    "askBillerLabel", "askOffsetBox", "againButton", "autopay"]
+  static values = { scanUrl: String, rememberUrl: String, pdfUrl: String, pdfBase: String }
 
   connect() { this.texts = JSON.parse(this.textsTarget.textContent) }
   disconnect() { this.stop() }
@@ -150,6 +159,106 @@ export default class extends Controller {
     return canvas
   }
 
+  // ---- A bill PDF ------------------------------------------------------------------------------
+
+  choosePdf() { this.pdfTarget.click() }
+
+  readPdf() {
+    const file = this.pdfTarget.files[0]
+    this.pdfTarget.value = ""
+    if (file) this.loadPdf(file)
+  }
+
+  dragOver(event) {
+    if (!event.dataTransfer?.types?.includes("Files")) return
+    event.preventDefault()
+    this.dropTarget.classList.add("bg-cyan-100", "border-solid")
+  }
+
+  dragLeave() { this.dropTarget.classList.remove("bg-cyan-100", "border-solid") }
+
+  drop(event) {
+    if (!event.dataTransfer?.files?.length) return
+    event.preventDefault()
+    this.dragLeave()
+    const file = [...event.dataTransfer.files].find((f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name))
+    if (file) this.loadPdf(file)
+  }
+
+  async loadPdf(file) {
+    this.reset()
+    this.source = "pdf"
+    this.say(this.texts.reading_pdf)
+    try {
+      this.words = await this.pdfWords(file)
+    } catch (_) {
+      this.lockTarget.hidden = true
+      return this.cancelled ? (this.messageTarget.hidden = true) : this.say(this.texts.pdf_cant_open, "warn")
+    }
+    if (!this.words.length) return this.say(this.texts.pdf_no_text, "warn")
+    this.lookUp()
+  }
+
+  // The PDF's text pieces with where each sits on the page: [{ s, x, y (from the top), w, h }]
+  async pdfWords(file) {
+    const pdfjs = await this.pdfjs()
+    const task = pdfjs.getDocument({ data: await file.arrayBuffer(), cMapUrl: `${this.pdfBaseValue}cmaps/`, cMapPacked: true, isEvalSupported: false })
+    task.onPassword = (update, reason) => {
+      this.askPassword(file.name, reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD)
+        .then((answer) => (answer === null ? task.destroy() : update(answer)))
+    }
+    const doc = await task.promise
+    this.lockTarget.hidden = true
+    const words = []
+    for (let n = 1; n <= Math.min(doc.numPages, 3); n++) {
+      const page = await doc.getPage(n)
+      const view = page.getViewport({ scale: 1 })
+      for (const item of (await page.getTextContent()).items) {
+        if (!item.str?.trim()) continue
+        const [x, y] = view.convertToViewportPoint(item.transform[4], item.transform[5])
+        const round = (v) => Math.round(v * 10) / 10
+        words.push({ s: item.str, x: round(x), y: round(y - item.height + (n - 1) * 10000), w: round(item.width), h: round(item.height) })
+      }
+    }
+    doc.destroy()
+    return words
+  }
+
+  pdfjs() {
+    this.pdfLoading ??= import(`${this.pdfBaseValue}pdf.min.mjs`).then((pdfjs) => {
+      pdfjs.GlobalWorkerOptions.workerSrc = `${this.pdfBaseValue}pdf.worker.min.mjs`
+      return pdfjs
+    }).catch((error) => { this.pdfLoading = null; throw error })
+    return this.pdfLoading
+  }
+
+  // A locked PDF: asks in the card, resolves with the password, or null for Cancel
+  askPassword(name, wrong) {
+    this.messageTarget.hidden = true
+    this.lockNameTarget.textContent = name
+    this.lockMessageTarget.textContent = wrong ? this.texts.password_wrong : this.texts.password_ask
+    this.lockInputTarget.value = ""
+    this.lockTarget.hidden = false
+    this.lockInputTarget.focus()
+    return new Promise((resolve) => { this.unlock = resolve })
+  }
+
+  openPdf() {
+    if (!this.lockInputTarget.value) return this.lockInputTarget.focus()
+    this.lockTarget.hidden = true
+    this.say(this.texts.reading_pdf)
+    this.unlock?.(this.lockInputTarget.value)
+    this.lockInputTarget.value = ""
+    this.unlock = null
+  }
+
+  cancelPdf() {
+    this.lockTarget.hidden = true
+    this.cancelled = true
+    this.unlock?.(null)
+    this.unlock = null
+  }
+
   // ---- The three barcodes ---------------------------------------------------------------------
 
   found(codes) {
@@ -180,11 +289,9 @@ export default class extends Controller {
   }
 
   async lookUp() {
-    const query = new URLSearchParams()
-    for (const code of [this.codes.first, this.codes.second, this.codes.third]) query.append("codes[]", code)
     try {
-      const response = await fetch(`${this.scanUrlValue}?${query}`, { headers: { Accept: "application/json" } })
-      if (!response.ok) return this.say(this.texts.not_found, "warn")
+      const response = this.pdf() ? await this.lookUpPdf() : await this.lookUpCodes()
+      if (!response.ok) return this.say(this.pdf() ? this.texts.pdf_unreadable : this.texts.not_found, "warn")
       this.scan = await response.json()
       if (this.scan.match === "already" && !this.anyway) return this.showMatch("already")
       if (!this.scan.known) return this.askBiller()
@@ -195,10 +302,27 @@ export default class extends Controller {
     }
   }
 
+  lookUpCodes() {
+    const query = new URLSearchParams()
+    for (const code of [this.codes.first, this.codes.second, this.codes.third]) query.append("codes[]", code)
+    return fetch(`${this.scanUrlValue}?${query}`, { headers: { Accept: "application/json" } })
+  }
+
+  lookUpPdf() {
+    return fetch(this.pdfUrlValue, {
+      method: "POST", body: JSON.stringify({ words: JSON.stringify(this.words) }),
+      headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content }
+    })
+  }
+
+  pdf() { return this.source === "pdf" }
+
   // ---- Already (or maybe) recorded ------------------------------------------------------------
 
   showMatch(kind) {
     this.messageTarget.hidden = true
+    this.readTitleTargets.forEach((title) => { title.textContent = this.readTitle() })
+    this.againButtonTarget.textContent = this.pdf() ? this.texts.choose_another : this.texts.scan_another
     this.matchTitleTarget.textContent = this.texts[`${kind}_title`]
     this.matchLineTarget.textContent = this.texts[`${kind}_line`]
     this.matchListTarget.innerHTML = this.scan.matches
@@ -229,23 +353,34 @@ export default class extends Controller {
     this.scan.known ? this.fill() : this.askBiller()
   }
 
-  again() { this.open() }
+  again() { this.pdf() ? this.choosePdf() : this.open() }
+
+  // "All 3 barcodes read", or "Bill read: 中華電信"
+  readTitle() { return this.pdf() ? this.texts.bill_read.replace("%{name}", this.scan.biller_name || "PDF") : this.texts.all_read }
 
   // ---- First time for a biller ------------------------------------------------------------------
 
   askBiller() {
     this.messageTarget.hidden = true
     this.askTarget.hidden = false
+    const pdf = this.pdf()
+    const biller = pdf ? this.scan.biller_name : this.scan.biller
+    this.readTitleTargets.forEach((title) => { title.textContent = this.readTitle() })
     this.askAmountTarget.textContent = `NT$${this.scan.amount.toLocaleString()}`
+    this.askDeadlineLabelTarget.textContent = pdf ? this.texts.due : this.texts.deadline
     this.askDeadlineTarget.textContent = this.scan.deadline
-    this.askBillerTarget.textContent = this.scan.biller
-    this.askOnceTarget.textContent = this.askOnceTarget.dataset.template.replace("%{code}", this.scan.biller)
+    this.askBillerLabelTarget.textContent = pdf ? this.texts.biller_name : this.texts.biller
+    this.askBillerTarget.textContent = biller
+    this.askOnceTarget.textContent = this.askOnceTarget.dataset.template.replace("%{code}", biller)
+    // A bill PDF's due date is the due date; only barcodes ask what their deadline means
+    this.askOffsetBoxTarget.hidden = pdf
+    if (pdf && this.scan.suggested_category_id && !this.askCategoryTarget.value) this.askCategoryTarget.value = String(this.scan.suggested_category_id)
     this.askCategoryTarget.focus()
   }
 
   async remember() {
     if (!this.askCategoryTarget.value) return this.askCategoryTarget.focus()
-    const offset = this.askOffsetTargets.find((radio) => radio.checked)?.value ?? "0"
+    const offset = this.pdf() ? "0" : (this.askOffsetTargets.find((radio) => radio.checked)?.value ?? "0")
     const body = new URLSearchParams({ code: this.scan.biller, category_id: this.askCategoryTarget.value, deadline_offset_days: offset })
     const response = await fetch(this.rememberUrlValue, {
       method: "POST", body, headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content, Accept: "application/json" }
@@ -260,27 +395,39 @@ export default class extends Controller {
 
   fill() {
     const scan = this.scan
+    const pdf = this.pdf()
+    // Printed on the bill: "from barcode" / "from PDF"; a bill PDF read only by its labels: all guesses
+    const sure = pdf && !scan.learned ? "check" : "filled"
     this.set("record_category_id", scan.category_id, "filled")
-    this.set("record_amount_required", scan.amount, "filled")
-    // Months: the bill's billing month, else those of this category's latest record; either way a guess
+    if (pdf) {
+      this.set("record_title", scan.title, "filled")
+      this.set("record_details", scan.details, "check")
+    }
+    this.set("record_amount_required", scan.amount, sure)
+    // Months: the bill's billing month or period, else those of this category's latest record; a guess
     const [start, end] = scan.period_month ? [scan.period_month, scan.period_month] : (scan.period_months ?? [])
-    this.set("record_period_year", scan.period_year, start ? "check" : "filled")
+    this.set("record_period_year", scan.period_year, start || sure === "check" ? "check" : "filled")
     if (start) {
+      const said = scan.period_note && this.texts.period_note.replace("%{from}", scan.period_note[0]).replace("%{to}", scan.period_note[1])
       this.set("record_period_start_month", start, "check")
-      this.set("record_period_end_month", end, "check")
+      this.set("record_period_end_month", end, "check", said)
     }
     const offsetNote = scan.deadline_offset_days > 0 ? this.texts.due_offset.replace("%{date}", scan.deadline.slice(5)).replace("%{days}", scan.deadline_offset_days) : null
-    this.set("record_due_on", scan.due_on, offsetNote ? "check" : "filled", offsetNote)
+    this.set("record_due_on", scan.due_on, offsetNote ? "check" : sure, offsetNote)
     const billNumber = document.getElementById("record_bill_number")
-    if (billNumber) billNumber.value = scan.bill_number
+    if (billNumber) billNumber.value = scan.bill_number ?? ""
+    if (this.hasAutopayTarget) {
+      this.autopayTarget.textContent = scan.autopay ? this.texts.autopay.replace("%{way}", scan.autopay) : ""
+      this.autopayTarget.hidden = !scan.autopay
+    }
 
     this.messageTarget.replaceChildren()
     const title = document.createElement("strong")
     title.className = "block text-cyan-900"
-    title.textContent = this.texts.filled
+    title.textContent = !pdf ? this.texts.filled : (scan.learned ? this.texts.filled_pdf : this.texts.by_labels)
     const line = document.createElement("span")
     line.className = "block"
-    line.textContent = this.texts.check
+    line.textContent = pdf && !scan.learned ? this.texts.by_labels_line : this.texts.check
     this.messageTarget.append(title, line)
     if (!scan.match) {
       const clear = document.createElement("span")
@@ -310,13 +457,13 @@ export default class extends Controller {
     const tag = label?.querySelector("[data-scan-tag]")
     if (tag) {
       tag.className = `whitespace-nowrap rounded px-1.5 text-xs font-bold ${kind === "check" ? "bg-amber-100 text-amber-900" : "bg-cyan-100 text-cyan-800"}`
-      tag.textContent = kind === "check" ? this.texts.please_check : this.texts.from_barcode
+      tag.textContent = kind === "check" ? this.texts.please_check : (this.pdf() ? this.texts.from_pdf : this.texts.from_barcode)
     }
     field.parentElement.querySelector("[data-scan-note]")?.remove()
     if (note) {
       const p = document.createElement("p")
       p.dataset.scanNote = ""
-      p.className = "mt-1 text-xs text-amber-900"
+      p.className = "col-span-full mt-1 text-xs text-amber-900"
       p.textContent = note
       field.after(p)
     }
@@ -325,6 +472,13 @@ export default class extends Controller {
   // ---- Messages ---------------------------------------------------------------------------------
 
   reset() {
+    this.source = "barcode"
+    this.words = null
+    this.cancelled = false
+    this.unlock?.(null)
+    this.unlock = null
+    this.lockTarget.hidden = true
+    if (this.hasAutopayTarget) this.autopayTarget.hidden = true
     this.codes = {}
     this.asked = false
     this.anyway = false

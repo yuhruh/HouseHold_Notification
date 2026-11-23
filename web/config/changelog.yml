@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.26.0"
+  date: 2026-11-23
+  en:
+    - "New Record: a bill you got as a PDF can fill in the form. The card at the top is now \"Fill In From the Bill\", with Choose Bill PDF next to Scan Barcodes (on a computer you can also drop the PDF on it). A 中華電信 bill fills in the amount due, due date, billing period, title and account number (用戶號碼); the first one asks once which category it is. Other bills are read by their labels (應繳金額, 繳費期限, 計費期間) and every field is marked \"please check\". The PDF is read on your device and never uploaded; a locked PDF asks for its password there, and it isn't sent or saved."
+    - "New Record from a bill PDF: the same bill chosen twice says \"Already in your records\", and a bill paid by auto-pay (定期付款) shows a note in Payment Details and stays Not Paid Yet until you record the payment."
+  zh-TW:
+    - "新增記錄：用 PDF 收到的帳單也能自動填表。上方的卡片改名「從帳單自動填入」，「掃描條碼」旁多了「選擇 PDF 帳單」（電腦上也可以把 PDF 拖到卡片上）。中華電信帳單會填入應繳金額、到期日、帳單期間、名稱和用戶號碼，第一次會問一次是哪個類別。其他帳單依欄位名稱（應繳金額、繳費期限、計費期間）讀取，每一欄都會標示「請確認」。PDF 在你的裝置上讀取，不會上傳；有密碼的 PDF 會在裝置上請你輸入密碼，密碼不會傳送或儲存。"
+    - "從 PDF 帳單新增記錄：同一張帳單選第二次會顯示「已經記錄過了」；定期付款（自動扣款）的帳單會在繳費資訊顯示提醒，記錄繳費之前都是「尚未繳費」。"
 - version: "1.25.0"
   date: 2026-11-22
   en:

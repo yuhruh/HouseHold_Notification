@@ -190,7 +190,8 @@ en:
         scan:
           title: "Scan a bill"
           items:
-            - "New Record → Scan the Bill's Barcodes: point the camera, or use a photo, at the 3 barcodes on a Taiwan bill (Three-segment barcode), and the amount, due date, year and category are filled in."
+            - "New Record → Fill In From the Bill → Scan Barcodes: point the camera, or use a photo, at the 3 barcodes on a Taiwan bill (Three-segment barcode), and the amount, due date, year and category are filled in."
+            - "Choose Bill PDF: pick the PDF bill you got by email (or drop it on the card on a computer). 中華電信 bills are read in full: amount, due date, period, account number and category; other bills are read by their labels, and every field is marked to check. The PDF is read on your device and never uploaded; a locked PDF asks for its password there."
             - "The first bill from each biller asks once which category it is. Reading happens on your phone; nothing is uploaded until you save."
             - "Before the form is filled your records are checked: a bill already recorded (same bill number) shows that record instead, and a record you typed in yourself for the same category and period asks whether it's the same bill."
         recurring:

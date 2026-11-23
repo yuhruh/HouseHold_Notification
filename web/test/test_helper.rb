@@ -6,6 +6,7 @@ require_relative "test_helpers/omniauth_test_helper"
 require_relative "test_helpers/reauth_test_helper"
 require_relative "test_helpers/photo_test_helper"
 require_relative "test_helpers/fake_drive"
+require_relative "test_helpers/bill_pdf_sample"
 
 module ActiveSupport
   class TestCase

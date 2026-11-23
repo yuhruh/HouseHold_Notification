@@ -80,6 +80,7 @@ Rails.application.routes.draw do
       end
     end
     resource :bill_scan, only: %i[show update]
+    resource :bill_pdf, only: :create
     resources :biller_codes, only: :create
     resources :imports, only: %i[new create show] do
       post :commit, on: :member

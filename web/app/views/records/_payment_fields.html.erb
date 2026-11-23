@@ -55,6 +55,8 @@
     <% choice = "full" unless choice.in?(options) %>
     <% if mode == :new %>
       <h2 id="payment_heading" class="flex items-center gap-2 <%= heading %>"><%= nav_label("details.png", t("records.form.payment")) %></h2>
+      <%# Filled from a bill PDF that says it's paid by itself (定期付款): it stays Not Paid Yet until charged %>
+      <p hidden class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-950" role="status" data-bill-scan-target="autopay"></p>
     <% elsif record.amount_required.nil? || record.errors[:amount_required].any? %>
       <%# No amount due yet: asked for here, so Paid in full has something to copy %>
       <div>

@@ -1,11 +1,13 @@
 # What a bill barcode's biller code (the last 3 characters of the first barcode, e.g. "6AM") means for a
 # household: its category, and how many days after the due date the barcode's deadline falls (taxes
 # print "繳納期間屆滿後3日", so 3; most utility bills 0). Asked once, then remembered.
+# A bill read from its PDF (New Record › Choose Bill PDF) is remembered the same way, by "T" and the
+# biller's tax ID ("T19683736" is 中華電信), its offset always 0.
 class BillerCode < ApplicationRecord
   belongs_to :household
   belongs_to :category
 
-  validates :code, format: { with: /\A[0-9A-Z]{3}\z/ }, uniqueness: { scope: :household_id }
+  validates :code, format: { with: /\A([0-9A-Z]{3}|T\d{8})\z/ }, uniqueness: { scope: :household_id }
   validates :deadline_offset_days, numericality: { only_integer: true, in: 0..10 }
   validate :category_in_household
 

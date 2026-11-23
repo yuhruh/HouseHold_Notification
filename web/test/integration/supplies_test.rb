@@ -724,6 +724,82 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "section#forecast_supply_#{paper.id} input[name='supply_count[level]']"
   end
 
+  test "one brand restocked before it ran out: the form names what is left, Saved says which to use first, and each batch has its own −1" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    lux = "Lux Shampoo 750ml"
+    old_date, new_date = @home.today + 100, @home.today + 400
+    old = Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 189, store: "Costco", purchased_on: @home.today - 60, left_before: 0, product_name: lux, expires_on: old_date }, user: users(:alex))
+    date = ->(day) { I18n.l(day, format: :supply_date, locale: :"zh-TW") }
+
+    get new_household_supply_purchase_path(@home, shampoo)
+    assert_select "p.bg-sky-50", /你還有 #{lux} 1 瓶（#{date.(old_date)} 到期）/
+
+    post household_supply_purchases_path(@home, shampoo), params: { supply_purchase: { product_name: lux, quantity: 2, total_price: 358, store: "Costco", purchased_on: @home.today, expires_on: new_date, left_before: 1 } }
+    assert_redirected_to household_supply_path(@home, shampoo)
+    follow_redirect!
+    assert_select "#notice", /已記錄 Shampoo 2 瓶。/
+    assert_select "#notice span", "先用 #{date.(old_date)}到期的那 1 瓶；新買的 #{date.(new_date)}到期。"
+    new = shampoo.purchases.order(:id).last
+    assert_select "section#forecast_supply_#{shampoo.id}" do
+      assert_select "h3", "依到期日"
+      assert_select "h3 + ul > li", 2
+      assert_select "h3 + ul > li:first-child", /#{date.(old_date)} 到期\s+最快到期.*購買 · Costco.*1 瓶/m
+      assert_select "h3 + ul > li:last-child", /#{date.(new_date)} 到期.*2 瓶/m
+      assert_select "h3 + ul > li:last-child form input[name=batch][value='#{new.id}']"
+    end
+
+    counts = household_supply_counts_path(@home, shampoo)
+    post counts, params: { used_one: 1, batch: new.id }, as: :turbo_stream
+    assert_match "用掉 1 · #{date.(new_date)} 到期 · 剩 2 瓶", response.body
+    assert_equal [ [ old, 1 ], [ new, 1 ] ], shampoo.reload.brands.batches.map { [ it.purchase, it.left ] }
+    assert_equal new, shampoo.counts.order(:id).last.used_purchase
+
+    post counts, params: { used_one: 1, batch: new.id }, as: :turbo_stream
+    assert_no_difference -> { shampoo.counts.count } do
+      post counts, params: { used_one: 1, batch: new.id }, as: :turbo_stream
+    end
+    assert_response :unprocessable_content
+    assert_match "這一批已經沒有庫存了", response.body
+  end
+
+  test "a restock that expires before what was left: Saved says to use the new ones first; no date: the old ones stay first" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 189, purchased_on: @home.today - 60, left_before: 0, expires_on: @home.today + 100 }, user: users(:alex))
+    date = ->(day) { I18n.l(day, format: :supply_date, locale: :"zh-TW") }
+
+    post household_supply_purchases_path(@home, shampoo), params: { supply_purchase: { quantity: 2, total_price: 358, purchased_on: @home.today, expires_on: @home.today + 50, left_before: 1 } }
+    follow_redirect!
+    assert_select "#notice span", "先用這次買的 2 瓶：#{date.(@home.today + 50)}到期，比你原本的 1 瓶（#{date.(@home.today + 100)}到期）還早。"
+
+    post household_supply_purchases_path(@home, shampoo), params: { supply_purchase: { quantity: 1, total_price: 189, purchased_on: @home.today, left_before: 3 } }
+    follow_redirect!
+    assert_select "#notice span", "#{date.(@home.today + 50)}到期的那 2 瓶 仍然要先用。"
+
+    plain = create_item(name: "Soap", unit: "piece", level: 1)
+    post household_supply_purchases_path(@home, plain), params: { supply_purchase: { quantity: 1, total_price: 30, purchased_on: @home.today, left_before: 1 } }
+    follow_redirect!
+    assert_select "#notice span", 0, "no expiry dates: nothing to add under Saved"
+  end
+
+  test "two brands, one bought twice: its batches are listed under it, each with a −1, and it has none of its own" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = two_brands
+    Supplies::LogPurchase.call(shampoo, { quantity: 2, total_price: 398, store: "PX Mart", purchased_on: @home.today, left_before: 3, product_name: "Lux Shampoo 750ml", expires_on: @home.today + 300 }, user: users(:alex))
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id}" do
+      assert_select "h3", "各品牌庫存"
+      assert_select "h3 + ul > li", 2
+      lux = shampoo.reload.brands.list.find { it.name == "Lux Shampoo 750ml" }
+      assert_equal 2, lux.batches.size
+      assert_select "h3 + ul > li ul > li", 2
+      assert_select "h3 + ul > li ul > li form input[name=batch]", 2
+      assert_select "h3 + ul > li form input[name=product][value='Lux Shampoo 750ml']", 0
+      assert_select "h3 + ul > li form input[name=product][value='Pantene 700ml']", 1
+    end
+  end
+
   test "an item's page with several brands: In stock by brand, a −1 for each, Inventory by brand, and History names the brand" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = two_brands
@@ -852,7 +928,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     post receipt_review_household_supplies_path(@home), params: { source: "qr", left:, right: "" }
     assert_response :success
     assert_select "select[name='invoices[0][lines][0][choice]'] optgroup[label=盥洗用品] option[selected][value=?]", supply.id.to_s
-    assert_select "select[name='invoices[0][lines][0][choice]'] optgroup", 2, "one category in use, then Add as new / Skip"
+    assert_select "select[name='invoices[0][lines][0][choice]'] optgroup", 2, "one category in use, then Add as new"
     assert_select "select[name='invoices[0][lines][0][choice]'] optgroup option[value=new]"
     assert_select "span", text: "建議"
     assert_select "dialog[data-controller=notice] h2", "1 項找不到", "鮮奶 matches nothing"
@@ -860,7 +936,13 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option", 7, "the six, then ＋ New category…"
     assert_select "select[name='invoices[0][lines][1][supply_category_id]'] option[selected]", "其他"
     assert_select "span", text: "找不到"
-    assert_select "select[name='invoices[0][lines][2][choice]'] option[selected][value=skip]", 1, "shipping starts skipped"
+    assert_select "input[type=checkbox][name='invoices[0][lines][2][add]']:not([checked])", 1, "shipping starts unticked"
+    assert_select "input[type=checkbox][name='invoices[0][lines][0][add]'][checked]"
+    assert_select "select option[value=skip]", 0, "Skip is the tick box now, not a choice in the menu"
+    assert_select "p[data-receipt-line-target=off]:not([hidden])", "運費等 · 不加入"
+    assert_select "input[type=date][name='invoices[0][lines][0][expires_on]']"
+    assert_select "span[data-receipt-pick-target=count]", "3 行中會加入 2 行"
+    assert_select "span[data-receipt-pick-target=save]", "儲存 2 項"
     assert_select "span", text: "運費等 · 略過"
     assert_select "input[name='invoices[0][lines][1][quantity]'][value='2']"
 
@@ -915,7 +997,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
       assert_select "input[name='invoices[0][store]'][value=徠樂企業社]"
       assert_select "li", 2
       assert_select "select[name='invoices[0][lines][0][choice]'] option[selected][value=?]", cleaner.id.to_s
-      assert_select "select[name='invoices[0][lines][1][choice]'] option[selected][value=skip]"
+      assert_select "input[type=checkbox][name='invoices[0][lines][1][add]']:not([checked])"
       assert_select "input[name='invoices[0][lines][0][quantity]'][value='2']"
     end
     assert_select "h2#not_included_title", "沒有加入（3）"
@@ -926,10 +1008,12 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     assert_difference -> { @home.supply_purchases.count } => 1, -> { @home.records.count } => 1 do
       post receipt_household_supplies_path(@home), params: { source: "pdf", pdfs:,
-        invoices: { "0" => { store: "徠樂", lines: { "0" => { choice: cleaner.id, quantity: 2, units_per_line: 1 }, "1" => { choice: "skip" } } },
+        invoices: { "0" => { store: "徠樂", lines: { "0" => { add: "1", choice: cleaner.id, quantity: 2, units_per_line: 1, expires_on: "2028-01-15" },
+                                                  "1" => { add: "0", choice: cleaner.id } } },
                     "3" => { ledger_total: "1", store: "某某商店" } } }
     end
-    assert_equal [ [ 2, 120, "徠樂" ] ], cleaner.purchases.map { [ it.quantity, it.total_price.to_i, it.store ] }
+    assert_equal [ [ 2, 120, "徠樂", Date.new(2028, 1, 15) ] ], cleaner.purchases.map { [ it.quantity, it.total_price.to_i, it.store, it.expires_on ] },
+                 "the unticked line is skipped, whatever its menu says; the ticked one keeps its expiry date"
     assert_equal 812, @home.records.order(:id).last.amount_paid
     assert_match "已從2 張發票儲存 1 筆購買", flash[:notice]
 
@@ -1069,8 +1153,9 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select "[role=alert]", text: /還有 1 項要完成/
     assert_select "select[name='invoices[0][lines][0][choice]'][aria-invalid=true][autofocus] option[selected][value='']"
-    assert_select "p", "請選擇，或略過"
-    assert_select "select[name='invoices[0][lines][1][choice]']:not([aria-invalid]) option[selected][value=skip]"
+    assert_select "p", "請選擇，或取消勾選"
+    assert_select "select[name='invoices[0][lines][1][choice]']:not([aria-invalid])"
+    assert_select "input[type=checkbox][name='invoices[0][lines][1][add]']:not([checked])"
     assert_select "input[name='invoices[0][lines][0][quantity]'][value='3']"
     assert_select "input[name='invoices[0][store]'][value=徠樂]"
     assert_select "input[name=add_to_ledger][checked]"

@@ -5,7 +5,11 @@
     field has what was posted, and a line still on "Choose…" (undecided: [key, line index]) is in red.
     Under each line, why it was matched (remembered, an item's name, one of its brands). "Add as new
     supply…" opens the New supply box under it (receipt-line), whose Category can be "＋ New category…"
-    (new-category, as on Add Item): its name is typed there and it's made on Save %>
+    (new-category, as on Add Item): its name is typed there and it's made on Save.
+    Each line starts with a tick box: ticked lines are added (with an optional Expires date for that
+    batch); an unticked one is skipped and greys out, its fields folded away (receipt-line). It starts
+    unticked when it was skipped before or is a fee. The header counts the ticked lines and has Tick
+    all / Untick all (receipt-pick, on the whole form) %>
 <% receipt = entry.receipt %>
 <% currency = Current.household.default_currency %>
 <% base = "invoices[#{entry.key}]" %>
@@ -16,7 +20,8 @@
             fee: "bg-gray-100 text-gray-700", not_found: "bg-amber-100 text-amber-900", brand: "bg-green-100 text-green-800" } %>
 <%# Add to: the household's supplies under their category (the same ones as the item form), empty ones left out %>
 <% groups = supplies.group_by(&:category).sort_by { |category, _| [ category.position, category.id ] }.map { |category, list| [ category.name, list.map { [ it.name, it.id.to_s ] } ] } %>
-<% cols = "lg:grid lg:grid-cols-[minmax(0,2.2fr)_5rem_6rem_6rem_minmax(0,2.4fr)] lg:items-start lg:gap-3" %>
+<% cols = "lg:grid lg:grid-cols-[2rem_minmax(0,2.2fr)_5rem_6rem_6rem_minmax(0,2.4fr)] lg:items-start lg:gap-3" %>
+<% adding_count = entry.rows.count { @batch.ticked?(entry, it) } %>
 <section id="invoice_<%= entry.key %>" class="group card-raised overflow-hidden rounded-2xl bg-white has-[.receipt-exclude:checked]:opacity-60" aria-labelledby="invoice_<%= entry.key %>_title">
   <div class="flex flex-wrap items-end justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
     <div class="min-w-0 space-y-1">
@@ -26,6 +31,11 @@
             class: "w-56 rounded-md border border-gray-400 px-2 py-1 font-bold" %>
       <p class="text-sm text-gray-700"><%= safe_join([ l(receipt.issued_on, format: :long), money(receipt.total, currency), receipt.invoice_no, entry.file.presence ].compact, " · ") %></p>
       <% if receipt.seller_tax_id && entry.store.blank? %><p class="text-xs text-gray-600"><%= t(".store_once", tax_id: receipt.seller_tax_id) %></p><% end %>
+      <p class="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1">
+        <span class="text-sm font-bold" data-receipt-pick-target="count" data-key="<%= entry.key %>" aria-live="polite"><%= t(".will_add", count: adding_count, total: entry.rows.size) %></span>
+        <button type="button" class="btn-press min-h-9 cursor-pointer rounded-xl bg-white px-2.5 py-1 text-xs font-bold text-gray-900" data-receipt-pick-target="toggle" data-key="<%= entry.key %>"
+                data-action="receipt-pick#toggle"><%= t(adding_count == entry.rows.size ? ".untick_all" : ".tick_all") %></button>
+      </p>
     </div>
     <% if entry.status == :ok %>
       <div class="flex flex-col items-end gap-1.5">
@@ -42,7 +52,7 @@
   </div>
 
   <div aria-hidden="true" class="hidden <%= cols %> border-b border-gray-200 px-4 py-1.5 text-xs font-bold text-gray-600">
-    <span><%= t(".col_item") %></span><span><%= t(".col_qty") %></span><span class="text-right"><%= t(".col_price") %></span><span class="text-right"><%= t(".col_subtotal") %></span><span><%= t(".col_add_to") %></span>
+    <span><%= t(".col_add") %></span><span><%= t(".col_item") %></span><span><%= t(".col_qty") %></span><span class="text-right"><%= t(".col_price") %></span><span class="text-right"><%= t(".col_subtotal") %></span><span><%= t(".col_add_to") %></span>
   </div>
   <ul class="divide-y divide-gray-200">
     <% entry.rows.each do |row| %>
@@ -58,22 +68,33 @@
                when :brand then t(".why.brand", item: row.supply.name, brand: row.matched)
                when nil then t(".why.not_found") if row.choice.blank?
                end %>
+      <% add = @batch.ticked?(entry, row) %>
+      <% choice = "" if choice == "skip" %><%# Skip is the tick box now, not a choice in the menu %>
       <% adding = choice == "new" %>
       <% new_category = line["supply_category_id"] == Supplies::ImportReceipt::NEW_CATEGORY %>
       <% unnamed = missing && adding && new_category %><%# refused: "＋ New category…" with no name %>
-      <li class="space-y-2 px-4 py-3 <%= cols %> lg:space-y-0 <%= "bg-red-50" if missing %>" data-controller="receipt-line">
-        <p class="font-semibold"><%= row.item.text %></p>
+      <li class="space-y-2 px-4 py-3 <%= cols %> lg:space-y-0 has-[.receipt-add:not(:checked)]:bg-gray-50 has-[.receipt-add:not(:checked)]:text-gray-600 <%= "bg-red-50" if missing %>"
+          data-controller="receipt-line">
+        <label class="flex items-start gap-2.5 lg:contents">
+          <%= hidden_field_tag "#{name}[add]", "0", id: nil %>
+          <%= check_box_tag "#{name}[add]", "1", add, id: "#{id}_add", class: "receipt-add mt-0.5 h-5 w-5 shrink-0 cursor-pointer lg:mt-1",
+                data: { receipt_line_target: "add", receipt_pick_target: "add", key: entry.key, action: "change->receipt-line#toggle" } %>
+          <span class="font-semibold"><span class="sr-only"><%= t(".add_line") %> </span><%= row.item.text %></span>
+        </label>
+        <%# Unticked, the quantity stays in its column (so the others don't move) but can't be changed %>
         <label class="flex items-center gap-2 text-sm lg:block">
           <span class="lg:sr-only"><%= t(".col_qty") %></span>
-          <%= number_field_tag "#{name}[quantity]", line.fetch("quantity", [ row.item.quantity.round, 1 ].max), id: "#{id}_quantity", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %>
+          <%= number_field_tag "#{name}[quantity]", line.fetch("quantity", [ row.item.quantity.round, 1 ].max), id: "#{id}_quantity", min: 1, step: 1, disabled: !add,
+                class: "w-16 rounded-md border border-gray-400 px-2 py-1 disabled:border-gray-300 disabled:bg-transparent", data: { receipt_line_target: "qty" } %>
         </label>
         <p class="text-sm lg:text-right"><span class="text-gray-600 lg:sr-only"><%= t(".col_price") %> </span><%= money(row.item.unit_price, currency, exact: true) %></p>
         <p class="text-sm font-semibold lg:text-right"><span class="font-normal text-gray-600 lg:sr-only"><%= t(".col_subtotal") %> </span><%= money(row.item.amount, currency) %></p>
-        <div class="space-y-2">
+        <p class="text-sm font-bold" data-receipt-line-target="off" <%= "hidden" if add %>><%= t(row.tag == :fee ? ".fee_not_added" : ".not_added") %></p>
+        <div class="space-y-2" data-receipt-line-target="field">
           <div class="flex flex-wrap items-center gap-2">
             <label class="sr-only" for="<%= id %>_choice"><%= t(".is") %></label>
             <%= select_tag "#{name}[choice]", safe_join([ options_for_select([ [ t(".choose"), "" ] ], choice), grouped_options_for_select(groups, choice),
-                                                          content_tag(:optgroup, options_for_select([ [ t(".add_new"), "new" ], [ t(".skip"), "skip" ] ], choice), label: "—") ]),
+                                                          content_tag(:optgroup, options_for_select([ [ t(".add_new"), "new" ] ], choice), label: "—") ]),
                   id: "#{id}_choice", autofocus: first_undecided == [ entry.key, row.index ] && !unnamed,
                   "aria-invalid": (true if missing && !unnamed), "aria-describedby": ("#{id}_missing" if missing && !unnamed),
                   data: { receipt_line_target: "choice", action: "receipt-line#toggle" },
@@ -82,7 +103,10 @@
           </div>
           <% if missing && !unnamed %><p id="<%= id %>_missing" class="text-sm font-bold text-red-700"><%= t(".choose_or_skip") %></p><% end %>
           <% if why %><p class="text-xs text-gray-700 [overflow-wrap:anywhere]"><%= why %></p><% end %>
-          <label class="flex items-center gap-1 text-sm text-gray-700">× <%= number_field_tag "#{name}[units_per_line]", line.fetch("units_per_line", row.units_per_line), id: "#{id}_units", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-700">
+            <label class="flex items-center gap-1">× <%= number_field_tag "#{name}[units_per_line]", line.fetch("units_per_line", row.units_per_line), id: "#{id}_units", min: 1, step: 1, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %> <%= t(".units_each") %></label>
+            <label class="flex items-center gap-1.5"><%= t(".expires") %> <%= date_field_tag "#{name}[expires_on]", line["expires_on"], id: "#{id}_expires", class: "rounded-md border border-gray-400 px-2 py-1 text-gray-900" %></label>
+          </div>
           <%# Shown only for "Add as new supply…"; hidden, its fields are left out of Save (receipt-line) %>
           <div class="space-y-2 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50 p-3 text-sm" data-receipt-line-target="box" <%= "hidden" unless adding %>>
             <p class="font-bold text-blue-900"><%= t(".new_supply") %></p>

@@ -59,7 +59,7 @@ module Supplies
     # would be lost, since the invoice then counts as added
     def undecided(choices)
       importing_lines(choices).filter_map do |key, index, line|
-        [ key, index ] if line["choice"].to_s.empty? || (new_category?(line) && line["new_category_name"].to_s.squish.empty?)
+        [ key, index ] if ImportReceipt.choice(line).empty? || (new_category?(line) && line["new_category_name"].to_s.squish.empty?)
       end
     end
 
@@ -68,6 +68,13 @@ module Supplies
 
     # What was posted for one invoice, when the review is shown again ({} the first time)
     def posted_for(entry) = choice_for(@posted, entry)
+
+    # Whether a line's tick box is ticked (added): as posted when the review is shown again, else
+    # unless it starts on Skip (a fee, or skipped at this store before)
+    def ticked?(entry, row)
+      add = posted_for(entry).dig("lines", row.index.to_s).to_h.stringify_keys["add"] if @posted
+      add.nil? ? row.choice != "skip" : add != "0"
+    end
 
     # Every invoice whose items could be added was added before (or is the same one twice): nothing new
     def all_already? = @entries.any? { it.status == :already } && @entries.all? { it.status.in?(%i[already duplicate]) }
@@ -87,7 +94,7 @@ module Supplies
       end
     end
 
-    def new_category?(line) = line["choice"] == "new" && line["supply_category_id"] == ImportReceipt::NEW_CATEGORY
+    def new_category?(line) = ImportReceipt.choice(line) == "new" && line["supply_category_id"] == ImportReceipt::NEW_CATEGORY
 
     # Whether Save adds this invoice: a listed one unless excluded, one from a store marked "not a
     # supplies store" only when included anyway, one with only a total when its total goes to the Ledger

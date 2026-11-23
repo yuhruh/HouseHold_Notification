@@ -96,9 +96,10 @@ module Supplies
     # A new supply's Category choice that makes a new category, named in new_category_name
     NEW_CATEGORY = "new".freeze
 
-    # lines: { "0" => { choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, name:, supply_category_id: (an id or
-    # NEW_CATEGORY), new_category_name:, unit: } }
-    # (quantity: how many came, when it differs from the receipt; the price stays what the line cost)
+    # lines: { "0" => { add: "1" | "0", choice: "<supply id>" | "new" | "skip", quantity:, units_per_line:, expires_on:, name:,
+    # supply_category_id: (an id or NEW_CATEGORY), new_category_name:, unit: } }
+    # (add "0": unticked on Review items, the same as Skip; quantity: how many came, when it differs from
+    # the receipt, the price stays what the line cost; expires_on: optional, that batch's expiry date)
     def self.call(household, receipt, lines:, store:, user:, add_to_ledger: false)
       new(household, receipt, lines:, store:, user:, add_to_ledger:).call
     end
@@ -135,9 +136,15 @@ module Supplies
       seller.update!(name: @store, skip: false) # imported, so it is a supplies store after all
     end
 
+    # Unticked on Review items: the same as Skip
+    def self.choice(line)
+      line = line.to_h.stringify_keys
+      line["add"] == "0" ? "skip" : line["choice"].to_s
+    end
+
     def save_line(import, item, line)
       line = line.to_h.stringify_keys
-      choice = line["choice"].to_s
+      choice = self.class.choice(line)
       return if choice.empty? # left undecided: not saved, not remembered
 
       units = [ line["units_per_line"].to_i, 1 ].max
@@ -158,9 +165,16 @@ module Supplies
       # Bought this product before in packs: the same size as then
       pack_size, pack_unit = supply.pack_size_for(product_name)
       purchase = LogPurchase.call(supply, { quantity: quantity * units, total_price: total, store: @store,
-                                            purchased_on: @receipt.issued_on, receipt_import: import,
+                                            purchased_on: @receipt.issued_on, receipt_import: import, expires_on: expires_on(line),
                                             product_name:, pack_size:, pack_unit: }, user: @user)
       raise ActiveRecord::RecordInvalid, purchase unless purchase.persisted?
+    end
+
+    # The date typed under Expires, if it is one
+    def expires_on(line)
+      Date.iso8601(line["expires_on"].to_s)
+    rescue Date::Error
+      nil
     end
 
     def new_supply(item, line)

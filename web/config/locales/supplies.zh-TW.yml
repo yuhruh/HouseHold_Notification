@@ -189,6 +189,10 @@ zh-TW:
       inside: "（%{count}）"
       used_one_label: "%{product} 用掉一個"
       gone: "這個品牌已經沒有庫存了，請重新選擇。"
+      batch_gone: "這一批已經沒有庫存了，請重新選擇。"
+      by_expiry_title: "依到期日"
+      no_expiry: "沒有到期日"
+      used_one_batch_label: "用掉一個：%{batch}"
     restock_prompt:
       title: "%{item} 用完了"
       title_estimate: "%{item} 可能用完了"
@@ -197,6 +201,7 @@ zh-TW:
       still_have: "還有剩？更新數量"
     toast:
       used_one: "用掉 1 · 剩 %{left}"
+      used_one_batch: "用掉 1 · %{batch} · 剩 %{left}"
       used_one_product: "用掉 1（%{product}）· 剩 %{left}"
       counted: "已更新數量 · 剩 %{left}"
       undone: "已復原 · 剩 %{left}"
@@ -427,6 +432,11 @@ zh-TW:
       create:
         saved: "已記錄 %{item} %{unit}。"
         saved_with_ledger: "已記錄 %{item} %{unit}，並加入帳本。"
+        use_first:
+          new_first: "先用這次買的 %{count}：%{date}到期，比你原本的 %{older}（%{older_date}到期）還早。"
+          new_first_undated: "先用這次買的 %{count}：%{date}到期。"
+          old_first: "先用 %{older_date}到期的那 %{older}；新買的 %{date}到期。"
+          old_still_first: "%{older_date}到期的那 %{older} 仍然要先用。"
       form:
         quantity: "數量（%{unit}）"
         total_price: "總價"
@@ -434,6 +444,8 @@ zh-TW:
         store: "商店"
         purchased_on: "日期"
         expires_on: "到期日（選填）"
+        still_left_html: "你還有 <strong>%{amount}</strong>（%{date}）。也填上這次的到期日，項目頁就會告訴你先用哪一批。"
+        still_left_product_html: "你還有 <strong>%{product} %{amount}</strong>（%{date}）。也填上這次的到期日，項目頁就會告訴你先用哪一批。"
         left_before: "買之前還剩幾個？"
         left_before_hint: "已填入 App 的估計。如果你知道實際數量請修正，App 才能正確計算。"
         add_to_ledger: "同時加入帳本，記為支出"
@@ -576,6 +588,7 @@ zh-TW:
         store_once: "為統編 %{tax_id} 取個商店名稱，下次會自動填入。"
         exclude: "排除這張"
         not_supplies_store: "不是日用品店（下次略過）"
+        col_add: "加入"
         col_item: "品項"
         col_qty: "數量"
         col_price: "單價"
@@ -594,12 +607,18 @@ zh-TW:
           brand: "%{item}的品牌：以前買過「%{brand}」"
           not_found: "沒有這個名稱的品項或品牌"
         this_store: "這家店"
-        choose_or_skip: "請選擇，或略過"
+        choose_or_skip: "請選擇，或取消勾選"
         is: "這一行是"
         choose: "請選擇…"
         add_new: "新增為日用品…"
-        skip: "略過"
         units_each: "個／行"
+        expires: "到期日"
+        add_line: "加入"
+        not_added: "不加入"
+        fee_not_added: "運費等 · 不加入"
+        will_add: "%{total} 行中會加入 %{count} 行"
+        tick_all: "全選"
+        untick_all: "全部取消"
         new_supply: "新日用品"
         new_supply_hint: "儲存時會加到日用品。"
         new_name: "名稱"
@@ -607,8 +626,8 @@ zh-TW:
         new_unit: "單位"
       new:
         title: "檢查品項"
-        intro_pdfs: "從 %{pdfs} 讀到：%{invoices}、%{items}要加入。把每個品項對到日用品、新增，或略過。"
-        intro_qr: "把每個品項對到日用品、新增，或略過。"
+        intro_pdfs: "從 %{pdfs} 讀到：%{invoices}、%{items}要加入。取消勾選不要的品項，其他的對到日用品或新增。"
+        intro_qr: "取消勾選不要的品項，其他的對到日用品或新增。"
         pdfs:
           one: "%{count} 個 PDF"
           other: "%{count} 個 PDF"
@@ -628,8 +647,8 @@ zh-TW:
           one: "還有 1 項要完成"
           other: "還有 %{count} 項要完成"
         undecided:
-          one: "尚未儲存任何資料。請選擇它是哪個品項、「新增為日用品…」，或略過；新類別請輸入名稱。"
-          other: "尚未儲存任何資料。請為每個紅色的項目選擇它是哪個品項、「新增為日用品…」，或略過；新類別請輸入名稱。"
+          one: "尚未儲存任何資料。請選擇它是哪個品項或「新增為日用品…」，或取消勾選；新類別請輸入名稱。"
+          other: "尚未儲存任何資料。請為每個紅色的項目選擇它是哪個品項或「新增為日用品…」，或取消勾選；新類別請輸入名稱。"
         already_title: "已經加入過，沒有新的東西"
         already_body:
           one: "這張發票之前已經加入，品項都已經在日用品裡了。"
@@ -653,6 +672,9 @@ zh-TW:
         include_anyway: "還是要加入"
         more_pdfs: "‹ 改選其他 PDF"
         save: "儲存"
+        save_count:
+          one: "儲存 %{count} 項"
+          other: "儲存 %{count} 項"
       create:
         saved:
           one: "已從%{invoices}儲存 %{count} 筆購買%{ledger}。"

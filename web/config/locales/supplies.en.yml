@@ -189,6 +189,10 @@ en:
       inside: "(%{count})"
       used_one_label: "Used one %{product}"
       gone: "None of that brand is left any more. Pick again."
+      batch_gone: "None of that batch is left any more. Pick again."
+      by_expiry_title: "In stock by expiry date"
+      no_expiry: "No expiry date"
+      used_one_batch_label: "Used one: %{batch}"
     restock_prompt:
       title: "%{item} is used up"
       title_estimate: "%{item} is probably used up"
@@ -198,6 +202,7 @@ en:
     toast:
       used_one: "Used 1 · %{left} left"
       used_one_product: "Used 1 %{product} · %{left} left"
+      used_one_batch: "Used 1 · %{batch} · %{left} left"
       counted: "Count saved · %{left} left"
       undone: "Undone · %{left} left"
       undo: "Undo"
@@ -427,6 +432,11 @@ en:
       create:
         saved: "Saved %{unit} of %{item}."
         saved_with_ledger: "Saved %{unit} of %{item}, and added it to the Ledger."
+        use_first:
+          new_first: "Use these %{count} first: they expire %{date}, before the %{older} you already had (%{older_date})."
+          new_first_undated: "Use these %{count} first: they expire %{date}."
+          old_first: "Use the %{older} that expires %{older_date} first. The new ones expire %{date}."
+          old_still_first: "The %{older} that expires %{older_date} is still first."
       form:
         quantity: "Quantity (%{unit})"
         total_price: "Total price"
@@ -434,6 +444,8 @@ en:
         store: "Store"
         purchased_on: "Date"
         expires_on: "Expires (optional)"
+        still_left_html: "You still have <strong>%{amount}</strong> (%{date}). Enter this one's date too, and the item page shows which to use first."
+        still_left_product_html: "You still have <strong>%{amount} of %{product}</strong> (%{date}). Enter this one's date too, and the item page shows which to use first."
         left_before: "How many were left before this?"
         left_before_hint: "Filled in with the app's estimate. Correct it if you know better; that's how it calculates."
         add_to_ledger: "Also add to Ledger as an expense"
@@ -576,6 +588,7 @@ en:
         store_once: "Name the store for tax ID %{tax_id} once; next time it's filled in."
         exclude: "Exclude this invoice"
         not_supplies_store: "Not a supplies store (skip next time)"
+        col_add: "Add"
         col_item: "Item"
         col_qty: "Qty"
         col_price: "Unit price"
@@ -594,12 +607,18 @@ en:
           brand: "A brand of %{item}: bought before as \"%{brand}\""
           not_found: "No item or brand has this name"
         this_store: "This store"
-        choose_or_skip: "Choose one, or Skip"
+        choose_or_skip: "Choose one, or untick it"
         is: "This line is"
         choose: "Choose…"
         add_new: "Add as new supply…"
-        skip: "Skip"
         units_each: "units each"
+        expires: "Expires"
+        add_line: "Add"
+        not_added: "Not added"
+        fee_not_added: "Fee · not added"
+        will_add: "Adding %{count} of %{total} lines"
+        tick_all: "Tick all"
+        untick_all: "Untick all"
         new_supply: "New supply"
         new_supply_hint: "It's added to Supplies when you save."
         new_name: "Name"
@@ -607,8 +626,8 @@ en:
         new_unit: "Counted in"
       new:
         title: "Review items"
-        intro_pdfs: "From %{pdfs}: %{invoices} · %{items} to add. Match each item to a supply, add it as new, or skip it."
-        intro_qr: "Match each item to a supply, add it as new, or skip it."
+        intro_pdfs: "From %{pdfs}: %{invoices} · %{items} to add. Untick what you don't want, and match each item to a supply or add it as new."
+        intro_qr: "Untick what you don't want, and match each item to a supply or add it as new."
         pdfs:
           one: "1 PDF"
           other: "%{count} PDFs"
@@ -628,8 +647,8 @@ en:
           one: "1 item still to finish"
           other: "%{count} items still to finish"
         undecided:
-          one: "Nothing was saved yet. Choose what it is, \"Add as new supply…\", or Skip; for a new category, type its name."
-          other: "Nothing was saved yet. For each line in red, choose what it is, \"Add as new supply…\", or Skip; for a new category, type its name."
+          one: "Nothing was saved yet. Choose what it is or \"Add as new supply…\", or untick it; for a new category, type its name."
+          other: "Nothing was saved yet. For each line in red, choose what it is or \"Add as new supply…\", or untick it; for a new category, type its name."
         already_title: "Already added, nothing new"
         already_body:
           one: "This invoice was added before. Its items are already in your supplies."
@@ -653,6 +672,9 @@ en:
         include_anyway: "Include anyway"
         more_pdfs: "‹ Choose other PDFs"
         save: "Save"
+        save_count:
+          one: "Save 1 item"
+          other: "Save %{count} items"
       create:
         saved:
           one: "Saved 1 purchase from %{invoices}%{ledger}."

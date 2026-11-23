@@ -159,4 +159,58 @@ class Supplies::BrandsTest < ActiveSupport::TestCase
     assert_equal({ PANTENE => 1, "Lux 750" => 1 }, @supply.counts.filter_map(&:by_product).sole)
     assert_equal({ PANTENE => 1, "Lux 750" => 1 }, known(Date.new(2026, 11, 2)))
   end
+
+  test "one brand restocked before it ran out: each batch with what is left of it, the one that expires first on top" do
+    old = buy(2, on: Date.new(2026, 9, 3), left_before: 0, product: LUX, expires: Date.new(2027, 3, 12))
+    at(Date.new(2026, 10, 1)) { Supplies::RecordCount.used_one(@supply.reload, user: nil) }
+    new = buy(2, on: Date.new(2026, 10, 30), left_before: 1, product: LUX, expires: Date.new(2028, 1, 15))
+
+    assert_not brands.several?
+    assert brands.several_batches?
+    assert_equal [ [ old, 1, true ], [ new, 2, false ] ], brands.batches.map { [ it.purchase, it.left, it.first ] }
+    assert_equal [ [ old, 1 ], [ new, 2 ] ], brands.list.first.batches.map { [ it.purchase, it.left ] }
+    assert_equal 2, brands.left_of(new)
+
+    at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil) }
+    assert_not brands(Date.new(2026, 11, 2)).several_batches?, "a plain −1 used the old one up"
+    assert_equal [ [ new, 2 ] ], brands(Date.new(2026, 11, 2)).batches.map { [ it.purchase, it.left ] }
+  end
+
+  test "a restock that expires sooner than what was left goes on top" do
+    old = buy(1, on: Date.new(2026, 9, 3), left_before: 0, product: LUX, expires: Date.new(2027, 3, 12))
+    new = buy(2, on: Date.new(2026, 10, 30), left_before: 1, product: LUX, expires: Date.new(2027, 2, 20))
+    assert_equal [ [ new, true ], [ old, false ] ], brands.batches.map { [ it.purchase, it.first ] }
+  end
+
+  test "−1 on one batch takes from that batch, not the one to use first, and Undo gives it back" do
+    old = buy(1, on: Date.new(2026, 9, 3), left_before: 0, product: LUX, expires: Date.new(2027, 3, 12))
+    new = buy(2, on: Date.new(2026, 10, 30), left_before: 1, product: LUX, expires: Date.new(2028, 1, 15))
+    count = at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil, product: LUX, purchase: new) }
+    assert_equal new, count.reload.used_purchase
+    assert_equal [ [ old, 1 ], [ new, 1 ] ], brands(Date.new(2026, 11, 2)).batches.map { [ it.purchase, it.left ] }
+
+    Supplies::RecordCount.undo(count)
+    assert_equal [ [ old, 1 ], [ new, 2 ] ], brands(Date.new(2026, 11, 2)).batches.map { [ it.purchase, it.left ] }
+  end
+
+  test "a −1 whose batch was deleted counts as one of its brand" do
+    buy(1, on: Date.new(2026, 9, 3), left_before: 0, product: LUX, expires: Date.new(2027, 3, 12))
+    new = buy(2, on: Date.new(2026, 10, 30), left_before: 1, product: LUX, expires: Date.new(2028, 1, 15))
+    count = at(Date.new(2026, 11, 2)) { Supplies::RecordCount.used_one(@supply.reload, user: nil, product: LUX, purchase: new) }
+    new.destroy!
+    assert_nil count.reload.used_purchase_id
+    assert_equal({ LUX => 2 }, known(Date.new(2026, 11, 2)))
+  end
+
+  test "two brands: only the one bought twice lists its batches" do
+    buy(1, on: Date.new(2026, 9, 3), left_before: 0, product: LUX, expires: Date.new(2027, 3, 12))
+    buy(1, on: Date.new(2026, 10, 10), left_before: 1, product: PANTENE, expires: Date.new(2027, 8, 1))
+    buy(2, on: Date.new(2026, 10, 30), left_before: 2, product: LUX, expires: Date.new(2028, 1, 15))
+    lux, pantene = brands.list
+    assert_equal [ LUX, PANTENE ], [ lux.name, pantene.name ]
+    assert lux.several_batches?
+    assert_not pantene.several_batches?
+    assert_equal [ 1, 2 ], lux.batches.map(&:left)
+    assert_not brands.several_batches?, "several brands: the batches show under each brand"
+  end
 end

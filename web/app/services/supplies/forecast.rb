@@ -103,17 +103,28 @@ module Supplies
     # The day it becomes "buy soon" (Supplies › Stocked: "Moves to To Buy on …")
     def to_buy_on = buy_by && buy_by - SOON_DAYS
 
-    # The earliest unexpired batch, when some of it should still be left on its expiry date
+    # What is left of each brand and each batch (one purchase) of this item
+    def brands = @brands ||= Brands.new(supply, self)
+
+    # The earliest unexpired batch, when some of it should still be left on its expiry date: what is
+    # left of that purchase now, less the usage until then that the batches before it don't cover
+    # (stock is used in the order Brands uses it: the one that expires first, first)
     def expiring
       return @expiring if defined?(@expiring)
 
-      @expiring = batches.lazy.filter_map do |purchase|
-        next if purchase.expires_on > today + supply.expiry_window_days
-        in_stock = [ purchase.quantity.to_f, on_hand ].min
-        used_by_then = enough_data? ? rate * (purchase.expires_on - today) : 0
-        left = in_stock - used_by_then
-        Expiring.new(purchase:, expires_on: purchase.expires_on, left_at_expiry: left.round) if left.round.positive?
-      end.first
+      @expiring = nil
+      used_before = 0
+      brands.batches.each do |batch|
+        date = batch.expires_on
+        break if date.nil? || date > today + supply.expiry_window_days # undated ones come last
+        if date >= today
+          used_by_then = enough_data? ? rate * (date - today) : 0
+          left = (batch.left - [ used_by_then - used_before, 0 ].max).round
+          break @expiring = Expiring.new(purchase: batch.purchase, expires_on: date, left_at_expiry: left) if left.positive?
+        end
+        used_before += batch.left
+      end
+      @expiring
     end
 
     def expiring? = expiring.present?
@@ -140,16 +151,12 @@ module Supplies
 
     def now = Time.current
 
-    # Unexpired batches with an expiry date, earliest first
-    def batches
-      supply.purchases.select { it.expires_on && it.expires_on >= today }.sort_by(&:expires_on)
-    end
-
-    # When every unit on hand is from batches with an expiry date, the latest of those dates
+    # When every unit on hand is from batches with an expiry date, the latest of those dates that is
+    # still to come
     def all_stock_expires_on
-      dated = batches
-      return nil if dated.empty? || dated.sum(&:quantity) < on_hand.ceil
-      dated.last.expires_on
+      stock = brands.batches
+      return nil if stock.empty? || stock.any? { it.expires_on.nil? }
+      stock.map(&:expires_on).select { it >= today }.max
     end
   end
 end

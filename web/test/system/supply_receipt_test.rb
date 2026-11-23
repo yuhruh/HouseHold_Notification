@@ -27,11 +27,25 @@ class SupplyReceiptTest < ActionDispatch::SystemTestCase
       assert_selector "input[name='invoices[0][store]'][value='ACME Store']"
       assert_selector "select[name='invoices[0][lines][0][choice]'] option[selected][value='#{paper.id}']"
       assert_selector "input[name='invoices[0][lines][0][quantity]'][value='2']"
-      assert_selector "select[name='invoices[0][lines][1][choice]'] option[selected][value='skip']"
+      assert_selector "input[type=checkbox][name='invoices[0][lines][1][add]']:not(:checked)"
+      assert_text "Adding 1 of 2 lines"
+
+      # Unticked: the line greys out, its fields fold away, and the counts follow
+      uncheck "invoices[0][lines][0][add]"
+      assert_no_selector "select[name='invoices[0][lines][0][choice]']"
+      assert_selector "li p", text: "Not added"
+      assert_text "Adding 0 of 2 lines"
+      click_on "Tick all"
+      assert_text "Adding 2 of 2 lines"
+      assert_selector "button", text: "Untick all"
+      uncheck "invoices[0][lines][1][add]"
+      assert_text "Adding 1 of 2 lines"
+      find("input[name='invoices[0][lines][0][expires_on]']").set(Date.new(2028, 1, 15))
     end
-    click_on "Save"
+    click_on "Save 1 item"
     assert_text "Saved 1 purchase from 1 invoice", wait: 10
     assert_equal 4, paper.reload.level
+    assert_equal Date.new(2028, 1, 15), paper.purchases.sole.expires_on
   end
 
   test "a printed receipt shows how many of its two QR codes are read, not boxes to tick" do

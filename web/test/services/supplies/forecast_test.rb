@@ -115,6 +115,17 @@ class Supplies::ForecastTest < ActiveSupport::TestCase
     assert f.expiring?
   end
 
+  test "expiring counts what is left of that batch, not how many were bought" do
+    @supply.update!(kind: "food_drink", guess_days_per_unit: 2)
+    buy(6, on: Date.new(2026, 10, 1), left_before: 0, expires_on: Date.new(2026, 11, 5))
+    count(1, on: Date.new(2026, 10, 25))
+    buy(6, on: Date.new(2026, 10, 30), left_before: 1, expires_on: Date.new(2026, 12, 31))
+    f = forecast(Date.new(2026, 11, 1))
+    assert_equal 0, f.brands.batches.sum { it.expires_on == Date.new(2026, 11, 5) ? it.left : 0 }, "the one roll left from October is used by now"
+    assert_nil f.expiring, "the 6 from October were nearly all used, so nothing is left to expire on Nov 5"
+    assert_equal Date.new(2026, 12, 31), f.send(:all_stock_expires_on)
+  end
+
   test "the bar's Total is the most there was right after a restock, never less than the last count" do
     assert_equal 0, forecast(Date.current).full_stock
     assert_equal 0, forecast(Date.current).fill_percent

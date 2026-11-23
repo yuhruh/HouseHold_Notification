@@ -30,6 +30,9 @@ class Supplies::PurchasesController < ApplicationController
     # Counted in packs: the size this brand came in last time (Supply#pack_sizes)
     @pack_prefilled = @purchase.fill_pack_size
     @scanned_name = @purchase.product_name.present?
+    # Some still left with an expiry date: named under Expires, so this one's date gets entered too
+    @use_first = @supply.forecast.brands.batches.first
+    @use_first = nil unless @use_first&.expires_on
   end
 
   def create
@@ -40,6 +43,7 @@ class Supplies::PurchasesController < ApplicationController
     end
     if @purchase.persisted?
       notice = t(@purchase.record ? ".saved_with_ledger" : ".saved", count: @purchase.quantity, unit: t("supplies.units.#{@supply.unit}", count: @purchase.quantity), item: @supply.name)
+      flash[:notice_more] = helpers.supply_use_first_note(@supply.reload, @purchase)
       redirect_to household_supply_path(Current.household, @supply), notice:, status: :see_other
     else
       render :new, status: :unprocessable_content

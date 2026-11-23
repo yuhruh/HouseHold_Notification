@@ -7,7 +7,9 @@
 <% shown = @batch.shown %>
 <% unmatched = shown.sum { |entry| entry.rows.count { it.choice.blank? } } %>
 <% undecided = @undecided || Set.new %>
-<% items = shown.sum { it.rows.count { |row| row.choice != "skip" } } %>
+<% items = shown.sum { |entry| entry.rows.count { @batch.ticked?(entry, it) } } %>
+<% pick_texts = { will_add: t("supplies.receipts.invoice.will_add"), tick_all: t("supplies.receipts.invoice.tick_all"), untick_all: t("supplies.receipts.invoice.untick_all"),
+                  save: t(".save"), save_count: t(".save_count") } %>
 <div class="mx-auto w-full max-w-5xl space-y-5 py-4">
   <%= page_title("import.png", t(".title")) %>
   <% if undecided.any? %>
@@ -33,7 +35,8 @@
     <% end %>
   </p>
 
-  <%= form_with url: receipt_household_supplies_path(Current.household), method: :post, class: "space-y-5" do |form| %>
+  <%= form_with url: receipt_household_supplies_path(Current.household), method: :post, class: "space-y-5",
+        data: { controller: "receipt-pick", action: "change->receipt-pick#update", receipt_pick_texts_value: pick_texts.to_json } do |form| %>
     <%= hidden_field_tag :source, @batch.source %>
     <% if @batch.pdfs? %>
       <% params[:pdfs].to_unsafe_h.sort_by { |key, _| key.to_i }.first(Supplies::ReceiptBatch::MAX_PDFS).each_with_index do |(_, pdf), index| %>
@@ -81,7 +84,7 @@
               </summary>
               <div class="space-y-3 px-4 pb-4">
                 <label class="btn-press inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-1.5 text-sm font-medium text-gray-900">
-                  <%= check_box_tag "invoices[#{entry.key}][include]", "1", included, id: "invoice_#{entry.key}_include" %> <%= t(".include_anyway") %>
+                  <%= check_box_tag "invoices[#{entry.key}][include]", "1", included, id: "invoice_#{entry.key}_include", class: "receipt-include" %> <%= t(".include_anyway") %>
                 </label>
                 <%= render "supplies/receipts/invoice", entry:, supplies: @supplies, categories: @categories, undecided: %>
               </div>
@@ -128,7 +131,7 @@
           <%= link_to t(".done"), household_supplies_path(Current.household), class: "btn-press inline-flex items-center rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" %>
         <% else %>
           <%= cancel_link(scan_household_supplies_path(Current.household, mode: @batch.pdfs? ? "pdf" : "receipt")) %>
-          <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t(".save") %></span><% end %>
+          <%= form.button type: "submit", name: nil, class: "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-green-100 px-4 py-2 font-bold text-green-900" do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span data-receipt-pick-target="save"><%= items.positive? ? t(".save_count", count: items) : t(".save") %></span><% end %>
         <% end %>
       </div>
     </div>

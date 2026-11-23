@@ -50,26 +50,62 @@ module SuppliesHelper
   end
 
   # A brand in the −1 menu and on the item page: its name, and on the one to use first why it is
-  # first: "Expires first" (or "Expired") when its stock has an expiry date, else "Oldest"
+  # first (supply_first_tag)
   def supply_brand_title(brand)
-    first = if !brand.first then nil
-    elsif brand.expires_on.nil? then [ "oldest", "bg-sky-100 text-sky-900" ]
-    elsif brand.expires_on < Current.household.today then [ "expired", "bg-red-100 text-red-900" ]
-    else [ "expires_first", "bg-amber-100 text-amber-900" ]
-    end
-    first &&= tag.span(t("supplies.brands.#{first.first}"), class: "ml-1 rounded-full px-1.5 py-px text-[11px] font-bold whitespace-nowrap #{first.last}")
+    first = supply_first_tag(brand.expires_on) if brand.first
     tag.span(safe_join([ supply_brand_name(brand), first ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
   end
 
+  # The tag on the brand or batch to use first: "Expires first" (or "Expired") when its stock has an
+  # expiry date, else "Oldest"
+  def supply_first_tag(expires_on)
+    word, tone = if expires_on.nil? then [ "oldest", "bg-sky-100 text-sky-900" ]
+    elsif expires_on < Current.household.today then [ "expired", "bg-red-100 text-red-900" ]
+    else [ "expires_first", "bg-amber-100 text-amber-900" ]
+    end
+    tag.span(t("supplies.brands.#{word}"), class: "ml-1 rounded-full px-1.5 py-px text-[11px] font-bold whitespace-nowrap #{tone}")
+  end
+
+  # "Expires Mar 12, 2027" / "Expired Mar 12, 2027" / "No expiry date"
+  def supply_expiry(expires_on)
+    return t("supplies.brands.no_expiry") unless expires_on
+    t("supplies.brands.#{expires_on < Current.household.today ? "expired_on" : "expires_on"}", date: l(expires_on, format: :supply_date))
+  end
+
   # "Expires Mar 12, 2027 · Bought Sep 28 · Coupang" (and the price per unit on the item page): the
-  # purchase its stock to use first is from. The expiry date only when that purchase has one
-  def supply_brand_source(brand, price: false, store: true)
+  # purchase its stock to use first is from. The expiry date only when that purchase has one. Without
+  # `dates` (the item page lists a brand's batches under it) only the store and price
+  def supply_brand_source(brand, price: false, store: true, dates: true)
     purchase = brand.purchase
     return unless purchase
-    expiry = purchase.expires_on
-    safe_join([ (t("supplies.brands.#{expiry < Current.household.today ? "expired_on" : "expires_on"}", date: l(expiry, format: :supply_date)) if expiry),
-                t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), (purchase.store.presence if store),
-                (supply_unit_prices(purchase) if price) ].compact, " · ")
+    safe_join([ (supply_expiry(purchase.expires_on) if dates && purchase.expires_on),
+                (t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)) if dates), (purchase.store.presence if store),
+                (supply_unit_prices(purchase) if price) ].compact_blank, " · ").presence
+  end
+
+  # The line under "Saved 2 bottles of Shampoo." after a restock while some was still left
+  # (Supplies::UseFirst): which batch to use first and when each expires
+  def supply_use_first_note(supply, purchase)
+    note = Supplies::UseFirst.call(supply, purchase)
+    return unless note
+
+    date = ->(batch) { l(batch.expires_on, format: :supply_date) if batch.expires_on }
+    amounts = { count: supply_count(supply, note.batch.left), date: date.(note.batch), older: supply_count(supply, note.older.left), older_date: date.(note.older) }
+    key = note.kind == :new_first && note.older.expires_on.nil? ? :new_first_undated : note.kind
+    t("supplies.purchases.create.use_first.#{key}", **amounts)
+  end
+
+  # One batch on the item page: "Expires Mar 12, 2027", tagged when it is the one to use first
+  def supply_batch_title(batch)
+    tag.span(safe_join([ supply_expiry(batch.expires_on), (supply_first_tag(batch.expires_on) if batch.first) ].compact, " "), class: "block text-sm font-bold")
+  end
+
+  # Under it: "Bought Sep 03 · Costco · NT$189/bottle" (store and price with `full`)
+  def supply_batch_source(batch, full: true)
+    purchase = batch.purchase
+    return unless purchase
+    safe_join([ t("supplies.brands.bought", date: l(purchase.purchased_on, format: :short)), (purchase.store.presence if full),
+                (supply_unit_prices(purchase) if full) ].compact_blank, " · ")
   end
 
   # Each person's star colour (Supplies::Starrers::COLORS): the fill and text of their button and tag,

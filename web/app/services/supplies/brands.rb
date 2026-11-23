@@ -14,16 +14,28 @@ module Supplies
   # `known` is a brand's share of the last count. `left` is its share of the number shown now: the
   # usage the forecast estimates since that count is also taken from the lot to use first, so the
   # brands always add up to the total on screen.
+  #
+  # A brand restocked before the old stock ran out has several lots in stock, each with its own
+  # expiry date: its `batches`, the one to use first on top. −1 on one batch names its purchase
+  # (SupplyCount#used_purchase) and takes from that lot.
   class Brands
     NO_BRAND = "".freeze
 
     Lot = Struct.new(:key, :left, :purchase)
+    # One purchase's stock still left now; `first` marks the one to use first (of its brand, or of
+    # the item in #batches)
+    Batch = Data.define(:purchase, :left, :first) do
+      def expires_on = purchase&.expires_on
+    end
     # `purchase` is the one its stock to use first is from; `first` marks the brand to use first
-    Brand = Data.define(:key, :name, :known, :left, :purchase, :first) do
+    Brand = Data.define(:key, :name, :known, :left, :purchase, :first, :batches) do
       def named? = name.present?
 
       # When the stock of it to use first expires, if that purchase had a date
       def expires_on = purchase&.expires_on
+
+      # Two or more purchases of it still in stock: the item page lists each with its own −1
+      def several_batches? = batches.size > 1
     end
 
     def self.key(product_name) = product_name.to_s
@@ -53,20 +65,31 @@ module Supplies
 
     # The brands with some left at the last count, the one to use first on top
     def list
-      @list ||= begin
-        shown = lots.map(&:dup)
-        take(shown, shown.sum(&:left) - @forecast.on_hand_rounded)
-        now = shown.group_by(&:key).transform_values { |mine| mine.sum(&:left) }
-        use_first(lots).select { it.left.positive? }.group_by(&:key).each_with_index.map do |(key, mine), index|
-          Brand.new(key:, name: key.presence, known: mine.sum(&:left), left: now.fetch(key, 0), purchase: mine.first.purchase, first: index.zero?)
-        end
+      @list ||= use_first(lots).select { it.left.positive? }.group_by(&:key).each_with_index.map do |(key, mine), index|
+        Brand.new(key:, name: key.presence, known: mine.sum(&:left), left: mine.sum { now_left(it) }, purchase: mine.first.purchase,
+                  first: index.zero?, batches: batches_of(mine))
       end
     end
 
     # Two or more brands in stock: −1 asks which one, and the lists show each brand's number
     def several? = list.size > 1
 
+    # One brand, restocked before the old stock ran out: the item page lists its batches by expiry date
+    def several_batches? = list.size == 1 && list.first.several_batches?
+
     def find(key) = list.find { it.key == key.to_s }
+
+    # Every purchase with some left now, the one to use first on top (all brands)
+    def batches = @batches ||= batches_of(use_first(lots))
+
+    # A batch by its purchase's id, while some of it is left
+    def find_batch(purchase_id) = batches.find { it.purchase && it.purchase.id.to_s == purchase_id.to_s }
+
+    # How many of one purchase are left now (0 once it is used up)
+    def left_of(purchase)
+      lot = lots.find { it.purchase && it.purchase.id == purchase.id }
+      lot ? now_left(lot) : 0
+    end
 
     # Each brand's share of the last known count, or of the count as it stood at `time`:
     # product => how many (Supplies::Combine adds two items' shares together)
@@ -82,6 +105,23 @@ module Supplies
 
     def lots = @lots ||= replay(events)
 
+    # Each lot's share of the number shown now: the usage estimated since the last count comes off
+    # the lots to use first
+    def now_left(lot)
+      @now_left ||= begin
+        shown = lots.map(&:dup)
+        take(shown, shown.sum(&:left) - @forecast.on_hand_rounded)
+        {}.compare_by_identity.tap { |all| lots.each_with_index { |each, index| all[each] = shown[index].left } }
+      end
+      @now_left.fetch(lot, 0)
+    end
+
+    # The lots (already in the order to use them) with some left now, as batches
+    def batches_of(lots)
+      lots.filter_map { Batch.new(purchase: it.purchase, left: now_left(it), first: false) if now_left(it).positive? }
+          .each_with_index.map { |batch, index| index.zero? ? batch.with(first: true) : batch }
+    end
+
     def replay(events)
       lots = []
       events.each do |event|
@@ -93,6 +133,8 @@ module Supplies
         else
           if event.by_product.present?
             assign(lots, event.by_product)
+          elsif (lot = event.used_purchase_id && lots.find { it.purchase&.id == event.used_purchase_id && it.left.positive? })
+            take([ lot ], 1)
           elsif event.used_product
             take(lots.select { it.key == event.used_product }, 1)
           end

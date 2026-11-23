@@ -1,7 +1,9 @@
 <%# The Forecast card: what's left now and the bar's Total over its right end, how fast it goes, when it
     runs out and when the alert comes, with −1 / Restock at its top right and "Inventory: __ left".
     With several brands in stock: "In stock by brand" (each brand's share and its own −1, the one to use
-    first on top) and Inventory is one closed line that opens to a number per brand.
+    first on top) and Inventory is one closed line that opens to a number per brand. A brand restocked
+    before it ran out lists its batches under it (expiry date, bought, how many, a −1 each); with one
+    brand, "In stock by expiry date" lists them instead.
     Replaced in place after a count %>
 <% status = forecast.status %>
 <% brands = supply_brands(supply, forecast) %>
@@ -26,30 +28,65 @@
     <% end %>
     <li class="text-gray-600"><%= forecast.samples.any? ? t("supplies.show.based_on", count: forecast.samples.size) : t("supplies.show.learning_hint", button: supply_used_one(supply)) %></li>
   </ul>
-  <% if brands.several? %>
-    <%# What is left of each brand, with its own −1; the item's count above is their total %>
+  <% if brands.several_batches? %>
+    <%# One brand bought again before it ran out: each batch by its expiry date, with its own −1 %>
+    <div class="rounded-xl border border-gray-300 bg-white/60 px-3 pt-2.5 pb-1">
+      <h3 class="text-sm font-extrabold"><%= t("supplies.brands.by_expiry_title") %></h3>
+      <ul class="divide-y divide-gray-200">
+        <% brands.batches.each do |batch| %>
+          <li class="flex items-center justify-between gap-3 py-2">
+            <span class="min-w-0">
+              <%= supply_batch_title(batch) %>
+              <span class="block text-xs text-gray-600"><%= supply_batch_source(batch) %></span>
+            </span>
+            <span class="flex shrink-0 items-center gap-3 pb-1">
+              <span class="font-extrabold"><%= supply_count(supply, batch.left) %></span>
+              <% if writer && batch.purchase %><%= render "supplies/batch_used_one", supply:, batch: %><% end %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% elsif brands.several? %>
+    <%# What is left of each brand, with its own −1; the item's count above is their total. A brand with
+        several batches has the −1 on each batch instead %>
     <div class="rounded-xl border border-gray-300 bg-white/60 px-3 pt-2.5 pb-1">
       <h3 class="text-sm font-extrabold"><%= t("supplies.brands.title") %></h3>
       <ul class="divide-y divide-gray-200">
         <% brands.list.each do |brand| %>
-          <li class="flex items-center justify-between gap-3 py-2">
-            <span class="min-w-0">
-              <%= supply_brand_title(brand) %>
-              <span class="block text-xs text-gray-600"><%= supply_brand_source(brand, price: true) %></span>
-            </span>
-            <span class="flex shrink-0 items-center gap-3 pb-1">
-              <% if brand.left.positive? %>
-                <span class="text-right"><span class="font-extrabold"><%= supply_count(supply, brand.left) %></span>
-                  <% if (inside = supply_brand_inside(supply, brand)) %><span class="block text-xs text-gray-600"><%= inside %></span><% end %></span>
-              <% else %>
-                <span class="text-sm font-semibold text-gray-600"><%= t("supplies.brands.probably_used") %></span>
-              <% end %>
-              <% if writer %>
-                <%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
-                      form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
-                      class: "btn-press min-w-12 cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
-              <% end %>
-            </span>
+          <li class="py-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="min-w-0">
+                <%= supply_brand_title(brand) %>
+                <span class="block text-xs text-gray-600"><%= supply_brand_source(brand, price: true, dates: !brand.several_batches?) %></span>
+              </span>
+              <span class="flex shrink-0 items-center gap-3 pb-1">
+                <% if brand.left.positive? %>
+                  <span class="text-right"><span class="font-extrabold"><%= supply_count(supply, brand.left) %></span>
+                    <% if (inside = supply_brand_inside(supply, brand)) %><span class="block text-xs text-gray-600"><%= inside %></span><% end %></span>
+                <% else %>
+                  <span class="text-sm font-semibold text-gray-600"><%= t("supplies.brands.probably_used") %></span>
+                <% end %>
+                <% if writer && !brand.several_batches? %>
+                  <%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
+                        form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
+                        class: "btn-press min-w-12 cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
+                <% end %>
+              </span>
+            </div>
+            <% if brand.several_batches? %>
+              <ul class="mt-1.5 space-y-1 border-l-2 border-gray-200 pl-2.5 text-xs text-gray-700">
+                <% brand.batches.each do |batch| %>
+                  <li class="flex items-center justify-between gap-2">
+                    <span class="min-w-0"><span class="<%= batch.first ? 'font-bold text-gray-900' : '' %>"><%= supply_expiry(batch.expires_on) %></span> · <%= supply_batch_source(batch, full: false) %></span>
+                    <span class="flex shrink-0 items-center gap-2.5 pb-0.5">
+                      <span class="text-sm font-extrabold text-gray-900"><%= number_with_delimiter(batch.left) %></span>
+                      <% if writer && batch.purchase %><%= render "supplies/batch_used_one", supply:, batch:, small: true %><% end %>
+                    </span>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
           </li>
         <% end %>
       </ul>

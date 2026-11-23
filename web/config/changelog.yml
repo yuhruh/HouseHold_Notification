@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.28.0"
+  date: 2026-11-23
+  en:
+    - "Supplies: restocking something you still have keeps each batch apart by its expiry date. The item page lists them under \"In stock by expiry date\" (with several brands, under the brand), the one to use first on top, each with its own −1. The Restock form reminds you how many are left and when they expire, and after Save the message says which batch to use first. Expiry reminders now count what is really left of that batch."
+    - "Supplies › invoice review: every line has a tick box. Untick what you don't want added (Skip has left the menu), or use Tick all; each invoice shows how many lines will be added and Save says how many items. A ticked line can take an expiry date."
+  zh-TW:
+    - "日用品：還有庫存時補貨，每一批會依到期日分開記錄。項目頁的「依到期日」會列出每一批（有多個品牌時列在品牌下），最先要用的在最上面，每一批都有自己的 −1。補貨表單會提醒你還剩幾個、什麼時候到期，儲存後的訊息會告訴你先用哪一批。到期提醒現在依那一批實際剩下的數量計算。"
+    - "日用品 › 檢查發票品項：每一行都有勾選框。取消勾選不要加入的品項（選單裡不再有「略過」），也可以按「全選」；每張發票會顯示會加入幾行，「儲存」按鈕會顯示幾項。勾選的品項可以填到期日。"
 - version: "1.27.0"
   date: 2026-11-23
   en:

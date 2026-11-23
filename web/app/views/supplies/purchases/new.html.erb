@@ -47,6 +47,12 @@
         <%= form.date_field :expires_on, class: field %>
       </div>
     </div>
+    <% if @use_first %>
+      <%# Some still left with a date: so this one's date gets entered too, and the item page can say which to use first %>
+      <% product = @use_first.purchase&.product_name.presence %>
+      <p class="-mt-2 rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900"><%= t(product ? "supplies.purchases.form.still_left_product_html" : "supplies.purchases.form.still_left_html",
+                                                                            amount: supply_count(@supply, @use_first.left), product:, date: supply_expiry(@use_first.expires_on)) %></p>
+    <% end %>
     <div>
       <%= form.label :left_before, t("supplies.purchases.form.left_before"), class: "block text-sm font-medium" %>
       <%= form.number_field :left_before, min: 0, step: 1, required: true, inputmode: "numeric", class: "w-24 rounded-md border border-gray-400 px-3 py-2" %>

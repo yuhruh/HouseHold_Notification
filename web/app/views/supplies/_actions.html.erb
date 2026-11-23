@@ -1,7 +1,8 @@
 <%# Used 1 bottle, in the item's own unit (in place, with a toast; off once nothing is left, saying why) and
-    Restock (a dialog on a computer; the same name on every list and on the item's page, since it opens the same form). With several brands in stock the first one
-    opens "Which one did you use?": a −1 button per brand that still
-    has some, the one to use first on top (with an expiry date its line drops the store, to stay short). `menu` places that menu: under the card or row on a phone
+    Restock (a dialog on a computer; the same name on every list and on the item's page, since it opens the same form). With several brands in stock, or a brand
+    bought again before it ran out (two batches), the first one opens "Which one did you use?": a −1
+    button per brand that still has some, the one to use first on top (with an expiry date its line
+    drops the store, to stay short), and a brand in several batches gets one per batch, by expiry date. `menu` places that menu: under the card or row on a phone
     (:card, :row), under the Forecast card's heading row on the item page (:page). The menu scrolls into
     view when it opens (dropdown#reveal); its wrapper's bottom padding is room to clear the bottom bar.
     In the lists (:card, :row) both buttons are 44px tall on a phone, as tall as Details beside them %>
@@ -15,7 +16,8 @@
                row: "inset-x-3 top-full -mt-2 lg:left-auto lg:right-4 lg:-mt-1 lg:w-80",
                page: "inset-x-0 top-full mt-2 lg:left-auto lg:w-80" }.fetch(menu) %>
   <div class="flex shrink-0 items-center gap-2" title="<%= t("supplies.actions.used_up_hint") if used_up %>">
-    <% if brands.several? && !used_up %>
+    <% batched = brands.list.any?(&:several_batches?) %>
+    <% if (brands.several? || batched) && !used_up %>
       <details class="group" data-controller="dropdown" data-action="toggle->dropdown#reveal">
         <summary aria-label="<%= t("supplies.actions.used_one_label", button: supply_used_one(supply), item: supply.name) %>" class="<%= minus %> block list-none group-open:bg-gray-200 [&::-webkit-details-marker]:hidden">
           <%= supply_used_one(supply) %>
@@ -24,14 +26,26 @@
         <div class="card-raised pointer-events-auto flex flex-col gap-2.5 rounded-2xl bg-white p-3 pr-3.5 pb-4 text-left text-gray-900">
           <p class="text-sm font-extrabold"><%= t("supplies.brands.which") %></p>
           <% brands.list.each do |brand| %>
-            <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
-                  form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand, supply)),
-                  class: "btn-press flex min-h-13 w-full cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-1.5 text-left text-gray-900 [--press:3px]" do %>
-              <span class="min-w-0">
-                <%= supply_brand_title(brand, supply) %>
-                <span class="block text-xs text-gray-700"><%= safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand, store: brand.expires_on.nil?) ].compact, " · ") %></span>
-              </span>
-              <span class="shrink-0 text-sm font-extrabold" aria-hidden="true">−1</span>
+            <% if brand.several_batches? %>
+              <% brand.batches.each do |batch| %>
+                <% bought = (t("supplies.brands.bought", date: l(batch.purchase.purchased_on, format: :short)) if batch.purchase) %>
+                <% if brands.several? %>
+                  <%= render "supplies/used_one_choice", supply:, choice: (batch.purchase ? { batch: batch.purchase.id } : { product: brand.key }),
+                        label: t("supplies.brands.used_one_batch_label", batch: "#{supply_brand_name(brand, supply)} · #{supply_expiry(batch.expires_on)}"),
+                        title: tag.span(safe_join([ supply_brand_name(brand, supply), (supply_first_tag(batch.expires_on) if brand.first && batch.first) ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]"),
+                        detail: safe_join([ supply_expiry(batch.expires_on), t("supplies.brands.left", count: batch.left), bought ].compact, " · ") %>
+                <% else %>
+                  <%= render "supplies/used_one_choice", supply:, choice: (batch.purchase ? { batch: batch.purchase.id } : { product: brand.key }),
+                        label: t("supplies.brands.used_one_batch_label", batch: supply_expiry(batch.expires_on)),
+                        title: supply_batch_title(batch),
+                        detail: safe_join([ t("supplies.brands.left", count: batch.left), bought, batch.purchase&.store.presence ].compact, " · ") %>
+                <% end %>
+              <% end %>
+            <% else %>
+              <%= render "supplies/used_one_choice", supply:, choice: { product: brand.key },
+                    label: t("supplies.brands.used_one_label", product: supply_brand_name(brand, supply)),
+                    title: supply_brand_title(brand, supply),
+                    detail: safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand, store: brand.expires_on.nil?) ].compact, " · ") %>
             <% end %>
           <% end %>
         </div>

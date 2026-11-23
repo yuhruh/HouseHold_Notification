@@ -870,6 +870,48 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "Used 1 on one brand in two batches asks which batch, by expiry date, and the toast names it" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    drink = create_item(name: "Sports drink", unit: "bottle", level: 0)
+    older = Supplies::LogPurchase.call(drink, { quantity: 24, total_price: 385, store: "Coupang", purchased_on: @home.today - 30, left_before: 0,
+                                                expires_on: @home.today + 90, product_name: "Super Supau 590ml" }, user: users(:alex))
+    travel(-1.day) { Supplies::RecordCount.call(drink, 4, user: users(:alex)) }
+    newer = Supplies::LogPurchase.call(drink.reload, { quantity: 24, total_price: 348, store: "酷澎", purchased_on: @home.today, left_before: 4,
+                                                       expires_on: @home.today + 170, product_name: "Super Supau 590ml" }, user: users(:alex))
+
+    [ household_supplies_path(@home, tab: "all"), household_supply_path(@home, drink) ].each do |path|
+      get path
+      assert_select "details summary", /用掉 1 瓶/
+      assert_select "details form input[name=batch]", 2
+      assert_select "details form:first-of-type input[name=batch][value=?]", older.id.to_s
+      assert_select "details form:first-of-type button", /到期\s+最快到期.*剩 4 · .*購買 · Coupang/m
+      assert_select "details form:last-of-type input[name=batch][value=?]", newer.id.to_s
+      assert_select "details form:last-of-type button", /剩 24 · .*購買 · 酷澎/m
+    end
+
+    post household_supply_counts_path(@home, drink), params: { used_one: 1, batch: newer.id }, as: :turbo_stream
+    assert_match(/用掉 1 · .*到期 · 剩 27/, response.body)
+    assert_equal [ [ older.id, 4 ], [ newer.id, 23 ] ], drink.reload.brands.batches.map { [ it.purchase.id, it.left ] }
+  end
+
+  test "Used 1 with two brands, one in two batches: that brand gets a line per batch, the other one line" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0)
+    Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 189, purchased_on: @home.today - 60, left_before: 0, product_name: "Pantene 700ml" }, user: users(:alex))
+    first_lux = Supplies::LogPurchase.call(shampoo.reload, { quantity: 2, total_price: 300, purchased_on: @home.today - 30, left_before: 1,
+                                                             expires_on: @home.today + 100, product_name: "Lux 750ml" }, user: users(:alex))
+    travel(-1.day) { Supplies::RecordCount.by_brand(shampoo.reload, { "Pantene 700ml" => 1, "Lux 750ml" => 1 }, user: users(:alex)) }
+    Supplies::LogPurchase.call(shampoo.reload, { quantity: 2, total_price: 300, purchased_on: @home.today, left_before: 2,
+                                                 expires_on: @home.today + 400, product_name: "Lux 750ml" }, user: users(:alex))
+
+    get household_supplies_path(@home, tab: "all")
+    assert_select "#row_supply_#{shampoo.id} details form", 3
+    assert_select "#row_supply_#{shampoo.id} details form input[name=batch]", 2
+    assert_select "#row_supply_#{shampoo.id} details form input[name=product][value=?]", "Pantene 700ml"
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type input[name=batch][value=?]", first_lux.id.to_s
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /Lux 750ml\s+最快到期.*到期 · 剩 1 · .*購買/m
+  end
+
   test "a purchase with no product is a brand of its own, shown as the item's name" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)

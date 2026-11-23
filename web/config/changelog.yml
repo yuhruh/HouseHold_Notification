@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.28.3"
+  date: 2026-11-23
+  en:
+    - "Supplies › Used 1: when a brand is in stock in two or more batches, the button asks \"Which one did you use?\" with a line per batch (its expiry date, how many are left, when and where it was bought), the one to use first on top. The message after it names the batch."
+  zh-TW:
+    - "日用品 › 用掉 1：同一品牌有兩批以上庫存時，按鈕會問「用掉哪一個？」，每一批一行（到期日、剩幾個、何時在哪裡買的），最先要用的在最上面。之後的訊息會寫出是哪一批。"
 - version: "1.28.2"
   date: 2026-11-23
   en:

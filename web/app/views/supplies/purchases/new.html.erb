@@ -15,10 +15,11 @@
     <% if @barcode && @link %>
       <p class="rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900"><%= t("supplies.purchases.form.barcode_note_html", code: @barcode, item: @supply.name) %></p>
     <% end %>
-    <div>
+    <div data-controller="brand-name" data-brand-name-item-value="<%= @supply.name %>">
       <%= form.label :product_name, t("supplies.purchases.form.product_name"), class: "block text-sm font-medium" %>
       <%= form.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, list: "supply-products", placeholder: @supply.name, class: (@scanned_name ? "#{field} border-green-700 bg-green-50" : field),
-            data: { pack_size_target: "product", action: "input->pack-size#fill" } %>
+            data: { pack_size_target: "product", brand_name_target: "input", action: "input->pack-size#fill input->brand-name#check" } %>
+      <%= render "supplies/product_is_item", supply: @supply, value: @purchase.product_name %>
       <datalist id="supply-products"><% products.each do |product| %><option value="<%= product %>"></option><% end %></datalist>
       <p class="mt-1 text-xs text-gray-600"><%= t(@scanned_name ? "supplies.purchases.form.product_name_scanned" : "supplies.purchases.form.product_name_hint", item: @supply.name) %></p>
     </div>

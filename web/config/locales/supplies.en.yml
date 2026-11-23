@@ -182,7 +182,6 @@ en:
       expires_on: "Expires %{date}"
       expired_on: "Expired %{date}"
       title: "In stock by brand"
-      unnamed: "No brand named"
       left: "%{count} left"
       probably_used: "Probably used up"
       bought: "Bought %{date}"
@@ -453,6 +452,7 @@ en:
         product_name: "Product or brand (optional)"
         product_name_hint: "What you bought this time, like a brand and size. It shows in Price history, so you can compare brands; every brand shares this item's count. Leave it empty for plain \"%{item}\"."
         product_name_scanned: "Filled in from the barcode you scanned. Every brand shares this item's count."
+        product_name_is_item_html: "That's the item's name, so this purchase is saved <strong>without a brand</strong>. Type another name to make it a brand."
         barcode_note_html: "Barcode %{code} will be remembered for <strong>%{item}</strong> when you save."
     paid:
       currency: "Currency"

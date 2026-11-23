@@ -724,6 +724,25 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "section#forecast_supply_#{paper.id} input[name='supply_count[level]']"
   end
 
+  test "Product or brand set to the item's own name: a note says it is saved without a brand, and it is" do
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0)
+    purchase = Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 145, purchased_on: @home.today, left_before: 0 }, user: users(:alex))
+    note = "這是品項本身的名稱，所以這筆購買會存成未填品牌。輸入其他名稱才會成為一個品牌。"
+
+    get new_household_supply_purchase_path(@home, shampoo)
+    assert_select "[data-controller=brand-name][data-brand-name-item-value=Shampoo] p[data-brand-name-target=note][hidden]", note
+    get new_household_supply_purchase_path(@home, shampoo, product_name: "Shampoo")
+    assert_select "p[data-brand-name-target=note]:not([hidden])", note
+
+    get edit_household_supply_path(@home, shampoo)
+    assert_select "[data-controller=brand-name] p[data-brand-name-target=note][hidden]", note
+    base = { supply: { name: "Shampoo", supply_category_id: shampoo.supply_category_id, unit: "bottle", lead_days: shampoo.lead_days, alert_when_left: 0 } }
+    patch household_supply_path(@home, shampoo), params: base.merge(purchase: { purchased_on: @home.today, quantity: 1, total_price: 145, currency: "TWD", product_name: " Shampoo " })
+    assert_nil purchase.reload.product_name, "the item's own name is no brand"
+    patch household_supply_path(@home, shampoo), params: base.merge(purchase: { purchased_on: @home.today, quantity: 1, total_price: 145, currency: "TWD", product_name: "Lux Shampoo 750ml" })
+    assert_equal "Lux Shampoo 750ml", purchase.reload.product_name
+  end
+
   test "one brand restocked before it ran out: the form names what is left, Saved says which to use first, and each batch has its own −1" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
@@ -851,7 +870,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "a purchase with no product is a brand of its own, shown as No brand named" do
+  test "a purchase with no product is a brand of its own, shown as the item's name" do
     travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
     shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
     Supplies::LogPurchase.call(shampoo, { quantity: 1, total_price: 145, purchased_on: @home.today - 30, left_before: 0 }, user: users(:alex))
@@ -859,8 +878,12 @@ class SuppliesTest < ActionDispatch::IntegrationTest
 
     get household_supplies_path(@home, tab: "all")
     assert_select "#row_supply_#{shampoo.id} details form:last-of-type button", /Lux Shampoo 750ml.*剩 2/m
-    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /未填品牌.*剩 1/m
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /Shampoo\s+最快到期|Shampoo\s+最早買的/m
+    assert_select "#row_supply_#{shampoo.id} details form:first-of-type button", /剩 1/
     assert_select "#row_supply_#{shampoo.id} details form:first-of-type input[name=product][value='']"
+    assert_no_match "未填品牌", response.body
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id} h3 + ul > li:first-child", /\AShampoo\s+最早買的/
 
     post household_supply_counts_path(@home, shampoo), params: { used_one: 1, product: "" }, as: :turbo_stream
     assert_match "用掉 1 · 剩 2 瓶", response.body

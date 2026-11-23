@@ -57,7 +57,7 @@
           <li class="py-2">
             <div class="flex items-center justify-between gap-3">
               <span class="min-w-0">
-                <%= supply_brand_title(brand) %>
+                <%= supply_brand_title(brand, supply) %>
                 <span class="block text-xs text-gray-600"><%= supply_brand_source(brand, price: true, dates: !brand.several_batches?) %></span>
               </span>
               <span class="flex shrink-0 items-center gap-3 pb-1">
@@ -69,7 +69,7 @@
                 <% end %>
                 <% if writer && !brand.several_batches? %>
                   <%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
-                        form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
+                        form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand, supply)),
                         class: "btn-press min-w-12 cursor-pointer rounded-xl bg-white px-3 py-1.5 text-sm font-bold text-gray-900" %>
                 <% end %>
               </span>
@@ -103,7 +103,7 @@
       <%= form_with url: household_supply_counts_path(Current.household, supply), data: { turbo_stream: true }, class: "space-y-2 pb-1" do |form| %>
         <% brands.list.each do |brand| %>
           <label class="flex items-center justify-between gap-3 text-sm">
-            <span class="min-w-0 [overflow-wrap:anywhere]"><%= supply_brand_name(brand) %></span>
+            <span class="min-w-0 [overflow-wrap:anywhere]"><%= supply_brand_name(brand, supply) %></span>
             <span class="inline-flex shrink-0 items-center gap-1.5">
               <%= hidden_field_tag "supply_count[brands][][name]", brand.key, id: nil %><%= number_field_tag "supply_count[brands][][left]", brand.left, min: 0, step: 1, required: true, inputmode: "numeric", id: nil, class: "w-16 rounded-md border border-gray-400 px-2 py-1" %>
               <%= t("supplies.units.#{supply.unit}_other") %>

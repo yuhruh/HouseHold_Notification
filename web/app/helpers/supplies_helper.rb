@@ -34,7 +34,8 @@ module SuppliesHelper
   # What is left of each brand of an item (Supplies::Brands), worked out once per item on a page
   def supply_brands(supply, forecast) = (@supply_brands ||= {})[supply.id] ||= supply.brands(forecast)
 
-  def supply_brand_name(brand) = brand.name || t("supplies.brands.unnamed")
+  # A brand's name; a purchase with no brand named is the item itself, so it reads as the item's name
+  def supply_brand_name(brand, supply) = brand.name || supply.name
 
   # On a To Buy or Favorites card (not an All row, which has only the category under the
   # name), under an item with several brands in stock: "2 Lux Shampoo 750ml · 1 Pantene Shampoo 700ml", the
@@ -44,16 +45,16 @@ module SuppliesHelper
     return unless brands.several?
 
     parts = brands.list.select { it.left.positive? }.reverse.map do |brand|
-      safe_join([ tag.strong(number_with_delimiter(brand.left), class: "text-gray-900"), supply_brand_name(brand), supply_brand_inside(supply, brand) ].compact, " ")
+      safe_join([ tag.strong(number_with_delimiter(brand.left), class: "text-gray-900"), supply_brand_name(brand, supply), supply_brand_inside(supply, brand) ].compact, " ")
     end
     tag.p(safe_join(parts, " · "), class: "text-xs text-gray-600 [overflow-wrap:anywhere]") if parts.any?
   end
 
   # A brand in the −1 menu and on the item page: its name, and on the one to use first why it is
   # first (supply_first_tag)
-  def supply_brand_title(brand)
+  def supply_brand_title(brand, supply)
     first = supply_first_tag(brand.expires_on) if brand.first
-    tag.span(safe_join([ supply_brand_name(brand), first ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
+    tag.span(safe_join([ supply_brand_name(brand, supply), first ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]")
   end
 
   # The tag on the brand or batch to use first: "Expires first" (or "Expired") when its stock has an

@@ -25,10 +25,10 @@
           <p class="text-sm font-extrabold"><%= t("supplies.brands.which") %></p>
           <% brands.list.each do |brand| %>
             <%= button_to household_supply_counts_path(Current.household, supply), params: { used_one: 1, product: brand.key },
-                  form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand)),
+                  form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_label", product: supply_brand_name(brand, supply)),
                   class: "btn-press flex min-h-13 w-full cursor-pointer items-center justify-between gap-3 rounded-xl bg-white px-3 py-1.5 text-left text-gray-900 [--press:3px]" do %>
               <span class="min-w-0">
-                <%= supply_brand_title(brand) %>
+                <%= supply_brand_title(brand, supply) %>
                 <span class="block text-xs text-gray-700"><%= safe_join([ brand.left.positive? ? t("supplies.brands.left", count: brand.left) : t("supplies.brands.probably_used"), supply_brand_source(brand, store: brand.expires_on.nil?) ].compact, " · ") %></span>
               </span>
               <span class="shrink-0 text-sm font-extrabold" aria-hidden="true">−1</span>

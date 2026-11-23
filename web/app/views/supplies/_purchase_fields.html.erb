@@ -60,10 +60,11 @@
           <%= p.date_field :expires_on, class: field %>
         </div>
         <% unless supply.new_record? %>
-          <div class="col-span-2">
+          <div class="col-span-2" data-controller="brand-name" data-brand-name-item-value="<%= supply.name %>">
             <%= p.label :product_name, t("supplies.purchases.form.product_name"), class: "block text-sm font-medium" %>
             <%= p.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, placeholder: supply.name, class: field,
-                  data: { pack_size_target: "product", action: "input->pack-size#fill" } %>
+                  data: { pack_size_target: "product", brand_name_target: "input", action: "input->pack-size#fill input->brand-name#check" } %>
+            <%= render "supplies/product_is_item", supply:, value: purchase.product_name %>
             <p class="mt-1 text-xs text-gray-600"><%= t("supplies.form.product_name_hint") %></p>
           </div>
         <% end %>

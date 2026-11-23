@@ -182,7 +182,6 @@ zh-TW:
       expires_on: "%{date} 到期"
       expired_on: "%{date} 已過期"
       title: "各品牌庫存"
-      unnamed: "未填品牌"
       left: "剩 %{count}"
       probably_used: "可能已用完"
       bought: "%{date} 購買"
@@ -453,6 +452,7 @@ zh-TW:
         product_name: "品名或品牌（選填）"
         product_name_hint: "這次買的是什麼，例如品牌和容量。會顯示在價格記錄，方便比較各品牌；所有品牌共用這個項目的數量。留空就是「%{item}」。"
         product_name_scanned: "已從你掃描的條碼填入。所有品牌共用這個項目的數量。"
+        product_name_is_item_html: "這是品項本身的名稱，所以這筆購買會存成<strong>未填品牌</strong>。輸入其他名稱才會成為一個品牌。"
         barcode_note_html: "儲存後，條碼 %{code} 會記在<strong>「%{item}」</strong>上。"
     paid:
       currency: "幣別"

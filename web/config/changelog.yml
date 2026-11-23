@@ -3,6 +3,12 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.28.1"
+  date: 2026-11-23
+  en:
+    - "Supplies: a purchase with no brand now shows as the item's own name (instead of \"No brand named\") under In stock by brand, in \"Which one did you use?\" and on the Supplies list. Typing the item's own name in \"Product or brand\" (Restock or Edit item) now shows a note that it is saved without a brand: type another name to make it a brand."
+  zh-TW:
+    - "日用品：沒有填品牌的購買，現在在「各品牌庫存」、「用了哪一個？」和日用品清單上顯示品項本身的名稱（不再顯示「未填品牌」）。在「品名或品牌」（補貨或編輯品項）輸入品項本身的名稱時，會提醒你這筆會存成未填品牌：輸入其他名稱才會成為一個品牌。"
 - version: "1.28.0"
   date: 2026-11-23
   en:

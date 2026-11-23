@@ -1,0 +1,4 @@
+<%# Under "Product or brand": shown while what's typed is the item's own name, which is saved as no
+    brand (Priced), so Save doesn't seem to do nothing (brand-name controller) %>
+<p class="mt-1.5 rounded-lg bg-amber-50 px-2.5 py-2 text-sm text-amber-900" data-brand-name-target="note" <%= "hidden" unless value.to_s.squish == supply.name %>>
+  <%= t("supplies.purchases.form.product_name_is_item_html") %></p>

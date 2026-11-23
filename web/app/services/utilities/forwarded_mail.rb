@@ -1,15 +1,15 @@
 module Utilities
   # Reads what members' Gmail forwarded to the ledgers' addresses (ForwardingInbox#address) and
-  # decides what each message is. Every message is labelled handled, whatever it is; what it did
-  # (or why it was ignored) goes in the activity of the account it's for (or, when that isn't
-  # clear, of each of the ledger's mail accounts).
+  # decides what each message is. Every message is labelled handled, whatever it is, and moved to
+  # Trash (except one that broke); what it did (or why it was ignored) goes in the activity of the
+  # account it's for (or, when that isn't clear, of each of the ledger's mail accounts).
   #
   # - Gmail's forwarding confirmation (someone added the address in Gmail): signed by Google, with a
   #   confirmation link. When a member (or an allowed sender) asked, the link is kept so the
   #   Electricity and Water pages can show a Confirm button.
   # - A 台電 or 台水 email (COMPANIES), accepted only when it's one of:
-  #     a. forwarded by a Gmail filter: From the company's domain (not failing DKIM/DMARC), sent on
-  #        by "<member>+caf_=…@gmail.com", which Gmail's own SPF check on arrival passed
+  #     a. forwarded by a Gmail filter: From the company's domain and signed by it (DKIM), with no
+  #        DKIM or DMARC failure, sent on by "<member>+caf_=…@gmail.com", which Gmail's own SPF check on arrival passed
   #     b. forwarded by hand: From the owner or a co-owner (signed by their mail provider), with a
   #        forwarded message from the company's domain inside. What's quoted inside can't be
   #        checked, so it's taken only from someone who may edit the ledger anyway; a viewer or an
@@ -45,10 +45,11 @@ module Utilities
         raise # Gmail itself can't be reached: stop here and read everything again next time
       rescue StandardError => e
         # One message that can't be handled must not hold up every ledger's mail: it's reported,
-        # labelled handled like any other, and what it left half-changed is dropped
+        # labelled handled like any other but kept out of Trash to look into, and what it left
+        # half-changed is dropped
         Rails.error.report(e, context: { gmail_message_id: id })
         forwarded&.discard_changes
-        inbox.done!(id)
+        inbox.done!(id, trash: false)
         :failed
       end
     end
@@ -113,7 +114,9 @@ module Utilities
     def forwarded_bill
       if (@company = company_of(from.split("@").last))
         @account = account_for(@company)
-        return ignore("not_authentic", from) if failed_authentication?
+        # Signed by the company itself, not just "nothing failed": a DMARC lookup that errored
+        # (temperror) or a company without a DMARC record would otherwise let a forged From through
+        return ignore("not_authentic", from) if failed_authentication? || !signed_by?(COMPANIES.fetch(@company)[:domain])
 
         who = filter_forwarder or return ignore("unknown_forwarder", nil)
         return ignore("not_member", who) unless allowed?(who)

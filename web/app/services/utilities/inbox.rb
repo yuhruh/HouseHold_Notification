@@ -3,7 +3,9 @@ module Utilities
   # Gmail API with gmail.modify. Members' Gmail forwards 台電's and 台水's emails to plus-addresses
   # of it (see ForwardingInbox#address). A message handled is labelled PROCESSED and marked read, so
   # it isn't read twice; a bill email also gets its company's BILLS label, the ones
-  # Utilities::ForwardedMail hands on to a bill reader.
+  # Utilities::ForwardedMail hands on to a bill reader. Then it's moved to Trash (Gmail empties it
+  # after 30 days): the app keeps what it needs from it, and a bill sent again is matched to the one
+  # already written (Utilities::BillSync), so nothing depends on the email staying.
   class Inbox
     PROCESSED = "Household Tracker/Processed".freeze
     BILLS = { taipower: "Household Tracker/台電", water: "Household Tracker/台水" }.freeze
@@ -44,10 +46,13 @@ module Utilities
     # The message as sent (RFC 822)
     def raw(id) = @service.get_user_message("me", id, format: "raw").raw
 
-    # bill: the company (a Utilities::ForwardedMail::COMPANIES key) of an accepted bill email
-    def done!(id, bill: nil)
+    # bill: the company (a Utilities::ForwardedMail::COMPANIES key) of an accepted bill email;
+    # trash: false keeps it in the mailbox (one that couldn't be handled, to look into). Labelled
+    # first, so a message whose trashing fails still isn't read again.
+    def done!(id, bill: nil, trash: true)
       add = [ label_id(PROCESSED), (label_id(BILLS.fetch(bill)) if bill) ].compact
       @service.modify_message("me", id, Google::Apis::GmailV1::ModifyMessageRequest.new(add_label_ids: add, remove_label_ids: [ "UNREAD" ]))
+      @service.trash_user_message("me", id) if trash
     end
 
     private

@@ -1,13 +1,15 @@
 require "test_helper"
 
 class Utilities::ForwardedMailTest < ActiveSupport::TestCase
-  # Messages as the app's Gmail would hold them, handed out by id; remembers what was labelled
+  # Messages as the app's Gmail would hold them, handed out by id; remembers what was labelled and
+  # what was moved to Trash
   class FakeInbox
-    attr_reader :done, :asked
+    attr_reader :done, :trashed, :asked
 
     def initialize(messages)
       @messages = messages
       @done = {}
+      @trashed = []
     end
 
     def unprocessed(addresses)
@@ -16,7 +18,11 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     end
 
     def raw(id) = @messages.fetch(id)
-    def done!(id, bill: nil) = @done[id] = bill
+
+    def done!(id, bill: nil, trash: true)
+      @trashed << id if trash
+      @done[id] = bill
+    end
   end
 
   setup do
@@ -157,6 +163,29 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     assert_equal [ :bill ], read_mail("m1" => taipower(forwarder: "alexhome"))
   end
 
+  test "a 台電 email that isn't signed by 台電 is ignored, even when nothing says it failed" do
+    unsigned = taipower.sub("dkim=pass header.i=@taipower.com.tw", "dkim=none").sub("dmarc=pass", "dmarc=temperror")
+    signed_by_other = taipower.sub("header.i=@taipower.com.tw", "header.i=@evil.example").sub("dmarc=pass", "dmarc=none")
+    assert_equal %i[ignored ignored], read_mail("m1" => unsigned, "m2" => signed_by_other)
+    assert_equal [ [ "not_authentic", "ebill@taipower.com.tw" ] ] * 2, @account.reload.activity.map { it.values_at("reason", "detail") }
+    assert_nil @account.last_success_at
+  end
+
+  test "every handled message is moved to Trash, and a bill forwarded again after that isn't added twice" do
+    power = @account.category
+    bill = -> { taipower(from: "台電電子帳單服務系統 <ebill@ebppsmtp.taipower.com.tw>", content_type: "text/html",
+      subject: "台電e-Bill115年10月電費通知(電號:12345678901)", body: taipower_html("bill_notice")) }
+    inbox = FakeInbox.new("bill" => bill.call, "confirm" => confirmation, "ignored" => taipower(forwarder: "stranger"),
+      "unknown" => email(from: "ebill@taipower.com.tw", to: @address.sub("+h#{@home.id}-", "+h#{@home.id + 1}-")))
+    assert_equal %i[bill confirm ignored unknown], Utilities::ForwardedMail.call(inbox:)
+    assert_equal %w[bill confirm ignored unknown], inbox.trashed
+
+    assert_no_difference(-> { @home.records.where(category: power).count }) do
+      assert_equal [ :bill ], read_mail("again" => bill.call)
+    end
+    assert_equal 1, @home.records.where(category: power).count
+  end
+
   test "anything else is ignored, and says why" do
     results = read_mail(
       "a" => taipower(from: "Phisher <billing@taipower-tw.example>"),
@@ -208,7 +237,7 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
       auth: "dkim=pass header.i=@evil.example; spf=pass smtp.mailfrom=someone@evil.example",
       sent: [ "Authentication-Results: mx.google.com; dkim=pass header.i=@example.com" ])
     filtered = email(from: "台灣電力公司 <ebill@taipower.com.tw>", body: "電號 04-08-1234-56-7", return_path: "someone@evil.example",
-      auth: "spf=pass smtp.mailfrom=someone@evil.example",
+      auth: "dkim=pass header.i=@taipower.com.tw; spf=pass smtp.mailfrom=someone@evil.example",
       sent: [ "Return-Path: <co.owner+caf_=CAF>", "Authentication-Results: mx.google.com; spf=pass smtp.mailfrom=\"co.owner+caf_=CAF\"" ])
     assert_equal %i[ignored ignored], read_mail("m1" => by_hand, "m2" => filtered)
     assert_equal %w[not_authentic unknown_forwarder], @account.reload.activity.reverse.map { it["reason"] }
@@ -227,6 +256,7 @@ class Utilities::ForwardedMailTest < ActiveSupport::TestCase
     inbox = FakeInbox.new("m1" => by_hand, "m2" => confirmation)
     assert_equal %i[failed confirm], Utilities::ForwardedMail.call(inbox:)
     assert_equal({ "m1" => nil, "m2" => nil }, inbox.done)
+    assert_equal %w[m2], inbox.trashed, "the one that broke stays in the mailbox to look into"
     assert_equal LINK, @inbox.reload.forwarding_link
   ensure
     Utilities::Taipower::Reader.singleton_class.send(:remove_method, :call)

@@ -68,17 +68,20 @@ class Supply < ApplicationRecord
 
   def latest_purchase = purchases.max_by { [ it.purchased_on, it.created_at ] }
 
+  # The newest with a price (a purchase saved by "Add details" may have none)
+  def latest_priced_purchase = purchases.select(&:priced?).max_by { [ it.purchased_on, it.created_at ] }
+
   # Purchases and counts, newest first (the item page's History)
   def history = (purchases.to_a + counts.to_a).sort_by { -it.at.to_f }
 
-  # Purchases and old prices, newest first (the item page's Price history and Where to buy)
-  def priced = purchases.to_a + prices.to_a
-  def price_history = priced.sort_by { [ -it.purchased_on.jd, -(it.created_at || Time.current).to_f ] }
+  # Purchases with a price and old prices, newest first (the item page's Price history and Where to buy)
+  def priced = (purchases.to_a + prices.to_a).select(&:priced?)
+  def price_history = newest_first(priced)
 
   # Each brand's pack size, from its newest purchase or old price that has one: { "Brand A" => [4,
   # "piece"] } ("" for no brand). Fills in the size when that brand is bought again
   def pack_sizes
-    price_history.select(&:pack_size).reverse.to_h { [ Supplies::Brands.key(it.product_name), [ it.pack_size, it.pack_unit ] ] }
+    newest_first(purchases.to_a + prices.to_a).select(&:pack_size).reverse.to_h { [ Supplies::Brands.key(it.product_name), [ it.pack_size, it.pack_unit ] ] }
   end
 
   # The size a brand came in last time, [4, "piece"], or nil; the item's own name is no brand
@@ -92,4 +95,8 @@ class Supply < ApplicationRecord
     by_piece = all.any? && all.all?(&:packed?) && all.map(&:pack_unit).uniq.one?
     by_piece ? :piece_price.to_proc : :unit_price.to_proc
   end
+
+  private
+
+  def newest_first(entries) = entries.sort_by { [ -it.purchased_on.jd, -(it.created_at || Time.current).to_f ] }
 end

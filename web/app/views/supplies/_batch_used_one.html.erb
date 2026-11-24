@@ -1,4 +1,5 @@
-<%# −1 on one batch (one purchase still in stock) on the item page: takes the unit from that batch %>
-<%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, batch: batch.purchase.id },
+<%# −1 on one batch (one purchase still in stock, or the stock with no purchase) on the item page:
+    takes the unit from that batch %>
+<%= button_to "−1", household_supply_counts_path(Current.household, supply), params: { used_one: 1, batch: batch.id },
       form: { data: { turbo_stream: true } }, "aria-label": t("supplies.brands.used_one_batch_label", batch: supply_expiry(batch.expires_on)),
       class: "btn-press cursor-pointer rounded-xl bg-white font-bold text-gray-900 #{local_assigns[:small] ? 'min-w-10 px-2.5 py-1 text-xs' : 'min-w-12 px-3 py-1.5 text-sm'}" %>

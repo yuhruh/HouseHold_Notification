@@ -58,7 +58,7 @@ module Supplies
       if (record = purchase.record)
         record.update!(amount_required: purchase.total_price, amount_paid: purchase.total_price, paid_on: purchase.purchased_on)
         RecordEvent.log!(record, :updated, user:) if record.saved_changes?
-      elsif add_to_ledger
+      elsif add_to_ledger && purchase.priced?
         supply = purchase.supply
         details = [ "#{supply.name} ×#{purchase.quantity}", purchase.store ].compact.join(" · ")
         purchase.update!(record: LedgerRecord.call(supply.household, amount: purchase.total_price, paid_on: purchase.purchased_on,

@@ -251,7 +251,7 @@ class SuppliesController < ApplicationController
   # Expiring, an estimated monthly spend (usage × the last price per unit) and the count
   def summary(all)
     monthly = all.sum do |supply, forecast|
-      last = supply.latest_purchase
+      last = supply.latest_priced_purchase
       forecast.enough_data? && last ? forecast.rate * 30 * last.unit_price : 0
     end
     { expiring: all.count { it.last.expiring? }, monthly:, total: all.size }

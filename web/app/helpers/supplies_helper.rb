@@ -101,6 +101,15 @@ module SuppliesHelper
     tag.span(safe_join([ supply_expiry(batch.expires_on), (supply_first_tag(batch.expires_on) if batch.first) ].compact, " "), class: "block text-sm font-bold")
   end
 
+  # Under the stock with no purchase behind it: "No purchase logged · Add details ›" (the link for
+  # people who can edit the item: Supplies::StockDetailsController)
+  def supply_no_purchase_line(supply, link:)
+    text = t("supplies.brands.no_purchase")
+    return text unless link
+    safe_join([ text, link_to(t("supplies.brands.add_details"), new_household_supply_stock_details_path(Current.household, supply), data: modal_link_data,
+                              class: "font-bold text-blue-700 underline") ], " · ")
+  end
+
   # Under it: "Bought Sep 03 · Costco · NT$189/bottle" (store and price with `full`)
   def supply_batch_source(batch, full: true)
     purchase = batch.purchase
@@ -210,7 +219,8 @@ module SuppliesHelper
 
   # "NT$24.1/roll"; a purchase that says what was in its pack adds the price of one: "NT$60/pack ·
   # NT$15/piece" (each brand its own)
-  def supply_unit_prices(purchase) = supply_unit_price_parts(purchase).join(" · ")
+  # Nil for a purchase saved with no price ("Add details")
+  def supply_unit_prices(purchase) = (supply_unit_price_parts(purchase).join(" · ") if purchase.priced?)
 
   def supply_unit_price_parts(purchase)
     prices = [ t("supplies.unit_price", price: supply_unit_price(purchase), unit: t("supplies.units.#{purchase.supply.unit}_one")) ]
@@ -254,6 +264,7 @@ module SuppliesHelper
   # "NT$289 for 12 · NT$24.1/roll". A narrow card breaks the line only between its parts, never inside
   # one ("NT$360 ⏎ for 6", "每捲 ⏎ NT$24.1")
   def supply_price_line(purchase)
+    return unless purchase.priced?
     total = t("supplies.price_line", total: money(purchase.total_price, purchase.currency), quantity: purchase.quantity)
     supply_parts([ total, *supply_unit_price_parts(purchase) ])
   end
@@ -316,6 +327,7 @@ module SuppliesHelper
   # What a purchase cost: "NT$250", and for one made abroad the price there in brackets,
   # "NT$250 (JP¥1,196)"
   def supply_cost(entry)
+    return unless entry.priced?
     home = money(entry.total_price, entry.currency)
     return home unless entry.paid_abroad?
     safe_join([ home, tag.span("(#{money(entry.paid_total, entry.paid_currency)})", class: "text-gray-600") ], " ")
@@ -392,7 +404,7 @@ module SuppliesHelper
 
   # Total spent on an item, since its first purchase, and about how much a month
   def supply_spending(supply)
-    purchases = supply.purchases.to_a
+    purchases = supply.purchases.select(&:priced?)
     return nil if purchases.empty?
     first = purchases.map(&:purchased_on).min
     total = purchases.sum(&:total_price)

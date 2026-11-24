@@ -30,12 +30,12 @@
               <% brand.batches.each do |batch| %>
                 <% bought = (t("supplies.brands.bought", date: l(batch.purchase.purchased_on, format: :short)) if batch.purchase) %>
                 <% if brands.several? %>
-                  <%= render "supplies/used_one_choice", supply:, choice: (batch.purchase ? { batch: batch.purchase.id } : { product: brand.key }),
+                  <%= render "supplies/used_one_choice", supply:, choice: { batch: batch.id },
                         label: t("supplies.brands.used_one_batch_label", batch: "#{supply_brand_name(brand, supply)} · #{supply_expiry(batch.expires_on)}"),
                         title: tag.span(safe_join([ supply_brand_name(brand, supply), (supply_first_tag(batch.expires_on) if brand.first && batch.first) ].compact, " "), class: "block text-sm font-bold [overflow-wrap:anywhere]"),
                         detail: safe_join([ supply_expiry(batch.expires_on), t("supplies.brands.left", count: batch.left), bought ].compact, " · ") %>
                 <% else %>
-                  <%= render "supplies/used_one_choice", supply:, choice: (batch.purchase ? { batch: batch.purchase.id } : { product: brand.key }),
+                  <%= render "supplies/used_one_choice", supply:, choice: { batch: batch.id },
                         label: t("supplies.brands.used_one_batch_label", batch: supply_expiry(batch.expires_on)),
                         title: supply_batch_title(batch),
                         detail: safe_join([ t("supplies.brands.left", count: batch.left), bought, batch.purchase&.store.presence ].compact, " · ") %>

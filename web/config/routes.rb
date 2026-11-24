@@ -110,6 +110,7 @@ Rails.application.routes.draw do
       resources :purchases, only: %i[new create], controller: "supplies/purchases"
       resources :counts, only: %i[create destroy], controller: "supplies/counts"
       resources :prices, only: %i[new create destroy], controller: "supplies/prices"
+      resource :stock_details, only: %i[new create], controller: "supplies/stock_details"
       resources :barcodes, only: :destroy, controller: "supplies/barcodes"
       resource :combine, only: %i[new create], controller: "supplies/combines"
     end

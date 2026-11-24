@@ -18,14 +18,23 @@ module Supplies
   # A brand restocked before the old stock ran out has several lots in stock, each with its own
   # expiry date: its `batches`, the one to use first on top. −1 on one batch names its purchase
   # (SupplyCount#used_purchase) and takes from that lot.
+  #
+  # Stock counted before any purchase was logged is a lot with no purchase: a batch with no expiry
+  # date, used after the dated ones. Its −1 says so (SupplyCount#used_no_purchase), and "Add details"
+  # (Supplies::AddStockDetails) can give it the purchase it came from, bought before `no_purchase_counted`.
   class Brands
     NO_BRAND = "".freeze
+    # The batch with no purchase behind it, as −1 names it
+    NO_PURCHASE = "none".freeze
 
     Lot = Struct.new(:key, :left, :purchase)
-    # One purchase's stock still left now; `first` marks the one to use first (of its brand, or of
-    # the item in #batches)
-    Batch = Data.define(:purchase, :left, :first) do
+    # One purchase's stock still left now (or the stock with no purchase), of the brand `product`;
+    # `first` marks the one to use first (of its brand, or of the item in #batches)
+    Batch = Data.define(:purchase, :product, :left, :first) do
       def expires_on = purchase&.expires_on
+
+      # What −1 sends: the purchase's id, or NO_PURCHASE
+      def id = purchase ? purchase.id.to_s : NO_PURCHASE
     end
     # `purchase` is the one its stock to use first is from; `first` marks the brand to use first
     Brand = Data.define(:key, :name, :known, :left, :purchase, :first, :batches) do
@@ -82,8 +91,22 @@ module Supplies
     # Every purchase with some left now, the one to use first on top (all brands)
     def batches = @batches ||= batches_of(use_first(lots))
 
-    # A batch by its purchase's id, while some of it is left
-    def find_batch(purchase_id) = batches.find { it.purchase && it.purchase.id.to_s == purchase_id.to_s }
+    # A batch by its purchase's id (or NO_PURCHASE), while some of it is left
+    def find_batch(id) = batches.find { it.id == id.to_s }
+
+    # The stock with no purchase behind it, while some of it is left
+    def no_purchase_batch = batches.find { it.purchase.nil? }
+
+    # Where the stock with no purchase was first counted: the first count with some left before any
+    # purchase was logged, or the first purchase (what was left before it). The purchase that stock
+    # came from was bought before then
+    def no_purchase_counted
+      events.each do |event|
+        return (event if event.left_before.positive?) if event.is_a?(SupplyPurchase)
+        return event if event.level.positive?
+      end
+      nil
+    end
 
     # How many of one purchase are left now (0 once it is used up)
     def left_of(purchase)
@@ -118,7 +141,7 @@ module Supplies
 
     # The lots (already in the order to use them) with some left now, as batches
     def batches_of(lots)
-      lots.filter_map { Batch.new(purchase: it.purchase, left: now_left(it), first: false) if now_left(it).positive? }
+      lots.filter_map { Batch.new(purchase: it.purchase, product: it.key, left: now_left(it), first: false) if now_left(it).positive? }
           .each_with_index.map { |batch, index| index.zero? ? batch.with(first: true) : batch }
     end
 
@@ -134,6 +157,8 @@ module Supplies
           if event.by_product.present?
             assign(lots, event.by_product)
           elsif (lot = event.used_purchase_id && lots.find { it.purchase&.id == event.used_purchase_id && it.left.positive? })
+            take([ lot ], 1)
+          elsif (lot = event.used_no_purchase && lots.find { it.purchase.nil? && it.left.positive? })
             take([ lot ], 1)
           elsif event.used_product
             take(lots.select { it.key == event.used_product }, 1)

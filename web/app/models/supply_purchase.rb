@@ -13,7 +13,13 @@ class SupplyPurchase < ApplicationRecord
 
   validates :left_before, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 100_000 }
 
+  # Set by "Add details" (Supplies::AddStockDetails): the price may be left empty
+  attr_writer :price_optional
+
   def old_price? = false
+
+  # Saved with no price, it may stay without one when corrected on Edit item
+  def price_optional? = @price_optional || (persisted? && total_price_in_database.nil?)
 
   # When its stock joined the count, for ordering against counts. A restock counts from the moment
   # it was logged (stocked_at), whatever its purchase date: what was left before it was answered

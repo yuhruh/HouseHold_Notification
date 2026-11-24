@@ -64,6 +64,9 @@ en:
               whole_number: "must be a whole number in this currency"
             purchased_on:
               in_the_future: "can't be in the future"
+              after_count: "must be on or before %{date}, the day you counted them"
+            quantity:
+              fewer_than_counted: "must be at least %{left}, the number you counted on %{date}"
         supply_price:
           attributes:
             base:
@@ -192,6 +195,8 @@ en:
       by_expiry_title: "In stock by expiry date"
       no_expiry: "No expiry date"
       used_one_batch_label: "Used one: %{batch}"
+      no_purchase: "No purchase logged"
+      add_details: "Add details ›"
     restock_prompt:
       title: "%{item} is used up"
       title_estimate: "%{item} is probably used up"
@@ -504,6 +509,29 @@ en:
     barcodes:
       destroy:
         removed: "Removed barcode %{code} from %{item}."
+    stock_details:
+      gone: "That stock already has its details, or that price was deleted."
+      new:
+        title_choose: "Where are these %{amount} from?"
+        title_confirm: "Were these %{amount} from this purchase?"
+        title_enter: "Details for %{amount} of %{item}"
+        intro_choose: "They were in your count on %{date}. These prices in Price history are from on or before that day."
+        intro_confirm: "They were in your count on %{date}. This price in Price history is from on or before that day."
+        intro_enter: "They were in your count on %{date}, before any purchase was logged. Fill in what you remember."
+        none_of_these: "None of these: enter the details"
+        quantity: "How many (%{unit})"
+        quantity_hint: "How many you bought then; %{left} still left."
+        expires_on: "Expires (optional)"
+        bought_on: "Bought on"
+        bought_on_hint: "On or before %{date}, the day you counted them."
+        product_name: "Product or brand (optional)"
+        store: "Store (optional)"
+        total_price: "Total price (optional)"
+        total_price_hint: "Leave it empty if you can't find what you paid."
+        enter: "No, enter the details"
+        confirm: "Yes, save"
+      create:
+        saved: "Saved the details of %{amount} of %{item}."
     prices:
       new:
         title: "Add an old price: %{item}"

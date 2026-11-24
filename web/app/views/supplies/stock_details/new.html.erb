@@ -1,0 +1,110 @@
+<%# Add details for stock counted before any purchase was logged (Supplies::StockDetailsController):
+    two or more old prices to choose from (each reloads this with it chosen; "None of these" opens the
+    form to type), one to confirm, or the details to type with the price optional. "Also add to Ledger"
+    shows once there is a price (ledger_box_controller) %>
+<% field = "block w-full rounded-md border border-gray-400 px-3 py-2 shadow-sm focus:outline-blue-600" %>
+<% amount = supply_count(@supply, @details.batch.left) %>
+<% date = l(@details.last_day, format: :short) %>
+<% several = !@entering && @details.choices.size > 1 %>
+<% title = if @entering then t("supplies.stock_details.new.title_enter", amount:, item: @supply.name)
+           elsif several then t("supplies.stock_details.new.title_choose", amount:)
+           else t("supplies.stock_details.new.title_confirm", amount:) end %>
+<% unit = t("supplies.units.#{@supply.unit}_other") %>
+<% save = "btn-press inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-blue-200 px-3.5 py-2 font-medium text-gray-900" %>
+<% price_line = ->(price) { safe_join([ l(price.purchased_on, format: :short), supply_count(@supply, price.quantity), supply_cost(price), price.store.presence ].compact, " · ") } %>
+<%= render layout: "shared/modal_or_page", locals: { title:, icon: "expense.png" } do %>
+  <% if @entering %>
+    <%= form_with model: @purchase, url: household_supply_stock_details_path(Current.household, @supply), class: "space-y-4",
+          data: { turbo_frame: "_top", **supply_paid_data(unit: t("supplies.units.#{@supply.unit}_one")), controller: "paid-currency ledger-box", action: "input->ledger-box#toggle" } do |form| %>
+      <%= render "supplies/stock_details/errors", purchase: @purchase %>
+      <p class="text-sm text-gray-700"><%= t("supplies.stock_details.new.intro_enter", date:) %></p>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= form.label :purchased_on, t("supplies.stock_details.new.bought_on"), class: "block text-sm font-medium" %>
+          <%= form.date_field :purchased_on, required: true, max: @details.last_day, class: field, data: { paid_currency_target: "date", action: "change->paid-currency#refresh" } %>
+        </div>
+        <div>
+          <%= form.label :quantity, t("supplies.stock_details.new.quantity", unit:), class: "block text-sm font-medium" %>
+          <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field, data: { paid_currency_target: "quantity", action: "input->paid-currency#render" } %>
+        </div>
+      </div>
+      <p class="-mt-2 text-xs text-gray-600"><%= t("supplies.stock_details.new.bought_on_hint", date: l(@details.last_day, format: :long)) %> <%= t("supplies.stock_details.new.quantity_hint", left: amount) %></p>
+      <div>
+        <%= form.label :expires_on, t("supplies.stock_details.new.expires_on"), class: "block text-sm font-medium" %>
+        <%= form.date_field :expires_on, class: field %>
+      </div>
+      <div data-controller="brand-name" data-brand-name-item-value="<%= @supply.name %>">
+        <%= form.label :product_name, t("supplies.stock_details.new.product_name"), class: "block text-sm font-medium" %>
+        <%= form.text_field :product_name, maxlength: Priced::PRODUCT_NAME_MAX, placeholder: @supply.name, class: field,
+              data: { brand_name_target: "input", action: "input->brand-name#check" } %>
+        <%= render "supplies/product_is_item", supply: @supply, value: @purchase.product_name %>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= form.label :store, t("supplies.stock_details.new.store"), class: "block text-sm font-medium" %>
+          <%= form.text_field :store, maxlength: 60, class: field %>
+        </div>
+        <%= render "supplies/price_field", form:, record: @purchase, label: t("supplies.stock_details.new.total_price") %>
+      </div>
+      <%= render "supplies/paid_panel", form:, record: @purchase %>
+      <p class="-mt-2 text-xs text-gray-600"><%= t("supplies.stock_details.new.total_price_hint") %></p>
+      <%= render "supplies/stock_details/ledger_box", hidden: !@purchase.priced? %>
+      <div class="flex flex-wrap items-center gap-3">
+        <%= form.button type: "submit", name: nil, class: save do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+        <%= modal_cancel(household_supply_path(Current.household, @supply)) %>
+      </div>
+    <% end %>
+  <% else %>
+    <%= form_with model: @purchase, url: household_supply_stock_details_path(Current.household, @supply), class: "space-y-4", data: { turbo_frame: "_top" } do |form| %>
+      <%= render "supplies/stock_details/errors", purchase: @purchase %>
+      <%= hidden_field_tag :price_id, @price.id, id: nil %>
+      <p class="text-sm text-gray-700"><%= t(several ? "supplies.stock_details.new.intro_choose" : "supplies.stock_details.new.intro_confirm", date:) %></p>
+      <% if several %>
+        <div class="space-y-1.5" role="group" aria-label="<%= title %>">
+          <% @details.choices.each do |choice| %>
+            <% chosen = choice == @price %>
+            <%= link_to new_household_supply_stock_details_path(Current.household, @supply, price_id: choice.id), "aria-current": ("true" if chosen),
+                  class: "flex min-h-13 items-start gap-2.5 rounded-xl px-3 py-2 #{chosen ? 'border-2 border-blue-700 bg-blue-50' : 'border border-gray-400 bg-white'}" do %>
+              <span aria-hidden="true" class="mt-0.5 inline-flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border-2 <%= chosen ? 'border-blue-700' : 'border-gray-500' %>"><% if chosen %><span class="h-2 w-2 rounded-full bg-blue-700"></span><% end %></span>
+              <span class="min-w-0">
+                <span class="block text-sm font-bold [overflow-wrap:anywhere]"><%= choice.display_name %></span>
+                <span class="block text-xs text-gray-700"><%= price_line.(choice) %></span>
+              </span>
+            <% end %>
+          <% end %>
+          <%= link_to new_household_supply_stock_details_path(Current.household, @supply, enter: 1), class: "flex min-h-13 items-center gap-2.5 rounded-xl border border-gray-400 bg-white px-3 py-2" do %>
+            <span aria-hidden="true" class="inline-flex h-4.5 w-4.5 shrink-0 rounded-full border-2 border-gray-500"></span>
+            <span class="text-sm font-bold"><%= t("supplies.stock_details.new.none_of_these") %></span>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-xl border border-gray-400 bg-gray-50 px-3 py-2">
+          <span class="block font-bold [overflow-wrap:anywhere]"><%= @price.display_name %></span>
+          <span class="block text-xs text-gray-700"><%= price_line.(@price) %></span>
+          <span class="block text-xs text-gray-700"><%= supply_unit_prices(@price) %></span>
+        </div>
+      <% end %>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <%= form.label :quantity, t("supplies.stock_details.new.quantity", unit:), class: "block text-sm font-medium" %>
+          <%= form.number_field :quantity, min: 1, step: 1, required: true, inputmode: "numeric", class: field %>
+        </div>
+        <div>
+          <%= form.label :expires_on, t("supplies.stock_details.new.expires_on"), class: "block text-sm font-medium" %>
+          <%= form.date_field :expires_on, class: field %>
+        </div>
+      </div>
+      <p class="-mt-2 text-xs text-gray-600"><%= t("supplies.stock_details.new.quantity_hint", left: amount) %></p>
+      <%= render "supplies/stock_details/ledger_box", hidden: false %>
+      <div class="flex flex-wrap items-center gap-3">
+        <% if several %>
+          <%= form.button type: "submit", name: nil, class: save do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("records.form.save") %></span><% end %>
+          <%= modal_cancel(household_supply_path(Current.household, @supply)) %>
+        <% else %>
+          <%= link_to t("supplies.stock_details.new.enter"), new_household_supply_stock_details_path(Current.household, @supply, enter: 1), class: "btn-press inline-flex items-center rounded-xl bg-white px-3.5 py-2 font-medium text-gray-900" %>
+          <%= form.button type: "submit", name: nil, class: save do %><%= image_tag "icons/save.png", alt: "", class: "h-5 w-5 object-contain" %><span><%= t("supplies.stock_details.new.confirm") %></span><% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

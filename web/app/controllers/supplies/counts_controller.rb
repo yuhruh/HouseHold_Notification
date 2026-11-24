@@ -55,10 +55,11 @@ class Supplies::CountsController < ApplicationController
     Supplies::RecordCount.used_one(@supply, user: Current.user, product: @brand.key)
   end
 
+  # One batch: a purchase, or the stock with no purchase behind it (Supplies::Brands::NO_PURCHASE)
   def used_one_of_batch
     @batch = @supply.brands.find_batch(params[:batch])
-    return @supply.counts.new.tap { it.errors.add(:base, t("supplies.brands.batch_gone")) } unless @batch&.purchase
-    Supplies::RecordCount.used_one(@supply, user: Current.user, product: Supplies::Brands.key(@batch.purchase.product_name), purchase: @batch.purchase)
+    return @supply.counts.new.tap { it.errors.add(:base, t("supplies.brands.batch_gone")) } unless @batch
+    Supplies::RecordCount.used_one(@supply, user: Current.user, product: @batch.product, purchase: @batch.purchase, no_purchase: @batch.purchase.nil?)
   end
 
   # "I have N left", one number per brand this item was bought as; the count is their sum

@@ -1,0 +1,3 @@
+<%# "Also add to Ledger as an expense": hidden while there is no price (ledger_box_controller) %>
+<label class="flex items-start gap-2 text-sm" data-ledger-box-target="box" <%= "hidden" if hidden %>><%= check_box_tag :add_to_ledger, "1", params[:add_to_ledger] == "1", class: "mt-1" %>
+  <span><%= t("supplies.purchases.form.add_to_ledger") %><span class="block text-xs text-gray-600"><%= t("supplies.purchases.form.add_to_ledger_hint", category: Supplies::LedgerRecord::CATEGORY[I18n.locale.to_s == "en" ? :name_en : :name_zh]) %></span></span></label>

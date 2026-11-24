@@ -27,7 +27,7 @@ module Priced
     validates :pack_unit, inclusion: { in: Supply::PACK_UNITS }, allow_nil: true
     validates :purchased_on, presence: true
     validates :quantity, numericality: { only_integer: true, greater_than: 0, less_than: 100_000 }
-    validates :total_price, numericality: { greater_than_or_equal_to: 0, less_than: MAX_TOTAL }, unless: :home_amount_missing?
+    validates :total_price, numericality: { greater_than_or_equal_to: 0, less_than: MAX_TOTAL }, unless: -> { home_amount_missing? || (total_price.nil? && price_optional?) }
     validates :currency, inclusion: { in: Household::CURRENCIES }
     validates :store, length: { maximum: 60 }
     validates :paid_currency, inclusion: { in: Supplies::Currency::CODES }, allow_nil: true
@@ -38,6 +38,12 @@ module Priced
     validate :home_amount_given
     validate :not_in_the_future
   end
+
+  # A purchase saved by "Add details" may have no price (you couldn't find what you paid): it is left
+  # out of Price history, Where to buy and what was spent
+  def priced? = !total_price.nil?
+
+  def price_optional? = false
 
   def unit_price = total_price / quantity
 

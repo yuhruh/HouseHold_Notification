@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.29.0"
+  date: 2026-11-24
+  en:
+    - "Supplies: stock you counted before any purchase was logged now has its own −1 under \"No expiry date\" (on the item page and in \"Which one did you use?\"). It used to take the bottle from the batch to use first instead."
+    - "Supplies: under that stock, \"No purchase logged · Add details ›\" asks where it came from. It offers this item's old prices from Price history dated on or before the day you counted it: choose one (or confirm the only one), and it becomes that purchase, listed once. Otherwise, type the details yourself. The price is optional, in case you can't find what you paid. \"Also add to Ledger\" shows once there is a price."
+  zh-TW:
+    - "日用品：在記錄任何購買之前就盤點過的庫存，現在在「沒有到期日」那一行有自己的 −1（項目頁和「用掉哪一個？」都有）。以前會從最先要用的那一批扣掉。"
+    - "日用品：那一行下面的「沒有購買紀錄 · 補上資料 ›」會問這些是從哪裡來的。它會列出價格紀錄裡在你盤點那天或之前的舊價格：選一筆（只有一筆時請你確認），它就會變成那次購買，只列一次。都不是的話，可以自己填。總價可以不填，以免你找不到當時花了多少。有價格時才會出現「同時加入帳本」。"
 - version: "1.28.3"
   date: 2026-11-23
   en:

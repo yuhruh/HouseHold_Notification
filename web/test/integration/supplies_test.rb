@@ -1767,4 +1767,84 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     get exchange_rate_household_supplies_path(@home, from: "JPY", on: @home.today.iso8601)
     assert_response :forbidden
   end
+
+  test "stock counted before any purchase: its own −1, then Add details chooses an old price, confirms one, or takes the details with no price" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    lux = "Lux Shampoo 750ml"
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    counted_on = @home.today - 50
+    travel_to(counted_on.in_time_zone(@home.time_zone).change(hour: 9)) { Supplies::RecordCount.call(shampoo, 3, user: users(:alex)) }
+    Supplies::LogPurchase.call(shampoo.reload, { quantity: 2, total_price: 358, store: "Costco", purchased_on: @home.today, left_before: 3, product_name: lux,
+                                                 expires_on: @home.today + 100 }, user: users(:alex))
+    details = new_household_supply_stock_details_path(@home, shampoo)
+
+    get household_supply_path(@home, shampoo)
+    assert_select "section#forecast_supply_#{shampoo.id} h3 + ul > li:last-child" do
+      assert_select "span", /沒有到期日/
+      assert_select "a[href=?]", details, text: "補上資料 ›"
+      assert_select "form input[name=batch][value=none]"
+    end
+
+    post household_supply_counts_path(@home, shampoo), params: { used_one: 1, batch: "none" }, as: :turbo_stream
+    assert_match "用掉 1 · 沒有到期日 · 剩 4 瓶", response.body
+    assert_equal [ 2, 2 ], shampoo.reload.brands.batches.map(&:left)
+
+    # No old prices from before then: the details to type, the price optional
+    shampoo.prices.create!(household: @home, purchased_on: counted_on + 1, quantity: 1, total_price: 189, currency: "TWD")
+    get details
+    assert_select "h1, h2", /補上資料：Shampoo 2 瓶/
+    assert_select "input[name='supply_purchase[purchased_on]'][max=?]", counted_on.iso8601
+    assert_select "input[name='supply_purchase[total_price]']:not([required])"
+    assert_select "label[data-ledger-box-target=box][hidden]"
+
+    # One: shown to confirm
+    sep = shampoo.prices.create!(household: @home, purchased_on: counted_on - 20, quantity: 4, total_price: 716, store: "Costco", product_name: lux, currency: "TWD")
+    get details
+    assert_select "h1, h2", /這 2 瓶是這次買的嗎？/
+    assert_select "a[href=?]", new_household_supply_stock_details_path(@home, shampoo, enter: 1), text: "不是，自己填"
+    assert_select "button", /是，儲存/
+
+    # Two or more: chosen from, or None of these
+    aug = shampoo.prices.create!(household: @home, purchased_on: counted_on - 40, quantity: 2, total_price: 398, store: "Carrefour", currency: "TWD")
+    get details, params: { price_id: aug.id }
+    assert_select "h1, h2", /這 2 瓶是從哪裡來的？/
+    assert_select "a[aria-current=true][href=?]", new_household_supply_stock_details_path(@home, shampoo, price_id: aug.id)
+    assert_select "a[href=?]", new_household_supply_stock_details_path(@home, shampoo, enter: 1), text: /都不是，自己填/
+    assert_select "input[name=price_id][value=?]", aug.id.to_s
+
+    post household_supply_stock_details_path(@home, shampoo), params: { price_id: sep.id, supply_purchase: { quantity: 4, expires_on: @home.today + 30 } }
+    assert_redirected_to household_supply_path(@home, shampoo)
+    follow_redirect!
+    assert_select "#notice", /已補上Shampoo 2 瓶的資料。/
+    purchase = shampoo.purchases.find_by!(purchased_on: counted_on - 20)
+    assert_not SupplyPrice.exists?(sep.id)
+    assert_equal [ [ purchase, 2 ], [ shampoo.purchases.find_by!(purchased_on: @home.today), 2 ] ], shampoo.reload.brands.batches.map { [ it.purchase, it.left ] }
+    assert_select "a[href=?]", details, 0
+
+    get details
+    assert_redirected_to household_supply_path(@home, shampoo)
+  end
+
+  test "Add details with no price: saved, and refused when bought after the count" do
+    travel_to ActiveSupport::TimeZone[@home.time_zone].now.noon
+    shampoo = create_item(name: "Shampoo", unit: "bottle", level: 0, guess_days_per_unit: 30)
+    counted_on = @home.today - 50
+    travel_to(counted_on.in_time_zone(@home.time_zone).change(hour: 9)) { Supplies::RecordCount.call(shampoo, 3, user: users(:alex)) }
+    Supplies::LogPurchase.call(shampoo.reload, { quantity: 2, total_price: 358, purchased_on: @home.today, left_before: 3, expires_on: @home.today + 100 }, user: users(:alex))
+    save = household_supply_stock_details_path(@home, shampoo)
+
+    assert_no_difference -> { shampoo.purchases.count } do
+      post save, params: { supply_purchase: { purchased_on: counted_on + 1, quantity: 3, total_price: "" } }
+    end
+    assert_response :unprocessable_content
+    assert_select "ul.bg-red-50", /盤點的那天/
+
+    assert_no_difference -> { @home.records.count } do
+      post save, params: { add_to_ledger: "1", supply_purchase: { purchased_on: counted_on, quantity: 3, total_price: "", paid_currency: "TWD", store: "" } }
+    end
+    assert_redirected_to household_supply_path(@home, shampoo)
+    assert_nil shampoo.purchases.find_by!(purchased_on: counted_on).total_price
+    follow_redirect!
+    assert_response :success
+  end
 end

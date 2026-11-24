@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_23_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -866,6 +866,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_090000) do
     t.string "used_product"
     t.jsonb "by_product"
     t.bigint "used_purchase_id"
+    t.boolean "used_no_purchase", default: false, null: false
     t.index ["created_by_id"], name: "index_supply_counts_on_created_by_id"
     t.index ["supply_id"], name: "index_supply_counts_on_supply_id"
     t.index ["used_purchase_id"], name: "index_supply_counts_on_used_purchase_id"
@@ -916,7 +917,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_090000) do
     t.bigint "supply_id", null: false
     t.date "purchased_on", null: false
     t.integer "quantity", null: false
-    t.decimal "total_price", precision: 12, scale: 2, null: false
+    t.decimal "total_price", precision: 12, scale: 2
     t.string "currency", default: "TWD", null: false
     t.string "store"
     t.date "expires_on"

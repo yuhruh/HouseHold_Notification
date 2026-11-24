@@ -58,7 +58,7 @@ module Supplies
         return [] unless supply.alert_state == "ok"
         supply.update!(alert_state: "low", alerted_at: Time.current)
         [ line(supply, :low, left: forecast.on_hand_rounded, run_out_on: forecast.run_out_on,
-               buy_by: forecast.buy_by && [ forecast.buy_by, @today ].max, last_purchase: supply.latest_purchase) ]
+               buy_by: forecast.buy_by && [ forecast.buy_by, @today ].max, last_purchase: supply.latest_priced_purchase) ]
       else
         supply.update!(alert_state: "ok", alerted_at: nil) if supply.alert_state != "ok" && !forecast.needs_buying?
         []

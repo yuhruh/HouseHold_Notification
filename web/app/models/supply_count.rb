@@ -2,7 +2,9 @@
 # learns from; Undo deletes it. On an item with several brands in stock it can also say which brand
 # the −1 was (used_product, "" for the stock with no brand named) or give each brand's number
 # (by_product, product => how many); Supplies::Brands reads both. A −1 on one batch (one purchase of
-# a brand, with its own expiry date) also names that purchase (used_purchase).
+# a brand, with its own expiry date) also names that purchase (used_purchase), and a −1 on the stock
+# counted before any purchase was logged says so (used_no_purchase), until "Add details" gives that
+# stock its purchase.
 class SupplyCount < ApplicationRecord
   belongs_to :supply
   belongs_to :created_by, class_name: "User", optional: true

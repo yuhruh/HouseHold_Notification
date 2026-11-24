@@ -3,7 +3,8 @@
     With several brands in stock: "In stock by brand" (each brand's share and its own −1, the one to use
     first on top) and Inventory is one closed line that opens to a number per brand. A brand restocked
     before it ran out lists its batches under it (expiry date, bought, how many, a −1 each); with one
-    brand, "In stock by expiry date" lists them instead.
+    brand, "In stock by expiry date" lists them instead. Stock counted before any purchase was logged
+    is a batch too, "No purchase logged", with "Add details" for the purchase it came from.
     Replaced in place after a count %>
 <% status = forecast.status %>
 <% brands = supply_brands(supply, forecast) %>
@@ -37,11 +38,11 @@
           <li class="flex items-center justify-between gap-3 py-2">
             <span class="min-w-0">
               <%= supply_batch_title(batch) %>
-              <span class="block text-xs text-gray-600"><%= supply_batch_source(batch) %></span>
+              <span class="block text-xs text-gray-600"><%= batch.purchase ? supply_batch_source(batch) : supply_no_purchase_line(supply, link: writer) %></span>
             </span>
             <span class="flex shrink-0 items-center gap-3 pb-1">
               <span class="font-extrabold"><%= supply_count(supply, batch.left) %></span>
-              <% if writer && batch.purchase %><%= render "supplies/batch_used_one", supply:, batch: %><% end %>
+              <% if writer %><%= render "supplies/batch_used_one", supply:, batch: %><% end %>
             </span>
           </li>
         <% end %>
@@ -78,10 +79,10 @@
               <ul class="mt-1.5 space-y-1 border-l-2 border-gray-200 pl-2.5 text-xs text-gray-700">
                 <% brand.batches.each do |batch| %>
                   <li class="flex items-center justify-between gap-2">
-                    <span class="min-w-0"><span class="<%= batch.first ? 'font-bold text-gray-900' : '' %>"><%= supply_expiry(batch.expires_on) %></span> · <%= supply_batch_source(batch, full: false) %></span>
+                    <span class="min-w-0"><span class="<%= batch.first ? 'font-bold text-gray-900' : '' %>"><%= supply_expiry(batch.expires_on) %></span> · <%= batch.purchase ? supply_batch_source(batch, full: false) : supply_no_purchase_line(supply, link: writer) %></span>
                     <span class="flex shrink-0 items-center gap-2.5 pb-0.5">
                       <span class="text-sm font-extrabold text-gray-900"><%= number_with_delimiter(batch.left) %></span>
-                      <% if writer && batch.purchase %><%= render "supplies/batch_used_one", supply:, batch:, small: true %><% end %>
+                      <% if writer %><%= render "supplies/batch_used_one", supply:, batch:, small: true %><% end %>
                     </span>
                   </li>
                 <% end %>

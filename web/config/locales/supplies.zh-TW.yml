@@ -64,6 +64,9 @@ zh-TW:
               whole_number: "這個幣別必須是整數"
             purchased_on:
               in_the_future: "不能是未來的日期"
+              after_count: "要在 %{date}（你盤點的那天）或之前"
+            quantity:
+              fewer_than_counted: "至少要 %{left}，也就是你 %{date} 盤點的數量"
         supply_price:
           attributes:
             base:
@@ -192,6 +195,8 @@ zh-TW:
       by_expiry_title: "依到期日"
       no_expiry: "沒有到期日"
       used_one_batch_label: "用掉一個：%{batch}"
+      no_purchase: "沒有購買紀錄"
+      add_details: "補上資料 ›"
     restock_prompt:
       title: "%{item} 用完了"
       title_estimate: "%{item} 可能用完了"
@@ -504,6 +509,29 @@ zh-TW:
     barcodes:
       destroy:
         removed: "已從「%{item}」移除條碼 %{code}。"
+    stock_details:
+      gone: "這些庫存已經補上資料了，或那筆價格已被刪除。"
+      new:
+        title_choose: "這 %{amount}是從哪裡來的？"
+        title_confirm: "這 %{amount}是這次買的嗎？"
+        title_enter: "補上資料：%{item} %{amount}"
+        intro_choose: "你 %{date} 盤點時就有這些。這幾筆是價格紀錄裡在那天或之前的。"
+        intro_confirm: "你 %{date} 盤點時就有這些。這筆是價格紀錄裡在那天或之前的。"
+        intro_enter: "你 %{date} 盤點時就有這些，那時還沒有購買紀錄。填你記得的就好。"
+        none_of_these: "都不是，自己填"
+        quantity: "數量（%{unit}）"
+        quantity_hint: "當時買的數量；現在還剩 %{left}。"
+        expires_on: "到期日（選填）"
+        bought_on: "購買日期"
+        bought_on_hint: "要在 %{date}（你盤點的那天）或之前。"
+        product_name: "品名或品牌（選填）"
+        store: "商店（選填）"
+        total_price: "總價（選填）"
+        total_price_hint: "找不到花多少錢可以留空。"
+        enter: "不是，自己填"
+        confirm: "是，儲存"
+      create:
+        saved: "已補上%{item} %{amount}的資料。"
     prices:
       new:
         title: "新增舊價格：%{item}"

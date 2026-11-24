@@ -18,7 +18,7 @@ module Supplies
       return purchase unless purchase.valid?
 
       SupplyPurchase.transaction do
-        if add_to_ledger
+        if add_to_ledger && purchase.priced?
           details = [ "#{supply.name} ×#{purchase.quantity}", purchase.store ].compact.join(" · ")
           purchase.record = LedgerRecord.call(supply.household, amount: purchase.total_price, paid_on: purchase.purchased_on,
                                               details:, currency: purchase.currency, user:)

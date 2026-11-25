@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
 
 # The Rails app lives in web/. Newer runner images only have the latest Ruby patch release of each
 # series, so .ruby-version (and the Docker image) should stay on the latest 3.4.x

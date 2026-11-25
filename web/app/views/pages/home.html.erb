@@ -31,7 +31,10 @@
     <p class="text-center text-xs text-gray-600"><%= t(".install.after") %></p>
   </section>
   <p class="space-x-3"><%= link_to "功能介紹 / Features", features_path, class: "text-blue-700 underline" %><%= link_to "隱私權政策 / Privacy policy", privacy_path, class: "text-blue-700 underline" %></p>
-  <%# M0 spike pages (basic auth) are otherwise unreachable from the installed PWA; removed after M5. %>
-  <p class="text-sm"><%= link_to "M0 checks", spike_checks_path, class: "text-gray-500 underline" %></p>
+  <%# M0 spike pages (basic auth; removed after M5). Linked only in development so the public home page
+      doesn't advertise them; in production open /spike/checks directly. %>
+  <% if Rails.env.local? %>
+    <p class="text-sm"><%= link_to "M0 checks", spike_checks_path, class: "text-gray-500 underline" %></p>
+  <% end %>
 
 </div>

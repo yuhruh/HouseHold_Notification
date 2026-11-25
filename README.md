@@ -435,4 +435,5 @@ In short:
 | [docs/adr/0003-push-spike.md](docs/adr/0003-push-spike.md) | Web Push reliability tests on real Android phones |
 | [docs/adr/0004-storage-volume.md](docs/adr/0004-storage-volume.md) | Photos on a Railway Volume, and the path to S3-compatible storage |
 | [docs/adr/0005-m0-external-checks.md](docs/adr/0005-m0-external-checks.md) | Results of the outside-service checks X1–X10 |
+| [docs/adr/0006-google-drive-backup.md](docs/adr/0006-google-drive-backup.md) | Weekly add-only backup to the owner's Google Drive |
 | `/privacy` (in the app) | Privacy policy: what is stored, backups and deletion |

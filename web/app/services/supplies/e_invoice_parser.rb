@@ -20,6 +20,11 @@ module Supplies
     end
 
     HEAD = /\A(?<no>[A-Z]{2}\d{8})(?<date>\d{7})(?<random>\d{4})(?<sales>\h{8})(?<total>\h{8})(?<buyer>\d{8})(?<seller>\d{8})/
+    # A quantity or unit price ("2", "1.5", ".5", "3."): no exponent, since "1e1000000000" is a
+    # billion-digit number once rounded or printed, and no more digits than an invoice carries
+    NUMBER = /\A\s*[+-]?(?:\d{1,15}(?:\.\d{0,8})?|\.\d{1,8})\s*\z/
+    # Far more items than the two QR codes on a printed e-invoice hold
+    MAX_ITEMS = 100
 
     def self.call(*codes) = new(codes).call
 
@@ -57,15 +62,17 @@ module Supplies
       return [] if list.empty?
 
       list = decode(list, encoding)
-      list.split(":").each_slice(3).filter_map do |name, quantity, price|
+      list.split(":").each_slice(3).first(MAX_ITEMS).filter_map do |name, quantity, price|
         name = name.to_s.squish
         next if name.empty? || quantity.nil? || price.nil?
-        quantity = BigDecimal(quantity, exception: false)
-        price = BigDecimal(price, exception: false)
+        quantity = number(quantity)
+        price = number(price)
         next unless quantity&.positive? && price && !price.negative?
         Item.new(text: name.truncate(100, omission: ""), quantity:, unit_price: price)
       end
     end
+
+    def number(text) = (BigDecimal(text, exception: false) if text.match?(NUMBER))
 
     def decode(text, encoding)
       case encoding

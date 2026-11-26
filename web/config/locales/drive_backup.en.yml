@@ -45,6 +45,7 @@ en:
       title: "Restore From Drive"
       gone: "That backup wasn't found. Connect Google Drive again to look for it."
       not_empty: "Only an empty ledger can be restored."
+      too_large: "This backup's CSV is larger than 2 MB, so it can't be restored."
       will_restore: "Will be restored"
       new_bills: "New bills"
       photos_matched: "Photos matched to a bill"

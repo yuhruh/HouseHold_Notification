@@ -61,4 +61,13 @@ class Records::BillPdfParserTest < ActiveSupport::TestCase
     assert_raises(Records::BillPdfParser::Invalid) { Records::BillPdfParser.call("[]") }
     assert_raises(Records::BillPdfParser::Invalid) { Records::BillPdfParser.call("not json") }
   end
+
+  test "text made of nothing but labels is refused after its first few places, on one line or on thousands" do
+    label = "應繳金額" * 50
+    one_line = Array.new(Records::BillPdfParser::MAX_WORDS) { |i| { "s" => label, "x" => i, "y" => 0, "w" => 1, "h" => 10 } }
+    thin_lines = Array.new(Records::BillPdfParser::MAX_WORDS) { |i| { "s" => label, "x" => 0, "y" => i * 0.01, "w" => 1, "h" => 0.01 } }
+    [ one_line, thin_lines ].each do |rows|
+      assert_raises(Records::BillPdfParser::Invalid) { Records::BillPdfParser.call(rows.to_json) }
+    end
+  end
 end

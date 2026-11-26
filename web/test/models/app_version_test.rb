@@ -38,4 +38,17 @@ class AppVersionTest < ActiveSupport::TestCase
     assert_equal same_day, AppVersion.since((newest.date - 1).strftime("%Y.%m.%d.2")).map(&:version)
     assert_equal [], AppVersion.since("junk")
   end
+
+  test "since compares a version's numbers the way Gem::Version did, without keeping what a device sends" do
+    versions = AppVersion.changelog.map { |e| e["version"] }
+    [ *versions, "0", "", " #{versions.first} ", "1", "1.0", "1.14", "1.14.11.0", "1.14.12", "2", "01.028.0" ].each do |sent|
+      expected = AppVersion.entries.select { |e| Gem::Version.new(e.version) > Gem::Version.new(sent) }.map(&:version)
+      assert_equal expected, AppVersion.since(sent).map(&:version), sent.inspect
+    end
+
+    sent = "0.0.#{SecureRandom.random_number(10**12)}.#{SecureRandom.random_number(10**12)}"
+    assert_equal versions, AppVersion.since(sent).map(&:version)
+    cache = Gem::Version.class_variable_defined?(:@@all) ? Gem::Version.class_variable_get(:@@all) : {}
+    assert_not cache.key?(sent), "Gem::Version keeps every string it's given for good"
+  end
 end

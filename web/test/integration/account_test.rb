@@ -63,6 +63,17 @@ class AccountTest < ActionDispatch::IntegrationTest
     assert users(:alex).reload.authenticate_password("newpassword1")
   end
 
+  test "a 6th password change attempt within 10 minutes is rate-limited, even with the right password" do
+    other = users(:alex).sessions.create!
+    5.times { patch account_password_path, params: { current_password: "wrong", password: "newpassword1", password_confirmation: "newpassword1" } }
+
+    patch account_password_path, params: { current_password: "password123", password: "newpassword1", password_confirmation: "newpassword1" }
+    assert_redirected_to account_path
+    assert_equal I18n.t("auth.rate_limited"), flash[:alert]
+    assert Session.exists?(other.id)
+    assert users(:alex).reload.authenticate_password("password123")
+  end
+
   test "sign out other sessions keeps this one" do
     other = users(:alex).sessions.create!
     delete account_sessions_path

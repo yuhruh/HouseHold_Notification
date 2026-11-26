@@ -71,6 +71,18 @@ class RecordTest < ActiveSupport::TestCase
     assert_includes build(record_type: "tax").tap(&:validate).errors.details[:category], { error: :wrong_type }
   end
 
+  test "another household's category is only rejected: its name and labels reach neither the title nor the errors" do
+    secret = households(:parents).categories.create!(record_type: "tax", name_zh: "鄰家秘密分類", name_en: "Neighbour secret",
+      detail_required: true, detail_label_zh: "鄰家秘密編號", detail_label_en: "Neighbour secret number")
+    record = build(category: secret, title: "").tap(&:validate)
+    assert_includes record.errors.details[:category], { error: :invalid }
+    assert record.title.blank?, "the title isn't filled in from another household's category"
+    assert_empty record.errors.details[:details]
+    [ :"zh-TW", :en ].each do |locale|
+      I18n.with_locale(locale) { record.errors.full_messages }.each { |m| assert_no_match(/鄰家秘密|Neighbour secret/, m) }
+    end
+  end
+
   test "period end year follows the year boundary rule" do
     assert build(period: Period.parse(2025, "12月-1月")).valid?
     record = build(period: Period.parse(2025, "12月-1月"))

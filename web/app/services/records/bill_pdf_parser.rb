@@ -22,6 +22,9 @@ module Records
     MAX_WORDS = 5_000
     BELOW = 80 # how far (pt) under its label a value can sit
     SIDE = 12  # a piece is in a label's column when its middle is under the label, give or take this (pt) or half the label
+    # How many places a label is looked at, at most: a bill prints one a few times, but text made of nothing
+    # but labels has hundreds of thousands, and each would be read against its whole line and page
+    PLACES = 20
 
     # Bills read in full, by the biller's tax ID (營利事業統一編號). `account`: the label of the number
     # that tells the household's accounts apart, kept in Details. `category`: the default category
@@ -124,8 +127,10 @@ module Records
       nil
     end
 
-    # Each place a label is printed: a box around the pieces it is made of, and the rest of its line
+    # Each place a label is printed (the first PLACES): a box around the pieces it is made of, and the rest
+    # of its line
     def each_label(label)
+      places = 0
       lines.each do |line|
         joined = line.map(&:s).join
         joined.scan(label) do
@@ -140,6 +145,7 @@ module Records
           top = covered.map(&:y).min
           box = Word.new(s: match[0], x: left, y: top, w: covered.map(&:right).max - left, h: covered.map(&:bottom).max - top)
           yield box, joined[match.end(0)..]
+          return if (places += 1) >= PLACES
         end
       end
     end

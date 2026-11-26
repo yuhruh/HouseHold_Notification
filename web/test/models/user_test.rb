@@ -28,6 +28,16 @@ class UserTest < ActiveSupport::TestCase
     assert_nil User.find_by_token_for(:email_confirmation, token)
   end
 
+  test "a password check on a Google-only account still hashes the attempt" do
+    hashed = []
+    create = BCrypt::Password.method(:create)
+    BCrypt::Password.define_singleton_method(:create) { |secret, **options| hashed << secret; create.call(secret, **options) }
+    assert_not users(:google_only).authenticate_password("guess-password")
+    assert_equal [ "guess-password" ], hashed
+  ensure
+    BCrypt::Password.define_singleton_method(:create, create) if create
+  end
+
   test "unknown time zones fall back to Asia/Taipei" do
     assert_equal "Europe/Paris", User.valid_time_zone("Europe/Paris")
     assert_equal "Asia/Taipei", User.valid_time_zone("Mars/Olympus")

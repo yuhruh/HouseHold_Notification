@@ -9,8 +9,18 @@ module DriveBackups
     File = Data.define(:tempfile, :original_filename) do
       def size = tempfile.size
     end
+    # A backup CSV bigger than the browser import accepts. Not an IOError, so the download isn't retried.
+    class TooLarge < StandardError; end
 
-    def self.read_csv(client, id) = client.download(id, StringIO.new).string.force_encoding("UTF-8")
+    # Drive sends the file a chunk at a time: stop before holding more than the browser import accepts
+    class CappedIO < StringIO
+      def write(*chunks)
+        raise TooLarge if pos + chunks.sum { it.to_s.bytesize } > ImportsController::MAX_BYTES
+        super
+      end
+    end
+
+    def self.read_csv(client, id) = client.download(id, CappedIO.new).string.force_encoding("UTF-8")
 
     # Every photo, in folders of any age, as [entry, year folder]
     def self.photos(client, folder_id)

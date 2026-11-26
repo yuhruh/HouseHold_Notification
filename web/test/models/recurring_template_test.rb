@@ -42,4 +42,14 @@ class RecurringTemplateTest < ActiveSupport::TestCase
     assert_not t.valid?
     assert_includes t.errors.details[:details], { error: :required_for_category, label: "車牌號碼", category: "牌照稅" }
   end
+
+  test "another household's category is only rejected: nothing of it reaches the template or the errors" do
+    secret = households(:parents).categories.create!(record_type: "tax", name_zh: "鄰家秘密分類", detail_required: true, detail_label_zh: "鄰家秘密編號")
+    t = @home.recurring_templates.new(category: secret, interval_months: 12, starts_on: Date.new(2026, 1, 1)).tap(&:validate)
+    assert_includes t.errors.details[:category], { error: :invalid }
+    assert t.title.blank?
+    assert_nil t.record_type
+    assert_empty t.errors.details[:details]
+    t.errors.full_messages.each { |m| assert_no_match(/鄰家秘密/, m) }
+  end
 end

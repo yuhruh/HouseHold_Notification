@@ -13,6 +13,14 @@ class RecurringTemplatesTest < ActionDispatch::IntegrationTest
       lead_days: 7, default_amount: 4064, amount_fixed: "1", currency: "TWD", default_reminder_frequency: "none" }.merge(overrides)
   end
 
+  test "another household's category is rejected without showing its name or labels" do
+    secret = households(:parents).categories.create!(record_type: "tax", name_zh: "鄰家秘密分類", detail_required: true, detail_label_zh: "鄰家秘密編號")
+    post household_recurring_templates_path(@home), params: { recurring_template: params(category_id: secret.id) }
+    assert_response :unprocessable_content
+    assert_no_match(/鄰家秘密/, response.body)
+    assert_empty @home.recurring_templates
+  end
+
   test "creating a template generates its due bills" do
     travel_to Time.zone.local(2026, 3, 5) do
       post household_recurring_templates_path(@home), params: { recurring_template: params }

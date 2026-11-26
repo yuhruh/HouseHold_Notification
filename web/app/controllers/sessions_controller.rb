@@ -8,9 +8,13 @@ class SessionsController < ApplicationController
   def new
   end
 
-  # Looks up only the verified email_address, so unconfirmed sign-ups can't sign in (PRD §10)
+  # Looks up only the verified email_address, so unconfirmed sign-ups can't sign in (PRD §10).
+  # Both values are strings and a blank address never reaches the lookup: a nil one (a form field
+  # sent with no "=") would find email_address IS NULL, which is an unconfirmed sign-up.
   def create
-    if user = User.authenticate_by(params.permit(:email_address, :password))
+    credentials = params.permit(:email_address, :password)
+    email_address, password = credentials[:email_address].to_s, credentials[:password].to_s
+    if email_address.present? && (user = User.authenticate_by(email_address:, password:))
       start_new_session_for user
       redirect_to after_authentication_url
     else

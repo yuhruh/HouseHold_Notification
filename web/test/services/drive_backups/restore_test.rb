@@ -28,6 +28,26 @@ class DriveBackups::RestoreTest < ActiveSupport::TestCase
     assert_equal 1, DriveBackups::Scan.call(@drive).size
   end
 
+  test "a CSV bigger than an import accepts isn't offered or planned, and one at the limit is still read" do
+    found = DriveBackups::Scan.call(@drive).sole
+    csv = @drive.files.fetch(found["csv_id"])
+    csv[:body] = "x" * ImportsController::MAX_BYTES
+    assert_equal ImportsController::MAX_BYTES, DriveBackups::Restore.read_csv(@drive, found["csv_id"]).bytesize
+
+    csv[:body] += "x"
+    assert_empty DriveBackups::Scan.call(@drive)
+    @home.records.delete_all
+    assert_raises(DriveBackups::Restore::TooLarge) { DriveBackups::Restore.plan(@fresh, found, client: @drive) }
+    assert_empty @home.import_previews
+  end
+
+  test "a download stops before holding more than an import accepts" do
+    io = DriveBackups::Restore::CappedIO.new
+    chunk = "x" * 16.kilobytes
+    assert_raises(DriveBackups::Restore::TooLarge) { (ImportsController::MAX_BYTES / chunk.bytesize + 2).times { io.write(chunk) } }
+    assert_equal ImportsController::MAX_BYTES, io.size
+  end
+
   test "the plan shows what would come back and changes no bills" do
     @home.records.delete_all
     plan = DriveBackups::Restore.plan(@fresh, DriveBackups::Scan.call(@drive).sole, client: @drive)

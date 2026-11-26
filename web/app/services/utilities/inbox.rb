@@ -10,6 +10,10 @@ module Utilities
     PROCESSED = "Household Tracker/Processed".freeze
     BILLS = { taipower: "Household Tracker/台電", water: "Household Tracker/台水" }.freeze
     PAGE = 100
+    # Ledgers' addresses named in one Gmail search. The search goes out in the request's URL, so one
+    # naming every ledger's address would grow with each ledger added until Gmail refused it, and
+    # then no ledger's mail would be read.
+    ADDRESSES_PER_SEARCH = 20
 
     # Errors meaning the mailbox can't be read now (no read permission yet, revoked token, Gmail down)
     UNAVAILABLE = [ Google::Apis::Error, Signet::AuthorizationError ].freeze
@@ -28,19 +32,13 @@ module Utilities
       @service = service
     end
 
-    # Ids of messages not handled yet that were delivered to any of `addresses`, oldest first
+    # Ids of messages not handled yet that were delivered to any of `addresses`, oldest first for
+    # each address. Searched ADDRESSES_PER_SEARCH addresses at a time; a message delivered to
+    # addresses in two searches is listed once.
     def unprocessed(addresses)
       return [] if addresses.empty?
 
-      query = "{#{addresses.map { "deliveredto:#{it}" }.join(" ")}} -label:#{label_query(PROCESSED)}"
-      ids, token = [], nil
-      loop do
-        page = @service.list_user_messages("me", q: query, max_results: PAGE, page_token: token)
-        ids.concat(Array(page.messages).map(&:id))
-        token = page.next_page_token
-        break if token.nil? || ids.size >= PAGE * 5
-      end
-      ids.reverse
+      addresses.each_slice(ADDRESSES_PER_SEARCH).flat_map { unprocessed_for(it) }.uniq
     end
 
     # The message as sent (RFC 822)
@@ -56,6 +54,19 @@ module Utilities
     end
 
     private
+
+    # One search: up to about PAGE * 5 ids, oldest first
+    def unprocessed_for(addresses)
+      query = "{#{addresses.map { "deliveredto:#{it}" }.join(" ")}} -label:#{label_query(PROCESSED)}"
+      ids, token = [], nil
+      loop do
+        page = @service.list_user_messages("me", q: query, max_results: PAGE, page_token: token)
+        ids.concat(Array(page.messages).map(&:id))
+        token = page.next_page_token
+        break if token.nil? || ids.size >= PAGE * 5
+      end
+      ids.reverse
+    end
 
     # Gmail search writes a label's spaces and slashes as dashes
     def label_query(name) = name.downcase.tr(" /", "--")

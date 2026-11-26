@@ -26,6 +26,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("sessions.create.invalid"), flash[:alert]
   end
 
+  test "an address field with no value doesn't find an unconfirmed sign-up" do
+    post session_path, params: "email_address&password=password123",
+      headers: { "CONTENT_TYPE" => "application/x-www-form-urlencoded" }
+    assert request.request_parameters.key?("email_address")
+    assert_nil request.request_parameters["email_address"]
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("sessions.create.invalid"), flash[:alert]
+    assert_nil cookies[:session_id]
+  end
+
   test "sign out ends the session" do
     sign_in_as users(:alex)
     delete session_path

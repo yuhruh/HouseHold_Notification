@@ -25,6 +25,9 @@ module DriveBackups
 
       { "folder_id" => ledger.id, "name" => ledger.name, "csv_id" => csv.id, "saved_at" => csv.modified_time.to_s, "bills" => bills,
         "photos" => Restore.photos(@client, ledger.id).size }
+    # Too big to import, so it can't be restored either
+    rescue Restore::TooLarge
+      nil
     end
   end
 end

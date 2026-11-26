@@ -3,6 +3,14 @@
 # notice, in both languages, numbered major.minor.patch: patch (1.0.8 → 1.0.9) for fixes and small
 # improvements, minor (1.0.9 → 1.1.0) for a new feature, major (1.1.0 → 2.0.0) for a big change to how
 # the app works.
+- version: "1.29.1"
+  date: 2026-11-26
+  en:
+    - "Sign in with Google: an account whose email isn't a Gmail or Google Workspace address can no longer sign in with Google straight away, because Google can't confirm that email belongs to you. Sign in with your email and password (or create an account), then connect Google in My Account. Gmail and Workspace accounts work as before."
+    - "My Account › Change password: after 5 wrong current passwords in 10 minutes, it asks you to wait a few minutes before trying again. Restoring a Google Drive backup whose CSV is larger than 2 MB now says it can't be restored."
+  zh-TW:
+    - "用 Google 登入：Email 不是 Gmail 或 Google Workspace 地址的帳號，不能再直接用 Google 登入，因為 Google 無法確認這個 Email 屬於你。請用 Email 和密碼登入（或建立帳號），再到「我的帳戶」連結 Google。Gmail 和 Workspace 帳號和以前一樣。"
+    - "我的帳戶 › 變更密碼：10 分鐘內輸入錯誤的目前密碼 5 次後，會請你稍候幾分鐘再試。還原 Google 雲端硬碟備份時，CSV 超過 2 MB 的備份現在會顯示無法還原。"
 - version: "1.29.0"
   date: 2026-11-24
   en:

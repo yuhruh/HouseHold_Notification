@@ -29,7 +29,7 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
 
   test "the same via Google sign-up" do
     invitation = invite("gmailer@example.com")
-    google_sign_in(uid: "gmailer-uid", email: "gmailer@example.com")
+    google_sign_in(uid: "gmailer-uid", email: "gmailer@example.com", hd: "example.com")
     follow_redirect!
     assert_redirected_to invitations_path
 

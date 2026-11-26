@@ -14,6 +14,8 @@ class DriveRestoresController < ApplicationController
     return redirect_to(settings, alert: t(".not_empty")) if Current.household.records.exists?
 
     @plan = DriveBackups::Restore.plan(@backup, @found)
+  rescue DriveBackups::Restore::TooLarge
+    redirect_to settings, alert: t(".too_large")
   end
 
   def create

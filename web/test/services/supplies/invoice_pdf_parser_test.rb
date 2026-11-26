@@ -35,6 +35,21 @@ class Supplies::InvoicePdfParserTest < ActiveSupport::TestCase
     assert_equal [ [ "衛生紙", 2, 289 ] ], receipt.items.map { [ it.text, it.quantity.to_i, it.unit_price.to_i ] }
   end
 
+  test "a name in thousands of pieces, or wrapped over many lines, keeps its first 100 characters" do
+    table = ->(pieces) { [ word("AB12345678", 40, 40), word("2026/11/08", 140, 40), word("品名", 10, 100, 18), word("數量", 300, 100, 18), word("金額", 360, 100, 18),
+                           word("120", 362, 120, 15), *pieces, word("總計", 40, 2000, 18), word("120", 362, 2000, 15) ] }
+    names = {
+      "ab" * 50 => Array.new(3_000) { word("ab" * 250, 10, 120, 50) },
+      ([ "Cleaner" ] * 40).join(" ").first(100) => Array.new(40) { word("Cleaner", 10, 120 + it * 10) },
+      ("魔術靈馬桶清潔劑" * 40).first(100) => Array.new(40) { word("魔術靈馬桶清潔劑", 10, 120 + it * 10) },
+      "清潔劑 500ml" => [ word("清潔劑", 10, 120), word("500ml", 50, 120) ]
+    }
+    names.each do |name, pieces|
+      receipt = Supplies::InvoicePdfParser.call(table.(pieces))
+      assert_equal [ [ name, 1, 120 ] ], receipt.items.map { [ it.text, it.quantity.to_i, it.amount.to_i ] }
+    end
+  end
+
   test "no item table: total only; no invoice number, date or text: not an invoice" do
     receipt = Supplies::InvoicePdfParser.call([ word("AB12345678", 40, 40), word("2026/11/08", 140, 40), word("總計", 40, 80), word("812", 100, 80) ])
     assert_equal [ 812, [] ], [ receipt.total, receipt.items ]

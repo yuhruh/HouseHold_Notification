@@ -130,6 +130,7 @@ en:
     create:
       expired: "The Google sign-in took too long. Please try again."
       unverified_email: "Please verify your Google email first."
+      email_not_google_hosted: "Google can't confirm this email is yours, because it isn't a Gmail or Google Workspace address. Sign in with your email and password (or create an account), then connect Google in My Account."
       conflict: "That Google account is already connected to another account."
       signed_in: "Signed in with Google."
       linked: "Google is now connected to your account."

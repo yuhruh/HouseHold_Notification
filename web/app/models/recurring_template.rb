@@ -98,9 +98,9 @@ class RecurringTemplate < ApplicationRecord
   private
 
   def fill_derived_fields
-    if category
-      self.record_type = category.record_type
-      self.title = category.name_zh if title.blank?
+    if own_category
+      self.record_type = own_category.record_type
+      self.title = own_category.name_zh if title.blank?
     end
     self.period_span_months ||= interval_months.to_i.clamp(1, 12) if interval_months
     self.anchor_month ||= starts_on.month if starts_on
@@ -113,7 +113,13 @@ class RecurringTemplate < ApplicationRecord
   end
 
   def details_for_identifier_category
-    return unless category&.detail_required && details.blank?
-    errors.add(:details, :required_for_category, label: category.detail_label, category: category.name)
+    return unless own_category&.detail_required && details.blank?
+    errors.add(:details, :required_for_category, label: own_category.detail_label, category: own_category.name)
+  end
+
+  # The category when it's this household's. Another household's is only rejected
+  # (same_household): its name, type and labels never reach the template or the errors.
+  def own_category
+    category if category&.household_id == household_id
   end
 end

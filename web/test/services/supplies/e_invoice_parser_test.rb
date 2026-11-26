@@ -33,6 +33,26 @@ class Supplies::EInvoiceParserTest < ActiveSupport::TestCase
     assert_equal [ [ "洗衣精", 2, 150 ] ], receipt.items.map { [ it.text, it.quantity, it.unit_price ] }
   end
 
+  test "a quantity or price with an exponent or too many digits is not read" do
+    items = [ "皂:1e1000000000:1", "肥皂:1:1e3000000000", "a:1E3:1", "b:1d3:1", "c:1:Infinity", "d:NaN:1",
+              "e:1234567890123456:1", "f:1:0.123456789", "牙膏:2:99" ]
+    receipt = Supplies::EInvoiceParser.call("#{HEAD}:**********:9:9:1:#{items.join(':')}")
+    assert_equal [ [ "牙膏", 2, 99 ] ], receipt.items.map { [ it.text, it.quantity, it.unit_price ] }
+  end
+
+  test "a quantity or price written as .5, 3. or with spaces is still read" do
+    receipt = Supplies::EInvoiceParser.call("#{HEAD}:**********:3:3:1:米:.5:3.:麵: 2 :+12.25:油:123456789012345:0.12345678")
+    expected = [ [ BigDecimal("0.5"), 3 ], [ 2, BigDecimal("12.25") ], [ 123456789012345, BigDecimal("0.12345678") ] ]
+    assert_equal expected, receipt.items.map { [ it.quantity, it.unit_price ] }
+  end
+
+  test "only the first #{Supplies::EInvoiceParser::MAX_ITEMS} items are read" do
+    items = (1..Supplies::EInvoiceParser::MAX_ITEMS + 50).map { "item #{it}:1:10" }
+    receipt = Supplies::EInvoiceParser.call("#{HEAD}:**********:150:150:1:#{items.join(':')}")
+    expected = (1..Supplies::EInvoiceParser::MAX_ITEMS).map { "item #{it}" }
+    assert_equal expected, receipt.items.map(&:text)
+  end
+
   test "no item details: just the total" do
     receipt = Supplies::EInvoiceParser.call("#{HEAD}:**********:0:0:1")
     assert_empty receipt.items

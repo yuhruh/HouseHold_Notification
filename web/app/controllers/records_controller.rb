@@ -147,7 +147,9 @@ class RecordsController < ApplicationController
     record.assign_attributes(params.expect(record: %i[category_id title details period_year period_start_month period_end_month
       currency amount_required amount_paid payable_from due_on paid_on payment_method_id payment_note next_due_on reminder_frequency
       reminder_starts_on bill_number lock_version]))
-    record.record_type = record.category&.record_type
+    # Another household's category is only rejected by validation; its type isn't read either
+    category = record.category if record.category&.household_id == Current.household.id
+    record.record_type = category&.record_type
   end
 
   # Which part of the record the edit form shows: Record Payment (`pay` on a bill that isn't paid yet, filled

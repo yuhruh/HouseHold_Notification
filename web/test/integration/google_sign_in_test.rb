@@ -18,9 +18,35 @@ class GoogleSignInTest < ActionDispatch::IntegrationTest
   end
 
   test "rule 3: a verified Google email matching a verified account links and signs in" do
-    assert_no_difference("User.count") { google_sign_in(uid: "alex-uid", email: "alex@example.com") }
+    assert_no_difference("User.count") { google_sign_in(uid: "alex-uid", email: "alex@example.com", hd: "example.com") }
     assert_equal users(:alex), Identity.find_by!(uid: "alex-uid").user
     assert_equal users(:alex), Session.last.user
+  end
+
+  test "rule 3 for Gmail: a @gmail.com account links to the verified account with that address" do
+    user = User.create!(email_address: "kim.test@gmail.com", email_confirmed_at: Time.current, password: "password123")
+    assert_no_difference("User.count") { google_sign_in(uid: "kim-uid", email: "kim.test@gmail.com") }
+    assert_equal user, Identity.find_by!(uid: "kim-uid").user
+    assert_equal user, Session.last.user
+  end
+
+  test "a verified email Google doesn't host (not Gmail, no hd) is neither linked to its account nor signed in" do
+    assert_no_difference(%w[User.count Identity.count Session.count]) { google_sign_in(uid: "former-holder", email: "alex@example.com") }
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("omniauth_callbacks.create.email_not_google_hosted"), flash[:alert]
+    assert_nil users(:alex).google_identity
+
+    # The way the message points to: signed in to the account, connecting that Google account works (rule 2)
+    sign_in_as users(:alex)
+    google_sign_in(uid: "alex-own-google", email: "alex@example.com")
+    assert_equal I18n.t("omniauth_callbacks.create.linked"), flash[:notice]
+    assert_equal users(:alex), Identity.find_by!(uid: "alex-own-google").user
+  end
+
+  test "a verified email Google doesn't host doesn't create an account either" do
+    assert_no_difference(%w[User.count Identity.count Session.count]) { google_sign_in(uid: "fresh", email: "fresh@example.com") }
+    assert_redirected_to new_session_path
+    assert_equal I18n.t("omniauth_callbacks.create.email_not_google_hosted"), flash[:alert]
   end
 
   test "rule 4: an unverified Google email is refused" do
@@ -30,8 +56,8 @@ class GoogleSignInTest < ActionDispatch::IntegrationTest
   end
 
   test "rule 5: no match creates a verified user with the handoff's time zone" do
-    google_sign_in(uid: "fresh", email: "fresh@example.com", name: "Fresh", tz: "America/New_York")
-    user = User.find_by!(email_address: "fresh@example.com")
+    google_sign_in(uid: "fresh", email: "fresh@gmail.com", name: "Fresh", tz: "America/New_York")
+    user = User.find_by!(email_address: "fresh@gmail.com")
     assert user.email_confirmed_at
     assert_equal "America/New_York", user.time_zone
     assert_equal "Fresh", user.display_name
@@ -39,7 +65,7 @@ class GoogleSignInTest < ActionDispatch::IntegrationTest
 
   test "an email held only as someone's unconfirmed_email gives a new verified user, and the squatter can't confirm" do
     squatter = User.create!(unconfirmed_email: "owner@example.com", password: "password123")
-    google_sign_in(uid: "owner-uid", email: "owner@example.com")
+    google_sign_in(uid: "owner-uid", email: "owner@example.com", hd: "example.com")
     assert User.exists?(email_address: "owner@example.com")
     assert_not squatter.confirm_email!
   end

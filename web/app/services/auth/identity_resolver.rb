@@ -2,10 +2,13 @@ module Auth
   # Who a Google sign-in belongs to (PRD §10). Rules, in order:
   # 1. a known (provider, uid) signs in to its user;
   # 2. a signed-in user connecting Google links it to themselves;
-  # 3. otherwise the Google email must be verified, and if it matches a verified email_address the
-  #    identity is linked to that user;
+  # 3. otherwise the Google email must be verified and one Google is the authority for (below), and if it
+  #    matches a verified email_address the identity is linked to that user;
   # 4. else a new user is created with that (now verified) address.
   # An address held only as someone's unconfirmed_email doesn't count: that sign-up can never confirm it now.
+  # Google is the authority only for Gmail and Workspace (`hd`) addresses. For any other address
+  # email_verified only means it was verified once, maybe by a former holder, so rules 3 and 4 refuse it:
+  # that person signs in (or signs up) with email and password, then connects Google (rule 2).
   class IdentityResolver
     Result = Data.define(:status, :user)
 
@@ -31,6 +34,7 @@ module Auth
       end
 
       return Result.new(:unverified_email, nil) unless email_verified? && email.present?
+      return Result.new(:email_not_google_hosted, nil) unless google_authoritative?
 
       if user = User.find_by(email_address: email)
         link(user)
@@ -51,6 +55,11 @@ module Auth
 
       # Google sends a boolean; some libraries pass it through as a string
       def email_verified? = [ true, "true" ].include?(@auth.extra&.raw_info&.email_verified)
+
+      # Google's own rule: a @gmail.com address, or a Workspace account (userinfo carries its hosted domain, `hd`)
+      def google_authoritative?
+        email.end_with?("@gmail.com", "@googlemail.com") || @auth.extra&.raw_info&.hd.present?
+      end
 
       def raw_info = @auth.info.to_h.slice("name", "email", "image")
 

@@ -188,6 +188,22 @@ class DriveBackupTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", household_members_path(home)
   end
 
+  test "a backup whose CSV grew past the import limit sends the owner back with a message" do
+    home = households(:parents)
+    home.records.delete_all
+    drive = FakeDrive.new
+    folder = drive.create_folder("Old")
+    csv = drive.create_file("Old bills_20261101.csv", StringIO.new("x" * (ImportsController::MAX_BYTES + 1)), content_type: "text/csv", parent: folder)
+    DriveBackup.create!(household: home, connected_by: home.owner, google_email: "a@example.com", refresh_token: "t",
+      found_backups: [ { "folder_id" => folder, "csv_id" => csv, "name" => "Old", "saved_at" => Time.current.to_s, "bills" => 1, "photos" => 0 } ])
+
+    sign_in_as home.owner
+    with_stub(DriveBackups::Client, :new, drive) { get household_drive_restore_path(home, folder:) }
+    assert_redirected_to backup_household_settings_path(home)
+    assert_match(/2 MB/, flash[:alert])
+    assert_empty home.import_previews
+  end
+
   test "another folder can't be restored, a ledger with bills can't be restored, and only the owner can" do
     home = households(:home)
     Categories::Seed.call(home)

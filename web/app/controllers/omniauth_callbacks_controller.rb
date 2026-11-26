@@ -13,6 +13,7 @@ class OmniauthCallbacksController < ApplicationController
 
     case result.status
     when :unverified_email then redirect_to new_session_path, alert: t(".unverified_email")
+    when :email_not_google_hosted then redirect_to new_session_path, alert: t(".email_not_google_hosted")
     when :conflict then redirect_to (linking_user ? root_path : new_session_path), alert: t(".conflict")
     else
       start_new_session_for(result.user) unless linking_user

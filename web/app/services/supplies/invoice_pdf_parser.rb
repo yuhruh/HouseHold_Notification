@@ -28,6 +28,7 @@ module Supplies
     TABLE_END = /總計|合計|銷售額|總金額|其他資訊|稅額|\bTotal\b/i
     TOTAL_LABELS = [ /發票總金額/, /總金額/, /合計/, /總計/, /\A(Grand\s+)?Total\b/i ].freeze
     FIELD = 40 # how far (pt) a number can sit from its column heading
+    NAME_LENGTH = 100 # characters of an item's name that are kept
 
     def self.call(words) = new(words).call
 
@@ -141,15 +142,31 @@ module Supplies
       quantity = row[:quantity]&.positive? ? row[:quantity] : 1
       price = row[:unit_price] || (row[:amount] / quantity).round(4)
       return if price.negative? # a discount line
-      EInvoiceParser::Item.new(text: name.truncate(100, omission: ""), quantity:, unit_price: price)
+      EInvoiceParser::Item.new(text: name.truncate(NAME_LENGTH, omission: ""), quantity:, unit_price: price)
     end
 
     # A wrapped name back on one line: pieces on a line keep their gaps; lines join without a space
-    # unless both sides are Latin letters or digits (Chinese wraps mid-word)
+    # unless both sides are Latin letters or digits (Chinese wraps mid-word).
+    # Pieces go into one buffer, and it stops once the squished buffer has the NAME_LENGTH characters item
+    # keeps (more pieces only add after those). It squishes only each time the buffer doubles, so a row
+    # with thousands of pieces costs linear time, not a copy of the whole name per piece.
     def join(pieces)
-      pieces.sort_by { [ it.y, it.x ] }.chunk_while { |a, b| (a.mid_y - b.mid_y).abs <= [ a.h, b.h ].min / 2.0 }.map do |line|
-        line.each_cons(2).reduce(line.first.s) { |text, (a, b)| text + (b.x - a.right > 1.5 ? " " : "") + b.s }
-      end.reduce("") { |text, line| text + (text.match?(/[A-Za-z0-9]\z/) && line.match?(/\A[A-Za-z0-9]/) ? " " : "") + line }.squish
+      name = +""
+      check_at = NAME_LENGTH
+      before = nil
+      pieces.sort_by { [ it.y, it.x ] }.chunk_while { |a, b| (a.mid_y - b.mid_y).abs <= [ a.h, b.h ].min / 2.0 }.each do |line|
+        line.each_with_index do |piece, i|
+          gap = i.zero? ? before&.s&.match?(/[A-Za-z0-9]\z/) && piece.s.match?(/\A[A-Za-z0-9]/) : piece.x - before.right > 1.5
+          name << " " if gap
+          name << piece.s
+          before = piece
+          next if name.bytesize < check_at
+          kept = name.squish
+          return kept if kept.length >= NAME_LENGTH
+          check_at = name.bytesize * 2
+        end
+      end
+      name.squish
     end
   end
 end

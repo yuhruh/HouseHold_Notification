@@ -79,7 +79,7 @@ class Record < ApplicationRecord
   # Title defaults to the category name (titles merge per category); the end year follows the
   # year boundary rule unless it was set explicitly (the import sets it, and it's validated).
   def fill_derived_fields
-    self.title = category.name_zh if title.blank? && category
+    self.title = own_category.name_zh if title.blank? && own_category
     if period_year && period_start_month && period_end_month && !period_end_year_changed?
       self.period_end_year = period_end_month.to_i < period_start_month.to_i ? period_year.to_i + 1 : period_year.to_i
     end
@@ -102,8 +102,14 @@ class Record < ApplicationRecord
   end
 
   def details_for_identifier_category
-    return unless category&.detail_required && details.blank?
-    errors.add(:details, :required_for_category, label: category.detail_label, category: category.name)
+    return unless own_category&.detail_required && details.blank?
+    errors.add(:details, :required_for_category, label: own_category.detail_label, category: own_category.name)
+  end
+
+  # The category when it's this household's. Another household's is only rejected
+  # (belongs_to_same_household): its name and labels never reach the title or the errors.
+  def own_category
+    category if category&.household_id == household_id
   end
 
   # PRD §1 validations: a payment needs a date, Paid ≤ Required, and a paid date needs the amounts

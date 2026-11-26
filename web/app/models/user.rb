@@ -58,6 +58,16 @@ class User < ApplicationRecord
 
   def password_set? = password_digest.present?
 
+  # A Google-only user has no digest, so Rails' check would answer at once. Hash the attempt anyway,
+  # as authenticate_by does for an unknown address, so sign-in timing doesn't tell which addresses
+  # belong to Google-only accounts (PRD §10).
+  def authenticate_password(unencrypted_password)
+    return super if password_set?
+
+    self.class.new(password: unencrypted_password)
+    false
+  end
+
   def google_identity = identities.find_by(provider: "google_oauth2")
 
   # Sign-in methods left if Google were disconnected (PRD §10: never remove the last one)

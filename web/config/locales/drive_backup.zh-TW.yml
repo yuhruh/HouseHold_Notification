@@ -45,6 +45,7 @@ zh-TW:
       title: "從雲端硬碟還原"
       gone: "找不到這個備份，請重新連結 Google 雲端硬碟。"
       not_empty: "只有空的帳本可以還原。"
+      too_large: "這份備份的 CSV 超過 2 MB，無法還原。"
       will_restore: "將會還原"
       new_bills: "新帳單"
       photos_matched: "對應到帳單的照片"

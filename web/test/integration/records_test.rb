@@ -332,6 +332,22 @@ class RecordsTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
   end
 
+  test "another household's category is rejected without showing its name, labels or type" do
+    secret = households(:parents).categories.create!(record_type: "maintenance", name_zh: "鄰家秘密分類", detail_required: true, detail_label_zh: "鄰家秘密編號")
+    post household_records_path(@home), params: { record: form_params(category_id: secret.id) }
+    assert_response :unprocessable_content
+    assert_no_match(/鄰家秘密/, response.body)
+    assert_select "input[name=?]", "record[title]" do |inputs| assert inputs.first["value"].blank? end
+    assert_select "label[for=record_amount_required]", "應繳金額"
+
+    record = add
+    patch household_record_path(@home, record), params: { record: form_params(category_id: secret.id) }
+    assert_response :unprocessable_content
+    assert_no_match(/鄰家秘密/, response.body)
+    assert_select "label[for=record_amount_required]", "應繳金額"
+    assert_equal @water, record.reload.category
+  end
+
   test "payment methods: add, edit, archive; archived ones leave the record form" do
     post household_payment_methods_path(@home), params: { payment_method: { name: "玉山 ubear", kind: "card", last4: "1234" } }
     card = @home.payment_methods.sole

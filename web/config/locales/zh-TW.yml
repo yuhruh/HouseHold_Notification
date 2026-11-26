@@ -130,6 +130,7 @@ zh-TW:
     create:
       expired: "Google 登入花太久時間，請再試一次。"
       unverified_email: "請先驗證你的 Google 電子郵件。"
+      email_not_google_hosted: "這個 Email 不是 Gmail 或 Google Workspace 的地址，Google 無法確認它屬於你。請用 Email 和密碼登入（或建立帳號），再到「我的帳戶」連結 Google。"
       conflict: "這個 Google 帳號已連結到其他帳號。"
       signed_in: "已使用 Google 登入。"
       linked: "已將 Google 連結到你的帳號。"

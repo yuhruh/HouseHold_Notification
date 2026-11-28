@@ -388,14 +388,15 @@ module SuppliesHelper
     amount == amount.round ? amount.to_i : amount
   end
 
-  # A History line: "+12 · NT$289 · Costco", "Counted: 4 rolls", or with the brand a −1 named
-  # "Used 1 · Pantene Shampoo 700ml · 1 bottle left"
+  # A History line: "+12 · NT$289 · Costco", "Counted: 4 rolls", a −1 "Used 1 · 3 rolls left", or
+  # with the brand the −1 named "Used 1 · Pantene Shampoo 700ml · 1 bottle left"
   def supply_history_line(supply, event)
     if event.is_a?(SupplyPurchase)
       safe_join([ "+#{supply_count(supply, event.quantity)}", supply_cost(event), event.store.presence,
                   (tag.span(event.product_name, class: "font-semibold") if event.product_name) ].compact, " · ")
-    elsif event.used_product.present?
-      safe_join([ t("supplies.show.used_line"), tag.span(event.used_product, class: "font-semibold"), t("supplies.show.left_line", left: supply_count(supply, event.level)) ], " · ")
+    elsif event.used_one || event.used_product.present?
+      product = tag.span(event.used_product, class: "font-semibold") if event.used_product.present?
+      safe_join([ t("supplies.show.used_line"), product, t("supplies.show.left_line", left: supply_count(supply, event.level)) ].compact, " · ")
     else
       t("supplies.show.counted_line", left: supply_count(supply, event.level))
     end

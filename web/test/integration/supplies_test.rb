@@ -433,6 +433,17 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_select "main li", text: /Soon/
   end
 
+  test "History reads a −1 as Used 1 with what's left, and a typed count as Counted" do
+    supply = create_item
+    post household_supply_counts_path(@home, supply), params: { used_one: 1 }, as: :turbo_stream
+    post household_supply_counts_path(@home, supply), params: { supply_count: { level: 2 } }, as: :turbo_stream
+    assert_equal [ true, false ], supply.counts.order(:id).map(&:used_one)
+
+    get household_supply_path(@home, supply)
+    assert_select "#history_supply_#{supply.id} ul li", text: /用掉 1 · 剩 3 捲/, count: 1
+    assert_select "#history_supply_#{supply.id} ul li", text: /數量：2 捲/, count: 1
+  end
+
   test "a viewer sees supplies but can't change them" do
     supply = create_item
     sign_in_as users(:google_only)

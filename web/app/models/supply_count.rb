@@ -1,4 +1,4 @@
-# A count of what's left: a −1 tap or "I have N left". Each one is an observation the forecast
+# A count of what's left: a −1 tap (used_one) or "I have N left". Each one is an observation the forecast
 # learns from; Undo deletes it. On an item with several brands in stock it can also say which brand
 # the −1 was (used_product, "" for the stock with no brand named) or give each brand's number
 # (by_product, product => how many); Supplies::Brands reads both. A −1 on one batch (one purchase of

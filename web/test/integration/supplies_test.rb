@@ -943,7 +943,7 @@ class SuppliesTest < ActionDispatch::IntegrationTest
     assert_equal "", shampoo.counts.order(:id).last.used_product
     assert_equal [ [ "Lux Shampoo 750ml", 2 ] ], shampoo.reload.brands.list.map { [ it.name, it.known ] }
     get household_supply_path(@home, shampoo)
-    assert_select "li", /數量：2 瓶/
+    assert_select "#history_supply_#{shampoo.id} li", /用掉 1 · 剩 2 瓶/
   end
 
   test "a purchase's product: empty or the item's own name is no product, and over 80 characters is refused" do
